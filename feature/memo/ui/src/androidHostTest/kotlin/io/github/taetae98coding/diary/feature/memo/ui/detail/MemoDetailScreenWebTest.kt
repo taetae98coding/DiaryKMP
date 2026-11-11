@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -35,6 +39,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.webDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.web.webDialogSearchField
 import io.github.taetae98coding.diary.feature.memo.ui.web.webPagingDataOf
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -81,8 +86,11 @@ class MemoDetailScreenWebTest {
     @Test
     fun `TC-817b28f2-9af9-41a0-a5e4-330b81dc444b 웹 항목을 선택하면 즉시 연결 변경을 요청하고 성공 안내는 표시하지 않는다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
-        val webViewModel = memoDetailWebViewModel(webList = listOf(web))
+        val uiState = MutableStateFlow(MemoWebInputUiState())
+        val webViewModel = memoDetailWebViewModel(webList = listOf(web), uiState = uiState)
+        every { webViewModel.selectWeb(webId = web.id) } answers { uiState.value = MemoWebInputUiState(selectedWebList = listOf(web)) }
         composeRule.setMemoDetailScreenWithWeb(webViewModel = webViewModel)
+        composeRule.onAllNodes(webInputNode(WIKI_WEB_TITLE)).assertCountEquals(0)
 
         composeRule.openMemoDetailWebPicker()
         composeRule.awaitWebPickerRows()
@@ -91,13 +99,17 @@ class MemoDetailScreenWebTest {
 
         verify(exactly = 1) { webViewModel.selectWeb(webId = web.id) }
         composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.onNode(webInputNode(WIKI_WEB_TITLE)).assertExists()
     }
 
     @Test
     fun `TC-817b28f2-9af9-41a0-a5e4-330b81dc444b 웹 선택을 해제하면 즉시 연결 해제를 요청한다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
-        val webViewModel = memoDetailWebViewModel(webList = listOf(web), selectedWebList = listOf(web))
+        val uiState = MutableStateFlow(MemoWebInputUiState(selectedWebList = listOf(web)))
+        val webViewModel = memoDetailWebViewModel(webList = listOf(web), uiState = uiState)
+        every { webViewModel.unselectWeb(webId = web.id) } answers { uiState.value = MemoWebInputUiState() }
         composeRule.setMemoDetailScreenWithWeb(webViewModel = webViewModel)
+        composeRule.onNode(webInputNode(WIKI_WEB_TITLE)).assertExists()
 
         composeRule.openMemoDetailWebPicker()
         composeRule.awaitWebPickerRows()
@@ -105,6 +117,8 @@ class MemoDetailScreenWebTest {
         composeRule.waitForIdle()
 
         verify(exactly = 1) { webViewModel.unselectWeb(webId = web.id) }
+        composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.onAllNodes(webInputNode(WIKI_WEB_TITLE)).assertCountEquals(0)
     }
 
     @Test
@@ -339,11 +353,14 @@ class MemoDetailScreenWebTest {
     private fun memoDetailWebViewModel(
         webList: List<Web>,
         selectedWebList: List<Web> = emptyList(),
+        uiState: MutableStateFlow<MemoWebInputUiState> = MutableStateFlow(MemoWebInputUiState(selectedWebList = selectedWebList)),
     ): MemoWebViewModel =
         screenTestWebViewModel(
-            uiState = MutableStateFlow(MemoWebInputUiState(selectedWebList = selectedWebList)),
+            uiState = uiState,
             webPagingDataFlow = MutableStateFlow<PagingData<Web>>(webPagingDataOf(webList)),
         )
+
+    private fun webInputNode(title: String) = hasText(title) and !hasAnyAncestor(isDialog())
 
     private companion object {
         val SECOND_WEB_MEMO_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000031")

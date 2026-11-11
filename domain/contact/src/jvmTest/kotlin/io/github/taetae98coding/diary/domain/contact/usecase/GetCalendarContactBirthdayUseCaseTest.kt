@@ -7,10 +7,10 @@ import io.github.taetae98coding.diary.core.model.contact.LunarContactBirthday
 import io.github.taetae98coding.diary.core.model.lunar.LunarDate
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
+import io.github.taetae98coding.diary.core.testing.contact.lunarContactBirthday
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountCalendarContactBirthdayRepository
 import io.github.taetae98coding.diary.domain.lunar.repository.LunarRepository
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
-import kotlin.uuid.Uuid
 
 class GetCalendarContactBirthdayUseCaseTest :
     BehaviorSpec({
@@ -147,7 +146,6 @@ class GetCalendarContactBirthdayUseCaseTest :
             val lunarBirthday = lunarContactBirthday(name = "음력", birthday = LocalDate(1990, 7, 8))
             val caseList =
                 listOf(
-                    // 표시 대상 기간, 그 기간의 양력 생일 조회 결과, 그 기간의 음력 자료, 기대 결과
                     Case(
                         dateRange = LocalDate(2026, 7, 5)..LocalDate(2026, 7, 11),
                         solarBirthdayList = listOf(solarBirthday),
@@ -357,6 +355,38 @@ class GetCalendarContactBirthdayUseCaseTest :
             }
         }
 
+        Given("TC-1d1c889f-f786-46dc-ad70-35ea18b933ff: 음력 1990년 7월 8일 생일 연락처가 있고 음력 7월 8일이 양력 8월 20일인 자료로 결과를 계속 관찰하고 있다") {
+            val account = Arb.accountUser().next()
+            val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+            val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
+            val lunarDateFlow =
+                MutableStateFlow(
+                    lunarDateList(start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23), lunarYear = 2026, month = 7, firstDay = 5),
+                )
+            val lunarRepository = mockk<LunarRepository>()
+            every { lunarRepository.get(dateRange = dateRange) } returns lunarDateFlow
+            val useCase =
+                useCase(
+                    account = account,
+                    dateRange = dateRange,
+                    lunarBirthdayList = listOf(lunarBirthday),
+                    lunarRepository = lunarRepository,
+                )
+
+            When("음력 7월 8일이 양력 8월 21일이 되도록 음력 자료가 바뀐다") {
+                Then("8월 20일을 차지하는 결과에 이어 8월 21일을 차지하는 생일이 담긴 결과가 전달된다") {
+                    useCase(parameter = dateRange).test {
+                        awaitItem().shouldBeSuccess() shouldBe listOf(lunarBirthday.toCalendar(date = LocalDate(2026, 8, 20)))
+
+                        lunarDateFlow.value = lunarDateList(start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23), lunarYear = 2026, month = 7, firstDay = 4)
+
+                        awaitItem().shouldBeSuccess() shouldBe listOf(lunarBirthday.toCalendar(date = LocalDate(2026, 8, 21)))
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                }
+            }
+        }
+
         Given("TC-a5d92c9e-13f9-49fc-a78a-248e8ee3eb43: 음력 자료를 처음에는 읽지 못하고 그 뒤에는 읽을 수 있는 상태로 첫 번째 계정의 결과를 계속 관찰하고 있다") {
             val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
             val account = Arb.accountUser().next()
@@ -530,12 +560,13 @@ class GetCalendarContactBirthdayUseCaseTest :
             name: String = Arb.string().next(),
             birthday: LocalDate,
         ): LunarContactBirthday =
-            LunarContactBirthday(
-                contactId = Arb.kotlinUuid().next(),
-                name = name,
-                nameQualifier = Arb.string().next(),
-                birthday = birthday,
-            )
+            Arb
+                .lunarContactBirthday()
+                .next()
+                .copy(
+                    name = name,
+                    birthday = birthday,
+                )
 
         private fun LunarContactBirthday.toCalendar(date: LocalDate): CalendarContactBirthday =
             CalendarContactBirthday(

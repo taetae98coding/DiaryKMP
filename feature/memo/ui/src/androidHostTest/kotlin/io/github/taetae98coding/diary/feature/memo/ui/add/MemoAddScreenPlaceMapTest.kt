@@ -145,8 +145,7 @@ class MemoAddScreenPlaceMapTest {
         setMemoAddScreen(placeStore = placeStore, initialPlaceId = homePlace.id)
         composeRule.runOnIdle { cardMap().state.pins.map(DiaryMapPin::id) shouldBe listOf(homePlace.id) }
 
-        // 삭제된 장소는 저장소 조회 결과에서 빠진다.
-        placeStore.value = emptyList()
+        placeStore.value = listOf(homePlace.copy(isDeleted = true))
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { cardMap().state.pins shouldBe emptyList() }
@@ -272,6 +271,31 @@ class MemoAddScreenPlaceMapTest {
         composeRule.waitForIdle()
 
         coordinateList shouldBe listOf(SEOUL.toTestCoordinate())
+    }
+
+    @Test
+    fun `TC-3e9b991b-4aa1-4bde-bb0a-106c54fe1250 추가한 장소가 자동 선택되어도 카드의 지도 위치와 확대 수준이 바뀌지 않는다`() {
+        val addedPlace = testPlace(title = OFFICE_PLACE_TITLE)
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val resultEventBus = ResultEventBus()
+        setMemoAddScreen(placeList = listOf(addedPlace), resultEventBus = resultEventBus)
+        val initialState = composeRule.runOnIdle { cardMap().state }
+        composeRule.runOnIdle { cardMap().reportCamera(coordinate = reportedCoordinate, zoom = TEST_ZOOM) }
+        composeRule.openPlacePicker()
+        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_PLACE_ADD).performClick()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { cardMap().state.pins shouldBe emptyList() }
+
+        resultEventBus.sendPlaceAddedResult(id = addedPlace.id)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertExists()
+        composeRule.runOnIdle {
+            cardMap().state.pins.map(DiaryMapPin::id) shouldBe listOf(addedPlace.id)
+            cardMap().state shouldBeSameInstanceAs initialState
+            initialState.coordinate shouldBe reportedCoordinate
+            cardMap().zoom shouldBe TEST_ZOOM
+        }
     }
 
     @Test
@@ -707,6 +731,7 @@ class MemoAddScreenPlaceMapTest {
 
     private fun hasDialogText(text: String): SemanticsMatcher = hasText(text) and hasAnyAncestor(isDialog())
 
+    // 장소 조회는 저장소와 같게 삭제된 장소를 돌려주지 않는다.
     private fun placeViewModel(
         placeStore: MutableStateFlow<List<Place>>,
         initialPlaceId: Uuid?,
@@ -714,13 +739,13 @@ class MemoAddScreenPlaceMapTest {
         val pagePlaceUseCase = mockk<PagePlaceUseCase>()
         every { pagePlaceUseCase(parameter = any()) } answers {
             val query = firstArg<String>().trim()
-            placeStore.map { list -> Result.success(placePagingDataOf(list.filter { place -> place.detail.title.contains(query, ignoreCase = true) })) }
+            placeStore.map { list -> Result.success(placePagingDataOf(list.filter { place -> !place.isDeleted && place.detail.title.contains(query, ignoreCase = true) })) }
         }
 
         val getSelectedPlaceUseCase = mockk<GetSelectedPlaceUseCase>()
         every { getSelectedPlaceUseCase(parameter = any()) } answers {
             val idSet = firstArg<Set<Uuid>>()
-            placeStore.map { list -> Result.success(list.filter { place -> place.id in idSet }) }
+            placeStore.map { list -> Result.success(list.filter { place -> !place.isDeleted && place.id in idSet }) }
         }
 
         return MemoAddPlaceViewModel(
@@ -734,7 +759,7 @@ class MemoAddScreenPlaceMapTest {
         val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
         every { getPlaceListUseCase(parameter = any()) } answers {
             val bounds = firstArg<GetPlaceListUseCase.Parameter>().bounds
-            placeStore.map { list -> Result.success(list.filter { place -> bounds.contains(place.detail.coordinate) }) }
+            placeStore.map { list -> Result.success(list.filter { place -> !place.isDeleted && bounds.contains(place.detail.coordinate) }) }
         }
 
         return MemoPlacePickerMapViewModel(getPlaceListUseCase = getPlaceListUseCase)

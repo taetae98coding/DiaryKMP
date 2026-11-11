@@ -2,5 +2,5 @@ package io.github.taetae98coding.diary.compose.core.uri
 
 import androidx.compose.ui.platform.UriHandler
 
-// Android는 받을 앱이 없는 주소를, 데스크톱은 열 수 없는 환경을 예외로 알린다. 결과를 알려 주지 않는 환경에서는 연 것으로 본다.
-public fun UriHandler.tryOpenUri(uri: String): Boolean = runCatching { openUri(uri) }.isSuccess
+// 열지 못한 것을 알려 주는 방식이 실행 환경마다 다르다. iOS는 연 뒤에 완료 결과로 알려 주므로 결과를 기다릴 수 있게 suspend로 둔다.
+public expect suspend fun UriHandler.tryOpenUri(uri: String): Boolean

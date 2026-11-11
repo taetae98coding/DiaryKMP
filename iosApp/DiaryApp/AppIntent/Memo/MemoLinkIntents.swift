@@ -18,6 +18,8 @@ struct LinkTagToMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.tagAdd(memoId: memo.id, tagId: tag.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
@@ -38,6 +40,8 @@ struct UnlinkTagFromMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.tagRemove(memoId: memo.id, tagId: tag.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }
@@ -58,6 +62,8 @@ struct SetMemoPrimaryTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.primaryTagSet(memoId: memo.id, tagId: tag.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Set the primary tag.", table: "AppIntentMemoLink")))
     }
@@ -75,6 +81,7 @@ struct ClearMemoPrimaryTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.primaryTagUnset(memoId: memo.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Cleared the primary tag.", table: "AppIntentMemoLink")))
     }
@@ -95,6 +102,8 @@ struct LinkPlaceToMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.placeAdd(memoId: memo.id, placeId: place.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
@@ -115,6 +124,8 @@ struct UnlinkPlaceFromMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.placeRemove(memoId: memo.id, placeId: place.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }
@@ -135,6 +146,8 @@ struct LinkWebToMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await WebEntityQuery.require(webId: web.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.webAdd(memoId: memo.id, webId: web.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
@@ -155,6 +168,8 @@ struct UnlinkWebFromMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await WebEntityQuery.require(webId: web.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.webRemove(memoId: memo.id, webId: web.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }
@@ -175,6 +190,8 @@ struct LinkContactToMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await ContactEntityQuery.require(contactId: contact.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.contactAdd(memoId: memo.id, contactId: contact.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
@@ -195,6 +212,8 @@ struct UnlinkContactFromMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
+        _ = try await ContactEntityQuery.require(contactId: contact.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.contactRemove(memoId: memo.id, contactId: contact.id) }
         return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }

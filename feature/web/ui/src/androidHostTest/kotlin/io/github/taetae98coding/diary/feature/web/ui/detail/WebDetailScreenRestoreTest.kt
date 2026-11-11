@@ -5,9 +5,13 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -20,8 +24,10 @@ import io.github.taetae98coding.diary.core.model.web.WebPage
 import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.domain.web.usecase.FetchWebPageUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -62,9 +68,22 @@ class WebDetailScreenRestoreTest {
     fun `TC-05590cc5-b758-4119-a847-d5ad0b3dd5ae 로그인 정보를 되돌리는 동안에는 진행 상태를 표시하고 주소를 열지 않으며 다른 조작은 그대로 할 수 있다`() {
         val detail = testWebDetail()
         val webViewModel = webViewModel(detail = detail)
+        val selectableTag = webTestTag(title = SELECTABLE_TAG_TITLE)
+        val tagViewModel = detailTagScreenTestViewModel(selectableTagList = listOf(selectableTag))
+        val uriHandler = mockk<UriHandler>(relaxed = true)
         var navigateUpCount = 0
         SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
-        setWebDetailScreen(webViewModel = webViewModel, navigateUp = { navigateUpCount++ })
+        composeRule.setContent {
+            CompositionLocalProvider(LocalUriHandler provides uriHandler) {
+                WebDetailScreenUnderTest(
+                    webViewModel = webViewModel,
+                    pageViewModel = memoScreenPageViewModel(),
+                    navigateUp = { navigateUpCount++ },
+                    tagViewModel = tagViewModel,
+                )
+            }
+        }
+        composeRule.waitForIdle()
 
         isProgressShown() shouldBe true
         findWebViewList().shouldBeEmpty()
@@ -80,8 +99,25 @@ class WebDetailScreenRestoreTest {
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
         composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
 
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        verify(exactly = 1) { uriHandler.openUri(detail.url) }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        verify(exactly = 1) { webViewModel.delete() }
+
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         navigateUpCount shouldBe 1
+
+        composeRule.selectFormTab()
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitUntil(timeoutMillis = PAGE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(SELECTABLE_TAG_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText(SELECTABLE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+        verify(exactly = 1) { tagViewModel.add(tagId = selectableTag.id) }
     }
 
     @Test
@@ -230,6 +266,7 @@ class WebDetailScreenRestoreTest {
         webViewModel: WebDetailViewModel,
         pageViewModel: WebDetailPageViewModel,
         navigateUp: () -> Unit,
+        tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
     ) {
         WebDetailScreenTestTheme {
             WebDetailScreen(
@@ -243,7 +280,7 @@ class WebDetailScreenRestoreTest {
                 tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                 webViewModel = webViewModel,
                 pageViewModel = pageViewModel,
-                tagViewModel = detailTagScreenTestViewModel(),
+                tagViewModel = tagViewModel,
             )
         }
     }
@@ -263,6 +300,8 @@ class WebDetailScreenRestoreTest {
         const val TYPED_TITLE = "수정한 제목"
         const val PAGE_FAILURE_TITLE = "Unable to load the web page"
         const val PAGE_TIMEOUT_MILLIS = 5_000L
+        const val DEFAULT_ENTITY_TAG_LABEL = "Select tag"
+        const val SELECTABLE_TAG_TITLE = "WebDetailRestoreSelectableTag"
 
         fun webViewModel(detail: WebDetail): WebDetailViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = detail)))
 

@@ -119,38 +119,43 @@ class SyncWorkTest :
             memoRequests.map { request -> request.size } shouldContainExactly listOf(100, 100)
         }
 
-        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 대상만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 대상만 업로드한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val context = context(accountId = accountId)
+            val tagList = tags(size = 1)
+            val memoList = memos(size = 1)
+            val context = context(accountId = accountId, tagList = tagList, memoList = memoList)
+            val tagRequests = mutableListOf<List<TagRemoteEntity>>()
+            val memoRequests = mutableListOf<List<MemoRemoteEntity>>()
             coEvery {
                 context.tagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns tags(size = 1)
             coEvery {
                 context.memoSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns memos(size = 1)
+            coEvery { context.tagRemoteDataSource.push(any()) } coAnswers {
+                tagRequests += firstArg<List<TagRemoteEntity>>()
+            }
+            coEvery { context.memoRemoteDataSource.push(any()) } coAnswers {
+                memoRequests += firstArg<List<MemoRemoteEntity>>()
+            }
 
             context.subject.doWork()
 
-            coVerify(exactly = 1) {
-                context.tagSyncLocalDataSource.readPendingList(accountId = accountId)
-            }
-            coVerify(exactly = 1) {
-                context.memoSyncLocalDataSource.readPendingList(accountId = accountId)
-            }
+            tagRequests shouldContainExactly listOf(tagList.map { tag -> tag.toRemote() })
+            memoRequests shouldContainExactly listOf(memoList.map { memo -> memo.toRemote() })
             coVerify(exactly = 0) {
                 context.tagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) {
                 context.memoSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
-            coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
-            coVerify(exactly = 0) { context.memoRemoteDataSource.push(any()) }
         }
 
         test("TC-cdfd501c-c0ba-469f-a52a-bc040216c2e6 요청과 실행 사이에 계정이 바뀌면 바뀐 계정을 동기화한다") {
             val firstAccountId = Arb.kotlinUuid().next()
             val secondAccountId = Arb.kotlinUuid().next()
+            val secondTagList = tags(size = 1)
             val context =
                 context(
                     accountId = secondAccountId,
@@ -159,16 +164,23 @@ class SyncWorkTest :
                             Result.success(sessionValidUser(accountId = firstAccountId)),
                             Result.success(sessionValidUser(accountId = secondAccountId)),
                         ).drop(1),
+                    tagList = secondTagList,
                 )
+            val tagRequests = mutableListOf<List<TagRemoteEntity>>()
             coEvery {
                 context.tagSyncLocalDataSource.readPendingList(accountId = firstAccountId)
             } returns tags(size = 1)
+            coEvery { context.tagRemoteDataSource.push(any()) } coAnswers {
+                tagRequests += firstArg<List<TagRemoteEntity>>()
+            }
 
             context.subject.doWork()
 
-            coVerify(exactly = 1) { context.tagSyncLocalDataSource.readPendingList(accountId = secondAccountId) }
+            tagRequests shouldContainExactly listOf(secondTagList.map { tag -> tag.toRemote() })
             coVerify(exactly = 0) { context.tagSyncLocalDataSource.readPendingList(accountId = firstAccountId) }
-            coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
+            coVerify(exactly = 0) {
+                context.accountTagSyncTransaction.clearPending(accountId = firstAccountId, tagList = any())
+            }
         }
 
         test("TC-1e1afcba-2529-4795-86dd-6b45477383c9 실행 시점에 계정이 게스트면 아무것도 동기화하지 않고 정상적으로 끝낸다") {
@@ -501,7 +513,7 @@ class SyncWorkTest :
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(usn = 9L) }
         }
 
-        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 기록된 순번을 첫 내려받기 요청에 사용한다") {
+        test("기록된 순번을 첫 내려받기 요청에 사용한다") {
             val context = context()
             coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG) } returns 0L
             coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO) } returns 12L
@@ -658,6 +670,25 @@ class SyncWorkTest :
             context.subject.doWork()
 
             requests.flatten() shouldContainExactly pendingTagList.map { tag -> tag.toRemote() }
+        }
+
+        test("업로드 대기 항목마다 기기의 최신 상태 한 건만 요청한다") {
+            val tagList = tags(size = 2)
+            val memoList = memos(size = 2)
+            val context = context(tagList = tagList, memoList = memoList)
+            val tagRequests = mutableListOf<List<TagRemoteEntity>>()
+            val memoRequests = mutableListOf<List<MemoRemoteEntity>>()
+            coEvery { context.tagRemoteDataSource.push(any()) } coAnswers {
+                tagRequests += firstArg<List<TagRemoteEntity>>()
+            }
+            coEvery { context.memoRemoteDataSource.push(any()) } coAnswers {
+                memoRequests += firstArg<List<MemoRemoteEntity>>()
+            }
+
+            context.subject.doWork()
+
+            tagRequests.flatten() shouldContainExactly tagList.map { tag -> tag.toRemote() }
+            memoRequests.flatten() shouldContainExactly memoList.map { memo -> memo.toRemote() }
         }
 
         test("TC-b4f2910f-0ea0-4fb8-a19f-9c663c09cd76 실패한 묶음은 같은 실행에서 다시 시도하지 않는다") {

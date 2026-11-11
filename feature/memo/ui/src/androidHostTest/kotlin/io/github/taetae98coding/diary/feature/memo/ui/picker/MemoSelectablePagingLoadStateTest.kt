@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.feature.memo.ui.picker
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -46,6 +50,21 @@ class MemoSelectablePagingLoadStateTest {
         lateinit var items: LazyPagingItems<String>
 
         composeRule.setContent { items = paging.selectablePagingData.collectAsLazyPagingItems() }
+        composeRule.waitForIdle()
+
+        items.itemCount shouldBe 0
+        items.isConfirmedEmpty() shouldBe false
+    }
+
+    @Test
+    fun `첫 조회가 실패한 흐름을 다시 수집해도 대상 없음으로 확정하지 않는다`() {
+        val paging = MemoSelectablePaging<String>(scope = scope) { MutableStateFlow(Result.failure(IllegalStateException("first load failed"))) }
+        var generation by mutableIntStateOf(0)
+        lateinit var items: LazyPagingItems<String>
+        composeRule.setContent { key(generation) { items = paging.selectablePagingData.collectAsLazyPagingItems() } }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { generation += 1 }
         composeRule.waitForIdle()
 
         items.itemCount shouldBe 0

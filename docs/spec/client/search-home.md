@@ -230,7 +230,7 @@ flowchart TD
 
 결과에 노출하지 않는 항목은 상세 대상이 되지 않는다. 아직 준비되지 않은 자리는 상세 대상이 되지 않으며, 다섯 유형 모두 자리 표시 상태의 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](./paged-list-placeholder.md)의 `자리 표시`를 따른다.
 
-SearchHome에서 연 상세는 SearchHome과 함께 배치하지 않고 단독으로 사용한다. 목록과 상세를 함께 사용하는 배치는 각 목록 화면에서 열었을 때만 적용하며, 그 기준은 [Memo 목록·상세 배치 스펙](./memo-list-detail.md), [Tag 목록·상세 배치 스펙](./tag-list-detail.md)과 [DDay 목록·상세 배치 스펙](./dday-list-detail.md)을 따른다.
+SearchHome에서 연 상세는 SearchHome과 함께 배치하지 않고 단독으로 사용한다. 목록과 상세를 함께 사용하는 배치는 각 목록 화면에서 열었을 때만 적용하며, 그 기준은 [Memo 목록·상세 배치 스펙](./memo-list-detail.md), [Tag 목록·상세 배치 스펙](./tag-list-detail.md)과 [DDay 목록·상세 배치 스펙](./dday-list-detail.md)을 따른다. 웹 상세는 [Web 목록·상세 배치 스펙](./web-list-detail.md)의 `배치에 참여하지 않는 화면`에 따라 어디에서 열어도 단독으로 표시한다.
 
 ## data
 

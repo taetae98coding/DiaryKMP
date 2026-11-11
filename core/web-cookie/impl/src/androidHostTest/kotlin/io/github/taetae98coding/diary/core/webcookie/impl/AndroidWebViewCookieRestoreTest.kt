@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.webcookie.impl
 
 import android.webkit.CookieManager
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -10,13 +11,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 // Set-Cookie 형식에 쓰이는 구분 문자가 이름과 값에 섞이면 다른 쿠키가 되므로, 이름과 값만 영문자로 고정한다.
 private fun testCookie(): WebViewCookieEntity =
     Arb.webViewCookieEntity().next().copy(
-        name = "name${Uuid.random().toHexString()}",
-        value = "value${Uuid.random().toHexString()}",
+        name = "name${Arb.kotlinUuid().next().toHexString()}",
+        value = "value${Arb.kotlinUuid().next().toHexString()}",
     )
 
 @RunWith(RobolectricTestRunner::class)
@@ -29,7 +29,7 @@ class AndroidWebViewCookieRestoreTest {
             Arb.webViewCookieEntity().next().copy(
                 name = "sid",
                 value = "saved",
-                domain = "${Uuid.random().toHexString()}.example.com",
+                domain = "${Arb.kotlinUuid().next().toHexString()}.example.com",
                 path = "/",
                 isSecure = false,
             )

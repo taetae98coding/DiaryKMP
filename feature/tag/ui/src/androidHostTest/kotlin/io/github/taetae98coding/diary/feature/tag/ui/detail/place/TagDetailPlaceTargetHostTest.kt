@@ -70,7 +70,7 @@ class TagDetailPlaceTargetHostTest {
         var isPlaceTabSelected by mutableStateOf(true)
         val id = Uuid.random()
         val mapViewModel = mapViewModel(fetch)
-        // TagDetail 화면은 네 탭을 이 호스트 안에 두므로, 탭 본문이 컴포지션에서 빠졌다가 돌아오는 것을 호스트 안에서 재현한다.
+        // TagDetail 화면은 모든 탭을 이 호스트 안에 두므로, 탭 본문이 컴포지션에서 빠졌다가 돌아오는 것을 호스트 안에서 재현한다.
         composeRule.setContent {
             TagDetailPlaceTargetHost(
                 id = id,

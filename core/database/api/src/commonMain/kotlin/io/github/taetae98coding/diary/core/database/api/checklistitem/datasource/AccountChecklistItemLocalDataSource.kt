@@ -11,4 +11,9 @@ public interface AccountChecklistItemLocalDataSource {
         checklistId: Uuid,
         sort: ChecklistItemSortLocalEntity,
     ): Flow<List<ChecklistItemLocalEntity>>
+
+    public fun find(
+        accountId: Uuid,
+        itemId: Uuid,
+    ): Flow<ChecklistItemLocalEntity?>
 }

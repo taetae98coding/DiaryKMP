@@ -28,7 +28,7 @@ private object MusicTagTabCase : TagTabCase {
     override val tc =
         TagTabTc(
             exposure = "TC-b69fefe3-176e-4958-bd02-f98ca8e1894b TC-1b53a403-fc5f-4cfb-a5d2-e5c71210b8bf",
-            order = "TC-e0b49707-d7ca-4003-a7bd-b216b33256f9",
+            order = "",
             paging = "TC-63ba164f-e932-4898-8061-9219868d1d90",
             change = "TC-819160de-2216-461d-88f5-f687fce88bef",
             tagState = "TC-7df2fe7a-d445-449d-ae69-8fc1a903afd9",

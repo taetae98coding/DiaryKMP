@@ -20,6 +20,7 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -36,6 +37,8 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiStep
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
@@ -284,6 +287,27 @@ class MemoDetailScreenTest {
         composeRule.waitForIdle()
 
         verify(exactly = 1) { geminiViewModel.close() }
+    }
+
+    @Test
+    fun `TC-b3f1024f-8715-4737-8392-c8d2c2b4dedb 도우미가 열려 있는 동안 단축키는 메모를 수정하지 않는다`() {
+        val viewModel = screenTestViewModel(MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
+        val geminiUiState = MutableStateFlow(MemoGeminiUiState())
+        setMemoDetailScreen(viewModel, geminiViewModel = screenTestGeminiViewModel(uiState = geminiUiState))
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(EDIT_SUFFIX)
+        geminiUiState.value = MemoGeminiUiState(step = MemoGeminiStep.PROMPT)
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasSetTextAction() and hasAnyAncestor(isDialog())).performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.Enter)
+            keyUp(Key.Enter)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { viewModel.update(any()) }
     }
 
     @Test

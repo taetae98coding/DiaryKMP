@@ -18,11 +18,11 @@ import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.checklist.ui.testChecklistSummary
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
@@ -124,7 +124,7 @@ class ChecklistHomeDeleteTest {
 
     @Test
     fun `TC-388cee7d-d25c-4b17-bba6-85048cb39130 삭제가 저장되지 못하면 안내를 표시하지 않는다`() {
-        val first = testChecklistSummary()
+        val first = Arb.checklistSummary().next()
         val pageChecklistUseCase = mockk<PageChecklistUseCase>()
         every { pageChecklistUseCase(parameter = Unit) } returns flowOf(Result.success(checklistPagingDataOf(listOf(first))))
         val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
@@ -196,8 +196,8 @@ class ChecklistHomeDeleteTest {
         isShownProvider: () -> Boolean = { true },
         onNavigate: () -> Unit = {},
     ): Environment {
-        val first = testChecklistSummary()
-        val second = testChecklistSummary()
+        val first = Arb.checklistSummary().next()
+        val second = Arb.checklistSummary().next()
         val effectChannel = Channel<ChecklistListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<ChecklistHomeViewModel>()
         every { viewModel.checklistPagingData } returns MutableStateFlow(checklistPagingDataOf(listOf(first, second)))

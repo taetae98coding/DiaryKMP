@@ -1,12 +1,9 @@
 package io.github.taetae98coding.diary.feature.tag.ui
 
-import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.qr.Qr
-import io.github.taetae98coding.diary.core.testing.checklist.checklist
-import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.contactDetail
 import io.github.taetae98coding.diary.core.testing.dday.dday
@@ -34,13 +31,6 @@ internal fun tagContact(name: String): ContactListItem =
                     createdAt = Arb.secondPrecisionInstant().next(),
                 ),
         nameQualifier = "",
-    )
-
-internal fun tagChecklist(title: String): ChecklistSummary =
-    ChecklistSummary(
-        checklist = Arb.checklist(isDeleted = false, detail = Arb.checklistDetail().next().copy(title = title)).next(),
-        checkedCount = 1,
-        totalCount = 2,
     )
 
 internal fun tagMusic(title: String): Music =

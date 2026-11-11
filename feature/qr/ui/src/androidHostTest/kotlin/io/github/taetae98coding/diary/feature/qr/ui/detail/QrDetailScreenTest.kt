@@ -71,6 +71,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.detail.action.AndroidQrActio
 import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -96,7 +97,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "ko-w480dp-h1200dp")
@@ -828,7 +828,7 @@ class QrDetailScreenTest {
 
     // 다른 QR을 조회한 것처럼 식별자를 바꿔 입력을 저장된 내용으로 다시 채운다.
     private fun FakeViewModel.reload(detail: QrDetail) {
-        composeRule.runOnIdle { uiState.value = QrDetailUiState.Content(id = Uuid.random(), detail = detail) }
+        composeRule.runOnIdle { uiState.value = QrDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail) }
         composeRule.waitForIdle()
     }
 
@@ -877,7 +877,7 @@ class QrDetailScreenTest {
     private class FakeViewModel(
         detail: QrDetail = Arb.qrDetail().next(),
     ) {
-        val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = Uuid.random(), detail = detail))
+        val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail))
         val effect = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel: QrDetailViewModel =
             mockk<QrDetailViewModel>(relaxed = true).apply {

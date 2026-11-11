@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.work.spotlight
+package io.github.taetae98coding.diary.work.spotlight.di
 
 import org.koin.core.annotation.Qualifier
 

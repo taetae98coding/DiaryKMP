@@ -19,8 +19,8 @@ class DDayAddDetailGuestRequestSyncUseCaseTest :
             val syncManager = mockk<SyncManager>(relaxed = true)
             val useCase = RequestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
 
-            When("디데이 추가, 수정이나 삭제를 저장한 뒤 동기화를 요청한다") {
-                Then("TC-6e0d159f-39f4-4ea0-bf57-9b8dbd3d7d37 TC-c880c2ae-beb7-4d16-8d35-aceafa03dae2 서버 동기화가 요청되지 않는다") {
+            When("디데이 추가, 수정, 삭제나 삭제의 실행 취소를 저장한 뒤 동기화를 요청한다") {
+                Then("TC-6e0d159f-39f4-4ea0-bf57-9b8dbd3d7d37 TC-c880c2ae-beb7-4d16-8d35-aceafa03dae2 TC-31cf25b9-56c6-49f0-acd4-7f6ca2feb139 동기화를 요청하지 않는다") {
                     useCase(parameter = SyncTrigger.DATA_CHANGED).shouldBeSuccess(Unit)
 
                     verify(exactly = 0) { syncManager.requestSync(reportsProgress = any()) }

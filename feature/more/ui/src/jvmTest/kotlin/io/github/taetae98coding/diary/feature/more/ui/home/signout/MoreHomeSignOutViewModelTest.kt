@@ -364,6 +364,82 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-66e5e6ca-c4f9-428b-9ca9-f17630bcc3c0 로그아웃 요청이 끝나기 전에 다시 선택해도 다시 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
+                every { findSyncPendingUseCase(Unit) } returns flowOf(Result.success(false))
+                val signOutUseCase = mockk<SignOutUseCase>()
+                coEvery { signOutUseCase(Unit) } coAnswers { awaitCancellation() }
+                val viewModel =
+                    MoreHomeSignOutViewModel(
+                        savedStateHandle = SavedStateHandle(),
+                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        signOutUseCase = signOutUseCase,
+                    )
+
+                viewModel.signOut()
+                advanceUntilIdle()
+                coVerify(exactly = 1) { signOutUseCase(Unit) }
+
+                viewModel.signOut()
+                advanceUntilIdle()
+
+                verify(exactly = 1) { findSyncPendingUseCase(Unit) }
+                coVerify(exactly = 1) { signOutUseCase(Unit) }
+                viewModel.uiState.value shouldBe MoreHomeSignOutUiState()
+            }
+        }
+
+        test("TC-f9537148-5e37-44bc-804d-aa3fadc86c92 취소로 끝난 뒤 다시 선택하면 다시 확인해 다이얼로그를 연다") {
+            runTest(mainDispatcher) {
+                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
+                every { findSyncPendingUseCase(Unit) } returns flowOf(Result.success(true))
+                val signOutUseCase = signOutUseCase()
+                val viewModel =
+                    MoreHomeSignOutViewModel(
+                        savedStateHandle = SavedStateHandle(),
+                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        signOutUseCase = signOutUseCase,
+                    )
+                viewModel.signOut()
+                advanceUntilIdle()
+                viewModel.cancelSignOut()
+                viewModel.uiState.value shouldBe MoreHomeSignOutUiState(isConfirmVisible = false)
+
+                viewModel.signOut()
+                advanceUntilIdle()
+
+                verify(exactly = 2) { findSyncPendingUseCase(Unit) }
+                viewModel.uiState.value shouldBe MoreHomeSignOutUiState(isConfirmVisible = true)
+                coVerify(exactly = 0) { signOutUseCase(Unit) }
+            }
+        }
+
+        test("TC-f9537148-5e37-44bc-804d-aa3fadc86c92 로그아웃 실패로 끝난 뒤 다시 선택하면 다시 확인해 로그아웃을 요청한다") {
+            runTest(mainDispatcher) {
+                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
+                every { findSyncPendingUseCase(Unit) } returns flowOf(Result.success(false))
+                val signOutUseCase = mockk<SignOutUseCase>()
+                coEvery { signOutUseCase(Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                val viewModel =
+                    MoreHomeSignOutViewModel(
+                        savedStateHandle = SavedStateHandle(),
+                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        signOutUseCase = signOutUseCase,
+                    )
+                viewModel.signOut()
+                advanceUntilIdle()
+                coVerify(exactly = 1) { signOutUseCase(Unit) }
+
+                viewModel.signOut()
+                advanceUntilIdle()
+
+                verify(exactly = 2) { findSyncPendingUseCase(Unit) }
+                coVerify(exactly = 2) { signOutUseCase(Unit) }
+                viewModel.uiState.value shouldBe MoreHomeSignOutUiState()
+            }
+        }
+
         test("확인 다이얼로그를 거친 로그아웃은 업로드 대기 여부를 다시 조회하지 않는다") {
             runTest(mainDispatcher) {
                 val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()

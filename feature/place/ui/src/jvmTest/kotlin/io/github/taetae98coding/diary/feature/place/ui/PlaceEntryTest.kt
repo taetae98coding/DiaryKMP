@@ -38,7 +38,7 @@ class PlaceEntryTest :
     }
 }
 
-// 태그 목록이 아닌 진입 화면을 대신한다. 다른 주요 목적지 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 태그 목록이 아닌 진입 화면을 대신한다. 다른 주요 목적지 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object OtherNavKey : ScreenNavKey {
     override val screenName: String
         get() = "Other"

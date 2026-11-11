@@ -35,7 +35,7 @@ class TagFinishedListScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-5d4b7229-e18a-49aa-9a25-758c8303a550 완료된 태그가 하나도 없어도 화면을 사용할 수 있다`() {
+    fun `완료된 태그가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<TagFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))

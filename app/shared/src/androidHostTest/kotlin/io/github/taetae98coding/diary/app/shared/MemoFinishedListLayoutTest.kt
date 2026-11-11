@@ -27,6 +27,9 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
@@ -34,6 +37,7 @@ import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.enum
 import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
@@ -52,7 +56,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-d5d2c870-c1a8-4977-bd89-f6f37f88fd13 TC-ea6f386d-f6a3-4d7d-9d96-6ff5cb3b582e 넓은 창에서 완료된 메모 목록을 열면 MemoHome 목록 없이 선택 전 상세와 함께 표시한다`() {
+    fun `TC-d5d2c870-c1a8-4977-bd89-f6f37f88fd13 넓은 창에서 완료된 메모 목록을 열면 MemoHome 목록 없이 선택 전 상세와 함께 표시한다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -173,6 +177,7 @@ class MemoFinishedListLayoutTest {
                 ContactAddNavKey(requestKey = Arb.kotlinUuid().next()),
                 PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
                 PlaceAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                SettingGeminiNavKey,
             )
         setAppNavDisplay(backStack = backStack)
         composeRule.runOnIdle { backStack.navigateToMemoDetail(Arb.kotlinUuid().next()) }
@@ -234,6 +239,7 @@ class MemoFinishedListLayoutTest {
                 ContactAddNavKey(requestKey = Arb.kotlinUuid().next()),
                 PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
                 PlaceAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                SettingGeminiNavKey,
             )
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(HOME_CONTENT).assertIsDisplayed()
@@ -253,6 +259,23 @@ class MemoFinishedListLayoutTest {
             composeRule.onNodeWithText(HOME_CONTENT).assertIsDisplayed()
             composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
         }
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h1600dp")
+    fun `TC-7e7927c3-c9a1-41bf-becf-d54bd7ea7e3c 넓은 창의 메모 목록 배치에서 검색을 선택해 이동한 SearchHome은 단독으로 표시한다`() {
+        val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoDetailNavKey(id = Arb.kotlinUuid().next()))
+        val searchHomeKey = SearchHomeNavKey(initialType = Arb.enum<SearchHomeType>().next())
+        setAppNavDisplay(backStack = backStack)
+        composeRule.onNodeWithText(HOME_CONTENT).assertIsDisplayed()
+        composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
+
+        composeRule.runOnIdle { backStack.add(searchHomeKey) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(contentOf(searchHomeKey)).assertIsDisplayed()
+        composeRule.onNodeWithText(HOME_CONTENT).assertDoesNotExist()
+        composeRule.onNodeWithText(DETAIL_CONTENT).assertDoesNotExist()
     }
 
     private fun pressBack() {

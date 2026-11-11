@@ -319,6 +319,190 @@
         }
       }
     },
+    "Found %lld D-Days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld D-Day."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld D-Days."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld D-Days. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld D-Days. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Found %lld QR codes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld QR code."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld QR codes."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld QR codes. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld QR codes. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Found %lld checklists.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld checklist."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld checklists."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld checklists. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld checklists. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Found %lld contacts.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld contact."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld contacts."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연락처 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld contacts. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld contacts. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연락처 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
     "Found %lld memos.": {
       "extractionState": "manual",
       "localizations": {
@@ -407,6 +591,52 @@
           "stringUnit": {
             "state": "translated",
             "value": "장소 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Found %lld songs.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld song."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld songs."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곡 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld songs. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld songs. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곡 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
           }
         }
       }
@@ -520,6 +750,57 @@
         }
       }
     },
+    "Get ${tag}'s Checklists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Checklists"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 체크리스트 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s Contacts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Contacts"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 연락처 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s D-Days"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 디데이 보기"
+          }
+        }
+      }
+    },
     "Get ${tag}'s Finished Memos": {
       "extractionState": "manual",
       "localizations": {
@@ -567,6 +848,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "${tag}의 장소 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s QR Codes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s QR Codes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 QR 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s Songs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Songs"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 곡 보기"
           }
         }
       }
@@ -639,6 +954,57 @@
         }
       }
     },
+    "Get Tag's Checklists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Checklists"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 체크리스트 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's Contacts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Contacts"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 연락처 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's D-Days"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 디데이 보기"
+          }
+        }
+      }
+    },
     "Get Tag's Finished Memos": {
       "extractionState": "manual",
       "localizations": {
@@ -690,6 +1056,40 @@
         }
       }
     },
+    "Get Tag's QR Codes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's QR Codes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 QR 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's Songs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Songs"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 곡 보기"
+          }
+        }
+      }
+    },
     "Get Tag's Webs": {
       "extractionState": "manual",
       "localizations": {
@@ -707,6 +1107,40 @@
         }
       }
     },
+    "Gets D-Days linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets D-Days linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 디데이를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets QR codes linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets QR codes linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 QR을 가져옵니다."
+          }
+        }
+      }
+    },
     "Gets a tag with the child tags it links to.": {
       "extractionState": "manual",
       "localizations": {
@@ -720,6 +1154,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "태그 하나를 그 태그가 연결한 하위 태그와 함께 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets checklists linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets checklists linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 체크리스트를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets contacts linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets contacts linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 연락처를 가져옵니다."
           }
         }
       }
@@ -788,6 +1256,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "태그에 연결된 장소를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets songs linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets songs linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 곡을 가져옵니다."
           }
         }
       }

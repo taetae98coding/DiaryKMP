@@ -13,8 +13,10 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.AppFu
 import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.AppFunctionChecklistSummary
 import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.AppFunctionChecklistSummaryPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklist
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistDetail
@@ -22,10 +24,15 @@ import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklis
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistItemSortValue
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistSummary
 import io.github.taetae98coding.diary.work.appaction.checklist.ChecklistAppAction
+import io.github.taetae98coding.diary.work.appaction.checklist.ChecklistItemAppAction
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.EntityTagAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -59,12 +66,22 @@ class ChecklistAppFunctionServiceTest {
     val appFunctionTestRule = AppFunctionTestRule(context)
 
     private val checklistAppAction = mockk<ChecklistAppAction>()
+    private val entityTagAppAction = mockk<EntityTagAppAction>()
+    private val checklistItemAppAction = mockk<ChecklistItemAppAction>()
 
     private lateinit var tester: AppFunctionServiceTester
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { checklistAppAction } }) }
+        startKoin {
+            modules(
+                module {
+                    single { checklistAppAction }
+                    single { entityTagAppAction }
+                    single { checklistItemAppAction }
+                },
+            )
+        }
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
     }
 
@@ -89,6 +106,8 @@ class ChecklistAppFunctionServiceTest {
                     "checklistItemCheck",
                     "checklistItemUncheck",
                     "checklistItemDelete",
+                    CHECKLIST_TAG_ADD,
+                    CHECKLIST_TAG_REMOVE,
                 )
         }
 
@@ -130,7 +149,7 @@ class ChecklistAppFunctionServiceTest {
         }
 
     @Test
-    fun `체크리스트 조회는 항목 정렬을 넘기고 항목과 함께 같은 값으로 돌려준다`() =
+    fun `TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 체크리스트 조회는 항목 정렬을 넘기고 항목, 연결된 태그와 함께 돌려준다`() =
         runBlocking<Unit> {
             val checklist =
                 AppActionChecklist(
@@ -148,7 +167,8 @@ class ChecklistAppFunctionServiceTest {
                     createdAt = Arb.string().next(),
                     updatedAt = Arb.string().next(),
                 )
-            coEvery { checklistAppAction.get(checklistId = any(), itemSort = any()) } returns AppActionChecklistDetail(checklist = checklist, items = listOf(item))
+            val tag = Arb.appActionTag().next()
+            coEvery { checklistAppAction.get(checklistId = any(), itemSort = any()) } returns AppActionChecklistDetail(checklist = checklist, items = listOf(item), tags = listOf(tag))
 
             val response =
                 tester.execute(name = "checklistGet") {
@@ -176,26 +196,29 @@ class ChecklistAppFunctionServiceTest {
                                 updatedAt = item.updatedAt,
                             ),
                         ),
+                    tags = listOf(tag.expectedTag()),
                 )
             coVerify(exactly = 1) { checklistAppAction.get(checklistId = checklist.id, itemSort = AppActionChecklistItemSortValue.UNCHECKED_FIRST) }
         }
 
     @Test
-    fun `체크리스트 추가는 받은 값을 공통 동작에 넘기고 id를 돌려준다`() =
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 체크리스트 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
         runBlocking<Unit> {
             val title = Arb.nonBlankString().next()
             val itemList = listOf(Arb.nonBlankString().next(), Arb.nonBlankString().next())
+            val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
             val addedId = Arb.kotlinUuid().next().toString()
-            coEvery { checklistAppAction.add(title = any(), description = any(), items = any()) } returns AppActionId(id = addedId)
+            coEvery { checklistAppAction.add(title = any(), description = any(), items = any(), tagIds = any()) } returns AppActionId(id = addedId)
 
             val response =
                 tester.execute(name = "checklistAdd") {
                     setString("title", title)
                     setStringList("items", itemList)
+                    setStringList("tagIds", tagIdList)
                 }
 
             response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
-            coVerify(exactly = 1) { checklistAppAction.add(title = title, description = null, items = itemList) }
+            coVerify(exactly = 1) { checklistAppAction.add(title = title, description = null, items = itemList, tagIds = tagIdList) }
         }
 
     @Test
@@ -204,7 +227,7 @@ class ChecklistAppFunctionServiceTest {
             val checklistId = Arb.kotlinUuid().next().toString()
             val content = Arb.nonBlankString().next()
             val changedCount = Arb.int(0..1).next()
-            coEvery { checklistAppAction.itemAdd(checklistId = checklistId, content = content) } returns AppActionChangedCount(changedCount = changedCount)
+            coEvery { checklistItemAppAction.add(checklistId = checklistId, content = content) } returns AppActionChangedCount(changedCount = changedCount)
 
             val response =
                 tester.execute(name = "checklistItemAdd") {
@@ -226,10 +249,35 @@ class ChecklistAppFunctionServiceTest {
         }
 
     @Test
+    fun `TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 체크리스트 태그 연결과 해제는 완료를 돌려준다`() =
+        runBlocking<Unit> {
+            val checklistId = Arb.kotlinUuid().next().toString()
+            val tagId = Arb.kotlinUuid().next().toString()
+            coEvery { entityTagAppAction.add(kind = AppActionEntityTagKind.CHECKLIST, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.remove(kind = AppActionEntityTagKind.CHECKLIST, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+
+            val addResponse =
+                tester.execute(name = CHECKLIST_TAG_ADD) {
+                    setString(CHECKLIST_ID, checklistId)
+                    setString("tagId", tagId)
+                }
+            val removeResponse =
+                tester.execute(name = CHECKLIST_TAG_REMOVE) {
+                    setString(CHECKLIST_ID, checklistId)
+                    setString("tagId", tagId)
+                }
+
+            addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { entityTagAppAction.add(kind = AppActionEntityTagKind.CHECKLIST, entityId = checklistId, tagId = tagId) }
+            coVerify(exactly = 1) { entityTagAppAction.remove(kind = AppActionEntityTagKind.CHECKLIST, entityId = checklistId, tagId = tagId) }
+        }
+
+    @Test
     fun `인자 오류는 잘못된 인자 실패로 같은 메시지를 알린다`() =
         runBlocking<Unit> {
             val message = Arb.nonBlankString().next()
-            coEvery { checklistAppAction.itemCheck(itemId = any()) } throws AppActionException.InvalidArgument(message = message)
+            coEvery { checklistItemAppAction.check(itemId = any()) } throws AppActionException.InvalidArgument(message = message)
 
             val error = tester.execute(name = "checklistItemCheck") { setString("itemId", "not-id") }.shouldBeInstanceOf<ExecuteAppFunctionResponse.Error>().error
 
@@ -256,4 +304,6 @@ class ChecklistAppFunctionServiceTest {
         }
 }
 
+private const val CHECKLIST_TAG_ADD = "checklistTagAdd"
+private const val CHECKLIST_TAG_REMOVE = "checklistTagRemove"
 private const val CHECKLIST_ID = "checklistId"

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionTagDetail
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTagScopeValue
 import io.github.taetae98coding.diary.work.appaction.tag.TagAppAction
 import io.github.taetae98coding.diary.work.appaction.tag.TagItemAppAction
@@ -56,10 +57,9 @@ public object DiaryTagAppAction {
         return DiaryAppActionTagPage(items = page.items.map { tag -> tag.toDiary() }, nextPageNumber = page.nextPageNumber)
     }
 
-    public suspend fun get(tagId: String): DiaryAppActionTagDetail? =
-        tagAppAction().get(tagId = tagId)?.let { detail ->
-            DiaryAppActionTagDetail(tag = detail.tag.toDiary(), linkedTags = detail.linkedTags.map { linkedTag -> linkedTag.toDiary() })
-        }
+    public suspend fun get(tagId: String): DiaryAppActionTagDetail? = tagAppAction().get(tagId = tagId)?.toDiary()
+
+    public suspend fun getIncludingDeleted(tagId: String): DiaryAppActionTagDetail? = tagAppAction().getIncludingDeleted(tagId = tagId)?.toDiary()
 
     public suspend fun add(
         title: String,
@@ -141,6 +141,58 @@ public object DiaryTagItemAppAction {
 
         return DiaryAppActionTagPlacePage(items = page.items.map { place -> place.toDiary() }, nextPageNumber = page.nextPageNumber)
     }
+
+    public suspend fun contactList(
+        tagId: String,
+        scope: DiaryAppActionTagScope?,
+        sort: DiaryAppActionSort?,
+        pageNumber: Int,
+    ): DiaryAppActionContactPage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().contactList(tagId = tagId, scope = scope.toScopeValue(), sort = sort.toSortValue(), cursor = cursor) }
+
+        return DiaryAppActionContactPage(items = page.items.map { contact -> contact.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
+
+    public suspend fun checklistList(
+        tagId: String,
+        scope: DiaryAppActionTagScope?,
+        pageNumber: Int,
+    ): DiaryAppActionChecklistSummaryPage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().checklistList(tagId = tagId, scope = scope.toScopeValue(), cursor = cursor) }
+
+        return DiaryAppActionChecklistSummaryPage(items = page.items.map { summary -> summary.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
+
+    public suspend fun musicList(
+        tagId: String,
+        scope: DiaryAppActionTagScope?,
+        sort: DiaryAppActionSort?,
+        pageNumber: Int,
+    ): DiaryAppActionMusicPage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().musicList(tagId = tagId, scope = scope.toScopeValue(), sort = sort.toSortValue(), cursor = cursor) }
+
+        return DiaryAppActionMusicPage(items = page.items.map { music -> music.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
+
+    public suspend fun qrList(
+        tagId: String,
+        scope: DiaryAppActionTagScope?,
+        pageNumber: Int,
+    ): DiaryAppActionQrPage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().qrList(tagId = tagId, scope = scope.toScopeValue(), cursor = cursor) }
+
+        return DiaryAppActionQrPage(items = page.items.map { qr -> qr.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
+
+    public suspend fun ddayList(
+        tagId: String,
+        scope: DiaryAppActionTagScope?,
+        pageNumber: Int,
+    ): DiaryAppActionDDayPage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().ddayList(tagId = tagId, scope = scope.toScopeValue(), cursor = cursor) }
+
+        return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
 }
 
 private fun tagAppAction(): TagAppAction = diaryAppAction()
@@ -148,6 +200,8 @@ private fun tagAppAction(): TagAppAction = diaryAppAction()
 private fun tagLinkAppAction(): TagLinkAppAction = diaryAppAction()
 
 private fun tagItemAppAction(): TagItemAppAction = diaryAppAction()
+
+private fun AppActionTagDetail.toDiary(): DiaryAppActionTagDetail = DiaryAppActionTagDetail(tag = tag.toDiary(), linkedTags = linkedTags.map { linkedTag -> linkedTag.toDiary() })
 
 private fun DiaryAppActionTagScope?.toScopeValue(): String? =
     when (this) {

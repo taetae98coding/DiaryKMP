@@ -17,7 +17,9 @@ import io.github.taetae98coding.diary.core.database.impl.memo.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.memocontact.transaction.AccountMemoContactSyncTransactionImpl
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -249,6 +251,65 @@ class AccountMemoContactLocalDataSourceImplTest :
             )
 
             database.memoContactDao().findByMemoIdList(listOf(memo.id)).size shouldBe 1
+            dataSource
+                .getContactList(accountId = accountId, memoId = memo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
+            dataSource.readContactIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
+        }
+
+        test("TC-446eb363-399e-451c-a8e4-bfe0087e6a6b 계정과 연결되지 않은 메모를 기준으로 하면 연결된 연락처가 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val otherAccountMemo = memo()
+            val contact = contact()
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
+            memoTransaction.upsert(
+                accountId = otherAccountId,
+                memoList = listOf(otherAccountMemo),
+                memoTagList = emptyList(),
+                memoContactList = emptyList(),
+            )
+
+            syncTransaction.upsert(
+                accountId = accountId,
+                memoContactList = listOf(memoContact(memoId = otherAccountMemo.id, contactId = contact.id)),
+                cursor = 1L,
+            )
+
+            database.memoContactDao().findByMemoIdList(listOf(otherAccountMemo.id)).size shouldBe 1
+            dataSource
+                .getContactList(accountId = accountId, memoId = otherAccountMemo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
+            dataSource.readContactIdList(accountId = accountId, memoId = otherAccountMemo.id).shouldBeEmpty()
+        }
+
+        test("TC-22094788-c72c-4bc8-bfa9-8baa25a76058 같은 태그와 연결되어 있어도 메모와 연락처는 연결되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
+            val memo = memo()
+            val contact = contact()
+            contactTransaction.upsert(
+                accountId = accountId,
+                contactList = listOf(contact),
+                contactTagList =
+                    listOf(
+                        Arb.entityTagLocalEntity().next().copy(entityId = contact.id, tagId = tagId, isDeleted = false),
+                    ),
+            )
+
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList =
+                    listOf(
+                        Arb.memoTagLocalEntity().next().copy(memoId = memo.id, tagId = tagId, isDeleted = false),
+                    ),
+            )
+
             dataSource
                 .getContactList(accountId = accountId, memoId = memo.id)
                 .contacts()

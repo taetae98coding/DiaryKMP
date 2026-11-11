@@ -18,7 +18,6 @@ class DDayPresetValueTest :
                 )
         }
 
-        // 추가 테스트: 프리셋은 기본값에서 반복 간격만 바꾼다.
         test("프리셋은 기본값에서 반복 간격만 바꾼다") {
             val default = DDayPreset.CUSTOM.value()
 

@@ -109,7 +109,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-ba1aa217-e2f4-482d-9cba-f4e9d21e82ac 대상 장소 하나만 선택하고 태그·웹·연락처·기간과 대표 태그는 없이 시작한다") {
+        test("TC-ba1aa217-e2f4-482d-9cba-f4e9d21e82ac TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 대상 장소 하나만 선택하고 태그·웹·연락처·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
                 val target = Arb.place(isDeleted = false).next()
                 val key = MemoAddNavKey(initialPlaceId = target.id)
@@ -171,7 +171,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-e7c246db-17a7-421a-804a-493958da34b5 삭제된 대상 웹 항목은 웹 입력에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
-                val deletedTarget = Arb.web(isDeleted = false).next()
+                val deletedTarget = Arb.web(isDeleted = true).next()
+                // 선택한 웹 항목 조회는 삭제된 웹 항목을 돌려주지 않는다.
                 val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialWebId = deletedTarget.id), webList = listOf(Arb.web(isDeleted = false).next()))
                 memoAdd.collect(this)
                 advanceUntilIdle()
@@ -181,7 +182,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-c39950e3-402c-4129-83de-ca5badd8848a 대상 웹 항목 하나만 선택하고 태그·연락처·장소·기간과 대표 태그는 없이 시작한다") {
+        test("TC-c39950e3-402c-4129-83de-ca5badd8848a TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 대상 웹 항목 하나만 선택하고 태그·연락처·장소·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
                 val target = Arb.web(isDeleted = false).next()
                 val key = MemoAddNavKey(initialWebId = target.id)
@@ -253,7 +254,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-605f9748-549b-4105-9b20-584023ccf772 대상 연락처 하나만 선택하고 태그·웹·장소·기간과 대표 태그는 없이 시작한다") {
+        test("TC-605f9748-549b-4105-9b20-584023ccf772 TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 대상 연락처 하나만 선택하고 태그·웹·장소·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
                 val target = Arb.activeContactListItem().next()
                 val key = MemoAddNavKey(initialContactId = target.contact.id)

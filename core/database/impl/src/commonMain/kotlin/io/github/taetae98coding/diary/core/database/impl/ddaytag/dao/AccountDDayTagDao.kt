@@ -13,7 +13,6 @@ import kotlin.uuid.Uuid
 
 @Dao
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
-// 검색어의 `%`, `_`가 와일드카드로 해석되지 않도록 LIKE 대신 INSTR로 부분 일치를 판정한다.
 internal interface AccountDDayTagDao : AccountEntityTagDao<AccountDDayTagLocalEntity> {
     @Query(
         """

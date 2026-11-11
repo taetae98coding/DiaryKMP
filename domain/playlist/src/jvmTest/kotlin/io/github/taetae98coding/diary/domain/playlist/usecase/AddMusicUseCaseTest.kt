@@ -122,7 +122,7 @@ class AddMusicUseCaseTest :
                 )
 
             When("연결할 태그를 골라 곡을 추가한다") {
-                Then("TC-fa73e7c6-6ec0-4a20-b9dc-701f280a3794 TC-22b0c5f3-6b9d-402d-a599-8140be1226e2 고른 태그를 그대로 새 곡을의 연결로 넘긴다") {
+                Then("TC-fa73e7c6-6ec0-4a20-b9dc-701f280a3794 TC-22b0c5f3-6b9d-402d-a599-8140be1226e2 고른 태그를 그대로 새 곡의 연결로 넘긴다") {
                     val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
                     val repository = mockk<AccountMusicRepository>(relaxed = true)
                     val taggedUseCase =

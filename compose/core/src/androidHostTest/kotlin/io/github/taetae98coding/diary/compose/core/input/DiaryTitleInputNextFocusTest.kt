@@ -3,8 +3,11 @@
 package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -58,6 +61,26 @@ class DiaryTitleInputNextFocusTest {
         composeRule.onAllNodesWithContentDescription(CLEAR_DESCRIPTION).onFirst().assertIsFocused()
     }
 
+    @Test
+    fun `TC-f3d525b0-6db2-4856-a49d-3777d2a8af33 제목이 비어 있으면 Tab을 눌렀을 때 다음 입력으로 초점이 옮겨 간다`() {
+        composeRule.setContent {
+            DiaryTheme {
+                Column {
+                    DiaryTitleInput(state = rememberDiaryTitleInputState())
+                    BasicTextField(state = rememberTextFieldState(initialText = NEXT_INPUT_TEXT))
+                }
+            }
+        }
+        val title = composeRule.onAllNodes(hasSetTextAction()).onFirst()
+        composeRule.onAllNodesWithContentDescription(CLEAR_DESCRIPTION).assertCountEquals(0)
+
+        title.performClick()
+        title.assertIsFocused()
+        title.performKeyInput { pressKey(Key.Tab) }
+
+        composeRule.onNode(hasSetTextAction() and hasText(NEXT_INPUT_TEXT)).assertIsFocused()
+    }
+
     private fun setTitleWithDescription(descriptionText: String) {
         composeRule.setContent {
             DiaryTheme {
@@ -82,6 +105,7 @@ class DiaryTitleInputNextFocusTest {
     public companion object {
         private const val TITLE_TEXT = "DiaryTitleInputValue"
         private const val DESCRIPTION_TEXT = "# DiaryDescriptionInputValue"
+        private const val NEXT_INPUT_TEXT = "NextInputValue"
         private const val CLEAR_DESCRIPTION = "Clear text"
     }
 }

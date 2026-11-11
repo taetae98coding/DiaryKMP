@@ -195,8 +195,6 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
     setScreenContent {
         // 진입 키가 바뀌면 저장 상태와 ViewModel을 남기지 않고 화면을 새로 구성해, 화면을 떠났다가 다시 들어오거나 앱을 다시 실행한 것을 흉내 낸다.
         key(entryKeyProvider()) {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
-            // 테스트마다 새 소유자를 제공해 이전 테스트의 유형별 ViewModel이 재사용되지 않게 한다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {

@@ -40,7 +40,6 @@ internal class ProfileDeleteViewModel(
         updateConfirmVisible(isConfirmVisible = true)
     }
 
-    // 탈퇴가 진행 중이면 확인 다이얼로그를 닫지 않는다.
     fun dismissConfirm() {
         if (uiState.value.isInProgress) return
 
@@ -51,6 +50,7 @@ internal class ProfileDeleteViewModel(
     fun confirmDelete() {
         if (uiState.value.isInProgress) return
         uiState.update { state -> state.copy(isInProgress = true) }
+        saveConfirmVisible()
 
         viewModelScope.launch {
             try {
@@ -58,12 +58,13 @@ internal class ProfileDeleteViewModel(
                     .onSuccess { isRequired ->
                         if (isRequired) {
                             // Apple 로그인 흐름 중 앱이 다시 시작되면 흐름이 중단되므로, 복원할 때는 다이얼로그를 닫힌 상태로 둔다.
+                            // 흐름이 끝나 다시 판단하거나 탈퇴를 요청하면 saveConfirmVisible이 열린 상태로 되돌린다.
                             savedStateHandle[KEY_IS_CONFIRM_VISIBLE] = false
                             _effect.send(ProfileDeleteEffect.RequestAppleAuthorization)
                         } else {
                             isDeleting = true
                             try {
-                                requestDelete(appleAuthorization = null)
+                                deleteAccountUseCase(parameter = null).onFailure { fail() }
                             } finally {
                                 isDeleting = false
                             }
@@ -79,10 +80,11 @@ internal class ProfileDeleteViewModel(
         if (isDeleting) return
         isDeleting = true
         uiState.update { state -> state.copy(isInProgress = true) }
+        saveConfirmVisible()
 
         viewModelScope.launch {
             try {
-                requestDelete(appleAuthorization = appleAuthorization)
+                deleteAccountUseCase(parameter = appleAuthorization).onFailure { fail() }
             } finally {
                 isDeleting = false
                 endProgress()
@@ -108,11 +110,6 @@ internal class ProfileDeleteViewModel(
         viewModelScope.launch { _effect.send(ProfileDeleteEffect.DeleteFailed) }
     }
 
-    private suspend fun requestDelete(appleAuthorization: AppleAuthorization?) {
-        deleteAccountUseCase(parameter = appleAuthorization)
-            .onFailure { fail() }
-    }
-
     private suspend fun fail() {
         updateConfirmVisible(isConfirmVisible = false)
         _effect.send(ProfileDeleteEffect.DeleteFailed)
@@ -120,6 +117,10 @@ internal class ProfileDeleteViewModel(
 
     private fun endProgress() {
         uiState.update { state -> state.copy(isInProgress = false) }
+    }
+
+    private fun saveConfirmVisible() {
+        savedStateHandle[KEY_IS_CONFIRM_VISIBLE] = uiState.value.isConfirmVisible
     }
 
     private fun updateConfirmVisible(isConfirmVisible: Boolean) {

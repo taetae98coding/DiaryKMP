@@ -11,6 +11,9 @@ import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUse
 import io.github.taetae98coding.diary.domain.holiday.usecase.goldenHolidaySourceYearList
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -57,10 +60,14 @@ internal class HolidayHomeYearViewModel(
 
         viewModelScope.launch {
             try {
-                val resultMap =
-                    year
-                        .goldenHolidaySourceYearList()
-                        .associateWith { targetYear -> fetchHolidayUseCase(parameter = targetYear) }
+                val targetYearList = year.goldenHolidaySourceYearList()
+                val resultList =
+                    coroutineScope {
+                        targetYearList
+                            .map { targetYear -> async { fetchHolidayUseCase(parameter = targetYear) } }
+                            .awaitAll()
+                    }
+                val resultMap = targetYearList.zip(resultList).toMap()
 
                 fetchState.value = fetchState(resultMap = resultMap)
             } finally {

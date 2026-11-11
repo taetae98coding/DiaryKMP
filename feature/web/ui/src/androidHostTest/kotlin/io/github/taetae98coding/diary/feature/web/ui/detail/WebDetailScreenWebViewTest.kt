@@ -13,12 +13,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasProgressBarRangeInfo
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
@@ -32,6 +37,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUi
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -121,7 +127,7 @@ class WebDetailScreenWebViewTest {
     }
 
     @Test
-    fun `TC-bfc3e32b-068c-476e-b1db-204c02ba8aac 앱을 다시 실행해 진입하면 웹 페이지를 다시 불러온다`() {
+    fun `TC-bfc3e32b-068c-476e-b1db-204c02ba8aac 앱을 다시 실행해 진입하면 URL 방식으로 시작하고 이전에 받은 본문을 복원하지 않는다`() {
         val detail = testWebDetail()
         val page = Arb.webPage().next()
         // 앱을 다시 실행하면 화면의 ViewModel도 새로 만들어지므로, 실행마다 새 ViewModel을 넘긴다.
@@ -178,7 +184,7 @@ class WebDetailScreenWebViewTest {
     }
 
     @Test
-    fun `TC-f25eea61-c106-4e88-abf1-1ffd75cfba49 응답 본문 방식에서 화면이 재생성되면 이미 받은 응답 본문을 처음부터 다시 그린다`() {
+    fun `TC-a2c71837-5d51-4d47-986b-1aeffc65e620 TC-f25eea61-c106-4e88-abf1-1ffd75cfba49 응답 본문 방식에서 재생성되면 받은 본문을 요청 없이 다시 그린다`() {
         val detail = testWebDetail()
         val page = Arb.webPage().next()
         val fetchWebPageUseCase = fetchWebPageUseCase(page = page)
@@ -295,6 +301,63 @@ class WebDetailScreenWebViewTest {
         coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
     }
 
+    @Test
+    fun `TC-8b030e9d-b400-494a-b80d-348edf2757f5 백그라운드에 다녀와도 메모 탭과 응답 본문 방식이 남고 다시 불러오지 않는다`() {
+        val detail = testWebDetail()
+        val page = Arb.webPage().next()
+        val fetchWebPageUseCase = fetchWebPageUseCase(page = page)
+        setWebDetailScreen(
+            webViewModel = webViewModel(detail = detail),
+            pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
+        )
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        awaitPageWebView(page = page)
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        moveToBackgroundAndReturn()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.selectPageTab()
+        composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
+        awaitPageWebView(page = page)
+        coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
+    }
+
+    @Test
+    fun `TC-e333289f-8521-41ea-94ff-49ed92c2a9d5 앱 밖에서 열고 돌아와도 보던 상태를 그대로 이어서 본다`() {
+        val detail = testWebDetail()
+        val page = Arb.webPage().next()
+        val fetchWebPageUseCase = fetchWebPageUseCase(page = page)
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        setWebDetailScreen(
+            webViewModel = webViewModel(detail = detail),
+            pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
+            uriHandler = uriHandler,
+        )
+        composeRule.selectFormTab()
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.selectPageTab()
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        val webView = awaitPageWebView(page = page)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
+        moveToBackgroundAndReturn()
+
+        verify(exactly = 1) { uriHandler.openUri(detail.url) }
+        composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
+        awaitPageWebView(page = page) shouldBeSameInstanceAs webView
+        coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
+        composeRule.selectFormTab()
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+    }
+
+    private fun moveToBackgroundAndReturn() {
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        composeRule.waitForIdle()
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+    }
+
     private fun isProgressShown(): Boolean =
         composeRule
             .onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
@@ -387,6 +450,7 @@ class WebDetailScreenWebViewTest {
         const val SCROLLED_Y = 480
         const val PAGE_TIMEOUT_MILLIS = 5_000L
         const val PAGE_FAILURE_TITLE = "Unable to load the web page"
+        const val TYPED_TITLE = "WebDetailWebViewTypedTitle"
 
         fun webViewModel(detail: WebDetail): WebDetailViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = detail)))
 

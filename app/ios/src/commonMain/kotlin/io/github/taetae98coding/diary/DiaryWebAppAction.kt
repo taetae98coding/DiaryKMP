@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
 import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
+import io.github.taetae98coding.diary.work.appaction.web.AppActionWebDetail
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWebWithHeaders
 import io.github.taetae98coding.diary.work.appaction.web.WebAppAction
 
@@ -27,26 +28,9 @@ public object DiaryWebAppAction {
         return DiaryAppActionWebPage(items = page.items.map { web -> web.toDiary() }, nextPageNumber = page.nextPageNumber)
     }
 
-    public suspend fun get(webId: String): DiaryAppActionWebDetail? =
-        webAppAction().get(webId = webId)?.let { detail ->
-            DiaryAppActionWebDetail(
-                web = detail.web.toDiary(),
-                headers = detail.web.headers.map { header -> "${header.name}: ${header.value}" },
-                tags = detail.tags.map { tag -> tag.toDiary() },
-            )
-        }
+    public suspend fun get(webId: String): DiaryAppActionWebDetail? = webAppAction().get(webId = webId)?.toDiary()
 
-    public suspend fun memoList(
-        webId: String,
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionMemoPage = readMemoPage(pageNumber = pageNumber) { cursor -> webAppAction().memoList(webId = webId, sort = sort.toSortValue(), cursor = cursor) }
-
-    public suspend fun memoFinishedList(
-        webId: String,
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionMemoPage = readMemoPage(pageNumber = pageNumber) { cursor -> webAppAction().memoFinishedList(webId = webId, sort = sort.toSortValue(), cursor = cursor) }
+    public suspend fun getIncludingDeleted(webId: String): DiaryAppActionWebDetail? = webAppAction().getIncludingDeleted(webId = webId)?.toDiary()
 
     public suspend fun add(
         title: String,
@@ -67,19 +51,16 @@ public object DiaryWebAppAction {
     public suspend fun delete(webId: String): Int = webAppAction().delete(webId = webId).changedCount
 
     public suspend fun restore(webId: String): Int = webAppAction().restore(webId = webId).changedCount
-
-    public suspend fun tagAdd(
-        webId: String,
-        tagId: String,
-    ): Boolean = webAppAction().tagAdd(webId = webId, tagId = tagId).done
-
-    public suspend fun tagRemove(
-        webId: String,
-        tagId: String,
-    ): Boolean = webAppAction().tagRemove(webId = webId, tagId = tagId).done
 }
 
 private fun webAppAction(): WebAppAction = diaryAppAction()
+
+private fun AppActionWebDetail.toDiary(): DiaryAppActionWebDetail =
+    DiaryAppActionWebDetail(
+        web = web.toDiary(),
+        headers = web.headers.map { header -> "${header.name}: ${header.value}" },
+        tags = tags.map { tag -> tag.toDiary() },
+    )
 
 private fun AppActionWebWithHeaders.toDiary(): DiaryAppActionWeb =
     DiaryAppActionWeb(

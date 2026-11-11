@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.appaction.contact
 
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 
 public data class AppActionContactDetail(
     val id: String,
@@ -22,6 +23,11 @@ public data class AppActionContactDetail(
 public data class AppActionContactBirthday(
     val date: String,
     val calendar: String,
+)
+
+public data class AppActionContactDetailWithTags(
+    val contact: AppActionContactDetail,
+    val tags: List<AppActionTag>,
 )
 
 internal fun Contact.toAppActionContactDetail(): AppActionContactDetail =

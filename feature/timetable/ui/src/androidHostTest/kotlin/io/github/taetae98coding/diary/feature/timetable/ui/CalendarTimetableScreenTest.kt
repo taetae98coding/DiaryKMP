@@ -45,13 +45,13 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
@@ -790,6 +790,18 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
+    fun `TC-b5584e78-0090-4668-ba21-294abd22c61e 삭제한 연락처의 생일은 조작 없이 사라진다`() {
+        val birthdayListFlow = MutableStateFlow(listOf(birthday(day = 24)))
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 24), birthdayListFlow = birthdayListFlow)
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
+
+        composeRule.runOnIdle { birthdayListFlow.value = emptyList() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-fd73be8f-c05b-498c-a7e9-154116cdbc9a 생일을 선택하면 ContactDetail 이동을 요청한다`() {
         val birthday = birthday(day = 24)
         val uriHandler = mockk<UriHandler>(relaxed = true)
@@ -923,7 +935,7 @@ class CalendarTimetableScreenTest {
         name: String = BIRTHDAY_NAME,
         nameQualifier: String = "",
         month: Int = 9,
-    ): CalendarContactBirthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = name, nameQualifier = nameQualifier, date = LocalDate(year = 2026, month = month, day = day))
+    ): CalendarContactBirthday = Arb.calendarContactBirthday().next().copy(name = name, nameQualifier = nameQualifier, date = LocalDate(year = 2026, month = month, day = day))
 
     private fun todayWeather(): CalendarWeather =
         Arb

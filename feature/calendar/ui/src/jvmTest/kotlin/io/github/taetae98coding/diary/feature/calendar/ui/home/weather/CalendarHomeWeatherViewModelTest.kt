@@ -1,17 +1,17 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home.weather
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.numericDouble
 import io.kotest.property.arbitrary.string
@@ -32,7 +32,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.LocalDate
 
 class CalendarHomeWeatherViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -65,9 +64,16 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
                 coEvery { useCase(parameter = Unit) } coAnswers { completion.await() }
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
+                backgroundScope.launch { viewModel.uiState.collect {} }
 
                 viewModel.fetch()
+                runCurrent()
                 viewModel.fetch()
+                runCurrent()
+
+                viewModel.uiState.value.isLoading shouldBe true
+                coVerify(exactly = 1) { useCase(parameter = Unit) }
+
                 completion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
@@ -159,7 +165,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
 
         test("TC-254dd50d-aa6f-4461-9e67-9f4882d82f0d 멈추고 다시 받는 동안 이미 표시하던 날씨를 계속 표시한다") {
             runTest(mainDispatcher) {
-                val calendarWeather = calendarWeather()
+                val calendarWeather = Arb.calendarWeather(date = Arb.kotlinxLocalDate().next(), temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()), descriptionList = emptyList()).next()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
                 coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
                 val refreshCompletion = CompletableDeferred<Result<Unit>>()
@@ -288,7 +294,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
 
         test("날짜별 날씨가 조회되면 캘린더에 표시할 날씨로 제공한다") {
             runTest(mainDispatcher) {
-                val calendarWeather = calendarWeather()
+                val calendarWeather = Arb.calendarWeather(date = Arb.kotlinxLocalDate().next(), temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()), descriptionList = emptyList()).next()
                 val viewModel =
                     weatherViewModel(
                         getCurrentCalendarWeatherUseCase =
@@ -367,17 +373,3 @@ private fun getCurrentCalendarWeatherUseCase(result: Result<CalendarWeatherRepor
     mockk<GetCurrentCalendarWeatherUseCase>().also { useCase ->
         every { useCase(parameter = Unit) } returns flowOf(result)
     }
-
-private fun calendarWeather(): CalendarWeather =
-    CalendarWeather(
-        date = randomDate(),
-        temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()),
-        weatherList = emptyList(),
-    )
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2_000 + (Arb.int().next().toUInt() % 1_000u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

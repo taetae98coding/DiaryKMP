@@ -67,8 +67,13 @@ internal fun MusicDetailScreen(
                             ?.detail
                             ?.link
                             ?.takeIf(String::isNotBlank)
-                            ?.takeUnless(uriHandler::tryOpenUri)
-                            ?.let { coroutineScope.launch { state.snackbarHostState.showImmediate(message = openFailedMessage) } }
+                            ?.let { link ->
+                                coroutineScope.launch {
+                                    if (!uriHandler.tryOpenUri(link)) {
+                                        state.snackbarHostState.showImmediate(message = openFailedMessage)
+                                    }
+                                }
+                            }
 
                     is MusicDetailScaffoldEvent.ClickDelete -> musicViewModel.delete()
                 }

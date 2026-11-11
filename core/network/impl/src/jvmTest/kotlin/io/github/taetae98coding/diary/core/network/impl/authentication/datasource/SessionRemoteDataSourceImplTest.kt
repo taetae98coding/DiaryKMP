@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.core.network.impl.authentication.datasource
 
 import io.github.taetae98coding.diary.core.network.api.authentication.entity.SessionRemoteEntity
+import io.github.taetae98coding.diary.core.network.impl.authentication.entity.AppleIdTokenRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.authentication.entity.GoogleAuthorizationCodeRequestRemoteEntity
+import io.github.taetae98coding.diary.core.network.impl.authentication.entity.GoogleIdTokenRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.testing.authentication.sessionRemoteEntity
 import io.kotest.core.spec.style.FunSpec
@@ -26,6 +28,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
 class SessionRemoteDataSourceImplTest :
@@ -63,6 +67,44 @@ class SessionRemoteDataSourceImplTest :
                     redirectUri = redirectUri,
                     codeVerifier = codeVerifier,
                 )
+            actual shouldBe response
+        }
+
+        test("TC-63cac31c-7605-4cf2-8d07-827a51c41bbc Google 신원 증명과 시도 확인 값을 Google 신원 증명 로그인 요청으로 서버에 전달한다") {
+            val idToken = Arb.string().next()
+            val nonce = Arb.string().next()
+            val response = Arb.sessionRemoteEntity().next()
+            val requestSlot = slot<GoogleIdTokenRequestRemoteEntity>()
+            val supabaseFunction = mockk<SupabaseFunction>()
+            coEvery {
+                supabaseFunction(function = "v1-session-google-id-token", body = capture(requestSlot), typeInfo = any(), headers = any())
+            } returns httpResponse(body = Json.encodeToString(response))
+            val dataSource = SessionRemoteDataSourceImpl(supabaseFunction = supabaseFunction)
+
+            val actual = dataSource.createWithGoogle(idToken = idToken, nonce = nonce)
+
+            requestSlot.captured shouldBe GoogleIdTokenRequestRemoteEntity(idToken = idToken, nonce = nonce)
+            Json.parseToJsonElement(Json.encodeToString(requestSlot.captured)).jsonObject shouldBe
+                JsonObject(mapOf("idToken" to JsonPrimitive(idToken), "nonce" to JsonPrimitive(nonce)))
+            actual shouldBe response
+        }
+
+        test("TC-6e664879-ccd1-4045-8836-4373dbf33fe3 Apple 신원 증명과 시도 확인 값을 Apple 신원 증명 로그인 요청으로 서버에 전달한다") {
+            val idToken = Arb.string().next()
+            val nonce = Arb.string().next()
+            val response = Arb.sessionRemoteEntity().next()
+            val requestSlot = slot<AppleIdTokenRequestRemoteEntity>()
+            val supabaseFunction = mockk<SupabaseFunction>()
+            coEvery {
+                supabaseFunction(function = "v1-session-apple-id-token", body = capture(requestSlot), typeInfo = any(), headers = any())
+            } returns httpResponse(body = Json.encodeToString(response))
+            val dataSource = SessionRemoteDataSourceImpl(supabaseFunction = supabaseFunction)
+
+            val actual = dataSource.createWithApple(idToken = idToken, nonce = nonce)
+
+            requestSlot.captured shouldBe AppleIdTokenRequestRemoteEntity(idToken = idToken, nonce = nonce)
+            Json.parseToJsonElement(Json.encodeToString(requestSlot.captured)).jsonObject shouldBe
+                JsonObject(mapOf("idToken" to JsonPrimitive(idToken), "nonce" to JsonPrimitive(nonce)))
             actual shouldBe response
         }
 

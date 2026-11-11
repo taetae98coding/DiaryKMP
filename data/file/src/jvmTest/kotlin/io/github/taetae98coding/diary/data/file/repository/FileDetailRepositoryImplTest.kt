@@ -28,6 +28,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.RawSink
 import kotlin.uuid.Uuid
@@ -128,6 +132,25 @@ class FileDetailRepositoryImplTest :
                     }
 
                 snapshot.single().title shouldBe fromOtherDevice.title
+                repository.getUpdated().test { awaitItem().shouldBeEmpty() }
+            }
+        }
+
+        test("TC-ffb0da50-6a2d-44a0-968e-5fcea114d1b9 결과를 받기 전에 그만둔 수정은 목록에 덧씌워지지 않는다") {
+            runTest {
+                val file = Arb.fileRemoteEntity().next()
+                val response = CompletableDeferred<FileRemoteEntity>()
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.update(id = file.id, name = any(), title = any(), description = any()) } coAnswers { response.await() }
+                val repository = repository(fileRemoteDataSource = fileRemoteDataSource)
+
+                val job = launch { repository.updateDetail(id = file.id, detail = Arb.diaryFileDetail().next()) }
+                runCurrent()
+                job.cancelAndJoin()
+                response.complete(file.copy(title = Arb.nonBlankString().next(), name = Arb.nonBlankString().next()))
+                runCurrent()
+
+                coVerify(exactly = 1) { fileRemoteDataSource.update(id = file.id, name = any(), title = any(), description = any()) }
                 repository.getUpdated().test { awaitItem().shouldBeEmpty() }
             }
         }

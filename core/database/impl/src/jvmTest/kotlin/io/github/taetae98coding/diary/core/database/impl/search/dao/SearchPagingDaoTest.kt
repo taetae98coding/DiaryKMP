@@ -275,6 +275,16 @@ class SearchPagingDaoTest :
                 listOf(titleMatched.id, descriptionMatched.id, urlMatched.id)
         }
 
+        test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 디데이는 제목과 설명 중 하나가 질의를 포함하면 결과가 된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val titleMatched = dday(title = "$QUERY 기념일")
+            val descriptionMatched = dday(description = "$QUERY 준비")
+            val unmatched = dday()
+            insertDDay(accountId, titleMatched, descriptionMatched, unmatched)
+
+            ddayIdList(accountId) shouldContainExactlyInAnyOrder listOf(titleMatched.id, descriptionMatched.id)
+        }
+
         test("TC-5aa4a76d-2c8d-4107-b957-ea606797d8fd 웹 항목의 요청 헤더만 질의를 포함하면 결과가 되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val headerMatched =
@@ -354,7 +364,7 @@ class SearchPagingDaoTest :
             tagIdList(accountId) shouldBe listOf(finishedTag.id)
         }
 
-        test("TC-609e4786-9dfc-48eb-a035-4bf76058601e 네 유형의 결과를 제목 오름차순으로 조회한다") {
+        test("TC-609e4786-9dfc-48eb-a035-4bf76058601e 다섯 유형의 결과를 제목 오름차순으로 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val secondMemo = memo(title = "나 $QUERY")
             val firstMemo = memo(title = "가 $QUERY")
@@ -371,8 +381,13 @@ class SearchPagingDaoTest :
             insertMemo(accountId, secondMemo, firstMemo, thirdMemo)
             insertTag(accountId, secondTag, firstTag, thirdTag)
             insertPlace(accountId, secondPlace, firstPlace, thirdPlace)
+            val secondDDay = dday(title = "나 $QUERY")
+            val firstDDay = dday(title = "가 $QUERY")
+            val thirdDDay = dday(title = "다 $QUERY")
             insertWeb(accountId, secondWeb, firstWeb, thirdWeb)
+            insertDDay(accountId, secondDDay, firstDDay, thirdDDay)
 
+            ddayIdList(accountId) shouldBe listOf(firstDDay.id, secondDDay.id, thirdDDay.id)
             memoIdList(accountId) shouldBe listOf(firstMemo.id, secondMemo.id, thirdMemo.id)
             tagIdList(accountId) shouldBe listOf(firstTag.id, secondTag.id, thirdTag.id)
             placeIdList(accountId) shouldBe listOf(firstPlace.id, secondPlace.id, thirdPlace.id)

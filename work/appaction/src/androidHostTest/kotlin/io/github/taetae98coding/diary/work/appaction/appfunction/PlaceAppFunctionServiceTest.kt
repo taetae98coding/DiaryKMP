@@ -11,9 +11,9 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctio
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionPlace
-import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.place.AppFunctionPlaceDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.place.AppFunctionPlaceList
 import io.github.taetae98coding.diary.work.appaction.appfunction.place.AppFunctionPlacePage
@@ -27,12 +27,13 @@ import io.github.taetae98coding.diary.work.appaction.core.appActionColor
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlaceDetail
 import io.github.taetae98coding.diary.work.appaction.place.PlaceAppAction
-import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.EntityTagAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.next
@@ -63,12 +64,20 @@ class PlaceAppFunctionServiceTest {
     val appFunctionTestRule = AppFunctionTestRule(context)
 
     private val placeAppAction = mockk<PlaceAppAction>()
+    private val entityTagAppAction = mockk<EntityTagAppAction>()
 
     private lateinit var tester: AppFunctionServiceTester
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { placeAppAction } }) }
+        startKoin {
+            modules(
+                module {
+                    single { placeAppAction }
+                    single { entityTagAppAction }
+                },
+            )
+        }
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
     }
 
@@ -92,7 +101,7 @@ class PlaceAppFunctionServiceTest {
                     PLACE_DELETE,
                     "placeRestore",
                     PLACE_TAG_ADD,
-                    "placeTagRemove",
+                    PLACE_TAG_REMOVE,
                 )
         }
 
@@ -140,41 +149,16 @@ class PlaceAppFunctionServiceTest {
         }
 
     @Test
-    fun `장소 조회는 연결된 태그와 함께 돌려주고 없으면 값이 없는 결과를 돌려준다`() =
+    fun `TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 장소 조회는 연결된 태그와 함께 돌려주고 없으면 값이 없는 결과를 돌려준다`() =
         runBlocking<Unit> {
             val place = appActionPlace()
-            val tag =
-                AppActionTag(
-                    id = Arb.kotlinUuid().next().toString(),
-                    emoji = Arb.string().next(),
-                    title = Arb.string().next(),
-                    description = Arb.string().next(),
-                    color = Arb.appActionColor().next(),
-                    isFinished = Arb.boolean().next(),
-                    createdAt = Arb.string().next(),
-                    updatedAt = Arb.string().next(),
-                )
+            val tag = Arb.appActionTag().next()
             val missingId = Arb.kotlinUuid().next().toString()
             coEvery { placeAppAction.get(placeId = place.id) } returns AppActionPlaceDetail(place = place, tags = listOf(tag))
             coEvery { placeAppAction.get(placeId = missingId) } returns null
 
             tester.execute(name = PLACE_GET) { setString(PLACE_ID, place.id) }.returnValueAs<AppFunctionPlaceDetail>() shouldBe
-                AppFunctionPlaceDetail(
-                    place = place.expected(),
-                    tags =
-                        listOf(
-                            AppFunctionTag(
-                                id = tag.id,
-                                emoji = tag.emoji,
-                                title = tag.title,
-                                description = tag.description,
-                                color = tag.color,
-                                isFinished = tag.isFinished,
-                                createdAt = tag.createdAt,
-                                updatedAt = tag.updatedAt,
-                            ),
-                        ),
-                )
+                AppFunctionPlaceDetail(place = place.expected(), tags = listOf(tag.expectedTag()))
             tester
                 .execute(name = PLACE_GET) { setString(PLACE_ID, missingId) }
                 .shouldBeInstanceOf<ExecuteAppFunctionResponse.Success>()
@@ -195,12 +179,36 @@ class PlaceAppFunctionServiceTest {
                 tester.execute(name = PLACE_ADD) {
                     setString("title", title)
                     setString("latitude", latitude)
-                    setString("longitude", longitude)
+                    setString(LONGITUDE, longitude)
                 }
 
             response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
             coVerify(exactly = 1) {
                 placeAppAction.add(title = title, latitude = latitude, longitude = longitude, address = null, description = null, color = null, tagIds = emptyList())
+            }
+        }
+
+    @Test
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 장소 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
+        runBlocking<Unit> {
+            val latitude = Arb.numericDouble(min = -90.0, max = 90.0).next().toString()
+            val longitude = Arb.numericDouble(min = -180.0, max = 180.0).next().toString()
+            val title = Arb.nonBlankString().next()
+            val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
+            val addedId = Arb.kotlinUuid().next().toString()
+            coEvery { placeAppAction.add(any(), any(), any(), any(), any(), any(), any()) } returns AppActionId(id = addedId)
+
+            val response =
+                tester.execute(name = PLACE_ADD) {
+                    setString("title", title)
+                    setString("latitude", latitude)
+                    setString(LONGITUDE, longitude)
+                    setStringList("tagIds", tagIdList)
+                }
+
+            response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
+            coVerify(exactly = 1) {
+                placeAppAction.add(title = title, latitude = latitude, longitude = longitude, address = null, description = null, color = null, tagIds = tagIdList)
             }
         }
 
@@ -215,7 +223,7 @@ class PlaceAppFunctionServiceTest {
             val response =
                 tester.execute(name = PLACE_UPDATE) {
                     setString(PLACE_ID, placeId)
-                    setString("longitude", longitude)
+                    setString(LONGITUDE, longitude)
                 }
 
             response.returnValueAs<AppFunctionChangedCount>() shouldBe AppFunctionChangedCount(changedCount = changedCount)
@@ -225,19 +233,28 @@ class PlaceAppFunctionServiceTest {
         }
 
     @Test
-    fun `태그 연결은 완료를 돌려준다`() =
+    fun `TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 장소 태그 연결과 해제는 완료를 돌려준다`() =
         runBlocking<Unit> {
             val placeId = Arb.kotlinUuid().next().toString()
             val tagId = Arb.kotlinUuid().next().toString()
-            coEvery { placeAppAction.tagAdd(placeId = placeId, tagId = tagId) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.add(kind = AppActionEntityTagKind.PLACE, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.remove(kind = AppActionEntityTagKind.PLACE, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
 
-            val response =
+            val addResponse =
                 tester.execute(name = PLACE_TAG_ADD) {
                     setString(PLACE_ID, placeId)
                     setString("tagId", tagId)
                 }
+            val removeResponse =
+                tester.execute(name = PLACE_TAG_REMOVE) {
+                    setString(PLACE_ID, placeId)
+                    setString("tagId", tagId)
+                }
 
-            response.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { entityTagAppAction.add(kind = AppActionEntityTagKind.PLACE, entityId = placeId, tagId = tagId) }
+            coVerify(exactly = 1) { entityTagAppAction.remove(kind = AppActionEntityTagKind.PLACE, entityId = placeId, tagId = tagId) }
         }
 
     @Test
@@ -311,4 +328,6 @@ private const val PLACE_GET = "placeGet"
 private const val PLACE_LIST = "placeList"
 private const val PLACE_LIST_IN_AREA = "placeListInArea"
 private const val PLACE_TAG_ADD = "placeTagAdd"
+private const val PLACE_TAG_REMOVE = "placeTagRemove"
 private const val PLACE_UPDATE = "placeUpdate"
+private const val LONGITUDE = "longitude"

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.textfield.ClearTextField
+import io.github.taetae98coding.diary.compose.core.textfield.keepInsertionWhile
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.measure.Length
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
@@ -42,6 +43,9 @@ internal fun ContactHeightInput(
 
 internal object ContactHeightInputTransformation : InputTransformation {
     override fun TextFieldBuffer.transformInput() {
+        keepInsertionWhile { text -> text.sanitizeHeight().contentEquals(text) }
+
+        // 소수점이나 그 앞의 숫자를 지우면 넣은 문자가 없어도 자리 수를 넘거나 소수점이 첫 자리에 올 수 있다.
         val originalLength = length
         val sanitized = asCharSequence().sanitizeHeight()
         if (sanitized.contentEquals(asCharSequence())) return
@@ -88,7 +92,6 @@ internal fun Length.toHeightText(): String {
 
 private const val POINT = '.'
 
-// Char.isDigit은 전각 숫자 같은 유니코드 숫자도 받지만 toDoubleOrNull은 0~9만 읽으므로 범위로 거른다.
 private val DIGIT_RANGE = '0'..'9'
 private const val MAX_INTEGER_DIGIT_COUNT = 3
 private const val MAX_DECIMAL_DIGIT_COUNT = 1

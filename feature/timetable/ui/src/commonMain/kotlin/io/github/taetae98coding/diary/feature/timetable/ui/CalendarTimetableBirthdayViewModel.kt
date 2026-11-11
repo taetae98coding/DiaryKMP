@@ -48,11 +48,10 @@ internal class CalendarTimetableBirthdayViewModel(
 
         this.fetchDateRange.value = fetchDateRange
 
-        val yearList = (fetchDateRange.start.year..fetchDateRange.endInclusive.year).filter { year -> fetchingYearSet.add(year) }
-        if (yearList.isEmpty()) return
+        for (year in fetchDateRange.start.year..fetchDateRange.endInclusive.year) {
+            if (!fetchingYearSet.add(year)) continue
 
-        viewModelScope.launch {
-            yearList.forEach { year ->
+            viewModelScope.launch {
                 try {
                     fetchLunarUseCase(parameter = year)
                 } finally {

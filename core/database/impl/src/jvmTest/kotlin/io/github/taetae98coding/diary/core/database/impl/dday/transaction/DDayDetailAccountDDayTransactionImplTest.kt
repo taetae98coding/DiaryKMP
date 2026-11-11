@@ -56,7 +56,6 @@ class DDayDetailAccountDDayTransactionImplTest :
             AccountTagTransactionImpl(database = database).upsert(accountId = accountId, tagList = tagList.toList(), tagLinkList = emptyList())
         }
 
-        // 디데이를 태그와 연결해 저장하고 업로드를 마친 상태로 만든다.
         suspend fun insertUploaded(
             accountId: Uuid,
             isDeleted: Boolean,

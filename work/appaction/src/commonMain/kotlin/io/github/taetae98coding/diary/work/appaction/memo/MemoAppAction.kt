@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.memo
 
-import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.CopyMemoUseCase
@@ -11,25 +11,21 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UpdateMemoUseCase
 import io.github.taetae98coding.diary.work.appaction.contact.toAppActionContact
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
-import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.core.changeActive
 import io.github.taetae98coding.diary.work.appaction.core.map
+import io.github.taetae98coding.diary.work.appaction.core.readActive
 import io.github.taetae98coding.diary.work.appaction.core.readFirst
-import io.github.taetae98coding.diary.work.appaction.core.readPage
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toAppActionChangedCount
 import io.github.taetae98coding.diary.work.appaction.core.toAppActionId
 import io.github.taetae98coding.diary.work.appaction.core.toColorArgumentOrNull
 import io.github.taetae98coding.diary.work.appaction.core.toColorArgumentOrRandom
-import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
-import io.github.taetae98coding.diary.work.appaction.core.toSortArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgumentOrNull
 import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
@@ -40,12 +36,8 @@ import org.koin.core.annotation.Factory
 
 private const val MEMO_ID = "memoId"
 
-internal val memoSortList: List<ListSort> = listOf(ListSort.DEFAULT, ListSort.TITLE, ListSort.RECENTLY_UPDATED)
-
 @Factory
 public class MemoAppAction internal constructor(
-    private val pageMemoHomeUseCase: PageMemoHomeUseCase,
-    private val pageFinishedMemoUseCase: PageFinishedMemoUseCase,
     private val findMemoUseCase: FindMemoUseCase,
     private val getMemoTagUseCase: GetMemoTagUseCase,
     private val getMemoPlaceUseCase: GetMemoPlaceUseCase,
@@ -59,39 +51,25 @@ public class MemoAppAction internal constructor(
     private val deleteMemoUseCase: DeleteMemoUseCase,
     private val restoreMemoUseCase: RestoreMemoUseCase,
 ) {
-    public suspend fun list(
-        sort: String?,
-        cursor: String?,
-    ): AppActionPage<AppActionMemo> =
-        runAppAction {
-            pageMemoHomeUseCase
-                .readPage(parameter = sort.toSortArgument(memoSortList), offset = cursor.toPageOffset())
-                .map { memo -> memo.toAppActionMemo() }
-        }
+    public suspend fun get(memoId: String): AppActionMemoDetail? = runAppAction { detail(memoId = memoId, includesDeleted = false) }
 
-    public suspend fun finishedList(
-        sort: String?,
-        cursor: String?,
-    ): AppActionPage<AppActionMemo> =
-        runAppAction {
-            pageFinishedMemoUseCase
-                .readPage(parameter = sort.toSortArgument(memoSortList), offset = cursor.toPageOffset())
-                .map { memo -> memo.toAppActionMemo() }
-        }
+    public suspend fun getIncludingDeleted(memoId: String): AppActionMemoDetail? = runAppAction { detail(memoId = memoId, includesDeleted = true) }
 
-    public suspend fun get(memoId: String): AppActionMemoDetail? =
-        runAppAction {
-            val id = memoId.toUuidArgument(name = MEMO_ID)
-            val memo = findMemoUseCase.readFirst(parameter = id) ?: return@runAppAction null
+    private suspend fun detail(
+        memoId: String,
+        includesDeleted: Boolean,
+    ): AppActionMemoDetail? {
+        val id = memoId.toUuidArgument(name = MEMO_ID)
+        val memo = findMemoUseCase.readFirst(parameter = id)?.takeIf { memo -> includesDeleted || !memo.isDeleted } ?: return null
 
-            AppActionMemoDetail(
-                memo = memo.toAppActionMemo(),
-                tags = getMemoTagUseCase.readFirst(parameter = id).map { tag -> tag.toAppActionTag() },
-                places = getMemoPlaceUseCase.readFirst(parameter = id).map { place -> place.toAppActionPlace() },
-                webs = getMemoWebUseCase.readFirst(parameter = id).map { web -> web.toAppActionWeb() },
-                contacts = getMemoContactUseCase.readFirst(parameter = id).map { contact -> contact.toAppActionContact() },
-            )
-        }
+        return AppActionMemoDetail(
+            memo = memo.toAppActionMemo(),
+            tags = getMemoTagUseCase.readFirst(parameter = id).map { tag -> tag.toAppActionTag() },
+            places = getMemoPlaceUseCase.readFirst(parameter = id).map { place -> place.toAppActionPlace() },
+            webs = getMemoWebUseCase.readFirst(parameter = id).map { web -> web.toAppActionWeb() },
+            contacts = getMemoContactUseCase.readFirst(parameter = id).map { contact -> contact.toAppActionContact() },
+        )
+    }
 
     public suspend fun add(
         title: String,
@@ -134,7 +112,7 @@ public class MemoAppAction internal constructor(
     ): AppActionChangedCount =
         runAppAction {
             val id = memoId.toUuidArgument(name = MEMO_ID)
-            val current = findMemoUseCase.readFirst(parameter = id)?.detail ?: return@runAppAction 0.toAppActionChangedCount()
+            val current = findMemoUseCase.readActive(id = id, isDeleted = Memo::isDeleted)?.detail ?: return@runAppAction 0.toAppActionChangedCount()
             val detail =
                 MemoDetail(
                     title = title ?: current.title,
@@ -151,13 +129,34 @@ public class MemoAppAction internal constructor(
             updateMemoUseCase(parameter = UpdateMemoUseCase.Parameter(id = id, detail = detail)).getOrThrow().toAppActionChangedCount()
         }
 
-    public suspend fun copy(memoId: String): AppActionId = runAppAction { copyMemoUseCase(parameter = memoId.toUuidArgument(name = MEMO_ID)).getOrThrow().toAppActionId() }
+    public suspend fun copy(memoId: String): AppActionId =
+        runAppAction {
+            val id = memoId.toUuidArgument(name = MEMO_ID)
 
-    public suspend fun finish(memoId: String): AppActionChangedCount = runAppAction { finishMemoUseCase(parameter = memoId.toUuidArgument(name = MEMO_ID)).getOrThrow().toAppActionChangedCount() }
+            requireNotNull(findMemoUseCase.readActive(id = id, isDeleted = Memo::isDeleted))
+            copyMemoUseCase(parameter = id).getOrThrow().toAppActionId()
+        }
 
-    public suspend fun restart(memoId: String): AppActionChangedCount = runAppAction { restartMemoUseCase(parameter = memoId.toUuidArgument(name = MEMO_ID)).getOrThrow().toAppActionChangedCount() }
+    public suspend fun finish(memoId: String): AppActionChangedCount =
+        runAppAction {
+            val id = memoId.toUuidArgument(name = MEMO_ID)
 
-    public suspend fun delete(memoId: String): AppActionChangedCount = runAppAction { deleteMemoUseCase(parameter = memoId.toUuidArgument(name = MEMO_ID)).getOrThrow().toAppActionChangedCount() }
+            findMemoUseCase.changeActive(id = id, isDeleted = Memo::isDeleted) { finishMemoUseCase(parameter = id) }
+        }
+
+    public suspend fun restart(memoId: String): AppActionChangedCount =
+        runAppAction {
+            val id = memoId.toUuidArgument(name = MEMO_ID)
+
+            findMemoUseCase.changeActive(id = id, isDeleted = Memo::isDeleted) { restartMemoUseCase(parameter = id) }
+        }
+
+    public suspend fun delete(memoId: String): AppActionChangedCount =
+        runAppAction {
+            val id = memoId.toUuidArgument(name = MEMO_ID)
+
+            findMemoUseCase.changeActive(id = id, isDeleted = Memo::isDeleted) { deleteMemoUseCase(parameter = id) }
+        }
 
     public suspend fun restore(memoId: String): AppActionChangedCount = runAppAction { restoreMemoUseCase(parameter = memoId.toUuidArgument(name = MEMO_ID)).getOrThrow().toAppActionChangedCount() }
 }

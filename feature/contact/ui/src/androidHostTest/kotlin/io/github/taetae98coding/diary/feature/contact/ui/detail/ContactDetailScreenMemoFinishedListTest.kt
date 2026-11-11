@@ -1,12 +1,20 @@
 package io.github.taetae98coding.diary.feature.contact.ui.detail
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -95,6 +103,51 @@ class ContactDetailScreenMemoFinishedListTest {
         navigateCount shouldBe 1
     }
 
+    // 내비게이션은 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태만 보관한다. 완료 메모 목록이 위에 놓였다가 닫히는 것을 같은 방식으로 재현한다.
+    // 뒤로가기가 완료 메모 목록과 상세 영역을 함께 닫는 이력은 ContactMemoFinishedListNavigationTest가 확인한다.
+    @Test
+    fun `TC-bd6997b9-d2e8-4e97-acbb-84fa17a7d124 TC-5ecf6737-24b8-40d6-a688-4586275ef513 TC-e26ded17-7725-49f3-9a27-08e5ba713edb 닫히면 메모 탭 유지`() {
+        var isDetailOnTop by mutableStateOf(true)
+        val viewModel = screenTestViewModel(MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail())))
+        val tagViewModel = detailTagScreenTestViewModel()
+        prepareContactDetailTabViewModels(memoPagingData = contactMemoPagingData(itemList = emptyList()))
+        composeRule.setContent {
+            ContactDetailScreenTestHost {
+                val saveableStateHolder = rememberSaveableStateHolder()
+
+                if (isDetailOnTop) {
+                    saveableStateHolder.SaveableStateProvider(key = DETAIL_ENTRY_KEY) {
+                        ContactDetailScreen(
+                            navigateUp = {},
+                            navigateToMemoAdd = {},
+                            navigateToMemoDetail = {},
+                            navigateToMemoFinishedList = { isDetailOnTop = false },
+                            id = FIRST_CONTACT_ID,
+                            componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
+                            contactViewModel = viewModel,
+                            navigateToTagAdd = {},
+                            navigateToTagDetail = {},
+                            tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                            tagViewModel = tagViewModel,
+                        )
+                    }
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.runOnIdle { isDetailOnTop = true }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertExists()
+    }
+
     private fun setScreenOnMemoTab(
         memoPagingData: PagingData<MemoListItem> = contactMemoPagingData(itemList = emptyList()),
         memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION,
@@ -114,5 +167,6 @@ class ContactDetailScreenMemoFinishedListTest {
         const val MEMO_TITLE = "ContactDetailFinishedEntryMemo"
         const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val KOREAN_FINISHED_LIST_LABEL = "완료된 메모"
+        const val DETAIL_ENTRY_KEY = "ContactDetail"
     }
 }

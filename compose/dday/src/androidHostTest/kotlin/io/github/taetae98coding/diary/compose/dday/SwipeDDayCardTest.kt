@@ -70,7 +70,7 @@ class SwipeDDayCardTest {
     }
 
     @Test
-    fun `TC-19a0c296-a283-4d3c-8b2b-f0d67297582e 아직 준비되지 않은 자리는 선택해도 이동하지 않는다`() {
+    fun `TC-19a0c296-a283-4d3c-8b2b-f0d67297582e TC-f37b3a3e-09fd-4ad0-bd7f-db2f0cb9e101 자리 표시는 선택할 수 없다`() {
         val eventList = mutableListOf<DDayListEvent>()
         setCard(dday = null, onEvent = eventList::add)
 

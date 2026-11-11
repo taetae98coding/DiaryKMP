@@ -1,11 +1,8 @@
 package io.github.taetae98coding.diary.data.account.repository
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
-import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.core.model.authentication.Session
 import io.github.taetae98coding.diary.core.network.api.authentication.datasource.SessionRemoteDataSource
-import io.github.taetae98coding.diary.core.network.api.authentication.entity.SessionRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseSessionStatus
 import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
@@ -30,12 +27,7 @@ class SessionRepositoryImplTest :
         listOf("데스크톱", "그 외 인가 코드 제공 플랫폼").forEach { platform ->
             test("TC-e15946a0-04bc-498d-a34f-30ef35e7f825 $platform authorization code 매핑") {
                 val credential =
-                    GoogleCredential.AuthorizationCode(
-                        code = Arb.string().next(),
-                        clientId = Arb.string().next(),
-                        redirectUri = Arb.string().next(),
-                        codeVerifier = if (platform == "데스크톱") Arb.string().next() else null,
-                    )
+                    Arb.googleCredentialAuthorizationCode().next().copy(codeVerifier = if (platform == "데스크톱") Arb.string().next() else null)
                 val response = Arb.sessionRemoteEntity().next()
                 val remoteDataSource = mockk<SessionRemoteDataSource>()
                 val supabaseAuth = mockk<SupabaseAuth>()

@@ -6,7 +6,7 @@
 
 ContactHome에서 연락처를 선택해 ContactDetail로 이동하는 케이스는 [ContactHome 테스트 케이스](./contact-home.md)에서, 각 입력의 문자 제한과 조작 자체의 케이스는 [ContactAdd 테스트 케이스](./contact-add.md)에서, 설명 입력 자체의 케이스는 [설명 입력 테스트 케이스](./description-input.md)에서, 목록과 상세를 함께 쓰는 배치의 케이스는 [Contact 목록·상세 배치 테스트 케이스](./contact-list-detail.md)에서, 연락처를 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서 다룬다.
 
-태그 입력의 표시와 조작, 태그 선택 목록의 케이스는 [항목 태그 입력 컴포넌트 테스트 케이스](./entity-tag-input.md)에서 다룬다.
+태그 입력의 표시와 조작, 태그 선택 목록의 케이스는 [항목 태그 입력 컴포넌트 테스트 케이스](./entity-tag-input.md)에서 다룬다. 태그 연결이 ContactHome의 연락처 목록을 바꾸지 않는 것(`data > 태그 연결 결과의 표시`)은 [연락처 태그 테스트 케이스](./contact-tag.md)의 TC-107b6fe9-f49f-4caa-8bd3-e02a73e2f26d가 확인한다.
 
 
 ## feature
@@ -917,10 +917,3 @@ flowchart TD
 - Given: 로그인한 계정의 연락처가 조회되어 있고 태그 하나가 저장되어 있다.
 - When: 사용자가 그 태그를 연결한 뒤 다시 해제한다.
 - Then: 연결한 동안에는 그 태그의 연락처 목록에 이 연락처가 나타나고, 해제한 뒤에는 나타나지 않는다.
-
-### TC-bfc00515-a530-4502-b102-5aa5dfc7dafd: 태그 연결은 ContactHome의 목록을 바꾸지 않는다
-
-- 근거: `data > 태그 연결 결과의 표시`
-- Given: 로그인한 계정의 연락처가 조회되어 있고 태그 하나가 저장되어 있다.
-- When: 사용자가 그 태그를 연결한다.
-- Then: ContactHome 목록의 노출과 순서가 연결 전과 같다.

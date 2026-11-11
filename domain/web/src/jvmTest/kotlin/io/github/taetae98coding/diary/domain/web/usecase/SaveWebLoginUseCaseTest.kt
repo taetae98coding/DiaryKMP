@@ -3,7 +3,12 @@ package io.github.taetae98coding.diary.domain.web.usecase
 import io.github.taetae98coding.diary.core.model.web.WebLogin
 import io.github.taetae98coding.diary.core.testing.web.webLogin
 import io.github.taetae98coding.diary.domain.web.repository.WebLoginRepository
+import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
+import io.github.taetae98coding.diary.logger.core.DiaryLog
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
@@ -74,6 +79,7 @@ class SaveWebLoginUseCaseTest :
             val repository = repository(savedLogin = Arb.webLogin().next())
             coEvery { repository.readWebViewLogin(siteUrlSet = any()) } throws throwable
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
+            val logList = recordConsoleLog()
 
             When("앱이 활성 상태에서 벗어나 보관한다") {
                 val result = useCase(parameter = Unit)
@@ -81,6 +87,7 @@ class SaveWebLoginUseCaseTest :
                 Then("TC-31ff2113-2f58-4cb0-b0c3-3d0e4ed631ba 이전에 보관해 둔 것을 바꾸지 않고 실패를 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
                     coVerify(exactly = 0) { repository.submitSavedLogin(login = any()) }
+                    logList.filter { log -> log.throwable === throwable } shouldHaveSize 1
                 }
             }
         }
@@ -117,12 +124,14 @@ class SaveWebLoginUseCaseTest :
             coEvery { repository.readWebViewLogin(siteUrlSet = any()) } returns Arb.webLogin().next()
             coEvery { repository.submitSavedLogin(login = any()) } throws throwable
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
+            val logList = recordConsoleLog()
 
             When("앱이 활성 상태에서 벗어나 보관한다") {
                 val result = useCase(parameter = Unit)
 
                 Then("TC-31ff2113-2f58-4cb0-b0c3-3d0e4ed631ba 실패를 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
+                    logList.filter { log -> log.throwable === throwable } shouldHaveSize 1
                 }
             }
         }
@@ -136,6 +145,15 @@ class SaveWebLoginUseCaseTest :
             every { repository.getRestoring() } returns MutableStateFlow(false)
 
             return repository
+        }
+
+        private fun recordConsoleLog(): List<ConsoleLog> {
+            val logList = mutableListOf<ConsoleLog>()
+            val delegate = mockk<DiaryLoggerDelegate>()
+            every { delegate.log(log = any()) } answers { (firstArg<DiaryLog>() as? ConsoleLog)?.let(logList::add) }
+            DiaryLogger.add(delegate = delegate)
+
+            return logList
         }
     }
 }

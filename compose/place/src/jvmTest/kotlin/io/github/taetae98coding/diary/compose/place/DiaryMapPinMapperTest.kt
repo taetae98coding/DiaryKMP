@@ -1,23 +1,18 @@
 package io.github.taetae98coding.diary.compose.place
 
-import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.core.model.place.PlaceDetail
-import io.github.taetae98coding.diary.core.testing.place.placeDetail
+import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
-import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 class DiaryMapPinMapperTest :
     FunSpec({
         test(
             "TC-c4fdf19e-6b46-4b2f-9cb8-cb7a20e2e956, TC-b4820f67-50fa-4e61-a61e-f86dabc63a79 장소는 좌표 위치에 컬러 색과 제목 라벨을 가진 핀으로 변환된다",
         ) {
-            val place = place()
+            val place = Arb.place(isDeleted = false).next()
 
             val pin = place.toDiaryMapPin()
 
@@ -27,22 +22,11 @@ class DiaryMapPinMapperTest :
         }
 
         test("TC-846bef63-ecc0-4f27-8bd4-c5672bb2db4e, TC-324e8d9b-1ec9-4829-82a9-4b300b72947d 핀의 식별 값은 그 장소의 식별자다") {
-            val placeList = List(2) { place() }
+            val placeList = List(2) { Arb.place(isDeleted = false).next() }
 
             val pinList = placeList.map { place -> place.toDiaryMapPin() }
 
             pinList.map { pin -> pin.id } shouldBe placeList.map { place -> place.id }
             pinList.map { pin -> pin.id }.toSet().size shouldBe placeList.size
         }
-    }) {
-    private companion object {
-        private fun place(): Place =
-            Place(
-                id = Uuid.random(),
-                detail = Arb.placeDetail().next(),
-                isDeleted = false,
-                updatedAt = Arb.secondPrecisionInstant().next(),
-                createdAt = Arb.secondPrecisionInstant().next(),
-            )
-    }
-}
+    })

@@ -2,11 +2,18 @@
 
 package io.github.taetae98coding.diary.app.shared.integrity
 
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
+import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.domain.integrity.usecase.LogPlayIntegrityUseCase
+import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
+import io.github.taetae98coding.diary.logger.core.DiaryLog
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -54,32 +61,39 @@ class AppPlayIntegrityViewModelTest : FunSpec() {
 
         test("TC-0af135da-aa35-4414-8edb-2e9ad8af5115 확인이 진행 중일 때 겹쳐 생긴 계기는 건너뛴다") {
             runTest(mainDispatcher) {
-                val serverResponse = CompletableDeferred<Unit>()
-                var callCount = 0
-                val useCase = mockk<LogPlayIntegrityUseCase>()
-                coEvery { useCase(Unit) } coAnswers {
-                    callCount += 1
-                    if (callCount == 1) serverResponse.await()
-                    Result.success(Unit)
+                val serverResponse = CompletableDeferred<PlayIntegrityVerdict?>()
+                val verdict = PlayIntegrityVerdict(fieldMap = emptyMap())
+                var fetchCount = 0
+                val repository = mockk<PlayIntegrityRepository>()
+                coEvery { repository.fetch() } coAnswers {
+                    fetchCount += 1
+                    if (fetchCount == 1) serverResponse.await() else verdict
                 }
-                val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = useCase)
+                val logList = mutableListOf<DiaryLog>()
+                val delegate = mockk<DiaryLoggerDelegate>()
+                every { delegate.log(log = any()) } answers { logList += firstArg<DiaryLog>() }
+                DiaryLogger.add(delegate = delegate)
+                val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = logPlayIntegrityUseCase(repository = repository))
 
                 viewModel.log()
                 advanceUntilIdle()
                 viewModel.log()
                 advanceUntilIdle()
 
-                callCount shouldBe 1
+                fetchCount shouldBe 1
+                logList.count { log -> log is AnalyticsEventLog && log.name == "play_integrity" } shouldBe 0
 
-                serverResponse.complete(Unit)
+                serverResponse.complete(verdict)
                 advanceUntilIdle()
 
-                callCount shouldBe 1
+                fetchCount shouldBe 1
+                logList.count { log -> log is AnalyticsEventLog && log.name == "play_integrity" } shouldBe 1
 
                 viewModel.log()
                 advanceUntilIdle()
 
-                callCount shouldBe 2
+                fetchCount shouldBe 2
+                logList.count { log -> log is AnalyticsEventLog && log.name == "play_integrity" } shouldBe 2
             }
         }
 
@@ -103,3 +117,10 @@ class AppPlayIntegrityViewModelTest : FunSpec() {
         }
     }
 }
+
+// 원격 분석 로그는 실제 확인 과정이 남기므로 실제 확인 과정을 쓰고 서버 응답만 제어한다.
+// 확인 과정의 생성자는 다른 모듈에서 부를 수 없게 막혀 있어 Java 리플렉션으로 만든다.
+private fun logPlayIntegrityUseCase(repository: PlayIntegrityRepository): LogPlayIntegrityUseCase =
+    LogPlayIntegrityUseCase::class.java
+        .getConstructor(PlayIntegrityRepository::class.java)
+        .newInstance(repository)

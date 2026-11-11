@@ -2,7 +2,10 @@ package io.github.taetae98coding.diary.feature.search.ui.home.result
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -39,6 +42,7 @@ import io.github.taetae98coding.diary.feature.search.ui.home.resultTag
 import io.github.taetae98coding.diary.feature.search.ui.home.resultWeb
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagList
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebList
+import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -47,6 +51,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.plus
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +64,11 @@ import kotlin.uuid.Uuid
 class SearchHomeResultListTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 메모 결과에 제목과 기간을 표시한다`() {
@@ -170,8 +180,7 @@ class SearchHomeResultListTest {
     fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 결과가 없으면 결과 없음을 알린다`() {
         setMemoList(query = QUERY)
 
-        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
-        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+        assertEmptyResultOnly()
     }
 
     @Test
@@ -194,24 +203,28 @@ class SearchHomeResultListTest {
     fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 태그 결과가 없으면 결과 없음을 알린다`() {
         setEmptyResultList(type = SearchHomeType.TAG, query = QUERY)
 
-        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
-        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+        assertEmptyResultOnly()
     }
 
     @Test
     fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 장소 결과가 없으면 결과 없음을 알린다`() {
         setEmptyResultList(type = SearchHomeType.PLACE, query = QUERY)
 
-        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
-        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+        assertEmptyResultOnly()
     }
 
     @Test
     fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 웹 결과가 없으면 결과 없음을 알린다`() {
         setEmptyResultList(type = SearchHomeType.WEB, query = QUERY)
 
-        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
-        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+        assertEmptyResultOnly()
+    }
+
+    @Test
+    fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 디데이 결과가 없으면 결과 없음을 알린다`() {
+        setEmptyResultList(type = SearchHomeType.DDAY, query = QUERY)
+
+        assertEmptyResultOnly()
     }
 
     @Test
@@ -303,6 +316,15 @@ class SearchHomeResultListTest {
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(SearchHomeResultItemEvent.Click(id = dday.id))
+    }
+
+    // 결과 없음 안내만 표시되고 로딩 안내(진행 표시)는 표시되지 않는다. 오류 안내는 따로 두는 문구가 없어 결과 없음 문구가 그대로인지로 확인한다.
+    private fun assertEmptyResultOnly() {
+        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+        composeRule
+            .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), useUnmergedTree = true)
+            .assertCountEquals(0)
     }
 
     private fun setMemoList(

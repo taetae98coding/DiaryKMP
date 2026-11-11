@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CHECKLIST_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
@@ -46,7 +47,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
@@ -150,7 +150,7 @@ class TagDetailChecklistScreenTest {
     fun `TC-7d1e7f4f-6699-4116-a9cc-ef10ca89bafb TC-13c5801d-3af7-4b1d-b4b1-dd2154dace1a 대상 태그를 조회하지 못해도 체크리스트 목록과 동작을 제공한다`() {
         setScreenOnTab(
             uiState = TagDetailUiState.Loading,
-            pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = ITEM_TITLE))),
+            pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = ITEM_TITLE).next())),
         )
 
         composeRule.onNodeWithText(ITEM_TITLE).assertIsDisplayed()
@@ -159,7 +159,7 @@ class TagDetailChecklistScreenTest {
 
     @Test
     fun `TC-93a86f7b-cfec-427e-a3ae-b8169779d557 체크리스트를 선택하면 그 체크리스트의 상세 이동을 요청한다`() {
-        val item = tagChecklist(title = ITEM_TITLE)
+        val item = Arb.checklistSummary(title = ITEM_TITLE).next()
         val navigatedIdList = mutableListOf<Uuid>()
         setScreenOnTab(
             pagingData = tagEntityPagingData(itemList = listOf(item)),
@@ -173,7 +173,7 @@ class TagDetailChecklistScreenTest {
 
     @Test
     fun `TC-08d27cf5-8623-4bf2-af1b-926f422bd9e5 체크리스트 탭에서 목록을 당기면 계정 데이터 동기화를 한 번 요청한다`() {
-        setScreenOnTab(pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = ITEM_TITLE))))
+        setScreenOnTab(pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = ITEM_TITLE).next())))
         waitForItem()
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -281,7 +281,7 @@ class TagDetailChecklistScreenTest {
 
     @Test
     fun `TC-984f3956-60e4-44fa-8ba8-2b93f8a82959 체크리스트 탭의 삭제와 실행 취소는 대상 태그와 수정 중인 입력을 바꾸지 않는다`() {
-        val item = tagChecklist(title = ITEM_TITLE)
+        val item = Arb.checklistSummary(title = ITEM_TITLE).next()
         // 대상 태그의 수정이나 삭제를 요청하면 엄격한 mock이 실패하므로, 요청하지 않았음을 함께 확인한다.
         setScreen(pagingData = tagEntityPagingData(itemList = listOf(item)))
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
@@ -336,7 +336,7 @@ class TagDetailChecklistScreenTest {
     }
 
     private fun swipeItem(tabDescription: String = DEFAULT_CHECKLIST_TAB_DESCRIPTION): ChecklistSummary {
-        val item = tagChecklist(title = ITEM_TITLE)
+        val item = Arb.checklistSummary(title = ITEM_TITLE).next()
         setScreenOnTab(
             pagingData = tagEntityPagingData(itemList = listOf(item)),
             tabDescription = tabDescription,

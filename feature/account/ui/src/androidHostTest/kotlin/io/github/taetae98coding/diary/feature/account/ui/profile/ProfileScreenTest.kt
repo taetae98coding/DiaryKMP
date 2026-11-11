@@ -70,6 +70,8 @@ class ProfileScreenTest {
         (changeTop < deleteTop) shouldBe true
         composeRule.onNodeWithText(CHANGE_LABEL).assertIsEnabled()
         composeRule.onNodeWithText(DELETE_LABEL).assertIsEnabled()
+        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(FAILED_MESSAGE).assertDoesNotExist()
     }
 
     @Test
@@ -358,6 +360,39 @@ class ProfileScreenTest {
     }
 
     @Test
+    fun `TC-ff12655f-9d05-45d5-941d-052f02a957c2 탈퇴를 다시 고른 뒤 끝난 첫 흐름의 인가 코드는 받지 않는다`() {
+        val firstAuthorization = Arb.appleAuthorization().next()
+        val secondAuthorization = Arb.appleAuthorization().next()
+        val first = CompletableDeferred<AppleSignInResult>()
+        val second = CompletableDeferred<AppleSignInResult>()
+        val secondCheck = CompletableDeferred<Result<Boolean>>()
+        val fixture = Fixture(isAppleReauthenticationRequired = true)
+        coEvery { fixture.checkUseCase(parameter = Unit) } returns Result.success(true) coAndThen { secondCheck.await() }
+        coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { first.await() } coAndThen { second.await() }
+        setScreen(fixture)
+
+        confirmDelete()
+        composeRule.onNodeWithText(CONFIRM_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { first.complete(signInResult(authorization = firstAuthorization)) }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
+        composeRule.onNodeWithText(CONFIRM_TITLE).assertExists()
+        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertExists()
+
+        composeRule.runOnIdle { secondCheck.complete(Result.success(true)) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertDoesNotExist()
+        composeRule.runOnIdle { second.complete(signInResult(authorization = secondAuthorization)) }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { fixture.appleCredentialsManager.signIn() }
+        coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = firstAuthorization) }
+        coVerify(exactly = 1) { fixture.deleteAccountUseCase(parameter = secondAuthorization) }
+    }
+
+    @Test
     fun `TC-fdf51fd0-26c2-4877-a583-b9a9166aeecf Apple 재인증 중 취소로 닫으면 흐름을 끝내고 탈퇴하지 않는다`() {
         assertDismissDuringReauthenticationEndsFlow { composeRule.onNodeWithText(CANCEL_LABEL).performClick() }
     }
@@ -400,6 +435,28 @@ class ProfileScreenTest {
         composeRule.onNodeWithText(CONFIRM_TITLE).assertExists()
         composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertExists()
         coVerify(exactly = 1) { fixture.deleteAccountUseCase(parameter = any()) }
+    }
+
+    @Test
+    fun `TC-c94e0258-ad3d-4541-af01-4070488bca25 확인 다이얼로그는 화면이 재생성되어도 열림과 닫힘을 유지한다`() {
+        val fixture = Fixture()
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent { ProfileContent(fixture) }
+        composeRule.onNodeWithText(DELETE_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CONFIRM_TITLE).assertExists()
+
+        composeRule.onNodeWithText(CANCEL_LABEL).performClick()
+        composeRule.waitForIdle()
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CONFIRM_TITLE).assertDoesNotExist()
+        coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
     }
 
     @Test

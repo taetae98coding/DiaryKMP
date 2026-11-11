@@ -24,6 +24,8 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolCallResult
 import io.github.taetae98coding.diary.work.mcp.tool.call
 import io.github.taetae98coding.diary.work.mcp.tool.json.toColorHex
 import io.github.taetae98coding.diary.work.mcp.tool.search.SearchMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundDDay
+import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundTag
 import io.github.taetae98coding.diary.work.mcp.tool.tool
 import io.github.taetae98coding.diary.work.mcp.tool.toolSetOf
 import io.kotest.core.spec.style.FunSpec
@@ -67,7 +69,7 @@ class DDayMcpToolSetTest :
                     Triple(LocalDate(2025, 1, 15), true, countJson(status = "passed", passedDays = 430, years = 1, months = 2)),
                     Triple(LocalDate(2025, 1, 15), false, countJson(status = "passed", passedDays = 429, years = 1, months = 2)),
                 ).forEach { (baseDate, countsBaseDay, expectedCount) ->
-                    val dday = Arb.dday().next().copy(detail = Arb.ddayDetail(baseDate = baseDate, countsBaseDay = countsBaseDay).next())
+                    val dday = Arb.dday().next().copy(isDeleted = false, detail = Arb.ddayDetail(baseDate = baseDate, countsBaseDay = countsBaseDay).next())
                     val expected = dday.expectedJson(count = expectedCount)
                     val findDDayUseCase = mockk<FindDDayUseCase>()
                     val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
@@ -111,7 +113,7 @@ class DDayMcpToolSetTest :
                     val parameter = slot<AddDDayUseCase.Parameter>()
                     val addDDayUseCase = mockk<AddDDayUseCase>()
                     coEvery { addDDayUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
-                    val added = Arb.dday().next().let { dday -> dday.copy(id = addedId, detail = dday.detail.copy(repeats = recorded)) }
+                    val added = Arb.dday().next().let { dday -> dday.copy(id = addedId, isDeleted = false, detail = dday.detail.copy(repeats = recorded)) }
                     val findDDayUseCase = mockk<FindDDayUseCase>()
                     val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                     every { findDDayUseCase(parameter = addedId) } returns flowOf(Result.success(added))
@@ -159,7 +161,7 @@ class DDayMcpToolSetTest :
                             endDate = LocalDate(2026, 12, 31),
                         ).next()
                         .copy(title = "시험")
-                val stored = Arb.dday().next().copy(detail = storedDetail)
+                val stored = Arb.dday().next().copy(isDeleted = false, detail = storedDetail)
                 listOf(
                     ("title" to JsonPrimitive("수능")) to storedDetail.copy(title = "수능"),
                     ("clearEndDate" to JsonPrimitive(true)) to storedDetail.copy(endDate = null),
@@ -192,7 +194,7 @@ class DDayMcpToolSetTest :
                 ) shouldBe McpToolCallResult.Failure(message = END_DATE_FAILURE_MESSAGE)
                 coVerify(exactly = 0) { addDDayUseCase(parameter = any()) }
 
-                val stored = Arb.dday().next().copy(detail = Arb.ddayDetail(baseDate = LocalDate(2026, 1, 1), endDate = LocalDate(2026, 12, 31)).next())
+                val stored = Arb.dday().next().copy(isDeleted = false, detail = Arb.ddayDetail(baseDate = LocalDate(2026, 1, 1), endDate = LocalDate(2026, 12, 31)).next())
                 listOf(
                     mapOf("baseDate" to JsonPrimitive("2027-01-01")),
                     mapOf("endDate" to JsonPrimitive("2025-12-31")),
@@ -297,13 +299,15 @@ class DDayMcpToolSetTest :
 
         test("태그 연결과 해제는 디데이 종류로 앱 기능에 넘긴다") {
             runTest {
-                val ddayId = Arb.kotlinUuid().next()
-                val tagId = Arb.kotlinUuid().next()
+                val dday = stubFoundDDay(isDeleted = false)
+                val tag = stubFoundTag(isDeleted = false)
+                val ddayId = dday.id
+                val tagId = tag.id
                 val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
                 val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
                 coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val toolSet = toolSetOf<DDayMcpToolSet>(addEntityTagUseCase, removeEntityTagUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+                val toolSet = toolSetOf<DDayMcpToolSet>(addEntityTagUseCase, removeEntityTagUseCase, *dday.useCaseList.toTypedArray(), *tag.useCaseList.toTypedArray())
                 val arguments = JsonObject(mapOf("ddayId" to JsonPrimitive(ddayId.toString()), "tagId" to JsonPrimitive(tagId.toString())))
                 val done = McpToolCallResult.Success(content = buildJsonObject { put("done", true) })
 

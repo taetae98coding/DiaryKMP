@@ -27,11 +27,11 @@ import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.domain.dday.usecase.GetCalendarDDayUseCase
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -137,7 +137,6 @@ class CalendarTimetableScreenDDayTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `TC-48116262-e2d8-40ca-8ce4-d21684f179b2 디데이를 길게 누르면 DDayDetail로 가지 않고 MemoAdd 이동도 요청하지 않는다`() {
         val ddayDetailList = mutableListOf<Uuid>()
         val memoAddList = mutableListOf<MemoDateTime>()
@@ -148,25 +147,27 @@ class CalendarTimetableScreenDDayTest {
             navigateToDDayDetail = ddayDetailList::add,
             navigateToMemoAdd = memoAddList::add,
         )
-        val position =
-            composeRule
-                .onNodeWithText(EXAM_TEXT)
-                .performScrollTo()
-                .fetchSemanticsNode()
-                .boundsInRoot.center
-        val pixelMapBeforePress = composeRule.onRoot().captureToImage().toPixelMap()
 
-        composeRule.onRoot().performTouchInput {
-            down(position)
-            advanceEventTime(viewConfiguration.longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
-            moveBy(Offset.Zero)
-            up()
-        }
-        composeRule.waitForIdle()
+        longPressAndRelease(position = examCenter())
 
         ddayDetailList shouldBe emptyList()
         memoAddList shouldBe emptyList()
-        // 선택된 기간은 칸의 배경으로만 드러나므로, 누르기 전과 같은 화면인지로 남은 선택이 없음을 확인한다.
+    }
+
+    // 선택된 기간은 칸의 배경으로만 드러나므로, 누르기 전과 같은 화면인지로 남은 선택이 없음을 확인한다.
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `디데이를 길게 눌렀다 떼면 누르기 전과 같은 화면이다`() {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 24),
+            ddayListFlow = MutableStateFlow(listOf(dday(title = EXAM_TITLE, day = 24))),
+        )
+        val position = examCenter()
+        val pixelMapBeforePress = composeRule.onRoot().captureToImage().toPixelMap()
+
+        longPressAndRelease(position = position)
+
         val pixelMapAfterRelease = composeRule.onRoot().captureToImage().toPixelMap()
         (pixelMapAfterRelease.width to pixelMapAfterRelease.height) shouldBe (pixelMapBeforePress.width to pixelMapBeforePress.height)
         val changedPixelCount =
@@ -224,7 +225,7 @@ class CalendarTimetableScreenDDayTest {
                         ).next(),
                 ),
             holidayList = listOf(Holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 24)..september(day = 24))),
-            birthdayList = listOf(CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = BIRTHDAY_NAME, nameQualifier = "", date = september(day = 24))),
+            birthdayList = listOf(Arb.calendarContactBirthday().next().copy(name = BIRTHDAY_NAME, nameQualifier = "", date = september(day = 24))),
         )
 
         composeRule.onNodeWithText(MEETING_TITLE).assertIsDisplayed()
@@ -233,6 +234,23 @@ class CalendarTimetableScreenDDayTest {
         composeRule.onAllNodesWithText(DDAY_TEXT_PREFIX, substring = true).assertCountEquals(0)
         composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+    }
+
+    private fun examCenter(): Offset =
+        composeRule
+            .onNodeWithText(EXAM_TEXT)
+            .performScrollTo()
+            .fetchSemanticsNode()
+            .boundsInRoot.center
+
+    private fun longPressAndRelease(position: Offset) {
+        composeRule.onRoot().performTouchInput {
+            down(position)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+            moveBy(Offset.Zero)
+            up()
+        }
+        composeRule.waitForIdle()
     }
 
     private fun setTimetableScreen(

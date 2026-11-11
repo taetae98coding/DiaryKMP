@@ -12,7 +12,6 @@ internal class LunarLocalDataSourceImpl(
     private val database: CalendarDatabase,
 ) : LunarLocalDataSource {
     override fun get(dateRange: LocalDateRange): Flow<List<LunarDateLocalEntity>> =
-        // DAO는 기간 타입을 바인딩할 수 없어 시작일과 종료일로 나눠 넘긴다.
         database.lunarDateDao().get(
             start = dateRange.start,
             endInclusive = dateRange.endInclusive,

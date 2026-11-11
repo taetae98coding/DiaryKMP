@@ -1,12 +1,20 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -110,6 +118,52 @@ class WebDetailScreenMemoFinishedListTest {
         navigateCount shouldBe 1
     }
 
+    // 내비게이션은 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태만 보관한다. 완료 메모 목록이 위에 놓였다가 닫히는 것을 같은 방식으로 재현한다.
+    // 뒤로가기가 완료 메모 목록과 상세 영역을 함께 닫는 이력은 WebMemoFinishedListNavigationTest가 확인한다.
+    @Test
+    fun `TC-bd6997b9-d2e8-4e97-acbb-84fa17a7d124 TC-5ecf6737-24b8-40d6-a688-4586275ef513 TC-e26ded17-7725-49f3-9a27-08e5ba713edb 닫히면 메모 탭 유지`() {
+        var isDetailOnTop by mutableStateOf(true)
+        val viewModel = memoScreenWebViewModel()
+        val pageViewModel = memoScreenPageViewModel()
+        val tagViewModel = detailTagScreenTestViewModel()
+        prepareWebDetailTabViewModels(memoPagingData = webMemoPagingData(itemList = emptyList()))
+        composeRule.setContent {
+            WebDetailScreenTestTheme {
+                val saveableStateHolder = rememberSaveableStateHolder()
+
+                if (isDetailOnTop) {
+                    saveableStateHolder.SaveableStateProvider(key = DETAIL_ENTRY_KEY) {
+                        WebDetailScreen(
+                            navigateUp = {},
+                            navigateToTagAdd = {},
+                            navigateToTagDetail = {},
+                            navigateToMemoAdd = {},
+                            navigateToMemoDetail = {},
+                            navigateToMemoFinishedList = { isDetailOnTop = false },
+                            id = FIRST_WEB_ID,
+                            tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                            webViewModel = viewModel,
+                            pageViewModel = pageViewModel,
+                            tagViewModel = tagViewModel,
+                        )
+                    }
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.runOnIdle { isDetailOnTop = true }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertExists()
+    }
+
     private fun setScreenOnMemoTab(
         memoPagingData: PagingData<MemoListItem> = webMemoPagingData(itemList = emptyList()),
         memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION,
@@ -129,5 +183,6 @@ class WebDetailScreenMemoFinishedListTest {
         const val MEMO_TITLE = "WebDetailFinishedEntryMemo"
         const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val KOREAN_FINISHED_LIST_LABEL = "완료된 메모"
+        const val DETAIL_ENTRY_KEY = "WebDetail"
     }
 }

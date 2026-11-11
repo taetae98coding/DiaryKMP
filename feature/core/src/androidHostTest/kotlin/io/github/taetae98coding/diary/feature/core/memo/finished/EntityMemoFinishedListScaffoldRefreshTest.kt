@@ -51,7 +51,7 @@ class EntityMemoFinishedListScaffoldRefreshTest {
     }
 
     @Test
-    fun `TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
+    fun `진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
         setEntityMemoFinishedListScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()

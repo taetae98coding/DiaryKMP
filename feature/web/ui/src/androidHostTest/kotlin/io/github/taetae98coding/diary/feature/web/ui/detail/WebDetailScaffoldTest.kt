@@ -107,7 +107,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-3fa7af0b-2cfa-4983-99a1-f445b7b0375c 삭제를 처리하는 동안에도 탭 전환과 정보 확인, 외부로 열기, 뒤로가기를 할 수 있다`() {
+    fun `TC-3fa7af0b-2cfa-4983-99a1-f445b7b0375c 삭제를 처리하는 동안에도 표시 방식 변경과 탭 전환, 외부로 열기, 뒤로가기를 할 수 있다`() {
         val detail = testWebDetail(headerList = listOf(WebHeader(name = FIRST_HEADER_NAME, value = FIRST_HEADER_VALUE)))
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
@@ -118,6 +118,9 @@ class WebDetailScaffoldTest {
         )
 
         composeRule.onNodeWithText(detail.title).assertExists()
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.onNodeWithText(DEFAULT_VIEW_MODE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).performClick()
         composeRule.waitForIdle()
         composeRule.titleInput().assert(hasText(detail.title))
@@ -130,6 +133,8 @@ class WebDetailScaffoldTest {
 
         eventList shouldBe
             listOf(
+                WebDetailScaffoldEvent.ClickViewMode,
+                WebDetailScaffoldEvent.SelectViewMode(viewMode = WebDetailViewMode.RESPONSE),
                 WebDetailScaffoldEvent.SelectTab(tab = WebDetailTab.FORM),
                 WebDetailScaffoldEvent.ClickOpenInNew,
                 WebDetailScaffoldEvent.ClickNavigateUp,

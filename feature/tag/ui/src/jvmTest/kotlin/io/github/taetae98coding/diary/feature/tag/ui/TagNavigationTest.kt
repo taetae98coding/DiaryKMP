@@ -34,12 +34,12 @@ import kotlin.uuid.Uuid
 class TagNavigationTest :
     FunSpec({
         test("TC-7e9aa6ec-0f1d-4fb3-8a3a-43b9083e1c5d 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 TagDetail로 돌아간다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val detailCases =
                 listOf(
                     emptyList(),
-                    listOf(MemoDetailNavKey(id = Uuid.random())),
-                    listOf(MemoDetailNavKey(id = Uuid.random()), MemoDetailNavKey(id = Uuid.random())),
+                    listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next()), MemoDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -135,7 +135,7 @@ class TagNavigationTest :
         }
 
         test("TC-dc429c83-68b0-4c53-b340-398a98a8f6c3 웹 탭에서 시작한 웹 추가는 대상 태그를 초기 태그로 넘긴다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToWebAddFromTagDetail(tagId = tagId)
@@ -149,7 +149,7 @@ class TagNavigationTest :
         }
 
         test("TC-18e828ae-0886-448b-b24f-9fc2c285bab8 TC-4492adc3-a539-4011-976d-6110ad007bc9 연락처 탭에서 시작한 연락처 추가는 대상 태그를 초기 태그로 넘긴다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToContactAddFromTagDetail(tagId = tagId)
@@ -163,7 +163,7 @@ class TagNavigationTest :
         }
 
         test("TC-6f2de9f0-dab1-4775-a272-c5398d545222 TC-549fa0c3-c23b-4090-a33d-f4ac7438ae73 체크리스트 탭에서 시작한 체크리스트 추가는 대상 태그를 초기 태그로 넘긴다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToChecklistAddFromTagDetail(tagId = tagId)
@@ -191,7 +191,7 @@ class TagNavigationTest :
         }
 
         test("TC-e8b290e8-acc4-4ed1-82dd-722b9df7d57d TC-81cf6143-995e-4791-9931-b490a0fdffc9 곡 탭에서 시작한 곡 추가는 대상 태그를 초기 태그로 넘긴다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToMusicAddFromTagDetail(tagId = tagId)
@@ -205,7 +205,7 @@ class TagNavigationTest :
         }
 
         test("TC-83934ee5-9d2f-46ca-aebf-b614faa7cf58 TC-c9541eab-fc97-4840-a2e4-58762f86b7d4 QR 탭에서 시작한 QR 추가는 대상 태그를 초기 태그로 넘긴다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToQrAddFromTagDetail(tagId = tagId)
@@ -219,7 +219,7 @@ class TagNavigationTest :
         }
 
         test("TC-25b808f4-b089-4a0b-8555-a06a86632ff6 목록 모드에서 시작한 장소 추가는 지도 위치를 넘기지 않는다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToPlaceAddFromTagDetail(tagId = tagId, coordinate = null)
@@ -231,7 +231,7 @@ class TagNavigationTest :
         }
 
         test("TC-9a764db7-36f2-4db2-960c-f503a819a9ab 지도 모드에서 시작한 장소 추가는 보고 있던 지도 위치를 넘긴다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val coordinate = Coordinate(latitude = Arb.numericDouble().next(), longitude = Arb.numericDouble().next())
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
@@ -244,8 +244,8 @@ class TagNavigationTest :
         }
 
         test("TC-dc43207a-95ef-4a7f-9050-1154df3631bc 다른 태그의 상세에서 이동해 온 상세 화면은 뒤로가기 동작을 제공하고 이전 태그의 상세로 돌아간다") {
-            val fromKey = TagDetailNavKey(id = Uuid.random())
-            val toKey = TagDetailNavKey(id = Uuid.random())
+            val fromKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+            val toKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, fromKey, toKey)
 
             backStack.isNavigatedFromTagDetail(toKey).shouldBeTrue()
@@ -256,13 +256,13 @@ class TagNavigationTest :
         }
 
         test("TC-233b98e7-1296-4f2e-b4cc-1c058e62c84d 목록에서 선택해 진입한 상세 화면은 뒤로가기 동작을 제공하지 않는다") {
-            val selectedId = Uuid.random()
+            val selectedId = Arb.kotlinUuid().next()
             val pathCases =
                 listOf(
                     emptyList(),
                     listOf(TagAddNavKey()),
-                    listOf(TagDetailNavKey(id = Uuid.random())),
-                    listOf(TagDetailNavKey(id = Uuid.random()), TagDetailNavKey(id = Uuid.random())),
+                    listOf(TagDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(TagDetailNavKey(id = Arb.kotlinUuid().next()), TagDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             pathCases.forEach { pathKeyList ->
@@ -275,12 +275,12 @@ class TagNavigationTest :
         }
 
         test("TC-ba4f46a2-2aac-4359-acdd-432e0115760e 상세 영역의 태그 추가에서 연 상세 화면은 뒤로가기 동작을 제공하지 않는다") {
-            val linkedKey = TagDetailNavKey(id = Uuid.random())
+            val linkedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     TagHomeNavKey,
-                    TagDetailNavKey(id = Uuid.random()),
-                    TagAddNavKey(requestKey = Uuid.random()),
+                    TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                    TagAddNavKey(requestKey = Arb.kotlinUuid().next()),
                     linkedKey,
                 )
 
@@ -288,13 +288,13 @@ class TagNavigationTest :
         }
 
         test("TC-99964339-7621-458b-b2e1-86b115657409 목록에서 태그를 고르면 상세 영역에 쌓인 화면을 모두 정리하고 뒤로가면 상세를 고르기 전으로 돌아간다") {
-            val selectedId = Uuid.random()
+            val selectedId = Arb.kotlinUuid().next()
             val pathCases =
                 listOf(
-                    listOf(TagDetailNavKey(id = Uuid.random())),
-                    listOf(TagDetailNavKey(id = Uuid.random()), TagDetailNavKey(id = Uuid.random())),
-                    listOf(TagDetailNavKey(id = Uuid.random()), TagAddNavKey(requestKey = Uuid.random()), TagDetailNavKey(id = Uuid.random())),
-                    listOf(TagAddNavKey(), TagDetailNavKey(id = Uuid.random()), TagDetailNavKey(id = Uuid.random())),
+                    listOf(TagDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(TagDetailNavKey(id = Arb.kotlinUuid().next()), TagDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(TagDetailNavKey(id = Arb.kotlinUuid().next()), TagAddNavKey(requestKey = Arb.kotlinUuid().next()), TagDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(TagAddNavKey(), TagDetailNavKey(id = Arb.kotlinUuid().next()), TagDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             pathCases.forEach { pathKeyList ->
@@ -346,10 +346,26 @@ class TagNavigationTest :
             }
         }
 
+        test("TC-21a264da-384a-4a43-934d-521849f5c051 단독으로 연 태그 상세와 거기서 이어 연 태그 상세는 목록 바로 위에서도 배치에 참여하지 않는다") {
+            listOf(TagHomeNavKey, TagFinishedListNavKey).forEach { listKey ->
+                val listSelectedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+                val standaloneKey = TagDetailNavKey(id = Arb.kotlinUuid().next(), isStandalone = true)
+                val linkedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+                val backStack = NavBackStack<ScreenNavKey>(listKey, listSelectedKey, standaloneKey, linkedKey)
+
+                backStack.tagDetailPaneSceneKey(standaloneKey).shouldBeNull()
+                backStack.tagDetailPaneSceneKey(linkedKey).shouldBeNull()
+                backStack.tagDetailPaneSceneKey(listSelectedKey) shouldBe listKey
+                NavBackStack<ScreenNavKey>(listKey, standaloneKey).tagDetailPaneSceneKey(standaloneKey).shouldBeNull()
+                NavBackStack<ScreenNavKey>(listKey, standaloneKey).tagDetailContentKey(standaloneKey) shouldNotBe
+                    NavBackStack<ScreenNavKey>(listKey, listSelectedKey).tagDetailContentKey(listSelectedKey)
+            }
+        }
+
         test("목록에서 고른 상세는 대상이 바뀌어도 같은 화면으로 이어지고, 다른 경로로 연 상세는 대상마다 따로 둔다") {
-            val firstKey = TagDetailNavKey(id = Uuid.random())
-            val secondKey = TagDetailNavKey(id = Uuid.random())
-            val linkedKey = TagDetailNavKey(id = Uuid.random())
+            val firstKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+            val secondKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+            val linkedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, firstKey, linkedKey)
             val firstContentKey = backStack.tagDetailContentKey(firstKey)
             val linkedContentKey = backStack.tagDetailContentKey(linkedKey)
@@ -358,13 +374,13 @@ class TagNavigationTest :
 
             backStack.tagDetailContentKey(secondKey) shouldBe firstContentKey
             linkedContentKey shouldNotBe firstContentKey
-            NavBackStack<ScreenNavKey>(MemoDetailNavKey(id = Uuid.random()), linkedKey).tagDetailContentKey(linkedKey) shouldNotBe firstContentKey
+            NavBackStack<ScreenNavKey>(MemoDetailNavKey(id = Arb.kotlinUuid().next()), linkedKey).tagDetailContentKey(linkedKey) shouldNotBe firstContentKey
         }
 
         test("연결이 순환해 같은 태그의 상세가 두 번 놓여도 두 상세는 서로 다른 화면이고, 앞선 상세는 뒤로 돌아올 때까지 같은 화면으로 남는다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val listSelectedKey = TagDetailNavKey(id = tagId)
-            val linkedKey = TagDetailNavKey(id = Uuid.random())
+            val linkedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val revisitedKey = TagDetailNavKey(id = tagId)
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, listSelectedKey, linkedKey)
             val listSelectedContentKey = backStack.tagDetailContentKey(listSelectedKey)
@@ -387,11 +403,11 @@ class TagNavigationTest :
         }
 
         test("전환 이력에 없는 상세 화면과 첫 화면은 다른 태그의 상세에서 이동해 온 것으로 보지 않는다") {
-            val detailKey = TagDetailNavKey(id = Uuid.random())
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(detailKey)
 
             backStack.isNavigatedFromTagDetail(detailKey).shouldBeFalse()
-            backStack.isNavigatedFromTagDetail(TagDetailNavKey(id = Uuid.random())).shouldBeFalse()
+            backStack.isNavigatedFromTagDetail(TagDetailNavKey(id = Arb.kotlinUuid().next())).shouldBeFalse()
         }
 
         test("TC-7b7c652a-0a91-4126-9403-b27bad4b529b 완료된 태그 목록에서 다른 태그를 고르면 상세 영역에 쌓인 화면을 정리하고 교체한다") {
@@ -539,7 +555,7 @@ class TagNavigationTest :
         }
 
         test("완료된 메모 목록이 없는 전환 이력에서는 완료된 메모 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     TagHomeNavKey,

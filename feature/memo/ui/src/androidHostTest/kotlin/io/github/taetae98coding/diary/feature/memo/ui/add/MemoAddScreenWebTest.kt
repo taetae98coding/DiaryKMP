@@ -410,6 +410,28 @@ class MemoAddScreenWebAddedResultTest {
     }
 
     @Test
+    fun `TC-4b7d7cd6-f4b7-4aef-8016-35bc0427b3a0 자동 선택된 웹 항목의 선택을 해제하면 다시 선택되지 않는다`() {
+        val addedWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
+        val resultEventBus = ResultEventBus()
+        composeRule.setMemoAddScreenForWeb(
+            viewModels = screenTestRealViewModel(webList = listOf(addedWeb)),
+            resultEventBus = resultEventBus,
+        )
+        resultEventBus.sendWebAddedResult(addedWeb)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DOCS_WEB_TITLE).assertIsDisplayed()
+
+        // 선택된 웹 항목을 목록에서 다시 누르면 선택이 해제된다.
+        composeRule.selectWeb(title = DOCS_WEB_TITLE)
+
+        composeRule.onNodeWithText(DOCS_WEB_TITLE).assertDoesNotExist()
+        composeRule.openWebPicker()
+        composeRule.awaitWebPickerRows()
+        composeRule.closeDialogByBack()
+        composeRule.onNodeWithText(DOCS_WEB_TITLE).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-333a4d79-55b8-44d7-8de6-0439c80d048f 이 입력에서 이동하지 않은 WebAdd 화면의 웹 항목은 자동 선택되지 않는다`() {
         val addedWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         val resultEventBus = ResultEventBus()

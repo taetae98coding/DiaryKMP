@@ -109,6 +109,19 @@ class WebDetailScreenTest {
     }
 
     @Test
+    fun `TC-b4010620-0eef-46fe-9eed-5f32a1c7a83b 현재 방식과 같은 URL 방식을 고르면 웹 페이지를 불러오지 않는다`() {
+        val pageViewModel = pageViewModel()
+        setWebDetailScreen(pageViewModel = pageViewModel)
+
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+
+        composeRule.onNodeWithText(DEFAULT_VIEW_MODE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_URL_VIEW_MODE_LABEL).assertExists()
+        verify(exactly = 0) { pageViewModel.load() }
+        verify(exactly = 0) { pageViewModel.retry() }
+    }
+
+    @Test
     fun `TC-0f580379-f511-4eec-8e3e-f50aa0dd5c19 URL 방식으로 되돌려도 웹 페이지를 다시 불러오지 않는다`() {
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
 

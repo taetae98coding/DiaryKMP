@@ -7,13 +7,18 @@ import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.testing.AppFunctionTestRule
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.AppFunctionChecklistSummaryPage
+import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
+import io.github.taetae98coding.diary.work.appaction.appfunction.dday.AppFunctionDDayPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionWeb
+import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFunctionMusicPage
+import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQrPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.AppFunctionTagDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.AppFunctionTagPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.AppFunctionTagWebPage
@@ -23,19 +28,18 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
-import io.github.taetae98coding.diary.work.appaction.core.appActionColor
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTagDetail
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTagScopeValue
 import io.github.taetae98coding.diary.work.appaction.tag.TagAppAction
 import io.github.taetae98coding.diary.work.appaction.tag.TagItemAppAction
 import io.github.taetae98coding.diary.work.appaction.tag.TagLinkAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
@@ -108,17 +112,22 @@ class TagAppFunctionServiceTest {
                     "tagMemoFinishedList",
                     "tagWebList",
                     "tagPlaceList",
+                    "tagContactList",
+                    "tagChecklistList",
+                    "tagMusicList",
+                    "tagQrList",
+                    "tagDdayList",
                 )
         }
 
     @Test
     fun `태그 목록은 공통 동작의 페이지를 같은 값으로 돌려준다`() =
         runBlocking<Unit> {
-            val tag = appActionTag()
+            val tag = Arb.appActionTag().next()
             val nextCursor = Arb.int(1..1000).next().toString()
             coEvery { tagAppAction.list(sort = any(), cursor = any()) } returns AppActionPage(items = listOf(tag), nextCursor = nextCursor)
 
-            val response = tester.execute(name = "tagList") { setString("sort", AppActionSortValue.RECENTLY_UPDATED) }
+            val response = tester.execute(name = "tagList") { setString(SORT, AppActionSortValue.RECENTLY_UPDATED) }
 
             response.returnValueAs<AppFunctionTagPage>() shouldBe AppFunctionTagPage(items = listOf(tag.expected()), nextCursor = nextCursor)
             coVerify(exactly = 1) { tagAppAction.list(sort = AppActionSortValue.RECENTLY_UPDATED, cursor = null) }
@@ -127,8 +136,8 @@ class TagAppFunctionServiceTest {
     @Test
     fun `태그 조회는 하위 태그와 함께 돌려준다`() =
         runBlocking<Unit> {
-            val tag = appActionTag()
-            val linkedTag = appActionTag()
+            val tag = Arb.appActionTag().next()
+            val linkedTag = Arb.appActionTag().next()
             coEvery { tagAppAction.get(tagId = tag.id) } returns AppActionTagDetail(tag = tag, linkedTags = listOf(linkedTag))
 
             val response = tester.execute(name = TAG_GET) { setString(TAG_ID, tag.id) }
@@ -228,7 +237,7 @@ class TagAppFunctionServiceTest {
             val response =
                 tester.execute(name = "tagWebList") {
                     setString(TAG_ID, tagId)
-                    setString("scope", AppActionTagScopeValue.CHILD)
+                    setString(SCOPE, AppActionTagScopeValue.CHILD)
                 }
 
             response.returnValueAs<AppFunctionTagWebPage>() shouldBe
@@ -237,6 +246,61 @@ class TagAppFunctionServiceTest {
                     nextCursor = null,
                 )
             coVerify(exactly = 1) { tagItemAppAction.webList(tagId = tagId, scope = AppActionTagScopeValue.CHILD, sort = null, cursor = null) }
+        }
+
+    @Test
+    fun `태그의 연락처와 곡 목록은 범위, 정렬, 위치를 넘기고 다음 페이지 위치를 돌려준다`() =
+        runBlocking<Unit> {
+            val tagId = Arb.kotlinUuid().next().toString()
+            val cursor = Arb.int(1..1000).next().toString()
+            val nextCursor = Arb.int(1001..2000).next().toString()
+            coEvery { tagItemAppAction.contactList(tagId = any(), scope = any(), sort = any(), cursor = any()) } returns AppActionPage(items = emptyList(), nextCursor = nextCursor)
+            coEvery { tagItemAppAction.musicList(tagId = any(), scope = any(), sort = any(), cursor = any()) } returns AppActionPage(items = emptyList(), nextCursor = nextCursor)
+
+            val contactResponse =
+                tester.execute(name = "tagContactList") {
+                    setString(TAG_ID, tagId)
+                    setString(SCOPE, AppActionTagScopeValue.DESCENDANT)
+                    setString(SORT, AppActionSortValue.NAME)
+                    setString(CURSOR, cursor)
+                }
+            val musicResponse =
+                tester.execute(name = "tagMusicList") {
+                    setString(TAG_ID, tagId)
+                    setString(SORT, AppActionSortValue.TITLE)
+                }
+
+            contactResponse.returnValueAs<AppFunctionContactPage>() shouldBe AppFunctionContactPage(items = emptyList(), nextCursor = nextCursor)
+            musicResponse.returnValueAs<AppFunctionMusicPage>() shouldBe AppFunctionMusicPage(items = emptyList(), nextCursor = nextCursor)
+            coVerify(exactly = 1) { tagItemAppAction.contactList(tagId = tagId, scope = AppActionTagScopeValue.DESCENDANT, sort = AppActionSortValue.NAME, cursor = cursor) }
+            coVerify(exactly = 1) { tagItemAppAction.musicList(tagId = tagId, scope = null, sort = AppActionSortValue.TITLE, cursor = null) }
+        }
+
+    @Test
+    fun `태그의 체크리스트, QR, 디데이 목록은 범위와 위치를 넘기고 다음 페이지 위치를 돌려준다`() =
+        runBlocking<Unit> {
+            val tagId = Arb.kotlinUuid().next().toString()
+            val cursor = Arb.int(1..1000).next().toString()
+            val nextCursor = Arb.int(1001..2000).next().toString()
+            coEvery { tagItemAppAction.checklistList(tagId = any(), scope = any(), cursor = any()) } returns AppActionPage(items = emptyList(), nextCursor = nextCursor)
+            coEvery { tagItemAppAction.qrList(tagId = any(), scope = any(), cursor = any()) } returns AppActionPage(items = emptyList(), nextCursor = nextCursor)
+            coEvery { tagItemAppAction.ddayList(tagId = any(), scope = any(), cursor = any()) } returns AppActionPage(items = emptyList(), nextCursor = nextCursor)
+
+            val checklistResponse =
+                tester.execute(name = "tagChecklistList") {
+                    setString(TAG_ID, tagId)
+                    setString(SCOPE, AppActionTagScopeValue.CHILD)
+                    setString(CURSOR, cursor)
+                }
+            val qrResponse = tester.execute(name = "tagQrList") { setString(TAG_ID, tagId) }
+            val ddayResponse = tester.execute(name = "tagDdayList") { setString(TAG_ID, tagId) }
+
+            checklistResponse.returnValueAs<AppFunctionChecklistSummaryPage>() shouldBe AppFunctionChecklistSummaryPage(items = emptyList(), nextCursor = nextCursor)
+            qrResponse.returnValueAs<AppFunctionQrPage>() shouldBe AppFunctionQrPage(items = emptyList(), nextCursor = nextCursor)
+            ddayResponse.returnValueAs<AppFunctionDDayPage>() shouldBe AppFunctionDDayPage(items = emptyList(), nextCursor = nextCursor)
+            coVerify(exactly = 1) { tagItemAppAction.checklistList(tagId = tagId, scope = AppActionTagScopeValue.CHILD, cursor = cursor) }
+            coVerify(exactly = 1) { tagItemAppAction.qrList(tagId = tagId, scope = null, cursor = null) }
+            coVerify(exactly = 1) { tagItemAppAction.ddayList(tagId = tagId, scope = null, cursor = null) }
         }
 
     @Test
@@ -273,18 +337,9 @@ class TagAppFunctionServiceTest {
 private const val TAG_ID = "tagId"
 private const val TAG_GET = "tagGet"
 private const val LINKED_TAG_ID = "linkedTagId"
-
-private fun appActionTag(): AppActionTag =
-    AppActionTag(
-        id = Arb.kotlinUuid().next().toString(),
-        emoji = Arb.string().next(),
-        title = Arb.string().next(),
-        description = Arb.string().next(),
-        color = Arb.appActionColor().next(),
-        isFinished = Arb.boolean().next(),
-        createdAt = Arb.string().next(),
-        updatedAt = Arb.string().next(),
-    )
+private const val SCOPE = "scope"
+private const val SORT = "sort"
+private const val CURSOR = "cursor"
 
 private fun AppActionTag.expected(): AppFunctionTag =
     AppFunctionTag(

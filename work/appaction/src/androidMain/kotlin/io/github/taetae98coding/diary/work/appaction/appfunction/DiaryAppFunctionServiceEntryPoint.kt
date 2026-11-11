@@ -14,7 +14,8 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.calendar.Calend
 import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.AppFunctionChecklistDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.AppFunctionChecklistSummaryPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.ChecklistAppFunction
-import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactDetail
+import io.github.taetae98coding.diary.work.appaction.appfunction.checklist.ChecklistItemAppFunction
+import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactDetailWithTags
 import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.contact.ContactAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
@@ -29,15 +30,16 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctio
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.MemoAppFunction
+import io.github.taetae98coding.diary.work.appaction.appfunction.memo.MemoListAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.memolink.MemoLinkAppFunction
-import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFunctionMusic
+import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFunctionMusicDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFunctionMusicPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.music.MusicAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.place.AppFunctionPlaceDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.place.AppFunctionPlaceList
 import io.github.taetae98coding.diary.work.appaction.appfunction.place.AppFunctionPlacePage
 import io.github.taetae98coding.diary.work.appaction.appfunction.place.PlaceAppFunction
-import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQr
+import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQrDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQrPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.QrAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchDDayPage
@@ -49,6 +51,7 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.tag.AppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.AppFunctionTagPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.AppFunctionTagPlacePage
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.AppFunctionTagWebPage
+import io.github.taetae98coding.diary.work.appaction.appfunction.tag.EntityTagAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.TagAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.TagItemAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.tag.TagLinkAppFunction
@@ -60,6 +63,7 @@ import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactBir
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactUpdateInput
 import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
 import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayOverflowPolicyValue
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTagScopeValue
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -79,10 +83,13 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     private val memoAppFunction: MemoAppFunction by lazy { MemoAppFunction(memoAppAction = get()) }
     private val calendarAppFunction: CalendarAppFunction by lazy { CalendarAppFunction(calendarAppAction = get()) }
     private val checklistAppFunction: ChecklistAppFunction by lazy { ChecklistAppFunction(checklistAppAction = get()) }
+    private val checklistItemAppFunction: ChecklistItemAppFunction by lazy { ChecklistItemAppFunction(checklistItemAppAction = get()) }
     private val contactAppFunction: ContactAppFunction by lazy { ContactAppFunction(contactAppAction = get()) }
     private val ddayAppFunction: DDayAppFunction by lazy { DDayAppFunction(ddayAppAction = get()) }
+    private val entityTagAppFunction: EntityTagAppFunction by lazy { EntityTagAppFunction(entityTagAppAction = get()) }
     private val lunarAppFunction: LunarAppFunction by lazy { LunarAppFunction(lunarAppAction = get()) }
     private val memoLinkAppFunction: MemoLinkAppFunction by lazy { MemoLinkAppFunction(memoLinkAppAction = get()) }
+    private val memoListAppFunction: MemoListAppFunction by lazy { MemoListAppFunction(memoListAppAction = get()) }
     private val musicAppFunction: MusicAppFunction by lazy { MusicAppFunction(musicAppAction = get()) }
     private val placeAppFunction: PlaceAppFunction by lazy { PlaceAppFunction(placeAppAction = get()) }
     private val qrAppFunction: QrAppFunction by lazy { QrAppFunction(qrAppAction = get()) }
@@ -106,7 +113,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = memoAppFunction.list(sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.list(sort = sort, cursor = cursor)
 
     /**
      * Lists finished memos that are not deleted.
@@ -120,10 +127,10 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = memoAppFunction.finishedList(sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.finishedList(sort = sort, cursor = cursor)
 
     /**
-     * Gets one memo with its linked tags, places, webs and contacts. Returns null when the memo does not exist.
+     * Gets one memo with its linked tags, places, webs and contacts. Returns null when the memo does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @return The memo with its links, or null.
@@ -132,7 +139,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun memoGet(memoId: String): AppFunctionMemoDetail? = memoAppFunction.get(memoId = memoId)
 
     /**
-     * Adds a memo. The title must not be blank. Linked items must exist and not be deleted.
+     * Adds a memo. The title must not be blank.
      *
      * @param title Title of the memo.
      * @param description Description of the memo.
@@ -248,7 +255,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     // region MemoLink
 
     /**
-     * Links a tag to a memo.
+     * Links a tag to a memo. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param tagId Id of the linked item.
@@ -261,7 +268,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.tagAdd(memoId = memoId, tagId = tagId)
 
     /**
-     * Unlinks a tag from a memo. If it is the primary tag, the primary tag is cleared too.
+     * Unlinks a tag from a memo. If it is the primary tag, the primary tag is cleared too. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param tagId Id of the linked item.
@@ -274,7 +281,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.tagRemove(memoId = memoId, tagId = tagId)
 
     /**
-     * Sets the primary tag of a memo. The tag is linked too when it is not linked yet.
+     * Sets the primary tag of a memo. The tag is linked too when it is not linked yet. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param tagId Id of the linked item.
@@ -287,7 +294,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.primaryTagSet(memoId = memoId, tagId = tagId)
 
     /**
-     * Clears the primary tag of a memo. The tag stays linked.
+     * Clears the primary tag of a memo. The tag stays linked. Returns done false and changes nothing when the memo does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @return Whether the request was done.
@@ -296,7 +303,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun memoPrimaryTagUnset(memoId: String): AppFunctionDone = memoLinkAppFunction.primaryTagUnset(memoId = memoId)
 
     /**
-     * Links a place to a memo.
+     * Links a place to a memo. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param placeId Id of the linked item.
@@ -309,7 +316,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.placeAdd(memoId = memoId, placeId = placeId)
 
     /**
-     * Unlinks a place from a memo.
+     * Unlinks a place from a memo. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param placeId Id of the linked item.
@@ -322,7 +329,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.placeRemove(memoId = memoId, placeId = placeId)
 
     /**
-     * Links a web to a memo.
+     * Links a web to a memo. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param webId Id of the linked item.
@@ -335,7 +342,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.webAdd(memoId = memoId, webId = webId)
 
     /**
-     * Unlinks a web from a memo.
+     * Unlinks a web from a memo. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param webId Id of the linked item.
@@ -348,7 +355,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.webRemove(memoId = memoId, webId = webId)
 
     /**
-     * Links a contact to a memo.
+     * Links a contact to a memo. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param contactId Id of the linked item.
@@ -361,7 +368,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = memoLinkAppFunction.contactAdd(memoId = memoId, contactId = contactId)
 
     /**
-     * Unlinks a contact from a memo.
+     * Unlinks a contact from a memo. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param memoId Id of the memo.
      * @param contactId Id of the linked item.
@@ -406,7 +413,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionTagPage = tagAppFunction.finishedList(sort = sort, cursor = cursor)
 
     /**
-     * Gets one tag with the tags it links to (its child tags). Returns null when the tag does not exist. Use tagMemoList, tagWebList and tagPlaceList for the items linked to the tag.
+     * Gets one tag with the tags it links to (its child tags). Returns null when the tag does not exist or is deleted. Use the tag item list functions such as tagMemoList and tagWebList for the items linked to the tag.
      *
      * @param tagId Id of the tag.
      * @return The tag with its child tags, or null.
@@ -415,7 +422,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun tagGet(tagId: String): AppFunctionTagDetail? = tagAppFunction.get(tagId = tagId)
 
     /**
-     * Adds a tag. The title must not be blank. Linked tags must exist and not be deleted.
+     * Adds a tag. The title must not be blank.
      *
      * @param title Title of the tag.
      * @param emoji A single emoji shown before the title.
@@ -493,7 +500,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     // region TagLink
 
     /**
-     * Links a tag to another tag, making the linked tag a child of the tag. Links are one-way and a tag cannot link to itself. Linking does not change the tags of memos, webs or places.
+     * Links a tag to another tag, making the linked tag a child of the tag. Links are one-way and a tag cannot link to itself. Linking does not change the tags of memos, webs or places. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param tagId Id of the tag.
      * @param linkedTagId Id of the tag that the tag links to (the child tag).
@@ -506,7 +513,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = tagLinkAppFunction.add(tagId = tagId, linkedTagId = linkedTagId)
 
     /**
-     * Removes the link from a tag to another tag. The link in the opposite direction is kept.
+     * Removes the link from a tag to another tag. The link in the opposite direction is kept. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param tagId Id of the tag.
      * @param linkedTagId Id of the tag that the tag links to (the child tag).
@@ -595,6 +602,92 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         cursor: String? = null,
     ): AppFunctionTagPlacePage = tagItemAppFunction.placeList(tagId = tagId, scope = scope, sort = sort, cursor = cursor)
 
+    /**
+     * Lists contacts linked to a tag that are not deleted. A contact linked to several included tags appears once. Favorite contacts always come first, and the sort applies within favorites and within the rest.
+     *
+     * @param tagId Id of the tag.
+     * @param scope Which tags to include. self: only this tag. child: this tag and the tags it links to directly. descendant: this tag and every tag reachable through its links. Omit it to use self.
+     * @param sort Sort order. Omit it to use the list's initial order (name).
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of contacts.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun tagContactList(
+        tagId: String,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionTagScopeValue.SELF, AppActionTagScopeValue.CHILD, AppActionTagScopeValue.DESCENDANT])
+        scope: String? = null,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.NAME, AppActionSortValue.RECENTLY_UPDATED])
+        sort: String? = null,
+        cursor: String? = null,
+    ): AppFunctionContactPage = tagItemAppFunction.contactList(tagId = tagId, scope = scope, sort = sort, cursor = cursor)
+
+    /**
+     * Lists checklists linked to a tag that are not deleted, by title, with how many of their items are checked. A checklist linked to several included tags appears once.
+     *
+     * @param tagId Id of the tag.
+     * @param scope Which tags to include. self: only this tag. child: this tag and the tags it links to directly. descendant: this tag and every tag reachable through its links. Omit it to use self.
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of checklists.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun tagChecklistList(
+        tagId: String,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionTagScopeValue.SELF, AppActionTagScopeValue.CHILD, AppActionTagScopeValue.DESCENDANT])
+        scope: String? = null,
+        cursor: String? = null,
+    ): AppFunctionChecklistSummaryPage = tagItemAppFunction.checklistList(tagId = tagId, scope = scope, cursor = cursor)
+
+    /**
+     * Lists the music linked to a tag that is not deleted. Music linked to several included tags appears once.
+     *
+     * @param tagId Id of the tag.
+     * @param scope Which tags to include. self: only this tag. child: this tag and the tags it links to directly. descendant: this tag and every tag reachable through its links. Omit it to use self.
+     * @param sort Sort order. Omit it to use the list's initial order (title).
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of music.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun tagMusicList(
+        tagId: String,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionTagScopeValue.SELF, AppActionTagScopeValue.CHILD, AppActionTagScopeValue.DESCENDANT])
+        scope: String? = null,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
+        sort: String? = null,
+        cursor: String? = null,
+    ): AppFunctionMusicPage = tagItemAppFunction.musicList(tagId = tagId, scope = scope, sort = sort, cursor = cursor)
+
+    /**
+     * Lists QR codes linked to a tag that are not deleted, ordered by title. A QR code linked to several included tags appears once.
+     *
+     * @param tagId Id of the tag.
+     * @param scope Which tags to include. self: only this tag. child: this tag and the tags it links to directly. descendant: this tag and every tag reachable through its links. Omit it to use self.
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of QR codes.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun tagQrList(
+        tagId: String,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionTagScopeValue.SELF, AppActionTagScopeValue.CHILD, AppActionTagScopeValue.DESCENDANT])
+        scope: String? = null,
+        cursor: String? = null,
+    ): AppFunctionQrPage = tagItemAppFunction.qrList(tagId = tagId, scope = scope, cursor = cursor)
+
+    /**
+     * Lists D-Days linked to a tag that are not deleted, by title, with the days left or passed counted from today. A D-Day linked to several included tags appears once.
+     *
+     * @param tagId Id of the tag.
+     * @param scope Which tags to include. self: only this tag. child: this tag and the tags it links to directly. descendant: this tag and every tag reachable through its links. Omit it to use self.
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of D-Days.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun tagDdayList(
+        tagId: String,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionTagScopeValue.SELF, AppActionTagScopeValue.CHILD, AppActionTagScopeValue.DESCENDANT])
+        scope: String? = null,
+        cursor: String? = null,
+    ): AppFunctionDDayPage = tagItemAppFunction.ddayList(tagId = tagId, scope = scope, cursor = cursor)
+
     // endregion
 
     // region Place
@@ -634,7 +727,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionPlaceList = placeAppFunction.listInArea(south = south, north = north, west = west, east = east, sort = sort)
 
     /**
-     * Gets one place with its linked tags. Returns null when the place does not exist.
+     * Gets one place with its linked tags. Returns null when the place does not exist or is deleted.
      *
      * @param placeId Id of the place.
      * @return The place with its tags, or null.
@@ -656,7 +749,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = placeAppFunction.memoList(placeId = placeId, sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.placeList(placeId = placeId, sort = sort, cursor = cursor)
 
     /**
      * Lists the finished memos linked to a place that are not deleted.
@@ -672,7 +765,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = placeAppFunction.memoFinishedList(placeId = placeId, sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.placeFinishedList(placeId = placeId, sort = sort, cursor = cursor)
 
     /**
      * Adds a place. The title must not be blank and latitude and longitude must be within range. Coordinates and address are not looked up, so pass the values you already know.
@@ -757,7 +850,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun placeRestore(placeId: String): AppFunctionChangedCount = placeAppFunction.restore(placeId = placeId)
 
     /**
-     * Links a tag to a place.
+     * Links a tag to a place. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param placeId Id of the place.
      * @param tagId Id of the tag.
@@ -767,10 +860,10 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun placeTagAdd(
         placeId: String,
         tagId: String,
-    ): AppFunctionDone = placeAppFunction.tagAdd(placeId = placeId, tagId = tagId)
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.PLACE, entityId = placeId, tagId = tagId)
 
     /**
-     * Unlinks a tag from a place.
+     * Unlinks a tag from a place. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param placeId Id of the place.
      * @param tagId Id of the tag.
@@ -780,7 +873,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun placeTagRemove(
         placeId: String,
         tagId: String,
-    ): AppFunctionDone = placeAppFunction.tagRemove(placeId = placeId, tagId = tagId)
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.PLACE, entityId = placeId, tagId = tagId)
 
     // endregion
 
@@ -801,7 +894,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionWebPage = webAppFunction.list(sort = sort, cursor = cursor)
 
     /**
-     * Gets one web with its request headers and linked tags. Returns null when the web does not exist.
+     * Gets one web with its request headers and linked tags. Returns null when the web does not exist or is deleted.
      *
      * @param webId Id of the web.
      * @return The web with its request headers and tags, or null.
@@ -823,7 +916,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = webAppFunction.memoList(webId = webId, sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.webList(webId = webId, sort = sort, cursor = cursor)
 
     /**
      * Lists the finished memos linked to a web that are not deleted.
@@ -839,7 +932,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = webAppFunction.memoFinishedList(webId = webId, sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.webFinishedList(webId = webId, sort = sort, cursor = cursor)
 
     /**
      * Adds a web. The title and url must not be blank and every header needs a name. The page is not fetched, so pass the title you already know.
@@ -898,7 +991,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun webRestore(webId: String): AppFunctionChangedCount = webAppFunction.restore(webId = webId)
 
     /**
-     * Links a tag to a web.
+     * Links a tag to a web. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param webId Id of the web.
      * @param tagId Id of the tag.
@@ -908,10 +1001,10 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun webTagAdd(
         webId: String,
         tagId: String,
-    ): AppFunctionDone = webAppFunction.tagAdd(webId = webId, tagId = tagId)
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.WEB, entityId = webId, tagId = tagId)
 
     /**
-     * Unlinks a tag from a web.
+     * Unlinks a tag from a web. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param webId Id of the web.
      * @param tagId Id of the tag.
@@ -921,7 +1014,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun webTagRemove(
         webId: String,
         tagId: String,
-    ): AppFunctionDone = webAppFunction.tagRemove(webId = webId, tagId = tagId)
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.WEB, entityId = webId, tagId = tagId)
 
     // endregion
 
@@ -942,13 +1035,13 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionContactPage = contactAppFunction.list(sort = sort, cursor = cursor)
 
     /**
-     * Gets one contact with all its details. Returns null when the contact does not exist.
+     * Gets one contact with all its details and linked tags. Returns null when the contact does not exist or is deleted.
      *
      * @param contactId Id of the contact.
-     * @return The contact with all its details, or null.
+     * @return The contact with all its details and its tags, or null.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    public suspend fun contactGet(contactId: String): AppFunctionContactDetail? = contactAppFunction.get(contactId = contactId)
+    public suspend fun contactGet(contactId: String): AppFunctionContactDetailWithTags? = contactAppFunction.get(contactId = contactId)
 
     /**
      * Lists unfinished memos linked to a contact that are not deleted.
@@ -964,7 +1057,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = contactAppFunction.memoList(contactId = contactId, sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.contactList(contactId = contactId, sort = sort, cursor = cursor)
 
     /**
      * Lists finished memos linked to a contact that are not deleted.
@@ -980,7 +1073,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.DEFAULT, AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
         sort: String? = null,
         cursor: String? = null,
-    ): AppFunctionMemoPage = contactAppFunction.memoFinishedList(contactId = contactId, sort = sort, cursor = cursor)
+    ): AppFunctionMemoPage = memoListAppFunction.contactFinishedList(contactId = contactId, sort = sort, cursor = cursor)
 
     /**
      * Adds a contact. The name must not be blank and no phone number may be blank. The new contact is not a favorite.
@@ -995,8 +1088,10 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @param hometown Hometown as one line of free text.
      * @param howWeMet How the user met the person, as one line of free text.
      * @param phoneNumbers Phone numbers in order. Each number must not be blank. The format is not checked.
+     * @param tagIds Ids of tags to link.
      * @return Id of the added contact.
      */
+    @Suppress("LongParameterList")
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     public suspend fun contactAdd(
         name: String,
@@ -1010,6 +1105,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         hometown: String? = null,
         howWeMet: String? = null,
         phoneNumbers: List<String> = emptyList(),
+        tagIds: List<String> = emptyList(),
     ): AppFunctionId =
         contactAppFunction.add(
             name = name,
@@ -1022,11 +1118,12 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
             hometown = hometown,
             howWeMet = howWeMet,
             phoneNumbers = phoneNumbers,
+            tagIds = tagIds,
         )
 
     /**
      * Updates the details of a contact. Omitted fields keep their current value. A blank name keeps the current name. Changing only the birthday date keeps its calendar.
-     * Removing the birthday also removes the birth year unless a birth year is given. Favorite is changed with contactFavorite and contactUnfavorite.
+     * Removing the birthday also removes the birth year unless a birth year is given. Favorite is changed with contactFavorite and contactUnfavorite. Tags are changed with contactTagAdd and contactTagRemove.
      *
      * @param contactId Id of the contact.
      * @param name New name.
@@ -1122,6 +1219,32 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     public suspend fun contactRestore(contactId: String): AppFunctionChangedCount = contactAppFunction.restore(contactId = contactId)
 
+    /**
+     * Links a tag to a contact. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param contactId Id of the contact.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun contactTagAdd(
+        contactId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.CONTACT, entityId = contactId, tagId = tagId)
+
+    /**
+     * Unlinks a tag from a contact. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param contactId Id of the contact.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun contactTagRemove(
+        contactId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.CONTACT, entityId = contactId, tagId = tagId)
+
     // endregion
 
     // region Checklist
@@ -1136,11 +1259,11 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun checklistList(cursor: String? = null): AppFunctionChecklistSummaryPage = checklistAppFunction.list(cursor = cursor)
 
     /**
-     * Gets one checklist with all its items that are not deleted. Returns null when the checklist does not exist.
+     * Gets one checklist with all its items that are not deleted and its linked tags. Returns null when the checklist does not exist or is deleted.
      *
      * @param checklistId Id of the checklist.
      * @param itemSort Order of the checklist items. added keeps the order the items were added; unchecked_first puts unchecked items first, each group in added order. Omit it to use the initial order (added).
-     * @return The checklist with its items, or null.
+     * @return The checklist with its items and tags, or null.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     public suspend fun checklistGet(
@@ -1155,6 +1278,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @param title Title of the checklist.
      * @param description Description of the checklist.
      * @param items Contents of the items, in the order to add them.
+     * @param tagIds Ids of tags to link.
      * @return Id of the added checklist.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
@@ -1162,10 +1286,11 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         title: String,
         description: String? = null,
         items: List<String> = emptyList(),
-    ): AppFunctionId = checklistAppFunction.add(title = title, description = description, items = items)
+        tagIds: List<String> = emptyList(),
+    ): AppFunctionId = checklistAppFunction.add(title = title, description = description, items = items, tagIds = tagIds)
 
     /**
-     * Updates the title or description of a checklist. Omitted fields keep their current value. A blank title keeps the current title. Items are changed with the checklist item functions.
+     * Updates the title or description of a checklist. Omitted fields keep their current value. A blank title keeps the current title. Items are changed with the checklist item functions. Tags are changed with checklistTagAdd and checklistTagRemove.
      *
      * @param checklistId Id of the checklist.
      * @param title New title.
@@ -1217,7 +1342,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun checklistItemAdd(
         checklistId: String,
         content: String,
-    ): AppFunctionChangedCount = checklistAppFunction.itemAdd(checklistId = checklistId, content = content)
+    ): AppFunctionChangedCount = checklistItemAppFunction.add(checklistId = checklistId, content = content)
 
     /**
      * Checks a checklist item.
@@ -1226,7 +1351,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @return How many items were changed.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    public suspend fun checklistItemCheck(itemId: String): AppFunctionChangedCount = checklistAppFunction.itemCheck(itemId = itemId)
+    public suspend fun checklistItemCheck(itemId: String): AppFunctionChangedCount = checklistItemAppFunction.check(itemId = itemId)
 
     /**
      * Unchecks a checklist item.
@@ -1235,7 +1360,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @return How many items were changed.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    public suspend fun checklistItemUncheck(itemId: String): AppFunctionChangedCount = checklistAppFunction.itemUncheck(itemId = itemId)
+    public suspend fun checklistItemUncheck(itemId: String): AppFunctionChangedCount = checklistItemAppFunction.uncheck(itemId = itemId)
 
     /**
      * Removes an item from its checklist. This cannot be undone; add the content again with checklistItemAdd if needed.
@@ -1244,7 +1369,33 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @return How many items were removed.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    public suspend fun checklistItemDelete(itemId: String): AppFunctionChangedCount = checklistAppFunction.itemDelete(itemId = itemId)
+    public suspend fun checklistItemDelete(itemId: String): AppFunctionChangedCount = checklistItemAppFunction.delete(itemId = itemId)
+
+    /**
+     * Links a tag to a checklist. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param checklistId Id of the checklist.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun checklistTagAdd(
+        checklistId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.CHECKLIST, entityId = checklistId, tagId = tagId)
+
+    /**
+     * Unlinks a tag from a checklist. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param checklistId Id of the checklist.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun checklistTagRemove(
+        checklistId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.CHECKLIST, entityId = checklistId, tagId = tagId)
 
     // endregion
 
@@ -1260,13 +1411,13 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun qrList(cursor: String? = null): AppFunctionQrPage = qrAppFunction.list(cursor = cursor)
 
     /**
-     * Gets one saved QR code. Returns null when the QR does not exist.
+     * Gets one saved QR code with its linked tags. Returns null when the QR does not exist or is deleted.
      *
      * @param qrId Id of the QR.
-     * @return The QR code, or null.
+     * @return The QR code with its tags, or null.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    public suspend fun qrGet(qrId: String): AppFunctionQr? = qrAppFunction.get(qrId = qrId)
+    public suspend fun qrGet(qrId: String): AppFunctionQrDetail? = qrAppFunction.get(qrId = qrId)
 
     /**
      * Adds a QR code. The title must not be blank and the value must not be empty. The value is the exact text encoded in the QR, such as a URL, plain text, a WIFI: string or a vCard.
@@ -1274,6 +1425,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @param title Title of the QR.
      * @param description Description of the QR.
      * @param value Text encoded in the QR.
+     * @param tagIds Ids of tags to link.
      * @return Id of the added QR code.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
@@ -1281,10 +1433,11 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         title: String,
         description: String? = null,
         value: String,
-    ): AppFunctionId = qrAppFunction.add(title = title, description = description, value = value)
+        tagIds: List<String> = emptyList(),
+    ): AppFunctionId = qrAppFunction.add(title = title, description = description, value = value, tagIds = tagIds)
 
     /**
-     * Updates the title, description or value of a QR code. Omitted fields keep their current value. A blank title keeps the current title. The value must not be empty.
+     * Updates the title, description or value of a QR code. Omitted fields keep their current value. A blank title keeps the current title. The value must not be empty. Tags are changed with qrTagAdd and qrTagRemove.
      *
      * @param qrId Id of the QR.
      * @param title New title.
@@ -1318,6 +1471,32 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     public suspend fun qrRestore(qrId: String): AppFunctionChangedCount = qrAppFunction.restore(qrId = qrId)
 
+    /**
+     * Links a tag to a QR code. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param qrId Id of the QR.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun qrTagAdd(
+        qrId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.QR, entityId = qrId, tagId = tagId)
+
+    /**
+     * Unlinks a tag from a QR code. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param qrId Id of the QR.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun qrTagRemove(
+        qrId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.QR, entityId = qrId, tagId = tagId)
+
     // endregion
 
     // region Music
@@ -1337,13 +1516,13 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionMusicPage = musicAppFunction.list(sort = sort, cursor = cursor)
 
     /**
-     * Gets one music in the playlist. Returns null when the music does not exist.
+     * Gets one music in the playlist with its linked tags. Returns null when the music does not exist or is deleted.
      *
      * @param musicId Id of the music.
-     * @return The music, or null.
+     * @return The music with its tags, or null.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    public suspend fun musicGet(musicId: String): AppFunctionMusic? = musicAppFunction.get(musicId = musicId)
+    public suspend fun musicGet(musicId: String): AppFunctionMusicDetail? = musicAppFunction.get(musicId = musicId)
 
     /**
      * Adds a music to the playlist. The title must not be blank. Video information is not fetched from the link, so give the title and artist yourself.
@@ -1351,6 +1530,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @param title Title of the music.
      * @param artist Artist of the music.
      * @param link A YouTube video link. An empty string means no link. A non-empty link that is not a YouTube link is rejected.
+     * @param tagIds Ids of tags to link.
      * @return Id of the added music.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
@@ -1358,10 +1538,11 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         title: String,
         artist: String? = null,
         link: String? = null,
-    ): AppFunctionId = musicAppFunction.add(title = title, artist = artist, link = link)
+        tagIds: List<String> = emptyList(),
+    ): AppFunctionId = musicAppFunction.add(title = title, artist = artist, link = link, tagIds = tagIds)
 
     /**
-     * Updates the title, artist or link of a music. Omitted fields keep their current value. A blank title keeps the current title.
+     * Updates the title, artist or link of a music. Omitted fields keep their current value. A blank title keeps the current title. Tags are changed with musicTagAdd and musicTagRemove.
      *
      * @param musicId Id of the music.
      * @param title New title.
@@ -1395,6 +1576,32 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     public suspend fun musicRestore(musicId: String): AppFunctionChangedCount = musicAppFunction.restore(musicId = musicId)
 
+    /**
+     * Links a tag to a music. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param musicId Id of the music.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun musicTagAdd(
+        musicId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.MUSIC, entityId = musicId, tagId = tagId)
+
+    /**
+     * Unlinks a tag from a music. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param musicId Id of the music.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun musicTagRemove(
+        musicId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.MUSIC, entityId = musicId, tagId = tagId)
+
     // endregion
 
     // region DDay
@@ -1409,7 +1616,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun ddayList(cursor: String? = null): AppFunctionDDayPage = ddayAppFunction.list(cursor = cursor)
 
     /**
-     * Gets one D-Day with its linked tags and the days left or passed counted from today. Returns null when the D-Day does not exist.
+     * Gets one D-Day with its linked tags and the days left or passed counted from today. Returns null when the D-Day does not exist or is deleted.
      *
      * @param ddayId Id of the D-Day.
      * @return The D-Day with its tags, or null.
@@ -1517,7 +1724,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun ddayRestore(ddayId: String): AppFunctionChangedCount = ddayAppFunction.restore(ddayId = ddayId)
 
     /**
-     * Links a tag to a D-Day.
+     * Links a tag to a D-Day. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param ddayId Id of the D-Day.
      * @param tagId Id of the tag.
@@ -1527,10 +1734,10 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun ddayTagAdd(
         ddayId: String,
         tagId: String,
-    ): AppFunctionDone = ddayAppFunction.tagAdd(ddayId = ddayId, tagId = tagId)
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId)
 
     /**
-     * Unlinks a tag from a D-Day.
+     * Unlinks a tag from a D-Day. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param ddayId Id of the D-Day.
      * @param tagId Id of the tag.
@@ -1540,7 +1747,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     public suspend fun ddayTagRemove(
         ddayId: String,
         tagId: String,
-    ): AppFunctionDone = ddayAppFunction.tagRemove(ddayId = ddayId, tagId = tagId)
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId)
 
     // endregion
 

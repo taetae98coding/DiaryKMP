@@ -23,13 +23,16 @@ import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import kotlin.uuid.Uuid
 
 class AccountTagLinkLocalDataSourceImplTest :
@@ -560,6 +563,74 @@ class AccountTagLinkLocalDataSourceImplTest :
                 .pagedTagIdList(loadSize = SELECTABLE_TAG_PAGE_SIZE) shouldBe listOf(target.id)
         }
 
+        test("TC-5cc6759b-36d2-4796-8f7e-17088d9e99e9 연결할 수 있는 태그를 페이지 단위로 이어서 조회한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val fromTag = tag(title = "AAAFromTag")
+            val tagList =
+                List(SELECTABLE_TAG_COUNT) { index ->
+                    tag(title = "Tag-${index.toString().padStart(length = 3, padChar = '0')}")
+                }
+            insertTag(accountId, fromTag, *tagList.reversed().toTypedArray())
+            val expected = tagList.map { tag -> tag.id }
+            val pagingSource = dataSource.pageSelectableTag(accountId = accountId, fromTagId = fromTag.id, query = "")
+
+            val firstPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Refresh(key = null, loadSize = SELECTABLE_TAG_PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
+
+            firstPage.data.map { tag -> tag.id } shouldBe expected.take(SELECTABLE_TAG_PAGE_SIZE)
+
+            val secondPage =
+                pagingSource
+                    .load(
+                        PagingSource.LoadParams.Append(
+                            key = firstPage.nextKey.shouldNotBeNull(),
+                            loadSize = SELECTABLE_TAG_PAGE_SIZE,
+                            placeholdersEnabled = false,
+                        ),
+                    ).shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
+
+            secondPage.data.map { tag -> tag.id } shouldBe expected.drop(SELECTABLE_TAG_PAGE_SIZE).take(SELECTABLE_TAG_PAGE_SIZE)
+        }
+
+        test("TC-6fb9ae38-537f-4935-85d6-bc3c1fe9dbca 새로 저장된 태그가 연결할 수 있는 태그의 정렬 위치에 나타난다") {
+            val accountId = Arb.kotlinUuid().next()
+            val fromTag = tag(title = "z-from")
+            val firstTag = tag(title = "a")
+            val lastTag = tag(title = "e")
+            val addedTag = tag(title = "b")
+            val pulledTag = tag(title = "c")
+            insertTag(accountId, fromTag, firstTag, lastTag)
+
+            suspend fun assertListRefreshed(
+                expected: List<Uuid>,
+                change: suspend () -> Unit,
+            ) {
+                val pagingSource = dataSource.pageSelectableTag(accountId = accountId, fromTagId = fromTag.id, query = "")
+                pagingSource.pagedTagIdList()
+                val invalidated = CompletableDeferred<Unit>()
+                pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+
+                change()
+
+                withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
+                selectableTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe expected
+            }
+
+            selectableTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(firstTag.id, lastTag.id)
+            assertListRefreshed(expected = listOf(firstTag.id, addedTag.id, lastTag.id)) {
+                insertTag(accountId, addedTag)
+            }
+            assertListRefreshed(expected = listOf(firstTag.id, addedTag.id, pulledTag.id, lastTag.id)) {
+                AccountTagSyncTransactionImpl(database = database).upsert(
+                    accountId = accountId,
+                    tagList = listOf(pulledTag),
+                    cursor = Arb.long().next(),
+                )
+            }
+        }
+
         test("TC-1e53dccb-f364-43cc-9777-8428a3247b7c 태그와 그 태그가 출발하는 연결을 함께 저장한다") {
             val accountId = Arb.kotlinUuid().next()
             val firstToTag = tag()
@@ -640,6 +711,7 @@ class AccountTagLinkLocalDataSourceImplTest :
     public companion object {
         private const val SELECTABLE_TAG_COUNT: Int = 25
         private const val SELECTABLE_TAG_PAGE_SIZE: Int = 10
+        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000L
 
         private suspend fun PagingSource<Int, MemoLocalEntity>.pagedIdList(): List<Uuid> {
             val result =

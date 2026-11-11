@@ -119,7 +119,7 @@ class AddQrUseCaseTest :
                 )
 
             When("연결할 태그를 골라 QR을 추가한다") {
-                Then("TC-4eaac45d-26f2-4397-af48-a82d86675b92 TC-a6fde504-b12a-4648-9b7f-cad5ca5d3fd0 고른 태그를 그대로 새 QR을의 연결로 넘긴다") {
+                Then("TC-a6fde504-b12a-4648-9b7f-cad5ca5d3fd0 고른 태그를 그대로 새 QR을의 연결로 넘긴다") {
                     val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
                     val repository = mockk<AccountQrRepository>(relaxed = true)
                     val taggedUseCase =

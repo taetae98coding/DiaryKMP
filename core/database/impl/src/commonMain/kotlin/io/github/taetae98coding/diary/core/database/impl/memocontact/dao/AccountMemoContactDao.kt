@@ -13,7 +13,6 @@ import kotlin.uuid.Uuid
 
 @Dao
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
-// 검색어의 `%`, `_`가 와일드카드로 해석되지 않도록 LIKE 대신 INSTR로 부분 일치를 판정한다.
 internal interface AccountMemoContactDao : RoomDao<AccountMemoContactLocalEntity> {
     @Query(
         """
@@ -44,6 +43,8 @@ internal interface AccountMemoContactDao : RoomDao<AccountMemoContactLocalEntity
                 AND account_memo_contact.account_id = :accountId
         INNER JOIN memo
             ON memo.id = memo_contact.memo_id
+        INNER JOIN account_memo
+            ON account_memo.memo_id = memo.id AND account_memo.account_id = :accountId
         WHERE contact.is_deleted = 0
         ORDER BY contact.name ASC
         """,
@@ -90,10 +91,14 @@ internal interface AccountMemoContactDao : RoomDao<AccountMemoContactLocalEntity
         """
         SELECT memo_contact.contact_id
         FROM memo_contact
+        INNER JOIN account_contact
+            ON account_contact.contact_id = memo_contact.contact_id AND account_contact.account_id = :accountId
         INNER JOIN account_memo_contact
             ON account_memo_contact.memo_id = memo_contact.memo_id
                 AND account_memo_contact.contact_id = memo_contact.contact_id
                 AND account_memo_contact.account_id = :accountId
+        INNER JOIN account_memo
+            ON account_memo.memo_id = memo_contact.memo_id AND account_memo.account_id = :accountId
         WHERE memo_contact.memo_id = :memoId AND memo_contact.is_deleted = 0
         """,
     )

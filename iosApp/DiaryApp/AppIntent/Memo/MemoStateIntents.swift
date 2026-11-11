@@ -13,6 +13,7 @@ struct FinishMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
         let changedCount = try await appAction { try await DiaryMemoAppAction.shared.finish(memoId: memo.id) }
         return .result(
             value: Int(changedCount),
@@ -33,6 +34,7 @@ struct RestartMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
         let changedCount = try await appAction { try await DiaryMemoAppAction.shared.restart(memoId: memo.id) }
         return .result(
             value: Int(changedCount),
@@ -55,6 +57,7 @@ struct DeleteMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
         let changedCount = try await appAction { try await DiaryMemoAppAction.shared.delete(memoId: memo.id) }
         return .result(
             value: Int(changedCount),

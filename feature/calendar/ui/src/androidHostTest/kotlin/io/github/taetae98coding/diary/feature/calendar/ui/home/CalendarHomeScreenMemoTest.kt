@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.compose.permission.rememberPermissionManag
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
@@ -27,7 +28,6 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHome
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
@@ -315,13 +315,7 @@ class CalendarHomeScreenMemoTest {
         title: String,
         start: LocalDate,
         endInclusive: LocalDate,
-    ): CalendarMemo =
-        CalendarMemo(
-            id = Uuid.random(),
-            title = title,
-            color = Arb.long().next(),
-            dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
-        )
+    ): CalendarMemo = Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive), title = title).next()
 
     private fun timedMemo(
         title: String,
@@ -330,16 +324,15 @@ class CalendarHomeScreenMemoTest {
         endHour: Int,
         endDate: LocalDate = date,
     ): CalendarMemo =
-        CalendarMemo(
-            id = Uuid.random(),
-            title = title,
-            color = Arb.long().next(),
-            dateTime =
-                MemoDateTime.DateTime(
-                    start = LocalDateTime(date = date, time = LocalTime(hour = startHour, minute = 0)),
-                    endInclusive = LocalDateTime(date = endDate, time = LocalTime(hour = endHour, minute = 0)),
-                ),
-        )
+        Arb
+            .calendarMemo(
+                dateTime =
+                    MemoDateTime.DateTime(
+                        start = LocalDateTime(date = date, time = LocalTime(hour = startHour, minute = 0)),
+                        endInclusive = LocalDateTime(date = endDate, time = LocalTime(hour = endHour, minute = 0)),
+                    ),
+                title = title,
+            ).next()
 
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 

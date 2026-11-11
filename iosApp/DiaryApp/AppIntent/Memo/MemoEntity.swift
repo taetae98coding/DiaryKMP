@@ -97,10 +97,11 @@ struct MemoEntity: AppEntity {
 }
 
 struct MemoEntityQuery: EntityStringQuery {
+    // ‘삭제한 메모 되돌리기’에 넘긴 항목을 다시 찾을 수 있게 삭제된 항목도 찾는다.
     func entities(for identifiers: [MemoEntity.ID]) async throws -> [MemoEntity] {
         var entityList: [MemoEntity] = []
         for identifier in identifiers {
-            if let detail = try await appAction({ try await DiaryMemoAppAction.shared.get(memoId: identifier) }) {
+            if let detail = try await appAction({ try await DiaryMemoAppAction.shared.getIncludingDeleted(memoId: identifier) }) {
                 entityList.append(MemoEntity(detail: detail))
             }
         }
@@ -116,15 +117,16 @@ struct MemoEntityQuery: EntityStringQuery {
 
     func suggestedEntities() async throws -> [MemoEntity] {
         let firstPage = AppIntentPage.number(nil)
-        let inProgress = try await appAction { try await DiaryMemoAppAction.shared.list(sort: nil, pageNumber: firstPage) }
-        let finished = try await appAction { try await DiaryMemoAppAction.shared.finishedList(sort: nil, pageNumber: firstPage) }
+        let inProgress = try await appAction { try await DiaryMemoListAppAction.shared.list(sort: nil, pageNumber: firstPage) }
+        let finished = try await appAction { try await DiaryMemoListAppAction.shared.finishedList(sort: nil, pageNumber: firstPage) }
         return (inProgress.items + finished.items).map(MemoEntity.init(memo:))
     }
 
+    // 상세와 추가 결과는 데스크톱 연결과 같이 삭제된 항목을 없는 항목으로 다룬다.
     static func require(memoId: String) async throws -> MemoEntity {
-        guard let memo = try await MemoEntityQuery().entities(for: [memoId]).first else {
+        guard let detail = try await appAction({ try await DiaryMemoAppAction.shared.get(memoId: memoId) }) else {
             throw AppIntentError.notFound(LocalizedStringResource("Couldn't find the memo.", table: "AppIntentMemo"))
         }
-        return memo
+        return MemoEntity(detail: detail)
     }
 }

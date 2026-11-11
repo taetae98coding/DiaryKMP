@@ -40,7 +40,6 @@ internal class WebDetailPageViewModel(
                     .map { detail -> FetchWebPageUseCase.Parameter(url = detail.url, headerList = detail.headerList) }
                     .distinctUntilChanged()
 
-            // 새 요청이 오면 진행 중이던 불러오기를 취소해 최신 저장 내용의 결과만 반영한다.
             combine(requestFlow, retryCount) { parameter, _ -> parameter }
                 .collectLatest { parameter ->
                     uiState.value = WebDetailPageUiState.Loading
@@ -57,7 +56,6 @@ internal class WebDetailPageViewModel(
     }
 
     fun reloadIfFailed() {
-        // 불러오기에 실패해 받은 응답 본문이 없는 상태에서만 다시 불러온다.
         if (uiState.value != WebDetailPageUiState.Failure) return
 
         uiState.value = WebDetailPageUiState.Loading

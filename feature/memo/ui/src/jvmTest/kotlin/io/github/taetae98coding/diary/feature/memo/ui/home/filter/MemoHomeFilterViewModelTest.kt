@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllMemoFilterT
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectMemoFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -34,10 +35,12 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -199,6 +202,52 @@ class MemoHomeFilterViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) {
                     setMemoPlaceExistenceFilterUseCase(parameter = MemoFilterExistence.ALL)
+                }
+            }
+        }
+
+        test("TC-365b6703-bcae-4f92-8f99-2aa7cba44ec6 TC-482234a7-ebb5-48b8-8351-7ceed4987334 필터를 닫았다가 다시 열어도 선택을 노출한다") {
+            runTest(mainDispatcher) {
+                val tagList = listOf(tag(), tag(), tag())
+                val storedTagList = MutableStateFlow(emptyList<Tag>())
+                val storedExistence = MutableStateFlow(MemoExistenceFilter())
+                val selectMemoFilterTagUseCase = mockk<SelectMemoFilterTagUseCase>()
+                coEvery { selectMemoFilterTagUseCase(parameter = any()) } answers {
+                    val tagId = firstArg<Uuid>()
+                    storedTagList.update { stored -> stored + tagList.first { tag -> tag.id == tagId } }
+                    Result.success(Unit)
+                }
+                val setMemoPlaceExistenceFilterUseCase = mockk<SetMemoPlaceExistenceFilterUseCase>()
+                coEvery { setMemoPlaceExistenceFilterUseCase(parameter = any()) } answers {
+                    storedExistence.update { stored -> stored.copy(place = firstArg()) }
+                    Result.success(Unit)
+                }
+
+                fun openFilter(): MemoHomeFilterViewModel =
+                    viewModel(
+                        getMemoFilterUseCase = filterUseCase(flow = storedTagList.map { stored -> Result.success(stored) }),
+                        getMemoExistenceFilterUseCase = existenceFilterUseCase(flow = storedExistence.map { stored -> Result.success(stored) }),
+                        selectMemoFilterTagUseCase = selectMemoFilterTagUseCase,
+                        setMemoPlaceExistenceFilterUseCase = setMemoPlaceExistenceFilterUseCase,
+                    )
+
+                val openedFilter = openFilter()
+                openedFilter.selectTag(id = tagList[0].id)
+                advanceUntilIdle()
+                openedFilter.selectTag(id = tagList[1].id)
+                advanceUntilIdle()
+                openedFilter.setPlaceExistence(existence = MemoFilterExistence.EXIST)
+                advanceUntilIdle()
+
+                openFilter().uiState.test {
+                    awaitItem() shouldBe MemoHomeFilterUiState()
+                    advanceUntilIdle()
+                    expectMostRecentItem() shouldBe
+                        MemoHomeFilterUiState(
+                            selectedTagIdSet = setOf(tagList[0].id, tagList[1].id),
+                            existence = MemoExistenceFilter(place = MemoFilterExistence.EXIST),
+                        )
+                    cancelAndIgnoreRemainingEvents()
                 }
             }
         }
@@ -391,7 +440,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
             return getMemoFilterUseCase
         }
 
-        private fun tag(title: String): Tag =
+        private fun tag(title: String = Arb.nonBlankString().next()): Tag =
             Arb
                 .tag()
                 .next()

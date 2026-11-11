@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -100,7 +101,6 @@ class MemoFinishedListDetailNavigationTest {
     private val finishedPagingData = MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
     private val detailUiStateMap = mutableMapOf<Uuid, MutableStateFlow<MemoDetailUiState>>()
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -151,6 +151,34 @@ class MemoFinishedListDetailNavigationTest {
     }
 
     @Test
+    fun `TC-939518c8-77cb-415f-a0c2-d4a9e0df7138 상세 영역에서 메모를 복사하면 목록은 그대로이고 복사한 메모의 상세로 바뀐다`() {
+        val memoList = memoList()
+        val copiedId = Arb.kotlinUuid().next()
+        setMemoNavDisplay(memoList = memoList, copiedId = copiedId)
+        selectMemo(memoList[0])
+
+        composeRule.onNode(actionButton(DEFAULT_COPY_BUTTON_DESCRIPTION)).performClick()
+        composeRule.waitForIdle()
+
+        // 원본 메모의 상세로 돌아가는 기록을 남기지 않는다.
+        backStack.toList() shouldBe listOf(FinishedListTestTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, MemoDetailNavKey(id = copiedId))
+        composeRule.onAllNodesWithText(detailTitle(id = copiedId)).fetchSemanticsNodes().isNotEmpty() shouldBe true
+        composeRule.onAllNodesWithText(detailTitle(id = memoList[0].id)).fetchSemanticsNodes().isEmpty() shouldBe true
+        // 목록 영역에는 복사 전과 같은 메모만 남는다.
+        repeat(MEMO_COUNT) { index -> composeRule.onNodeWithText(listTitle(index = index)).assertExists() }
+        composeRule.onAllNodes(hasText(text = LIST_TITLE_PREFIX, substring = true)).fetchSemanticsNodes().size shouldBe MEMO_COUNT
+    }
+
+    @Test
+    fun `TC-ea6f386d-f6a3-4d7d-9d96-6ff5cb3b582e 목록에 메모 추가 동작이 없고 상세 영역은 메모 추가가 되지 않는다`() {
+        setMemoNavDisplay(memoList = memoList())
+
+        composeRule.onAllNodes(hasContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION)).fetchSemanticsNodes().isEmpty() shouldBe true
+        composeRule.onNodeWithText(DEFAULT_PLACEHOLDER_TEXT).assertExists()
+        backStack.toList() shouldBe listOf(FinishedListTestTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey)
+    }
+
+    @Test
     fun `TC-a23c4238-ba40-4f34-aa3f-83d77f8fe361 상세 영역에서 메모를 다시 시작하면 목록에서 사라지고 상세는 그대로 남는다`() {
         val memoList = memoList()
         setMemoNavDisplay(memoList = memoList)
@@ -192,7 +220,6 @@ class MemoFinishedListDetailNavigationTest {
         val viewModelModule = viewModelModule(copiedId = copiedId)
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {
@@ -294,8 +321,10 @@ class MemoFinishedListDetailNavigationTest {
         const val MEMO_COUNT = 3
         const val TOP_LEVEL_CONTENT = "TopLevelContent"
         const val DEFAULT_PLACEHOLDER_TEXT = "Choose a memo"
+        const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
+        const val LIST_TITLE_PREFIX = "MemoFinishedListDetailTitle"
 
-        fun listTitle(index: Int): String = "MemoFinishedListDetailTitle$index"
+        fun listTitle(index: Int): String = "$LIST_TITLE_PREFIX$index"
 
         fun detailTitle(id: Uuid): String = "MemoFinishedListDetailScreen$id"
 

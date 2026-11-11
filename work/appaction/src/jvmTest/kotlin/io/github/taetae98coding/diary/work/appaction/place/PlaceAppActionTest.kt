@@ -35,7 +35,10 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDateTime
+import io.github.taetae98coding.diary.work.appaction.memo.memoListAppActionOf
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
+import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -98,7 +101,12 @@ class PlaceAppActionTest :
 
         test("좌표가 없는 장소는 위도와 경도를 null로 돌려준다") {
             runTest {
-                val place = Arb.place().next().let { place -> place.copy(detail = place.detail.copy(coordinate = Coordinate(latitude = Double.NaN, longitude = Double.NaN))) }
+                val place =
+                    Arb
+                        .place()
+                        .next()
+                        .copy(isDeleted = false)
+                        .let { place -> place.copy(detail = place.detail.copy(coordinate = Coordinate(latitude = Double.NaN, longitude = Double.NaN))) }
                 val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
                 every { pagePlaceHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(place))))
                 val action = placeAppActionOf(pagePlaceHomeUseCase)
@@ -153,10 +161,10 @@ class PlaceAppActionTest :
             }
         }
 
-        test("장소 하나를 연결된 태그와 함께 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 장소 하나를 연결된 태그와 함께 돌려준다") {
             runTest {
-                val place = Arb.place().next()
-                val tagList = Arb.list(Arb.tag(), 0..3).next()
+                val place = Arb.place().next().copy(isDeleted = false)
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 val findPlaceUseCase = mockk<FindPlaceUseCase>()
                 val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findPlaceUseCase(parameter = place.id) } returns flowOf(Result.success(place))
@@ -185,11 +193,12 @@ class PlaceAppActionTest :
                 val findPlaceUseCase = mockk<FindPlaceUseCase>()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
                 val pagePlaceMemoUseCase = mockk<PagePlaceMemoUseCase>()
-                val action = placeAppActionOf(findPlaceUseCase, deletePlaceUseCase, pagePlaceMemoUseCase)
+                val action = placeAppActionOf(findPlaceUseCase, deletePlaceUseCase)
+                val memoListAction = memoListAppActionOf(pagePlaceMemoUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.get(placeId = "not-id") }.message shouldBe "'placeId' must be an id."
                 shouldThrow<AppActionException.InvalidArgument> { action.delete(placeId = "not-id") }.message shouldBe "'placeId' must be an id."
-                shouldThrow<AppActionException.InvalidArgument> { action.memoList(placeId = "not-id", sort = null, cursor = null) }.message shouldBe "'placeId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { memoListAction.placeList(placeId = "not-id", sort = null, cursor = null) }.message shouldBe "'placeId' must be an id."
                 verify(exactly = 0) { findPlaceUseCase(parameter = any()) }
                 verify(exactly = 0) { pagePlaceMemoUseCase(parameter = any()) }
                 coVerify(exactly = 0) { deletePlaceUseCase(parameter = any()) }
@@ -204,11 +213,11 @@ class PlaceAppActionTest :
                 val pageFinishedPlaceMemoUseCase = mockk<PageFinishedPlaceMemoUseCase>()
                 every { pagePlaceMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
                 every { pageFinishedPlaceMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
-                val action = placeAppActionOf(pagePlaceMemoUseCase, pageFinishedPlaceMemoUseCase)
+                val action = memoListAppActionOf(pagePlaceMemoUseCase, pageFinishedPlaceMemoUseCase)
                 val expected = AppActionPage(items = memoList.map { memo -> memo.expected() }, nextCursor = null)
 
-                action.memoList(placeId = placeId.toString(), sort = null, cursor = null) shouldBe expected
-                action.memoFinishedList(placeId = placeId.toString(), sort = "title", cursor = null) shouldBe expected
+                action.placeList(placeId = placeId.toString(), sort = null, cursor = null) shouldBe expected
+                action.placeFinishedList(placeId = placeId.toString(), sort = "title", cursor = null) shouldBe expected
 
                 verify(exactly = 1) { pagePlaceMemoUseCase(parameter = PagePlaceMemoUseCase.Parameter(placeId = placeId, sort = ListSort.DEFAULT)) }
                 verify(exactly = 1) { pageFinishedPlaceMemoUseCase(parameter = PageFinishedPlaceMemoUseCase.Parameter(placeId = placeId, sort = ListSort.TITLE)) }
@@ -244,6 +253,31 @@ class PlaceAppActionTest :
                         detail = detail.copy(color = (OPAQUE or (detail.color and RGB)).toInt().toLong(), coordinate = Coordinate(latitude = latitude.toDouble(), longitude = longitude.toDouble())),
                         tagIdSet = tagIdList.toSet(),
                     )
+            }
+        }
+
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddPlaceUseCase.Parameter>()
+                val addPlaceUseCase = mockk<AddPlaceUseCase>()
+                coEvery { addPlaceUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = placeAppActionOf(addPlaceUseCase)
+
+                val result =
+                    action.add(
+                        title = Arb.nonBlankString().next(),
+                        latitude = Arb.numericDouble(min = -90.0, max = 90.0).next().toCoordinateText(),
+                        longitude = Arb.numericDouble(min = -180.0, max = 180.0).next().toCoordinateText(),
+                        address = null,
+                        description = null,
+                        color = null,
+                        tagIds = tagIdSet.map { tagId -> tagId.toString() },
+                    )
+
+                result shouldBe AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
             }
         }
 
@@ -297,7 +331,7 @@ class PlaceAppActionTest :
 
         test("고칠 값을 담지 않은 항목은 지금 값을 유지하고 고친 수를 돌려준다") {
             runTest {
-                val place = Arb.place().next()
+                val place = Arb.place().next().copy(isDeleted = false)
                 val title = Arb.nonBlankString().next()
                 val latitude = Arb.numericDouble(min = -90.0, max = 90.0).next().toCoordinateText()
                 val changedCount = Arb.int(0..1).next()
@@ -350,7 +384,7 @@ class PlaceAppActionTest :
             }
         }
 
-        test("태그 연결과 해제는 장소 종류로 요청하고 완료를 돌려준다") {
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결과 해제는 장소 종류로 요청하고 완료를 돌려준다") {
             runTest {
                 val placeId = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
@@ -358,10 +392,10 @@ class PlaceAppActionTest :
                 val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
                 coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val action = placeAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
 
-                action.tagAdd(placeId = placeId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
-                action.tagRemove(placeId = placeId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.add(kind = AppActionEntityTagKind.PLACE, entityId = placeId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.remove(kind = AppActionEntityTagKind.PLACE, entityId = placeId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
 
                 coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = placeId, tagId = tagId)) }
                 coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = placeId, tagId = tagId)) }
@@ -374,13 +408,37 @@ class PlaceAppActionTest :
                 val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
                 val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
                 coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException(message))
-                val action = placeAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
 
-                shouldThrow<AppActionException.InvalidArgument> { action.tagAdd(placeId = Arb.kotlinUuid().next().toString(), tagId = "tag") }.message shouldBe "'tagId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.PLACE, entityId = Arb.kotlinUuid().next().toString(), tagId = "tag") }.message shouldBe "'tagId' must be an id."
                 shouldThrow<AppActionException.Failure> {
-                    action.tagRemove(placeId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
+                    action.remove(kind = AppActionEntityTagKind.PLACE, entityId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
                 }.message shouldBe "IllegalStateException: $message"
                 coVerify(exactly = 0) { addEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 장소의 상세는 없는 장소와 같이 null을 돌려준다") {
+            runTest {
+                val place = Arb.place().next().copy(isDeleted = true)
+                val findPlaceUseCase = mockk<FindPlaceUseCase>()
+                every { findPlaceUseCase(parameter = place.id) } returns flowOf(Result.success(place))
+                val action = placeAppActionOf(findPlaceUseCase)
+
+                action.get(placeId = place.id.toString()) shouldBe null
+            }
+        }
+
+        test("삭제된 장소도 포함하는 조회는 삭제된 장소를 돌려준다") {
+            runTest {
+                val place = Arb.place().next().copy(isDeleted = true)
+                val findPlaceUseCase = mockk<FindPlaceUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findPlaceUseCase(parameter = place.id) } returns flowOf(Result.success(place))
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = place.id)) } returns flowOf(Result.success(emptyList()))
+                val action = placeAppActionOf(findPlaceUseCase, getEntityTagUseCase)
+
+                action.getIncludingDeleted(placeId = place.id.toString())?.place?.id shouldBe place.id.toString()
             }
         }
     })

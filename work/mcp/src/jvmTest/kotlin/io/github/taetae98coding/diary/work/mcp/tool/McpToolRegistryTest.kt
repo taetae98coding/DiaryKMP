@@ -26,6 +26,20 @@ class McpToolRegistryTest :
             }
         }
 
+        test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 태그를 연결하는 대상마다 태그 연결과 해제 기능이 있다") {
+            val nameList = createRegistry().toolList.map { tool -> tool.name }
+
+            listOf("memo", "place", "web", "contact", "checklist", "qr", "music", "dday").forEach { entity ->
+                nameList shouldContainAll listOf("${entity}_tag_add", "${entity}_tag_remove")
+            }
+        }
+
+        test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 태그 상세의 탭마다 태그에 연결된 항목 목록 기능이 있다") {
+            val nameList = createRegistry().toolList.map { tool -> tool.name }
+
+            nameList shouldContainAll listOf("memo", "web", "place", "contact", "checklist", "music", "qr", "dday").map { item -> "tag_${item}_list" } + "tag_memo_finished_list"
+        }
+
         test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 검색, 캘린더, 공휴일, 음력 조회 기능이 있다") {
             val nameList = createRegistry().toolList.map { tool -> tool.name }
 

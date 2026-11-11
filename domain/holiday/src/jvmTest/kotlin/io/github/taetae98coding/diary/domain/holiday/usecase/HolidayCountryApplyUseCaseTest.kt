@@ -412,7 +412,6 @@ private fun hiddenKeySettingRepository(hiddenKeySet: Set<String>): HolidaySettin
         every { repository.getHiddenKeySet() } returns flowOf(hiddenKeySet)
     }
 
-// 연도 조회는 요청 연도에 시작하는 공휴일만, 전체 조회는 모든 공휴일을 적용 국가로 걸러 제공한다.
 private fun holidayRepository(holidayMap: Map<HolidayCountry, List<Holiday>>): HolidayRepository =
     mockk<HolidayRepository>().also { repository ->
         every { repository.get(countrySet = any()) } answers {

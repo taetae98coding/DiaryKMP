@@ -128,7 +128,7 @@ class CalendarHomeDestinationReturnTest {
     }
 }
 
-// 메모나 태그처럼 캘린더가 아닌 주요 목적지를 대신한다. 다른 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 메모나 태그처럼 캘린더가 아닌 주요 목적지를 대신한다. 다른 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object DestinationTestTopLevelNavKey : ScreenNavKey {
     override val screenName: String
         get() = "DestinationTestTopLevel"

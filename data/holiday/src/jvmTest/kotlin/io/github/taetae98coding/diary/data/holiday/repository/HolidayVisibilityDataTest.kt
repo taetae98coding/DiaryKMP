@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.calendar.network.api.datasource.Holid
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
+import io.github.taetae98coding.diary.core.testing.holiday.holidayLocalEntity
 import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
 import io.github.taetae98coding.diary.data.holiday.cache.HolidayFetchedKeySet
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
@@ -286,7 +287,7 @@ private fun holiday(
     name: String,
     day: Int,
 ): HolidayLocalEntity =
-    HolidayLocalEntity(
+    Arb.holidayLocalEntity().next().copy(
         country = HolidayCountryLocalEntity.KOREA,
         year = YEAR,
         name = name,

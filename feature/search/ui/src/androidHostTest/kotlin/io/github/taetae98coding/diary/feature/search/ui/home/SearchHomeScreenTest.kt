@@ -35,16 +35,19 @@ import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.dday.SEARCH_HOME_DDAY_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SEARCH_HOME_PLACE_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SEARCH_HOME_TAG_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SEARCH_HOME_WEB_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.verify
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,6 +60,11 @@ import kotlin.uuid.Uuid
 class SearchHomeScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 질의가 비어 있고 다섯 유형의 결과에 카드가 하나도 없다`() {
@@ -632,6 +640,7 @@ class SearchHomeScreenTest {
             tagList = List(RESULT_COUNT) { resultTag() },
             placeList = List(RESULT_COUNT) { resultPlace() },
             webList = List(RESULT_COUNT) { resultWeb() },
+            ddayList = List(RESULT_COUNT) { resultDDay() },
         )
         inputQuery()
 
@@ -640,6 +649,7 @@ class SearchHomeScreenTest {
             TAG_TAB_LABEL to SEARCH_HOME_TAG_LIST_TEST_TAG,
             PLACE_TAB_LABEL to SEARCH_HOME_PLACE_LIST_TEST_TAG,
             WEB_TAB_LABEL to SEARCH_HOME_WEB_LIST_TEST_TAG,
+            DDAY_TAB_LABEL to SEARCH_HOME_DDAY_LIST_TEST_TAG,
         ).forEach { (label, listTestTag) ->
             composeRule.selectSearchHomeTab(label)
 

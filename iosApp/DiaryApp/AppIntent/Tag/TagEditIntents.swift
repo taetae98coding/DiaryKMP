@@ -98,6 +98,7 @@ struct EditTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
         let changedCount = try await appAction {
             try await DiaryTagAppAction.shared.update(tagId: tag.id, emoji: emoji, title: title, tagDescription: tagDescription, color: color)
         }

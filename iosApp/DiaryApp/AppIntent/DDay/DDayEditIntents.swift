@@ -193,6 +193,7 @@ struct EditDDayIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await DDayEntityQuery.require(ddayId: dday.id)
         let changedCount = try await appAction {
             try await DiaryDDayAppAction.shared.update(
                 ddayId: dday.id,

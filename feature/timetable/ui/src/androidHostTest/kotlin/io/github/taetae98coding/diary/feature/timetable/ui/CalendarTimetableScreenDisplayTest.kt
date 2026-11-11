@@ -47,9 +47,10 @@ import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
+import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -75,7 +76,6 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Clock
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -445,19 +445,12 @@ class CalendarTimetableScreenDisplayTest {
     private fun dday(
         title: String,
         day: Int,
-    ): CalendarDDay =
-        CalendarDDay(
-            ddayId = Uuid.random(),
-            title = title,
-            color = DDAY_COLOR,
-            date = september(day = day),
-            label = CalendarDDayLabel.BaseDay,
-        )
+    ): CalendarDDay = Arb.calendarDDay().next().copy(title = title, date = september(day = day), label = CalendarDDayLabel.BaseDay)
 
     private fun birthday(
         name: String,
         day: Int,
-    ): CalendarContactBirthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = name, nameQualifier = "", date = september(day = day))
+    ): CalendarContactBirthday = Arb.calendarContactBirthday().next().copy(name = name, nameQualifier = "", date = september(day = day))
 
     private fun scrollToAllDay() {
         composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).performScrollTo()
@@ -673,6 +666,5 @@ class CalendarTimetableScreenDisplayTest {
         const val SECOND_DDAY_TITLE = "나"
         const val FIRST_DDAY_TEXT = "🎉 가 D-Day"
         const val SECOND_DDAY_TEXT = "🎉 나 D-Day"
-        const val DDAY_COLOR = 0xFFE57373
     }
 }

@@ -172,7 +172,6 @@ class AccountDataTransactionImplTest :
                 }
             }
 
-        /** 항목 종류를 한 계정 몫으로 채우고 만든 항목을 돌려준다. */
         suspend fun fillEntity(
             accountId: Uuid,
             isDirty: Boolean,
@@ -367,7 +366,7 @@ class AccountDataTransactionImplTest :
             fillAccountState(accountId = accountId, entity = entity)
         }
 
-        test("TC-ce8de4c6-cb52-4b84-a7d8-ef0fbd8517b7 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
+        test("TC-ce8de4c6-cb52-4b84-a7d8-ef0fbd8517b7 TC-e64cb655-d2fc-4b69-942a-20e3ad112f67 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
             val accountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
 
@@ -381,7 +380,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-fb5b77ea-f160-4081-baed-4c400465f7ea 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
+        test("TC-fb5b77ea-f160-4081-baed-4c400465f7ea TC-e64cb655-d2fc-4b69-942a-20e3ad112f67 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)

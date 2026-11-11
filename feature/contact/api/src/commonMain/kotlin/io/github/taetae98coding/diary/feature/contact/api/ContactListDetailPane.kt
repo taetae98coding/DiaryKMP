@@ -17,4 +17,4 @@ public fun List<ScreenNavKey>.isContactAddOnDetailPane(): Boolean {
 }
 
 // 초기 태그가 있는 ContactAdd는 TagDetail 연락처 탭에서 진입한 것이다.
-private fun ScreenNavKey.isContactDetailPaneKey(): Boolean = (this is ContactAddNavKey && initialTagId == null) || this is ContactDetailNavKey
+private fun ScreenNavKey.isContactDetailPaneKey(): Boolean = (this is ContactAddNavKey && initialTagId == null) || (this is ContactDetailNavKey && !isStandalone)

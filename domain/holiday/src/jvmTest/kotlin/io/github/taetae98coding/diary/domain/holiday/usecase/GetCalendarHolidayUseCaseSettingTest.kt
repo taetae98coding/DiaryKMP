@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -10,7 +11,6 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.datetime.LocalDate
 
 private const val CONSTITUTION_DAY_NAME = "제헌절"
 private const val MIDSUMMER_DAY_NAME = "초복"
@@ -30,9 +29,9 @@ class GetCalendarHolidayUseCaseSettingTest :
     BehaviorSpec({
         Given("TC-4c46ba8f-559f-4d1f-a0ef-e3b053a6df0a 한 이름을 숨긴 상태로 캘린더용 공휴일을 계속 조회하고 있다") {
             val year = Arb.int().next()
-            val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
-            val changedMidsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
-            val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME)
+            val midsummerDay = Arb.holiday().next().copy(name = MIDSUMMER_DAY_NAME)
+            val changedMidsummerDay = Arb.holiday().next().copy(name = MIDSUMMER_DAY_NAME)
+            val constitutionDay = Arb.holiday().next().copy(name = CONSTITUTION_DAY_NAME)
             val holidayFlow = MutableStateFlow(listOf(midsummerDay))
             val useCase =
                 getCalendarHolidayUseCase(
@@ -56,8 +55,8 @@ class GetCalendarHolidayUseCaseSettingTest :
 
         Given("TC-c3856162-f3e9-445f-8c79-e2ada5b9fb0e 한 이름을 숨겼고 저장된 공휴일에는 그 이름이 없다") {
             val year = Arb.int().next()
-            val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME)
-            val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
+            val constitutionDay = Arb.holiday().next().copy(name = CONSTITUTION_DAY_NAME)
+            val midsummerDay = Arb.holiday().next().copy(name = MIDSUMMER_DAY_NAME)
             val holidayFlow = MutableStateFlow(listOf(constitutionDay))
             val useCase =
                 getCalendarHolidayUseCase(
@@ -84,7 +83,7 @@ class GetCalendarHolidayUseCaseSettingTest :
                     holidayRepository =
                         mockk<HolidayRepository>().also { repository ->
                             every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns
-                                flowOf(listOf(holiday(name = CONSTITUTION_DAY_NAME), holiday(name = MIDSUMMER_DAY_NAME)))
+                                flowOf(listOf(Arb.holiday().next().copy(name = CONSTITUTION_DAY_NAME), Arb.holiday().next().copy(name = MIDSUMMER_DAY_NAME)))
                         },
                     holidaySettingRepository =
                         mockk<HolidaySettingRepository>().also { repository ->
@@ -108,8 +107,8 @@ class GetCalendarHolidayUseCaseSettingTest :
 
         Given("보관된 노출 설정이 바뀐 상태로 캘린더용 공휴일을 계속 조회하고 있다") {
             val year = Arb.int().next()
-            val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME)
-            val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
+            val constitutionDay = Arb.holiday().next().copy(name = CONSTITUTION_DAY_NAME)
+            val midsummerDay = Arb.holiday().next().copy(name = MIDSUMMER_DAY_NAME)
             val hiddenKeySetFlow = MutableStateFlow<Set<String>>(emptySet())
             val useCase =
                 getCalendarHolidayUseCase(
@@ -151,21 +150,4 @@ private fun getCalendarHolidayUseCase(
             mockk<HolidaySettingRepository>().also { repository ->
                 every { repository.getHiddenKeySet() } returns hiddenKeySetFlow
             },
-    )
-
-private fun holiday(name: String): Holiday {
-    val start = randomDate()
-
-    return Holiday(
-        name = name,
-        isHoliday = Arb.boolean().next(),
-        dateRange = start..start,
-    )
-}
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )

@@ -231,6 +231,22 @@ class AddPlaceUseCaseTest :
             }
 
             listOf(
+                Coordinate(latitude = 90.0, longitude = 180.0),
+                Coordinate(latitude = -90.0, longitude = -180.0),
+                Coordinate(latitude = 0.0, longitude = 0.0),
+                Coordinate(latitude = SEOUL_LATITUDE, longitude = SEOUL_LONGITUDE),
+            ).forEach { coordinate ->
+                When("지도에서 고른 좌표 $coordinate 로 장소를 추가한다") {
+                    Then("TC-caf684a1-2033-4e4a-b288-c6b69bbdd231 좌표 오류 없이 장소 추가가 성립한다") {
+                        val result = useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(coordinate = coordinate), tagIdSet = emptySet()))
+
+                        result.shouldBeSuccess()
+                        placeSlot.captured.detail.coordinate shouldBe coordinate
+                    }
+                }
+            }
+
+            listOf(
                 Coordinate(latitude = 37.1234567, longitude = 127.1234564) to Coordinate(latitude = 37.123457, longitude = 127.123456),
                 Coordinate(latitude = 90.0000004, longitude = -180.0000004) to Coordinate(latitude = 90.0, longitude = -180.0),
             ).forEach { (coordinate, expected) ->
@@ -353,6 +369,8 @@ class AddPlaceUseCaseTest :
     }) {
     public companion object {
         private const val PLACE_COLOR: Long = 0xFF3A7BD5
+        private const val SEOUL_LATITUDE = 37.5665
+        private const val SEOUL_LONGITUDE = 126.978
 
         private fun requestSyncUseCase(): RequestSyncUseCase = mockk(relaxed = true)
 

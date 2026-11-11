@@ -7,19 +7,20 @@ import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.filter
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
@@ -45,8 +46,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 class CalendarHomeMemoViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -65,7 +64,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val expectedDateRange =
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
-                val memoList = listOf(memo(), memo())
+                val memoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
                 val useCase = getCalendarMemoUseCase(expectedDateRange to Result.success(memoList))
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
@@ -112,8 +111,8 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
                 val septemberDateRange =
                     LocalDate(year = 2026, month = Month.JULY, day = 1)..LocalDate(year = 2026, month = Month.NOVEMBER, day = 30)
-                val mayMemo = memo()
-                val novemberMemo = memo()
+                val mayMemo = Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next()
+                val novemberMemo = Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next()
                 val useCase =
                     getCalendarMemoUseCase(
                         julyDateRange to Result.success(listOf(mayMemo)),
@@ -234,7 +233,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                 val moveMemoUseCase = mockk<MoveMemoUseCase>()
                 coEvery { moveMemoUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel = memoViewModel(moveMemoUseCase = moveMemoUseCase)
-                val id = Uuid.random()
+                val id = Arb.kotlinUuid().next()
                 val dateTime =
                     MemoDateTime.AllDay(dateRange = LocalDate(year = 2026, month = Month.JULY, day = 14)..LocalDate(year = 2026, month = Month.JULY, day = 16))
                 val dateRange =
@@ -255,15 +254,20 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                 val moveMemoUseCase = mockk<MoveMemoUseCase>()
                 coEvery { moveMemoUseCase(parameter = any()) } coAnswers { completion.await() }
                 val viewModel = memoViewModel(moveMemoUseCase = moveMemoUseCase)
-                val id = Uuid.random()
+                val id = Arb.kotlinUuid().next()
                 val dateTime = Arb.memoDateTimeAllDay().next()
-                val dateRange = Arb.localDateRange().next()
+                val firstDateRange = Arb.localDateRange().next()
+                val secondDateRange = Arb.localDateRange().filter { dateRange -> dateRange != firstDateRange }.next()
 
-                viewModel.move(id = id, fromDateTime = dateTime, toDateRange = dateRange)
-                viewModel.move(id = id, fromDateTime = dateTime, toDateRange = dateRange)
+                viewModel.move(id = id, fromDateTime = dateTime, toDateRange = firstDateRange)
+                advanceUntilIdle()
+                viewModel.move(id = id, fromDateTime = dateTime, toDateRange = secondDateRange)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { moveMemoUseCase(parameter = any()) }
+                coVerify(exactly = 1) {
+                    moveMemoUseCase(parameter = MoveMemoUseCase.Parameter(id = id, fromDateTime = dateTime, toDateRange = firstDateRange))
+                }
 
                 completion.complete(Result.success(Unit))
                 advanceUntilIdle()
@@ -272,8 +276,8 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
 
         test("저장된 메모가 바뀌면 조작 없이 표시할 메모가 갱신된다") {
             runTest(mainDispatcher) {
-                val memo = memo()
-                val changedMemo = memo()
+                val memo = Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next()
+                val changedMemo = Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next()
                 val memoFlow = MutableStateFlow(listOf(memo))
                 val useCase = mockk<GetCalendarMemoUseCase>()
                 every { useCase(parameter = any()) } returns
@@ -330,20 +334,4 @@ private fun getCalendarMemoUseCase(vararg resultByDateRange: Pair<LocalDateRange
             flowOf(results[firstArg<LocalDateRange>()] ?: Result.success(emptyList()))
         }
     }
-}
-
-private fun memo(): CalendarMemo {
-    val start =
-        LocalDate(
-            year = 2026,
-            month = Month.JULY,
-            day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-        )
-
-    return CalendarMemo(
-        id = Uuid.random(),
-        title = Arb.string().next(),
-        color = Arb.long().next(),
-        dateTime = MemoDateTime.AllDay(dateRange = start..start),
-    )
 }

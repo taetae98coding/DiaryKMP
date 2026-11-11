@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
@@ -18,6 +19,7 @@ import io.kotest.property.arbitrary.string
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
 class RequestFileUploadUseCaseTest :
@@ -44,6 +46,34 @@ class RequestFileUploadUseCaseTest :
                             )
                         }
                     }
+                }
+            }
+        }
+
+        Given("계정 A로 제목을 적고 파일을 고른 뒤 계정 상태가 계정 B의 사용자로 바뀌었다") {
+            val accountA = Arb.accountUser().next()
+            val accountB = Arb.accountUser().next()
+            val accountFlow = MutableStateFlow<Result<Account>>(Result.success(accountA))
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            val fileUploadManager = mockk<FileUploadManager>(relaxUnitFun = true)
+            val useCase = RequestFileUploadUseCase(getAccountUseCase = getAccountUseCase, fileUploadManager = fileUploadManager)
+            val uri = Arb.fileUri().next()
+            val title = Arb.nonBlankString().next()
+            accountFlow.value = Result.success(accountB)
+
+            When("올리기를 요청한다") {
+                val result = useCase(parameter = RequestFileUploadUseCase.Parameter(uri = uri, title = title, description = ""))
+
+                Then("TC-9eb318a0-4f67-46e8-951f-d476d831907a 바뀐 계정 B로 고른 파일을 올리도록 맡긴다") {
+                    result.shouldBeSuccess()
+                    coVerify(exactly = 1) {
+                        fileUploadManager.requestUpload(
+                            content = FileUploadContent(uri = uri, title = title, description = ""),
+                            accountId = accountB.id,
+                        )
+                    }
+                    coVerify(exactly = 0) { fileUploadManager.requestUpload(content = any(), accountId = accountA.id) }
                 }
             }
         }

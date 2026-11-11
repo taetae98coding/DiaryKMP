@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
+import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -201,8 +202,9 @@ class LogPlayIntegrityUseCaseTest :
         // 무결성 확인 정보 발급 실패, 서버의 실패 응답, 확인 준비 만료는 모두 저장소가 판정 결과를 가져오지 못하는 것으로 이 계층에 전달된다.
         // 실패 종류별 전달과 확인 준비를 다시 하는 동작은 AndroidPlayIntegrityTokenProviderTest가 같은 ID로 확인한다.
         Given("판정 결과를 가져오지 못한다") {
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<PlayIntegrityRepository>()
-            coEvery { repository.fetch() } throws IllegalStateException(Arb.string().next())
+            coEvery { repository.fetch() } throws failure
             val logList = recordLog()
 
             When("판정을 확인한다") {
@@ -212,6 +214,7 @@ class LogPlayIntegrityUseCaseTest :
                     result.shouldBeFailure()
                     logList.filterIsInstance<AnalyticsEventLog>().shouldBeEmpty()
                     logList.filterIsInstance<CrashlyticsLog>().shouldBeEmpty()
+                    logList.filterIsInstance<ConsoleLog>().single().throwable shouldBe failure
                 }
             }
         }

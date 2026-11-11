@@ -5,7 +5,9 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
@@ -19,6 +21,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.clickEntityTagInput
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.contact.ui.sendTagAddedResult
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -48,17 +51,39 @@ class ContactAddTagInputTest {
     @Test
     fun `TC-d1765324-0bf7-4ee3-9a1c-d2a06e906fb0 추가에 성공해도 고른 태그는 유지한다`() {
         val tag = Arb.tag(title = SELECTED_TAG_TITLE).next()
+        // 성공 뒤 화면이 태그 선택을 비우면 표시가 사라지도록, 고른 태그를 실제로 들고 있는 태그 선택 상태를 쓴다.
+        val tagViewModel = tagViewModel(initialTagId = tag.id, allTagList = listOf(tag))
         composeRule.setContactAddScreen(
-            viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded(id = Uuid.random())),
-            tagViewModel = addTagScreenTestViewModel(tagList = listOf(tag)),
+            viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded(id = Arb.kotlinUuid().next())),
+            tagViewModel = tagViewModel,
         )
         composeRule.nameInput().performTextInput(TYPED_NAME)
         composeRule.waitForIdle()
+        composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
 
         composeRule.clickAdd()
 
         composeRule.nameInput().assert(hasText(""))
         composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
+        composeRule.runOnIdle { tagViewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id) }
+    }
+
+    @Test
+    fun `TC-7363f1df-65aa-42bc-a6b3-890868995701 태그를 골라도 연락처 추가를 요청하지 않는다`() {
+        val tag = Arb.tag(title = SELECTED_TAG_TITLE).next()
+        val viewModel = screenTestViewModel()
+        val tagViewModel = tagViewModel(initialTagId = null, allTagList = listOf(tag))
+        composeRule.setContactAddScreen(viewModel = viewModel, tagViewModel = tagViewModel)
+
+        composeRule.clickEntityTagInput()
+        awaitTagTitle(title = SELECTED_TAG_TITLE, count = 1)
+        composeRule.onNodeWithText(SELECTED_TAG_TITLE).performClick()
+
+        // 고른 태그는 선택 목록의 행과 태그 입력의 연결 대상 표시에 모두 나타난다.
+        awaitTagTitle(title = SELECTED_TAG_TITLE, count = 2)
+        composeRule.runOnIdle { tagViewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id) }
+        // 연락처와 태그의 연결은 연락처 추가와 함께만 저장되므로, 추가를 요청하지 않았으면 저장된 연결도 없다.
+        verify(exactly = 0) { viewModel.add(detail = any(), tagIdSet = any()) }
     }
 
     @Test
@@ -146,6 +171,22 @@ class ContactAddTagInputTest {
         tagAddCount shouldBe 1
     }
 
+    // 선택 목록은 페이지 단위로 준비되므로 항목이 나타날 때까지 프레임과 실제 시간을 함께 진행시킨다.
+    private fun awaitTagTitle(
+        title: String,
+        count: Int,
+    ) {
+        repeat(PICKER_WAIT_ATTEMPT_COUNT) {
+            composeRule.waitForIdle()
+            if (composeRule.onAllNodesWithText(title).fetchSemanticsNodes().size == count) return
+            composeRule.mainClock.advanceTimeByFrame()
+            @Suppress("ForbiddenMethodCall")
+            Thread.sleep(PICKER_WAIT_INTERVAL_MILLIS)
+        }
+
+        error("$title 이 $count 번 나타나지 않았다")
+    }
+
     private fun assertMemoryRestore(
         initialTag: Tag?,
         expectedTitleListAfterRestore: List<String>,
@@ -214,6 +255,8 @@ class ContactAddTagInputTest {
     }
 
     private companion object {
+        const val PICKER_WAIT_ATTEMPT_COUNT = 500
+        const val PICKER_WAIT_INTERVAL_MILLIS = 10L
         const val SELECTED_TAG_TITLE = "ContactAddSelectedTag"
         const val INITIAL_TAG_TITLE = "ContactAddRestoreInitialTag"
         const val OTHER_TAG_TITLE = "ContactAddRestoreOtherTag"

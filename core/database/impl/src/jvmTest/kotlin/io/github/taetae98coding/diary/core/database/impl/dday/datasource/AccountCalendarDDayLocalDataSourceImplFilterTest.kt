@@ -205,16 +205,18 @@ class AccountCalendarDDayLocalDataSourceImplFilterTest :
             }
         }
 
-        test("TC-e37be6a1-9bcd-4e2b-80b1-80da0ac5ca89 선택한 태그가 현재 계정과 연결되어 있지 않으면 디데이 판정에서 그 선택을 무시한다") {
+        test("TC-e37be6a1-9bcd-4e2b-80b1-80da0ac5ca89 선택한 태그가 현재 계정과 연결되지 않게 되면 디데이 판정에서 그 선택을 무시한다") {
             val accountId = Arb.kotlinUuid().next()
             val work = selectableTag()
-            insertTag(Arb.kotlinUuid().next(), work)
+            insertTag(accountId, work)
             val project = monthlyDDay(title = PROJECT)
             val exam = monthlyDDay(title = EXAM)
             insertDDay(accountId, project, work.id)
             insertDDay(accountId, exam)
-
             selectFilterTag(accountId, work.id)
+            ddayIdSet(accountId = accountId) shouldBe setOf(project.id)
+
+            database.accountDataDao().deleteAccountTag(accountId = accountId)
 
             ddayIdSet(accountId = accountId) shouldBe setOf(project.id, exam.id)
         }

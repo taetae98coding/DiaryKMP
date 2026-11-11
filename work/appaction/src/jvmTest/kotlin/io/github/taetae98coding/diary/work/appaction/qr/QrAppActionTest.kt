@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
@@ -11,12 +12,20 @@ import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.RestoreQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.UpdateQrUseCase
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
+import io.github.taetae98coding.diary.work.appaction.tag.expected
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -28,6 +37,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -70,16 +80,19 @@ class QrAppActionTest :
             }
         }
 
-        test("QR 하나를 MCP와 같은 항목으로 돌려주고, 없으면 null을 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 QR 하나를 연결된 태그와 함께 돌려주고, 없으면 null을 돌려준다") {
             runTest {
-                val qr = Arb.qr().next()
+                val qr = Arb.qr().next().copy(isDeleted = false)
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 val missingId = Arb.kotlinUuid().next()
                 val findQrUseCase = mockk<FindQrUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findQrUseCase(parameter = qr.id) } returns flowOf(Result.success(qr))
                 every { findQrUseCase(parameter = missingId) } returns flowOf(Result.success(null))
-                val action = qrAppActionOf(findQrUseCase)
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.QR, entityId = qr.id)) } returns flowOf(Result.success(tagList))
+                val action = qrAppActionOf(findQrUseCase, getEntityTagUseCase)
 
-                action.get(qrId = qr.id.toString()) shouldBe qr.expected()
+                action.get(qrId = qr.id.toString()) shouldBe AppActionQrDetail(qr = qr.expected(), tags = tagList.map { tag -> tag.expected() })
                 action.get(qrId = missingId.toString()) shouldBe null
             }
         }
@@ -112,7 +125,7 @@ class QrAppActionTest :
                 coEvery { addQrUseCase(parameter = any()) } returns Result.success(addedId)
                 val action = qrAppActionOf(addQrUseCase)
 
-                action.add(title = detail.title, description = detail.description, value = detail.value) shouldBe AppActionId(id = addedId.toString())
+                action.add(title = detail.title, description = detail.description, value = detail.value, tagIds = emptyList()) shouldBe AppActionId(id = addedId.toString())
                 coVerify(exactly = 1) { addQrUseCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
         }
@@ -124,7 +137,7 @@ class QrAppActionTest :
                 coEvery { addQrUseCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
                 val action = qrAppActionOf(addQrUseCase)
 
-                action.add(title = detail.title, description = null, value = detail.value)
+                action.add(title = detail.title, description = null, value = detail.value, tagIds = emptyList())
 
                 coVerify(exactly = 1) { addQrUseCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
@@ -136,13 +149,13 @@ class QrAppActionTest :
                 coEvery { addQrUseCase(parameter = any()) } returns Result.failure(QrValueEmptyException())
                 val action = qrAppActionOf(addQrUseCase)
 
-                shouldThrow<AppActionException.Failure> { action.add(title = Arb.nonBlankString().next(), description = null, value = "") }.message shouldBe "QrValueEmptyException"
+                shouldThrow<AppActionException.Failure> { action.add(title = Arb.nonBlankString().next(), description = null, value = "", tagIds = emptyList()) }.message shouldBe "QrValueEmptyException"
             }
         }
 
         test("고칠 값을 담지 않은 항목은 지금 값을 유지하고 고친 수를 돌려준다") {
             runTest {
-                val qr = Arb.qr().next()
+                val qr = Arb.qr().next().copy(isDeleted = false)
                 val value = Arb.nonBlankString().next()
                 val changedCount = Arb.int(0..1).next()
                 val findQrUseCase = mockk<FindQrUseCase>()
@@ -158,7 +171,7 @@ class QrAppActionTest :
 
         test("담은 값으로 제목, 설명, 값을 모두 고친다") {
             runTest {
-                val qr = Arb.qr().next()
+                val qr = Arb.qr().next().copy(isDeleted = false)
                 val detail = Arb.qrDetail().next()
                 val findQrUseCase = mockk<FindQrUseCase>()
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
@@ -208,6 +221,91 @@ class QrAppActionTest :
                 val action = qrAppActionOf(restoreQrUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.restore(qrId = Arb.kotlinUuid().next().toString()) }.message shouldBe "IllegalStateException: $message"
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 QR의 상세는 없는 QR과 같이 null을 돌려준다") {
+            runTest {
+                val qr = Arb.qr().next().copy(isDeleted = true)
+                val findQrUseCase = mockk<FindQrUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findQrUseCase(parameter = qr.id) } returns flowOf(Result.success(qr))
+                val action = qrAppActionOf(findQrUseCase, getEntityTagUseCase)
+
+                action.get(qrId = qr.id.toString()) shouldBe null
+                verify(exactly = 0) { getEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddQrUseCase.Parameter>()
+                val addUseCase = mockk<AddQrUseCase>()
+                coEvery { addUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = qrAppActionOf(addUseCase)
+
+                action.add(title = Arb.nonBlankString().next(), description = null, value = Arb.nonBlankString().next(), tagIds = tagIdSet.map { tagId -> tagId.toString() }) shouldBe AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
+        test("추가 요청의 태그 id가 id 형식이 아니면 추가하지 않고 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val addUseCase = mockk<AddQrUseCase>()
+                val action = qrAppActionOf(addUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> { action.add(title = Arb.nonBlankString().next(), description = null, value = Arb.nonBlankString().next(), tagIds = listOf("tag")) }.message shouldBe "'tagIds' must be an id."
+                coVerify(exactly = 0) { addUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결과 해제는 QR 종류로 요청하고 완료를 돌려준다") {
+            runTest {
+                val qrId = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                action.add(kind = AppActionEntityTagKind.QR, entityId = qrId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.remove(kind = AppActionEntityTagKind.QR, entityId = qrId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+
+                coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.QR, entityId = qrId, tagId = tagId)) }
+                coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.QR, entityId = qrId, tagId = tagId)) }
+            }
+        }
+
+        test("태그 연결의 id가 id 형식이 아니면 연결하지 않고, 연결이 실패하면 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val message = Arb.nonBlankString().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException(message))
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.QR, entityId = "not-id", tagId = Arb.kotlinUuid().next().toString()) }.message shouldBe "'qrId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.QR, entityId = Arb.kotlinUuid().next().toString(), tagId = "tag") }.message shouldBe "'tagId' must be an id."
+                shouldThrow<AppActionException.Failure> {
+                    action.remove(kind = AppActionEntityTagKind.QR, entityId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
+                }.message shouldBe "IllegalStateException: $message"
+                coVerify(exactly = 0) { addEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("삭제된 QR도 포함하는 조회는 삭제된 QR를 돌려준다") {
+            runTest {
+                val qr = Arb.qr().next().copy(isDeleted = true)
+                val findQrUseCase = mockk<FindQrUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findQrUseCase(parameter = qr.id) } returns flowOf(Result.success(qr))
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.QR, entityId = qr.id)) } returns flowOf(Result.success(emptyList()))
+                val action = qrAppActionOf(findQrUseCase, getEntityTagUseCase)
+
+                action.getIncludingDeleted(qrId = qr.id.toString())?.qr?.id shouldBe qr.id.toString()
             }
         }
     })

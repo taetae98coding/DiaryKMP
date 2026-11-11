@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -9,7 +9,6 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
@@ -18,13 +17,12 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.datetime.LocalDate
 
 class GetHolidayUseCaseTest :
     BehaviorSpec({
         Given("특정 연도에 공휴일이 저장되어 있다") {
             val year = Arb.int().next()
-            val holidayList = listOf(holiday(), holiday())
+            val holidayList = listOf(Arb.holiday().next(), Arb.holiday().next())
             val repository = mockk<HolidayRepository>()
             every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns flowOf(holidayList)
             val useCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
@@ -57,8 +55,8 @@ class GetHolidayUseCaseTest :
 
         Given("조회 중인 연도의 공휴일이 바뀐다") {
             val year = Arb.int().next()
-            val holidayList = listOf(holiday())
-            val changedHolidayList = listOf(holiday(), holiday())
+            val holidayList = listOf(Arb.holiday().next())
+            val changedHolidayList = listOf(Arb.holiday().next(), Arb.holiday().next())
             val holidayFlow = MutableStateFlow(holidayList)
             val repository = mockk<HolidayRepository>()
             every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns holidayFlow
@@ -94,20 +92,3 @@ class GetHolidayUseCaseTest :
             }
         }
     })
-
-private fun holiday(): Holiday {
-    val start = randomDate()
-
-    return Holiday(
-        name = Arb.string().next(),
-        isHoliday = Arb.boolean().next(),
-        dateRange = start..start,
-    )
-}
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

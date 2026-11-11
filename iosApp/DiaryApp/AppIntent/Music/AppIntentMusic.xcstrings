@@ -331,19 +331,19 @@
         }
       }
     },
-    "Gets a song in the playlist.": {
+    "Gets a song in the playlist with its linked tags.": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gets a song in the playlist."
-          }
-        },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "플레이리스트의 곡 하나를 가져옵니다."
+            "value": "플레이리스트의 곡 하나를 연결된 태그와 함께 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets a song in the playlist with its linked tags."
           }
         }
       }
@@ -361,6 +361,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "플레이리스트의 곡을 가져옵니다."
+          }
+        }
+      }
+    },
+    "Link ${tag} to ${song}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${song}에 ${tag} 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${tag} to ${song}"
+          }
+        }
+      }
+    },
+    "Link Tag to Song": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곡에 태그 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Tag to Song"
+          }
+        }
+      }
+    },
+    "Links a tag to a song.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곡에 태그를 연결합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a tag to a song."
           }
         }
       }
@@ -463,6 +514,91 @@
           "stringUnit": {
             "state": "translated",
             "value": "되돌릴 곡"
+          }
+        }
+      }
+    },
+    "Tag to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Link"
+          }
+        }
+      }
+    },
+    "Tag to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Unlink"
+          }
+        }
+      }
+    },
+    "Unlink ${tag} from ${song}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${song}에서 ${tag} 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${tag} from ${song}"
+          }
+        }
+      }
+    },
+    "Unlink Tag from Song": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곡에서 태그 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Tag from Song"
+          }
+        }
+      }
+    },
+    "Unlinks a tag from a song.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곡에서 태그 연결을 해제합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a tag from a song."
           }
         }
       }

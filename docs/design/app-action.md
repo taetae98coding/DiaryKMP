@@ -8,7 +8,7 @@
 
 ## 동작 목록과 이름 규칙
 
-앱 동작은 데스크톱 앱 연결의 도구와 하나씩 짝을 이루며 모두 107개다. 동작마다 데스크톱 도구 이름을 기준 열쇠로 삼아 Android 함수 이름과 iOS 이름을 정한다.
+앱 동작은 데스크톱 앱 연결의 도구와 하나씩 짝을 이루며 모두 120개다. 동작마다 데스크톱 도구 이름을 기준 열쇠로 삼아 Android 함수 이름과 iOS 이름을 정한다.
 
 | 환경 | 보이는 이름 | 규칙 |
 | --- | --- | --- |
@@ -114,6 +114,11 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `tag_memo_finished_list` | `tagMemoFinishedList` | 태그의 완료된 메모 보기<br/>Get Tag's Finished Memos | 태그에 연결된 완료된 메모를 가져옵니다.<br/>Gets finished memos linked to a tag. |
 | `tag_web_list` | `tagWebList` | 태그의 웹 보기<br/>Get Tag's Webs | 태그에 연결된 웹을 가져옵니다.<br/>Gets webs linked to a tag. |
 | `tag_place_list` | `tagPlaceList` | 태그의 장소 보기<br/>Get Tag's Places | 태그에 연결된 장소를 가져옵니다.<br/>Gets places linked to a tag. |
+| `tag_contact_list` | `tagContactList` | 태그의 연락처 보기<br/>Get Tag's Contacts | 태그에 연결된 연락처를 가져옵니다.<br/>Gets contacts linked to a tag. |
+| `tag_checklist_list` | `tagChecklistList` | 태그의 체크리스트 보기<br/>Get Tag's Checklists | 태그에 연결된 체크리스트를 가져옵니다.<br/>Gets checklists linked to a tag. |
+| `tag_music_list` | `tagMusicList` | 태그의 곡 보기<br/>Get Tag's Songs | 태그에 연결된 곡을 가져옵니다.<br/>Gets songs linked to a tag. |
+| `tag_qr_list` | `tagQrList` | 태그의 QR 보기<br/>Get Tag's QR Codes | 태그에 연결된 QR을 가져옵니다.<br/>Gets QR codes linked to a tag. |
+| `tag_dday_list` | `tagDdayList` | 태그의 디데이 보기<br/>Get Tag's D-Days | 태그에 연결된 디데이를 가져옵니다.<br/>Gets D-Days linked to a tag. |
 | `tag_link_add` | `tagLinkAdd` | 태그에 하위 태그 연결<br/>Link Child Tag to Tag | 태그에 다른 태그를 하위 태그로 연결합니다. 메모, 웹, 장소의 태그는 바뀌지 않습니다.<br/>Links another tag to a tag as its child. Tags of memos, webs and places don't change. |
 | `tag_link_remove` | `tagLinkRemove` | 태그에서 하위 태그 연결 해제<br/>Unlink Child Tag from Tag | 태그에서 하위 태그 연결을 해제합니다. 반대 방향의 연결은 그대로 둡니다.<br/>Unlinks a child tag from a tag. A link in the opposite direction stays. |
 
@@ -153,7 +158,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `contact_list` | `contactList` | 연락처 목록 보기<br/>Get Contacts | 연락처를 가져옵니다. 즐겨찾기한 연락처가 항상 먼저 옵니다.<br/>Gets contacts. Favorite contacts always come first. |
-| `contact_get` | `contactGet` | 연락처 상세 보기<br/>Get Contact Details | 연락처 하나의 모든 정보를 가져옵니다.<br/>Gets all details of a contact. |
+| `contact_get` | `contactGet` | 연락처 상세 보기<br/>Get Contact Details | 연락처 하나의 모든 정보를 연결된 태그와 함께 가져옵니다.<br/>Gets all details of a contact with its linked tags. |
 | `contact_memo_list` | `contactMemoList` | 연락처의 진행 중 메모 보기<br/>Get Contact's In-Progress Memos | 연락처에 연결된, 완료하지 않은 메모를 가져옵니다.<br/>Gets memos linked to a contact that aren't finished. |
 | `contact_memo_finished_list` | `contactMemoFinishedList` | 연락처의 완료된 메모 보기<br/>Get Contact's Finished Memos | 연락처에 연결된 완료된 메모를 가져옵니다.<br/>Gets finished memos linked to a contact. |
 | `contact_add` | `contactAdd` | 연락처 추가<br/>Add Contact | 새 연락처를 추가합니다. 새 연락처는 즐겨찾기가 아닙니다.<br/>Adds a new contact. The new contact isn't a favorite. |
@@ -162,18 +167,22 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `contact_unfavorite` | `contactUnfavorite` | 연락처 즐겨찾기 해제<br/>Unfavorite Contact | 연락처의 즐겨찾기를 해제합니다.<br/>Removes the favorite mark from a contact. |
 | `contact_delete` | `contactDelete` | 연락처 삭제<br/>Delete Contact | 연락처를 삭제합니다. 같은 연락처로 ‘삭제한 연락처 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a contact. Run Restore Deleted Contact with the same contact to undo. |
 | `contact_restore` | `contactRestore` | 삭제한 연락처 되돌리기<br/>Restore Deleted Contact | 삭제한 연락처를 되돌립니다.<br/>Restores a deleted contact. |
+| `contact_tag_add` | `contactTagAdd` | 연락처에 태그 연결<br/>Link Tag to Contact | 연락처에 태그를 연결합니다.<br/>Links a tag to a contact. |
+| `contact_tag_remove` | `contactTagRemove` | 연락처에서 태그 연결 해제<br/>Unlink Tag from Contact | 연락처에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a contact. |
 
 ### 체크리스트
 
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `checklist_list` | `checklistList` | 체크리스트 목록 보기<br/>Get Checklists | 체크리스트를 제목순으로, 체크한 항목 수와 함께 가져옵니다.<br/>Gets checklists by title, with how many items are checked. |
-| `checklist_get` | `checklistGet` | 체크리스트 상세 보기<br/>Get Checklist Details | 체크리스트 하나를 모든 항목과 함께 가져옵니다.<br/>Gets a checklist with all its items. |
+| `checklist_get` | `checklistGet` | 체크리스트 상세 보기<br/>Get Checklist Details | 체크리스트 하나를 모든 항목, 연결된 태그와 함께 가져옵니다.<br/>Gets a checklist with all its items and linked tags. |
 | `checklist_add` | `checklistAdd` | 체크리스트 추가<br/>Add Checklist | 새 체크리스트를 추가합니다. 항목을 함께 넣을 수 있고, 빈 항목은 건너뜁니다.<br/>Adds a new checklist. You can add items too; empty items are skipped. |
 | `checklist_update` | `checklistUpdate` | 체크리스트 수정<br/>Edit Checklist | 체크리스트의 제목과 설명을 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title or description of a checklist. Values left empty stay the same. |
 | `checklist_reset` | `checklistReset` | 체크리스트 리셋<br/>Reset Checklist | 체크리스트의 모든 체크를 한 번에 해제합니다. 항목은 그대로 남습니다.<br/>Unchecks all items of a checklist at once. The items stay. |
 | `checklist_delete` | `checklistDelete` | 체크리스트 삭제<br/>Delete Checklist | 체크리스트를 삭제합니다. 같은 체크리스트로 ‘삭제한 체크리스트 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a checklist. Run Restore Deleted Checklist with the same checklist to undo. |
 | `checklist_restore` | `checklistRestore` | 삭제한 체크리스트 되돌리기<br/>Restore Deleted Checklist | 삭제한 체크리스트를 되돌립니다.<br/>Restores a deleted checklist. |
+| `checklist_tag_add` | `checklistTagAdd` | 체크리스트에 태그 연결<br/>Link Tag to Checklist | 체크리스트에 태그를 연결합니다.<br/>Links a tag to a checklist. |
+| `checklist_tag_remove` | `checklistTagRemove` | 체크리스트에서 태그 연결 해제<br/>Unlink Tag from Checklist | 체크리스트에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a checklist. |
 | `checklist_item_add` | `checklistItemAdd` | 체크리스트 항목 추가<br/>Add Checklist Item | 체크리스트 끝에 체크 안 된 항목을 추가합니다.<br/>Adds an unchecked item to the end of a checklist. |
 | `checklist_item_check` | `checklistItemCheck` | 체크리스트 항목 체크<br/>Check Checklist Item | 체크리스트 항목을 체크합니다.<br/>Checks a checklist item. |
 | `checklist_item_uncheck` | `checklistItemUncheck` | 체크리스트 항목 체크 해제<br/>Uncheck Checklist Item | 체크리스트 항목의 체크를 해제합니다.<br/>Unchecks a checklist item. |
@@ -184,22 +193,26 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `qr_list` | `qrList` | QR 목록 보기<br/>Get QR Codes | 저장한 QR을 제목순으로 가져옵니다.<br/>Gets saved QR codes by title. |
-| `qr_get` | `qrGet` | QR 상세 보기<br/>Get QR Code Details | 저장한 QR 하나를 가져옵니다.<br/>Gets a saved QR code. |
+| `qr_get` | `qrGet` | QR 상세 보기<br/>Get QR Code Details | 저장한 QR 하나를 연결된 태그와 함께 가져옵니다.<br/>Gets a saved QR code with its linked tags. |
 | `qr_add` | `qrAdd` | QR 추가<br/>Add QR Code | 새 QR을 추가합니다. 내용에는 QR에 담을 글을 그대로 넣습니다.<br/>Adds a new QR code. Enter the exact text to encode as the content. |
 | `qr_update` | `qrUpdate` | QR 수정<br/>Edit QR Code | QR의 제목, 설명, 내용을 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title, description or content of a QR code. Values left empty stay the same. |
 | `qr_delete` | `qrDelete` | QR 삭제<br/>Delete QR Code | QR을 삭제합니다. 같은 QR로 ‘삭제한 QR 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a QR code. Run Restore Deleted QR Code with the same QR code to undo. |
 | `qr_restore` | `qrRestore` | 삭제한 QR 되돌리기<br/>Restore Deleted QR Code | 삭제한 QR을 되돌립니다.<br/>Restores a deleted QR code. |
+| `qr_tag_add` | `qrTagAdd` | QR에 태그 연결<br/>Link Tag to QR Code | QR에 태그를 연결합니다.<br/>Links a tag to a QR code. |
+| `qr_tag_remove` | `qrTagRemove` | QR에서 태그 연결 해제<br/>Unlink Tag from QR Code | QR에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a QR code. |
 
 ### 곡
 
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `music_list` | `musicList` | 플레이리스트 보기<br/>Get Playlist | 플레이리스트의 곡을 가져옵니다.<br/>Gets the songs in the playlist. |
-| `music_get` | `musicGet` | 곡 상세 보기<br/>Get Song Details | 플레이리스트의 곡 하나를 가져옵니다.<br/>Gets a song in the playlist. |
+| `music_get` | `musicGet` | 곡 상세 보기<br/>Get Song Details | 플레이리스트의 곡 하나를 연결된 태그와 함께 가져옵니다.<br/>Gets a song in the playlist with its linked tags. |
 | `music_add` | `musicAdd` | 곡 추가<br/>Add Song | 플레이리스트에 곡을 추가합니다. 링크로 곡 정보를 불러오지 않으므로 제목과 가수를 직접 넣습니다.<br/>Adds a song to the playlist. Song information isn't loaded from the link, so enter the title and artist yourself. |
 | `music_update` | `musicUpdate` | 곡 수정<br/>Edit Song | 곡의 제목, 가수, 링크를 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title, artist or link of a song. Values left empty stay the same. |
 | `music_delete` | `musicDelete` | 곡 삭제<br/>Delete Song | 플레이리스트에서 곡을 삭제합니다. 같은 곡으로 ‘삭제한 곡 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a song from the playlist. Run Restore Deleted Song with the same song to undo. |
 | `music_restore` | `musicRestore` | 삭제한 곡 되돌리기<br/>Restore Deleted Song | 삭제한 곡을 되돌립니다.<br/>Restores a deleted song. |
+| `music_tag_add` | `musicTagAdd` | 곡에 태그 연결<br/>Link Tag to Song | 곡에 태그를 연결합니다.<br/>Links a tag to a song. |
+| `music_tag_remove` | `musicTagRemove` | 곡에서 태그 연결 해제<br/>Unlink Tag from Song | 곡에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a song. |
 
 ### 디데이
 
@@ -300,7 +313,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 하위 태그 | `하위 태그` | `Child Tag` |
 | 삭제 되돌리기의 대상 | `되돌릴 {대상}` | `{Entity} to Restore` |
 
-항목 선택 목록은 `결과 항목 표시`의 제목과 부제로 항목을 보여 주고, 맨 위에 검색 칸을 둔다. 삭제한 항목은 선택 목록에 나타나지 않으므로, 삭제 되돌리기에는 삭제 동작에 넘긴 항목을 변수로 그대로 넘긴다.
+항목 선택 목록은 `결과 항목 표시`의 제목과 부제로 항목을 보여 주고, 맨 위에 검색 칸을 둔다. 삭제한 항목은 선택 목록에 나타나지 않으므로, 삭제 되돌리기에는 삭제 동작에 넘긴 항목을 변수로 그대로 넘긴다. 그 변수를 삭제 되돌리기가 아닌 동작에 넘기면 `결과 표시`의 `삭제된 항목을 대상으로 넘김` 문구로 끝난다.
 
 ### 기간 입력
 
@@ -391,6 +404,7 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 | 목록·검색에 항목이 없음 | `결과가 없어요.` | `No results.` |
 | 하나 조회에서 항목이 있음 | 문구 없이 항목만 보여 준다 | 문구 없이 항목만 보여 준다 |
 | 하나 조회에서 항목이 없음 | `{대상을} 찾을 수 없어요.` | `Couldn't find the {entity}.` |
+| 삭제된 항목을 대상으로 넘김(삭제 되돌리기 제외) | `{대상을} 찾을 수 없어요.` | `Couldn't find the {entity}.` |
 | 추가 | `{대상을} 추가했어요.` | `Added the {entity}.` |
 | 복사 | `메모를 복사했어요.` | `Copied the memo.` |
 | 바뀐 개수를 돌려주는 동작에서 1개 이상 | 아래 `바꾸기 결과 문구` | 아래 `바꾸기 결과 문구` |

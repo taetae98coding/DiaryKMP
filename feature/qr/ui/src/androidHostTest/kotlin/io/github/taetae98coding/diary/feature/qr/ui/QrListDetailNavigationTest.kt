@@ -29,6 +29,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -56,9 +57,12 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -88,7 +92,11 @@ import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrPagingDataOf
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
 import io.github.taetae98coding.diary.feature.qr.ui.scan.AndroidQrScanCameraPreviewContent
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -125,12 +133,12 @@ class QrListDetailNavigationTest {
     private val backStack = NavBackStack<ScreenNavKey>(QrListDetailMoreNavKey, QrHomeNavKey)
     private val resultEventBus = ResultEventBus()
     private val homeViewModelList = mutableListOf<QrHomeViewModel>()
+    private val addTagViewModelList = mutableListOf<EntityAddTagViewModel>()
     private var homeQrList: List<Qr> = emptyList()
 
     private var directiveOverride by mutableStateOf<PaneScaffoldDirective?>(null)
     private val homePagingData = MutableStateFlow(qrPagingDataOf(emptyList()))
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -278,6 +286,20 @@ class QrListDetailNavigationTest {
 
         backStack.last() shouldBe QrAddNavKey()
         assertAddInputEmpty()
+    }
+
+    @Test
+    fun `TC-a316db45-f95d-4da5-a8f3-60352e2521c0 QR 상세 위에서 연 QR 추가는 태그를 고르지 않은 상태로 시작한다`() {
+        val qr = testQr(titlePrefix = LIST_PREFIX)
+        val tag = Arb.tag(title = PLACEHOLDER_TAG_TITLE).next()
+        setQrNavDisplay(qrList = listOf(qr), tag = tag)
+        selectPlaceholderTag(tag)
+
+        openAddOnDetail(qr)
+
+        backStack.last() shouldBe QrAddNavKey()
+        assertAddOnDetailPane()
+        assertNoTagSelectedOnNewAdd()
     }
 
     @Test
@@ -475,6 +497,22 @@ class QrListDetailNavigationTest {
     }
 
     @Test
+    fun `TC-e6f66ccc-fb36-4fe3-8125-9c7fa9ebe460 더보기로 돌아갔다가 다시 진입하면 QR 추가는 태그를 고르지 않은 상태로 시작한다`() {
+        val tag = Arb.tag(title = PLACEHOLDER_TAG_TITLE).next()
+        setQrNavDisplay(qrList = listOf(testQr(titlePrefix = LIST_PREFIX)), tag = tag)
+        selectPlaceholderTag(tag)
+
+        composeRule.runOnIdle { backStack.removeLastOrNull() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(MORE_CONTENT).assertExists()
+        composeRule.runOnIdle { backStack.add(QrHomeNavKey) }
+        composeRule.waitForIdle()
+
+        assertAddOnDetailPane()
+        assertNoTagSelectedOnNewAdd()
+    }
+
+    @Test
     fun `TC-0042406f-0ca1-486d-994f-1c074f3cc67c 배치를 떠나기 전에는 상세 영역에서 QR 상세를 보고 돌아와도 QR 추가의 입력이 남는다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
@@ -486,6 +524,23 @@ class QrListDetailNavigationTest {
 
         assertAddOnDetailPane()
         assertPlaceholderInputRetained()
+    }
+
+    @Test
+    fun `TC-8410a126-05c5-4453-bd34-f5b611214635 배치를 떠나기 전에는 QR 상세를 보고 돌아와도 QR 추가에서 고른 태그가 남는다`() {
+        val qr = testQr(titlePrefix = LIST_PREFIX)
+        val tag = Arb.tag(title = PLACEHOLDER_TAG_TITLE).next()
+        setQrNavDisplay(qrList = listOf(qr), tag = tag)
+        selectPlaceholderTag(tag)
+
+        selectQr(qr)
+        assertDetailOnDetailPane()
+        composeRule.onAllNodesWithText(PLACEHOLDER_TAG_TITLE).assertCountEquals(0)
+        pressBack()
+
+        assertAddOnDetailPane()
+        composeRule.onAllNodesWithText(PLACEHOLDER_TAG_TITLE).onFirst().assertExists()
+        addTagViewModelList shouldHaveSize 1
     }
 
     @Test
@@ -616,6 +671,24 @@ class QrListDetailNavigationTest {
         assertAddOnDetailPane()
     }
 
+    private fun selectPlaceholderTag(tag: Tag) {
+        composeRule.runOnIdle { addTagViewModelList.last().add(tagId = tag.id) }
+        composeRule.waitForIdle()
+        composeRule.onAllNodesWithText(PLACEHOLDER_TAG_TITLE).onFirst().assertExists()
+    }
+
+    // 앞서 태그를 고른 QR 추가와 다른 새 QR 추가가 놓였고, 그 QR 추가에 고른 태그가 없다.
+    private fun assertNoTagSelectedOnNewAdd() {
+        composeRule.onAllNodesWithText(PLACEHOLDER_TAG_TITLE).assertCountEquals(0)
+        addTagViewModelList shouldHaveSize 2
+        composeRule.runOnIdle {
+            addTagViewModelList
+                .last()
+                .selectionUiState.value.tagIdSet
+                .shouldBeEmpty()
+        }
+    }
+
     // 텍스트 QR 값을 적은 뒤 URL 포맷의 입력을 고쳐 되돌릴 기록을 남기고, 마지막에 정보 탭을 본다.
     private fun fillPlaceholder() {
         composeRule.onTitleInput().performTextInput(PLACEHOLDER_TITLE)
@@ -693,10 +766,13 @@ class QrListDetailNavigationTest {
         composeRule.waitForIdle()
     }
 
-    private fun setQrNavDisplay(qrList: List<Qr>) {
+    private fun setQrNavDisplay(
+        qrList: List<Qr>,
+        tag: Tag? = null,
+    ) {
         homeQrList = qrList
         homePagingData.value = qrPagingDataOf(qrList)
-        val module = viewModelModule()
+        val module = viewModelModule(tag = tag)
         composeRule.setContent {
             QrListDetailTestHost(module = module) {
                 val holder = rememberListDetailPlaceholderStateHolder()
@@ -783,7 +859,6 @@ class QrListDetailNavigationTest {
         module: Module,
         content: @Composable () -> Unit,
     ) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -802,9 +877,16 @@ class QrListDetailNavigationTest {
     }
 
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun viewModelModule(): Module =
+    private fun viewModelModule(tag: Tag? = null): Module =
         module {
-            factory { addTagScreenTestViewModel() }
+            // 태그 선택은 ViewModel이 들고 있으므로, 태그를 넘긴 테스트는 실제 ViewModel을 쓰고 만들어진 인스턴스를 모은다.
+            factory { parameters ->
+                if (tag == null) {
+                    addTagScreenTestViewModel()
+                } else {
+                    addTagViewModel(initialTagId = parameters.getOrNull(), allTagList = listOf(tag)).also { viewModel -> addTagViewModelList += viewModel }
+                }
+            }
             factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<QrHomeViewModel>(relaxed = true)
@@ -857,6 +939,7 @@ class QrListDetailNavigationTest {
         const val PLACEHOLDER_TITLE = "placeholder-title"
         const val PLACEHOLDER_DESCRIPTION = "placeholder-description"
         const val PLACEHOLDER_VALUE = "placeholder-value"
+        const val PLACEHOLDER_TAG_TITLE = "QrPlaceholderTag"
         const val SCANNED_VALUE = "scanned-value"
         const val TYPED_ADD_TITLE = "typed-add-title"
         const val DEFAULT_ADD_TITLE = "Add QR code"
@@ -885,7 +968,7 @@ class QrListDetailNavigationTest {
     }
 }
 
-// QR 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// QR 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object QrListDetailMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

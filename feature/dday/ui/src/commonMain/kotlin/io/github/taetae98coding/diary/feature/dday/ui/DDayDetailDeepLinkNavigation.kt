@@ -15,16 +15,15 @@ import org.koin.core.annotation.Single
 @Single(binds = [DeepLinkNavigation::class])
 internal class DDayDetailDeepLinkNavigation :
     DeepLinkNavigation by UriDeepLinkMatcher(DeepLinkUri(ScreenDeepLink.DDAY_DETAIL), DDayDetailNavKey.serializer())
-        .toDeepLinkNavigation({ result, isLaunch -> openDDayDetail(detailKey = result.key, isLaunch = isLaunch, listBackStack = topLevelBackStackOf(MoreHomeNavKey) + DDayHomeNavKey) })
+        .toDeepLinkNavigation({ result, isLaunch -> openDDayDetail(detailKey = result.key.copy(isStandalone = true), isLaunch = isLaunch, listBackStack = topLevelBackStackOf(MoreHomeNavKey) + DDayHomeNavKey) })
 
-// 앱 밖에서 상세를 열 때, 앱을 새로 시작했으면 목록 위에 상세를 쌓고 보던 화면이 있으면 그 위에 쌓는다. 보던 화면이 같은 상세면 쌓지 않는다.
 private fun ScreenNavigator.openDDayDetail(
-    detailKey: ScreenNavKey,
+    detailKey: DDayDetailNavKey,
     listBackStack: List<ScreenNavKey>,
     isLaunch: Boolean,
 ) {
     when {
-        backStack.lastOrNull() == detailKey -> Unit
+        (backStack.lastOrNull() as? DDayDetailNavKey)?.id == detailKey.id -> Unit
 
         isLaunch -> {
             backStack.clear()

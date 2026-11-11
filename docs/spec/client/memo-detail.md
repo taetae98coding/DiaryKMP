@@ -16,7 +16,9 @@
 
 캘린더 홈 화면에서 캘린더에 표시된 메모 제목을 선택해서도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택과 배치는 [CalendarHome 스펙](./calendar-home.md)의 메모 선택을 따른다. 캘린더 시간표 화면에서 표시된 메모를 선택해도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택은 [CalendarTimetable 화면 스펙](./calendar-timetable.md)의 `메모 선택`을 따른다.
 
-MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)을, MemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따른다. SearchHome 화면, 캘린더 홈 화면과 캘린더 시간표 화면에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
+iOS에서는 Spotlight 검색 결과에서 메모를 골라서도 그 메모의 MemoDetail 화면으로 이동한다. 상세 화면을 어느 화면 위에 여는지와 뒤로가기의 결과는 [Spotlight 항목 노출 스펙](./spotlight.md)의 `고른 항목 열기`를 따른다.
+
+MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)을, MemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따른다. SearchHome 화면, 캘린더 홈 화면과 캘린더 시간표 화면에서 진입한 MemoDetail 화면과 Spotlight 검색 결과에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
 
 ### 첫진입 시 내용 표시
 

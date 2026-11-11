@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.core.database.impl.tag.transaction.Account
 import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -124,6 +125,44 @@ class DDayAddAccountDDayTransactionImplTest :
             AccountEntityTagSyncLocalDataSourceImpl(database = database)
                 .readPendingList(accountId = accountId, kind = EntityTagKindLocalEntity.DDAY)
                 .map { link -> link.entityId to link.tagId } shouldBe listOf(dday.id to tag.id)
+        }
+
+        test("TC-e65ac220-3d79-48ae-afce-c18bbcccced5 고른 뒤 완료된 태그와의 연결도 저장되어 그 태그가 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tag = tag()
+            insertTag(accountId, tag)
+            AccountTagTransactionImpl(database = database).updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+            val dday = newDDay()
+
+            transaction.upsert(accountId = accountId, dday = dday, ddayTagList = linkList(dday = dday, tagList = listOf(tag)))
+
+            linkedTagIdList(accountId = accountId, ddayId = dday.id) shouldBe listOf(tag.id)
+        }
+
+        test("TC-e65ac220-3d79-48ae-afce-c18bbcccced5 고른 뒤 삭제된 태그와의 연결도 저장되어 태그의 삭제를 되돌리면 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tag = tag()
+            val tagTransaction = AccountTagTransactionImpl(database = database)
+            insertTag(accountId, tag)
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            val dday = newDDay()
+
+            transaction.upsert(accountId = accountId, dday = dday, ddayTagList = linkList(dday = dday, tagList = listOf(tag)))
+
+            linkedTagIdList(accountId = accountId, ddayId = dday.id).shouldBeEmpty()
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
+            linkedTagIdList(accountId = accountId, ddayId = dday.id) shouldBe listOf(tag.id)
+        }
+
+        test("TC-6999ff06-049d-472c-8d8d-44acf2de0fb1 이미 완료된 태그와의 연결을 저장하면 그 태그가 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tag = tag().copy(isFinished = true)
+            insertTag(accountId, tag)
+            val dday = newDDay()
+
+            transaction.upsert(accountId = accountId, dday = dday, ddayTagList = linkList(dday = dday, tagList = listOf(tag)))
+
+            linkedTagIdList(accountId = accountId, ddayId = dday.id) shouldBe listOf(tag.id)
         }
 
         test("TC-63fbc1a6-ba35-434e-968d-68b1cc998697 같은 정보의 디데이도 다른 식별 정보로 저장하면 두 디데이가 모두 남는다") {

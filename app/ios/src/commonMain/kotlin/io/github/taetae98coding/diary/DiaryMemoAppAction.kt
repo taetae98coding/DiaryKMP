@@ -1,9 +1,8 @@
 package io.github.taetae98coding.diary
 
-import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
-import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
+import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDetail
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoEpochDateTime
 import io.github.taetae98coding.diary.work.appaction.memo.MemoAppAction
 import io.github.taetae98coding.diary.work.appaction.memo.appActionMemoDateTimeInput
@@ -35,32 +34,10 @@ public data class DiaryAppActionMemoDetail(
     val contacts: List<DiaryAppActionContact>,
 )
 
-public data class DiaryAppActionMemoPage(
-    val items: List<DiaryAppActionMemo>,
-    val nextPageNumber: Int?,
-)
-
 public object DiaryMemoAppAction {
-    public suspend fun list(
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionMemoPage = readMemoPage(pageNumber = pageNumber) { cursor -> memoAppAction().list(sort = sort.toSortValue(), cursor = cursor) }
+    public suspend fun get(memoId: String): DiaryAppActionMemoDetail? = memoAppAction().get(memoId = memoId)?.toDiary()
 
-    public suspend fun finishedList(
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionMemoPage = readMemoPage(pageNumber = pageNumber) { cursor -> memoAppAction().finishedList(sort = sort.toSortValue(), cursor = cursor) }
-
-    public suspend fun get(memoId: String): DiaryAppActionMemoDetail? =
-        memoAppAction().get(memoId = memoId)?.let { detail ->
-            DiaryAppActionMemoDetail(
-                memo = detail.memo.toDiary(),
-                tags = detail.tags.map { tag -> tag.toDiary() },
-                places = detail.places.map { place -> place.toDiary() },
-                webs = detail.webs.map { web -> web.toDiary() },
-                contacts = detail.contacts.map { contact -> contact.toDiary() },
-            )
-        }
+    public suspend fun getIncludingDeleted(memoId: String): DiaryAppActionMemoDetail? = memoAppAction().getIncludingDeleted(memoId = memoId)?.toDiary()
 
     public suspend fun add(
         title: String,
@@ -121,14 +98,14 @@ public object DiaryMemoAppAction {
 
 private fun memoAppAction(): MemoAppAction = diaryAppAction()
 
-internal suspend fun readMemoPage(
-    pageNumber: Int,
-    read: suspend (cursor: String?) -> AppActionPage<AppActionMemo>,
-): DiaryAppActionMemoPage {
-    val page = readNumberedPage(pageNumber = pageNumber, read = read)
-
-    return DiaryAppActionMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
-}
+private fun AppActionMemoDetail.toDiary(): DiaryAppActionMemoDetail =
+    DiaryAppActionMemoDetail(
+        memo = memo.toDiary(),
+        tags = tags.map { tag -> tag.toDiary() },
+        places = places.map { place -> place.toDiary() },
+        webs = webs.map { web -> web.toDiary() },
+        contacts = contacts.map { contact -> contact.toDiary() },
+    )
 
 internal fun AppActionMemo.toDiary(): DiaryAppActionMemo =
     DiaryAppActionMemo(

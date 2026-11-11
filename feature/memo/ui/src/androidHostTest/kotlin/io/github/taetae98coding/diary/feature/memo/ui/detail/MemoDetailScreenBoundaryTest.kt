@@ -39,11 +39,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -75,7 +75,7 @@ class MemoDetailScreenBoundaryTest {
 
     @Test
     fun `TC-42eed8f6-6abf-4482-82cc-215ebd698cf9 다른 앱에 다녀와도 수정 중이던 내용이 그대로다`() {
-        val description = "description-${Arb.string().next()}"
+        val description = "description-${Arb.nonBlankString().next()}"
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
         composeRule.setContent { Detail(viewModel = viewModel) }
         composeRule.waitForIdle()
@@ -127,7 +127,7 @@ class MemoDetailScreenBoundaryTest {
 
     @Test
     fun `TC-97602899-817d-4dc3-a910-6bf03d9dfdbf 시스템이 앱을 정리한 뒤 화면을 복원해도 수정 중이던 내용을 복원한다`() {
-        val description = "description-${Arb.string().next()}"
+        val description = "description-${Arb.nonBlankString().next()}"
         val uiStateList = mutableListOf<MutableStateFlow<MemoDetailUiState>>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {

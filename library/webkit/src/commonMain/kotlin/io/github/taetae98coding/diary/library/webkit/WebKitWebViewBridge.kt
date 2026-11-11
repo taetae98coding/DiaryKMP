@@ -10,7 +10,7 @@ import java.lang.foreign.MemorySegment
 
 private const val IPC_HANDLER_NAME = "ipc"
 
-// wry가 노출하던 window.ipc 계약을 유지해 웹 문서를 수정하지 않고 메시지를 받는다.
+// 웹 문서(지도 HTML)가 window.ipc.postMessage로 메시지를 보내므로, 그 이름을 WKWebView의 메시지 핸들러로 잇는다.
 private const val IPC_BRIDGE_SCRIPT =
     "window.ipc = { postMessage: (message) => window.webkit.messageHandlers.$IPC_HANDLER_NAME.postMessage(message) };"
 

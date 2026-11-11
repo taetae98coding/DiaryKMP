@@ -57,6 +57,7 @@ import io.github.taetae98coding.diary.feature.checklist.ui.editableText
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
@@ -309,21 +310,33 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-75ac5b8f-d6cb-4afe-bf51-4f5add29b549 리셋을 선택하면 되묻고 확정하면 리셋을 한 번 요청한다`() {
-        val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
+    fun `TC-75ac5b8f-d6cb-4afe-bf51-4f5add29b549 리셋을 선택하면 되묻고 확정하면 모든 체크가 해제된다`() {
+        val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true), item(CHARGER, isChecked = true), item(UMBRELLA)))
+        every { environment.itemViewModel.reset() } answers {
+            environment.itemUiState.value =
+                environment.itemUiState.value.copy(
+                    itemList =
+                        environment.itemUiState.value.itemList
+                            .map { item -> item.copy(isChecked = false) },
+                )
+        }
         setScreen(environment)
+        composeRule.onNode(itemRow(PASSPORT)).assertIsOn()
+        composeRule.onNode(itemRow(CHARGER)).assertIsOn()
 
         composeRule.onNodeWithContentDescription(DEFAULT_RESET).performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithText(DEFAULT_RESET_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_RESET_TEXT).assertIsDisplayed()
         verify(exactly = 0) { environment.itemViewModel.reset() }
+        composeRule.onNode(itemRow(PASSPORT)).assertIsOn()
 
         composeRule.onNodeWithText(DEFAULT_RESET_CONFIRM).performClick()
         composeRule.waitForIdle()
 
         verify(exactly = 1) { environment.itemViewModel.reset() }
         composeRule.onNodeWithText(DEFAULT_RESET_TITLE).assertDoesNotExist()
+        listOf(PASSPORT, CHARGER, UMBRELLA).forEach { content -> composeRule.onNode(itemRow(content)).assertIsOff() }
     }
 
     @Test

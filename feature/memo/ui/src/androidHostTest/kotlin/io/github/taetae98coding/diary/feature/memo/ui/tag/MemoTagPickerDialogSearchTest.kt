@@ -7,6 +7,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
@@ -103,6 +104,7 @@ class MemoTagPickerDialogSearchTest {
     private fun setSearchableTagPickerDialogHost(
         tagList: List<Tag>,
         queryList: MutableList<String>,
+        onTagAdd: () -> Unit = {},
     ) {
         val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(tagList))
         composeRule.setMemoTagPickerDialogHost(
@@ -111,7 +113,14 @@ class MemoTagPickerDialogSearchTest {
                 queryList.add(query)
                 tagPagingDataFlow.value = tagPagingDataOf(tagList.filter { tag -> tag.detail.title.contains(query, ignoreCase = true) })
             },
+            onTagAdd = onTagAdd,
         )
+    }
+
+    private fun awaitSearchEmptyNotice() {
+        composeRule.waitUntil(timeoutMillis = SEARCH_TIMEOUT_MILLIS) {
+            composeRule.onAllNodes(hasText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     @Test
@@ -155,10 +164,12 @@ class MemoTagPickerDialogSearchTest {
 
     @Test
     fun `TC-7530070e-27db-4fd9-af72-19a6ad9028d1 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
-        composeRule.setMemoTagPickerDialog(
-            tagList = emptyList(),
-            query = WORK_TAG_QUERY,
-        )
+        setSearchableTagPickerDialogHost(tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE)), queryList = mutableListOf())
+        composeRule.awaitTagPickerRows()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+
+        composeRule.dialogSearchField().performTextInput(UNMATCHED_TAG_QUERY)
+        awaitSearchEmptyNotice()
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertExists()
         composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_DESCRIPTION).assertExists()
@@ -216,17 +227,21 @@ class MemoTagPickerDialogSearchTest {
     @Test
     fun `TC-5096c0fa-d210-481f-b80e-9411b49d5f25 검색 결과가 없어도 태그 추가 항목으로 이동을 전달한다`() {
         var tagAddCount = 0
-        composeRule.setMemoTagPickerDialog(
-            tagList = emptyList(),
-            query = WORK_TAG_QUERY,
+        setSearchableTagPickerDialogHost(
+            tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE)),
+            queryList = mutableListOf(),
             onTagAdd = { tagAddCount += 1 },
         )
+        composeRule.awaitTagPickerRows()
+        composeRule.dialogSearchField().performTextInput(UNMATCHED_TAG_QUERY)
+        awaitSearchEmptyNotice()
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
         composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).performClick()
         composeRule.waitForIdle()
 
         tagAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -252,5 +267,6 @@ class MemoTagPickerDialogSearchTest {
     private companion object {
         private const val SEARCH_TIMEOUT_MILLIS = 5_000L
         private const val BLANK_QUERY = "   "
+        private const val UNMATCHED_TAG_QUERY = "Unmatched"
     }
 }

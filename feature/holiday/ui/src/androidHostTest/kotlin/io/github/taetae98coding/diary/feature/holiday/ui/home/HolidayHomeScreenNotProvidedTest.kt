@@ -31,7 +31,6 @@ class HolidayHomeScreenNotProvidedTest {
 
     private val targetYear = mutableStateOf<Int?>(null)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -90,7 +89,7 @@ class HolidayHomeScreenNotProvidedTest {
         )
 
         composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
     }
 
     @Test

@@ -24,12 +24,14 @@ import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
@@ -394,20 +396,55 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldBe listOf(secondMemo.id)
         }
 
-        test("TC-c69dd675-54c0-4925-babc-5824a84279dc 상태 변경은 현재 계정과 연결된 메모에만 적용된다") {
-            val accountId = Arb.kotlinUuid().next()
-            val otherAccountId = Arb.kotlinUuid().next()
-            val memo = memo(isFinished = true)
-            insert(accountId, memo)
+        test("TC-c69dd675-54c0-4925-babc-5824a84279dc 상태 변경은 현재 계정과 연결된 메모에만 즉시 저장된다") {
+            // 다시 시작, 삭제, 다시 시작 실행 취소, 삭제 실행 취소 순서다. 각 동작이 바꾸기 전의 상태에서 시작한다.
+            val actionCases: List<Triple<Boolean, Boolean, suspend (Uuid, Uuid, Instant) -> Int>> =
+                listOf(
+                    Triple(true, false) { accountId, memoId, updatedAt ->
+                        database.accountMemoDao().updateFinished(accountId = accountId, memoId = memoId, isFinished = false, updatedAt = updatedAt)
+                    },
+                    Triple(true, false) { accountId, memoId, updatedAt ->
+                        database.accountMemoDao().updateDeleted(accountId = accountId, memoId = memoId, isDeleted = true, updatedAt = updatedAt)
+                    },
+                    Triple(false, false) { accountId, memoId, updatedAt ->
+                        database.accountMemoDao().updateFinished(accountId = accountId, memoId = memoId, isFinished = true, updatedAt = updatedAt)
+                    },
+                    Triple(true, true) { accountId, memoId, updatedAt ->
+                        database.accountMemoDao().updateDeleted(accountId = accountId, memoId = memoId, isDeleted = false, updatedAt = updatedAt)
+                    },
+                )
+            val expectedStateList = listOf(false to false, true to true, true to false, true to false)
 
-            database.accountMemoDao().updateFinished(
-                accountId = otherAccountId,
-                memoId = memo.id,
-                isFinished = false,
-                updatedAt = Instant.fromEpochMilliseconds(2_000),
-            ) shouldBe 0
+            actionCases.zip(expectedStateList).forEach { (actionCase, expectedState) ->
+                val (isFinished, isDeleted, action) = actionCase
+                val accountId = Arb.kotlinUuid().next()
+                val otherAccountId = Arb.kotlinUuid().next()
+                val memo = memo(isFinished = isFinished, isDeleted = isDeleted)
+                val otherMemo = memo(isFinished = isFinished, isDeleted = isDeleted)
+                val updatedAt = Arb.secondPrecisionInstant().next()
+                insert(accountId, memo)
+                insert(otherAccountId, otherMemo)
 
-            finishedIds(accountId) shouldBe listOf(memo.id)
+                action(accountId, otherMemo.id, updatedAt) shouldBe 0
+                action(accountId, memo.id, updatedAt) shouldBe 1
+
+                val savedMemo =
+                    database
+                        .accountMemoDao()
+                        .find(accountId = accountId, memoId = memo.id)
+                        .first()
+                        .shouldNotBeNull()
+                (savedMemo.isFinished to savedMemo.isDeleted) shouldBe expectedState
+                savedMemo.updatedAt shouldBe updatedAt
+                val savedOtherMemo =
+                    database
+                        .accountMemoDao()
+                        .find(accountId = otherAccountId, memoId = otherMemo.id)
+                        .first()
+                        .shouldNotBeNull()
+                (savedOtherMemo.isFinished to savedOtherMemo.isDeleted) shouldBe (isFinished to isDeleted)
+                savedOtherMemo.updatedAt shouldBe otherMemo.updatedAt
+            }
         }
 
         test("TC-21e15768-6c0a-4a48-afd6-51fb9b1e4d74 완료 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {

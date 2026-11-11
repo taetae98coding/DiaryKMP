@@ -1,7 +1,10 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
@@ -103,6 +106,51 @@ class PlaceDetailScreenRetentionTest {
         composeRule.runOnIdle { isDisplayed = false }
         composeRule.waitForIdle()
         composeRule.runOnIdle { isDisplayed = true }
+        composeRule.waitForIdle()
+
+        composeRule.input(TITLE_INDEX).assert(hasText(detail.title))
+        composeRule.input(DESCRIPTION_INDEX).assert(hasText(detail.description))
+        composeRule.input(ADDRESS_INDEX).assert(hasText(detail.address))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(SAVED_LATITUDE_TEXT))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
+        composeRule.onNodeWithText(SAVED_COLOR_HEX).assertExists()
+    }
+
+    @Test
+    fun `TC-8794d7a7-69aa-46d6-b57d-ef630b51aef6 앱을 다시 실행해 들어오면 저장된 내용으로 시작한다`() {
+        val detail = placeDetail()
+        val uiState = MutableStateFlow(content(detail = detail))
+        var launchCount by mutableIntStateOf(0)
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태와 ViewModel이 없으므로, 새 키로 저장 상태 없이 화면과 ViewModel을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                PlaceDetailScreenTestTheme {
+                    PlaceDetailScreen(
+                        navigateToTagAdd = {},
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
+                        id = FIRST_PLACE_ID,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        detailViewModel = remember { screenTestViewModel(uiState = uiState) },
+                        searchViewModel = remember { searchScreenTestViewModel() },
+                        navigateUp = {},
+                        navigateToTagDetail = {},
+                        tagViewModel = remember { detailTagScreenTestViewModel() },
+                    )
+                }
+            }
+        }
+
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
+        composeRule.changeColor()
+        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
+
+        composeRule.runOnIdle { launchCount += 1 }
         composeRule.waitForIdle()
 
         composeRule.input(TITLE_INDEX).assert(hasText(detail.title))

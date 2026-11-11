@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.domain.contact.usecase.FindContactUseCase
 import io.github.taetae98coding.diary.domain.memo.exception.MemoTitleBlankException
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.CopyMemoUseCase
@@ -20,17 +21,26 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageContactMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedContactMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedPlaceMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedWebMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PagePlaceMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageWebMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UpdateMemoUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
+import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.memo.MemoAppAction
+import io.github.taetae98coding.diary.work.appaction.memo.MemoListAppAction
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -86,8 +96,6 @@ class MemoAppFunctionUseCaseTest {
     fun setUp() {
         val memoAppAction =
             MemoAppAction(
-                pageMemoHomeUseCase = pageMemoHomeUseCase,
-                pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>(),
                 findMemoUseCase = findMemoUseCase,
                 getMemoTagUseCase = getMemoTagUseCase,
                 getMemoPlaceUseCase = getMemoPlaceUseCase,
@@ -101,7 +109,28 @@ class MemoAppFunctionUseCaseTest {
                 deleteMemoUseCase = deleteMemoUseCase,
                 restoreMemoUseCase = restoreMemoUseCase,
             )
-        startKoin { modules(module { single { memoAppAction } }) }
+        val memoListAppAction =
+            MemoListAppAction(
+                findPlaceUseCase = mockk<FindPlaceUseCase>(),
+                findWebUseCase = mockk<FindWebUseCase>(),
+                findContactUseCase = mockk<FindContactUseCase>(),
+                pageMemoHomeUseCase = pageMemoHomeUseCase,
+                pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>(),
+                pagePlaceMemoUseCase = mockk<PagePlaceMemoUseCase>(),
+                pageFinishedPlaceMemoUseCase = mockk<PageFinishedPlaceMemoUseCase>(),
+                pageWebMemoUseCase = mockk<PageWebMemoUseCase>(),
+                pageFinishedWebMemoUseCase = mockk<PageFinishedWebMemoUseCase>(),
+                pageContactMemoUseCase = mockk<PageContactMemoUseCase>(),
+                pageFinishedContactMemoUseCase = mockk<PageFinishedContactMemoUseCase>(),
+            )
+        startKoin {
+            modules(
+                module {
+                    single { memoAppAction }
+                    single { memoListAppAction }
+                },
+            )
+        }
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
     }
 
@@ -136,7 +165,7 @@ class MemoAppFunctionUseCaseTest {
     @Test
     fun `TC-98fbb01f-297f-4333-9ef9-e2281361473a 메모 상세는 MCP와 같은 항목을 돌려준다`() =
         runBlocking<Unit> {
-            val memo = Arb.memo().next()
+            val memo = Arb.memo().next().copy(isDeleted = false)
             every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
             every { getMemoTagUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
             every { getMemoPlaceUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))

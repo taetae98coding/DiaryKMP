@@ -2,10 +2,11 @@ package io.github.taetae98coding.diary.core.supabase.impl
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.exception.AuthErrorCode
+import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.status.SessionSource
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.UserSession
-import io.github.jan.supabase.exceptions.RestException
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseSessionStatus
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseUser
@@ -68,9 +69,9 @@ internal class SupabaseAuthImpl(
                 autoRefresh = false,
                 source = SessionSource.Refresh(oldSession = storedSession),
             )
-        } catch (exception: RestException) {
-            // 인증 제공자의 자동 갱신과 같이 5xx는 일시적인 오류로, 나머지는 갱신 정보가 폐기된 것으로 보고 세션을 지운다.
-            if (exception.statusCode >= SERVER_ERROR_STATUS_CODE) throw exception
+        } catch (exception: AuthRestException) {
+            // 오류 코드가 없거나 인증 제공자가 모르는 코드이면 errorCode가 null이라 폐기로 보지 않는다.
+            if (exception.errorCode !in REVOKED_ERROR_CODE_SET) throw exception
 
             auth.clearSession()
         }
@@ -89,6 +90,14 @@ internal class SupabaseAuthImpl(
             ?.toSupabaseUser()
 
     private companion object {
-        private const val SERVER_ERROR_STATUS_CODE = 500
+        private val REVOKED_ERROR_CODE_SET =
+            setOf(
+                AuthErrorCode.RefreshTokenNotFound,
+                AuthErrorCode.RefreshTokenAlreadyUsed,
+                AuthErrorCode.ValidationFailed,
+                AuthErrorCode.SessionNotFound,
+                AuthErrorCode.SessionExpired,
+                AuthErrorCode.UserNotFound,
+            )
     }
 }

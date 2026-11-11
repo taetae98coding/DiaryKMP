@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.birthday
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.kotest.core.spec.style.FunSpec
@@ -35,7 +36,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
-import kotlin.uuid.Uuid
 
 class CalendarHomeBirthdayViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -54,7 +54,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val expectedDateRange =
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
-                val birthdayList = listOf(birthday(), birthday())
+                val birthdayList = listOf(Arb.calendarContactBirthday().next(), Arb.calendarContactBirthday().next())
                 val useCase = getCalendarContactBirthdayUseCase(expectedDateRange to Result.success(birthdayList))
                 val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
@@ -101,8 +101,8 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
                 val septemberDateRange =
                     LocalDate(year = 2026, month = Month.JULY, day = 1)..LocalDate(year = 2026, month = Month.NOVEMBER, day = 30)
-                val mayBirthday = birthday()
-                val novemberBirthday = birthday()
+                val mayBirthday = Arb.calendarContactBirthday().next()
+                val novemberBirthday = Arb.calendarContactBirthday().next()
                 val useCase =
                     getCalendarContactBirthdayUseCase(
                         julyDateRange to Result.success(listOf(mayBirthday)),
@@ -220,6 +220,23 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-127175fc-f020-43a2-9072-3844a35dcc2d 한 연도의 음력 자료 동기화가 진행 중이어도 같은 달의 다른 연도를 요청한다") {
+            runTest(mainDispatcher) {
+                val year = Arb.int(2000..2100).next()
+                val fetchLunarUseCase = mockk<FetchLunarUseCase>()
+                coEvery { fetchLunarUseCase(parameter = year) } coAnswers { awaitCancellation() }
+                coEvery { fetchLunarUseCase(parameter = year + 1) } returns Result.success(emptyList())
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase())
+
+                viewModel.fetch(YearMonth(year = year, month = Month.DECEMBER))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = year) }
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = year + 1) }
+                viewModel.viewModelScope.cancel()
+            }
+        }
+
         test("TC-8383f1be-8bbb-4f7b-9bb1-24b028059a8c 같은 달의 음력 자료 동기화가 진행 중일 때 다시 지정하면 새로 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()
@@ -238,7 +255,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
         test("TC-ce299deb-8db7-4394-8913-ebf42203542c 음력 자료 동기화가 실패해도 생일 조회는 그대로 제공한다") {
             runTest(mainDispatcher) {
-                val birthdayList = listOf(birthday())
+                val birthdayList = listOf(Arb.calendarContactBirthday().next())
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()
                 coEvery { fetchLunarUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val useCase =
@@ -258,8 +275,8 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
         test("저장된 연락처가 바뀌면 조작 없이 표시할 생일이 갱신된다") {
             runTest(mainDispatcher) {
-                val birthday = birthday()
-                val changedBirthday = birthday()
+                val birthday = Arb.calendarContactBirthday().next()
+                val changedBirthday = Arb.calendarContactBirthday().next()
                 val birthdayFlow = MutableStateFlow(listOf(birthday))
                 val useCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { useCase(parameter = any()) } returns birthdayFlow.map { list -> Result.success(list) }
@@ -294,16 +311,3 @@ private fun getCalendarContactBirthdayUseCase(vararg resultByDateRange: Pair<Loc
         }
     }
 }
-
-private fun birthday(): CalendarContactBirthday =
-    CalendarContactBirthday(
-        contactId = Uuid.random(),
-        name = Arb.string().next(),
-        nameQualifier = Arb.string().next(),
-        date =
-            LocalDate(
-                year = 2026,
-                month = Month.JULY,
-                day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-            ),
-    )

@@ -7,8 +7,16 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import io.github.taetae98coding.diary.compose.calendar.Calendar
+import io.github.taetae98coding.diary.compose.calendar.CalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.enum
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import kotlinx.datetime.Month
+import kotlinx.datetime.YearMonth
+import kotlinx.datetime.plusMonth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,15 +54,19 @@ class CalendarDayOfWeekTest {
 
     @Test
     fun `TC-b8723262-a500-4399-ad50-5ccc7cd4a75e 달을 이동해도 요일 표시는 변하지 않는다`() {
+        val yearMonth = YearMonth(year = Arb.int(2000..2100).next(), month = Arb.enum<Month>().next())
+        val state = CalendarState(initialYearMonth = yearMonth)
         composeRule.setContent {
             DiaryTheme {
-                Calendar {}
+                Calendar(state = state) {}
             }
         }
+        dayOfWeekTexts(DEFAULT_DAY_OF_WEEK_TITLES) shouldBe DEFAULT_DAY_OF_WEEK_TITLES
 
         composeRule.onRoot().performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
+        state.currentYearMonth shouldBe yearMonth.plusMonth()
         dayOfWeekTexts(DEFAULT_DAY_OF_WEEK_TITLES) shouldBe DEFAULT_DAY_OF_WEEK_TITLES
     }
 

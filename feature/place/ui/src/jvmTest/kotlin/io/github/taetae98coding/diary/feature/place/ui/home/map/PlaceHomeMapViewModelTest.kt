@@ -18,6 +18,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -100,14 +101,27 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-4145cf13-a46a-49ff-a4e9-1dd664d1dfc6 현재 위치를 확인하기 전에는 확인 중 상태를 유지한다") {
+        test("TC-4145cf13-a46a-49ff-a4e9-1dd664d1dfc6 현재 위치 확인이 끝나기 전에는 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)))
+                val coordinate = Arb.coordinate().next()
+                val completion = CompletableDeferred<Result<Coordinate>>()
+                val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
+                coEvery { fetchCurrentLocationUseCase(parameter = Unit) } coAnswers { completion.await() }
+                val viewModel =
+                    viewModel(
+                        defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
+                        fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,
+                    )
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe PlaceHomeUiState.Loading
+                    viewModel.fetchCurrentLocation()
                     advanceUntilIdle()
+                    coVerify(exactly = 1) { fetchCurrentLocationUseCase(parameter = Unit) }
                     expectNoEvents()
+
+                    completion.complete(Result.success(coordinate))
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
                 }
             }
         }

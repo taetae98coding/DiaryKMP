@@ -16,8 +16,10 @@ import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_ME
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoList
 import io.github.taetae98coding.diary.feature.search.ui.home.pagingDataFlowOf
 import io.github.taetae98coding.diary.feature.search.ui.home.resultMemo
+import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,6 +31,11 @@ import org.robolectric.annotation.Config
 class SearchHomeQueryScrollEffectTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-fbb7a40f-3348-4c9b-83a0-4fcc904ddb14 질의를 바꾸면 결과 목록이 맨 위에서 다시 시작한다`() {

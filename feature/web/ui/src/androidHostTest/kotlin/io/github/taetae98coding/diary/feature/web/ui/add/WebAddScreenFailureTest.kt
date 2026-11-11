@@ -50,6 +50,7 @@ class WebAddScreenFailureTest {
         composeRule.onNodeWithText(DEFAULT_ADD_SUCCEEDED_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_TITLE_BLANK_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_URL_BLANK_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_HEADER_NAME_BLANK_MESSAGE).assertDoesNotExist()
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.urlInput().assert(hasText(TYPED_URL))
@@ -84,5 +85,6 @@ class WebAddScreenFailureTest {
         const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Web added."
         const val DEFAULT_TITLE_BLANK_MESSAGE = "Please enter a title."
         const val DEFAULT_URL_BLANK_MESSAGE = "Please enter a URL."
+        const val DEFAULT_HEADER_NAME_BLANK_MESSAGE = "Please enter a header name."
     }
 }

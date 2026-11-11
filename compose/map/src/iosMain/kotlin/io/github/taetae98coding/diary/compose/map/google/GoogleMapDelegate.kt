@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.visibleBoundsOf
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
@@ -70,26 +71,30 @@ private fun DiaryMapState.shareCamera(
     mapView: GMSMapView,
     position: GMSCameraPosition,
 ) {
-    val bounds = mapView.visibleBounds()
+    val center = position.target.toDiaryMapCoordinate()
 
-    position.target.useContents {
-        moveCamera(
-            DiaryMapCamera(
-                latitude = latitude,
-                longitude = longitude,
-                zoom = position.zoom.toDouble(),
-                bounds = bounds,
-            ),
-        )
-    }
+    moveCamera(
+        DiaryMapCamera(
+            latitude = center.latitude,
+            longitude = center.longitude,
+            zoom = position.zoom.toDouble(),
+            bounds = mapView.visibleBounds(center = center),
+        ),
+    )
 }
 
-private fun GMSMapView.visibleBounds(): DiaryMapBounds =
+private fun GMSMapView.visibleBounds(center: DiaryMapCoordinate): DiaryMapBounds =
     projection.visibleRegion().useContents {
-        DiaryMapBounds(
-            south = minOf(nearLeft.latitude, nearRight.latitude),
-            north = maxOf(farLeft.latitude, farRight.latitude),
-            west = minOf(nearLeft.longitude, farLeft.longitude),
-            east = maxOf(nearRight.longitude, farRight.longitude),
+        visibleBoundsOf(
+            center = center,
+            corners =
+                listOf(
+                    DiaryMapCoordinate(latitude = nearLeft.latitude, longitude = nearLeft.longitude),
+                    DiaryMapCoordinate(latitude = nearRight.latitude, longitude = nearRight.longitude),
+                    DiaryMapCoordinate(latitude = farLeft.latitude, longitude = farLeft.longitude),
+                    DiaryMapCoordinate(latitude = farRight.latitude, longitude = farRight.longitude),
+                ),
         )
     }
+
+private fun CValue<CLLocationCoordinate2D>.toDiaryMapCoordinate(): DiaryMapCoordinate = useContents { DiaryMapCoordinate(latitude = latitude, longitude = longitude) }

@@ -23,6 +23,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
 
+// 칩의 컬러 표시는 화면의 색상으로만 판정할 수 있어 테스트 케이스가 다루지 않는다. 화면 캡처로 확인하는 회귀 테스트라 TC ID를 붙이지 않는다.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -31,7 +32,7 @@ class MemoPlaceCardColorTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-40088a6c-af25-478e-a361-f4d4f1091e59 연결된 장소가 저장된 컬러와 제목으로 구분되어 표시된다`() {
+    fun `연결된 장소가 저장된 컬러와 제목으로 구분되어 표시된다`() {
         val placeList =
             listOf(
                 testPlace(title = HOME_PLACE_TITLE).withColor(opaqueColor()),
@@ -43,7 +44,7 @@ class MemoPlaceCardColorTest {
     }
 
     @Test
-    fun `TC-c7757569-a5c6-4c3b-9870-3c3fbdafec46 선택한 장소의 제목이 바뀌면 카드의 장소 목록에 반영된다`() {
+    fun `선택한 장소의 제목이 바뀌면 카드의 장소 목록에 반영된다`() {
         val place = testPlace(title = HOME_PLACE_TITLE).withColor(opaqueColor())
         var uiState by mutableStateOf(placeCardUiState(selectedPlaceList = listOf(place)))
         composeRule.setMemoPlaceCard(uiStateProvider = { uiState })
@@ -57,7 +58,7 @@ class MemoPlaceCardColorTest {
     }
 
     @Test
-    fun `TC-c7757569-a5c6-4c3b-9870-3c3fbdafec46 선택한 장소의 컬러가 바뀌면 카드의 장소 목록에 반영된다`() {
+    fun `선택한 장소의 컬러가 바뀌면 카드의 장소 목록에 반영된다`() {
         val place = testPlace(title = HOME_PLACE_TITLE).withColor(opaqueColor())
         var uiState by mutableStateOf(placeCardUiState(selectedPlaceList = listOf(place)))
         composeRule.setMemoPlaceCard(uiStateProvider = { uiState })

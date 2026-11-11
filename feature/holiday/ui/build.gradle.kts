@@ -13,5 +13,11 @@ kotlin {
                 implementation(projects.library.kotlinxDatetime)
             }
         }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
     }
 }

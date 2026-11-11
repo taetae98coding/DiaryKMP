@@ -1,7 +1,12 @@
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
@@ -104,23 +109,40 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-5f0f2e4a-1a21-4049-845b-b55b08bff1f8 검색어로 좁힌 목록에서도 선택과 해제를 전달한다`() {
+    fun `TC-5f0f2e4a-1a21-4049-845b-b55b08bff1f8 검색어로 좁힌 목록에서도 선택과 해제가 반영된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val selectedIdList = mutableListOf<Uuid>()
         val unselectedIdList = mutableListOf<Uuid>()
+        // 선택과 해제 행동이 저장된 것과 같게 선택 상태에 반영한다.
+        var uiState by mutableStateOf(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))
         composeRule.setMemoPlacePickerDialog(
             placeList = listOf(homePlace),
+            uiStateProvider = { uiState },
             query = HOME_PLACE_QUERY,
-            onPlaceSelect = selectedIdList::add,
-            onPlaceUnselect = unselectedIdList::add,
+            onPlaceSelect = { id ->
+                selectedIdList.add(id)
+                uiState = uiState.copy(selectedPlaceList = listOf(homePlace))
+            },
+            onPlaceUnselect = { id ->
+                unselectedIdList.add(id)
+                uiState = uiState.copy(selectedPlaceList = emptyList())
+            },
         )
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOff()
 
         composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).performClick()
         composeRule.waitForIdle()
 
         selectedIdList shouldBe listOf(homePlace.id)
         unselectedIdList shouldBe emptyList()
-        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertExists()
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOn()
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        selectedIdList shouldBe listOf(homePlace.id)
+        unselectedIdList shouldBe listOf(homePlace.id)
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOff()
     }
 
     @Test

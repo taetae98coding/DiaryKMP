@@ -39,7 +39,7 @@ struct ChecklistListIntent: AppIntent {
 
 struct ChecklistDetailIntent: AppIntent {
     static let title = LocalizedStringResource("Get Checklist Details", table: "AppIntentChecklist")
-    static let description = IntentDescription(LocalizedStringResource("Gets a checklist with all its items.", table: "AppIntentChecklist"))
+    static let description = IntentDescription(LocalizedStringResource("Gets a checklist with all its items and linked tags.", table: "AppIntentChecklist"))
 
     @Parameter(title: LocalizedStringResource("Checklist", table: "AppIntentChecklist"))
     var checklist: ChecklistEntity
@@ -80,16 +80,25 @@ struct AddChecklistIntent: AppIntent {
     )
     var items: [String]?
 
+    @Parameter(title: LocalizedStringResource("Tags to Link", table: "AppIntentCore"))
+    var tags: [TagEntity]?
+
     static var parameterSummary: some ParameterSummary {
         Summary("Add checklist \(\.$title)", table: "AppIntentChecklist") {
             \.$checklistDescription
             \.$items
+            \.$tags
         }
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<ChecklistEntity> & ProvidesDialog {
         let checklistId = try await appAction {
-            try await DiaryChecklistAppAction.shared.add(title: title, checklistDescription: checklistDescription, items: items ?? [])
+            try await DiaryChecklistAppAction.shared.add(
+                title: title,
+                checklistDescription: checklistDescription,
+                items: items ?? [],
+                tagIds: (tags ?? []).map(\.id)
+            )
         }
         return .result(
             value: try await ChecklistEntityQuery.require(checklistId: checklistId),
@@ -124,6 +133,7 @@ struct EditChecklistIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await ChecklistEntityQuery.require(checklistId: checklist.id)
         let changedCount = try await appAction {
             try await DiaryChecklistAppAction.shared.update(checklistId: checklist.id, title: title, checklistDescription: checklistDescription)
         }
@@ -148,6 +158,7 @@ struct ResetChecklistIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await ChecklistEntityQuery.require(checklistId: checklist.id)
         let changedCount = try await appAction { try await DiaryChecklistAppAction.shared.reset(checklistId: checklist.id) }
         let count = Int(changedCount)
         return .result(
@@ -171,6 +182,7 @@ struct DeleteChecklistIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await ChecklistEntityQuery.require(checklistId: checklist.id)
         let changedCount = try await appAction { try await DiaryChecklistAppAction.shared.delete(checklistId: checklist.id) }
         return .result(
             value: Int(changedCount),
@@ -196,5 +208,49 @@ struct RestoreChecklistIntent: AppIntent {
             value: Int(changedCount),
             dialog: AppIntentResultDialog.changed(count: changedCount, changed: LocalizedStringResource("Restored the checklist.", table: "AppIntentChecklist"))
         )
+    }
+}
+
+struct LinkTagToChecklistIntent: AppIntent {
+    static let title = LocalizedStringResource("Link Tag to Checklist", table: "AppIntentChecklist")
+    static let description = IntentDescription(LocalizedStringResource("Links a tag to a checklist.", table: "AppIntentChecklist"))
+
+    @Parameter(title: LocalizedStringResource("Checklist", table: "AppIntentChecklist"))
+    var checklist: ChecklistEntity
+
+    @Parameter(title: LocalizedStringResource("Tag to Link", table: "AppIntentChecklist"))
+    var tag: TagEntity
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Link \(\.$tag) to \(\.$checklist)", table: "AppIntentChecklist")
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        _ = try await ChecklistEntityQuery.require(checklistId: checklist.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.add(kind: .CHECKLIST, entityId: checklist.id, tagId: tag.id) }
+        return .result(dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
+    }
+}
+
+struct UnlinkTagFromChecklistIntent: AppIntent {
+    static let title = LocalizedStringResource("Unlink Tag from Checklist", table: "AppIntentChecklist")
+    static let description = IntentDescription(LocalizedStringResource("Unlinks a tag from a checklist.", table: "AppIntentChecklist"))
+
+    @Parameter(title: LocalizedStringResource("Checklist", table: "AppIntentChecklist"))
+    var checklist: ChecklistEntity
+
+    @Parameter(title: LocalizedStringResource("Tag to Unlink", table: "AppIntentChecklist"))
+    var tag: TagEntity
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Unlink \(\.$tag) from \(\.$checklist)", table: "AppIntentChecklist")
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        _ = try await ChecklistEntityQuery.require(checklistId: checklist.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.remove(kind: .CHECKLIST, entityId: checklist.id, tagId: tag.id) }
+        return .result(dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }
 }

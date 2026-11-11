@@ -58,7 +58,7 @@ class TagDetailMusicViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-b69fefe3-176e-4958-bd02-f98ca8e1894b TC-e0b49707-d7ca-4003-a7bd-b216b33256f9 상세 대상 태그로 조회한 곡 목록을 순서 그대로 전달한다") {
+        test("TC-b69fefe3-176e-4958-bd02-f98ca8e1894b 상세 대상 태그로 조회한 곡 목록을 순서 그대로 전달한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
                 val itemList = List(3) { item() }
@@ -116,7 +116,7 @@ class TagDetailMusicViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-e0b49707-d7ca-4003-a7bd-b216b33256f9 정렬을 바꾸면 고른 기준으로 다시 조회한다") {
+        test("정렬을 바꾸면 고른 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
                 val defaultList = List(2) { item() }

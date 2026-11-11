@@ -13,21 +13,21 @@ let package = Package(
     )
   ],
   dependencies: [
+    .package(path: "subpackages/_compose_map"),
     .package(path: "subpackages/_core_fcm_impl"),
     .package(path: "subpackages/_compose_credential"),
     .package(path: "subpackages/_logger_analytics_impl"),
-    .package(path: "subpackages/_logger_crashlytics_impl"),
-    .package(path: "subpackages/_compose_map")
+    .package(path: "subpackages/_logger_crashlytics_impl")
   ],
   targets: [
     .target(
       name: "KotlinMultiplatformLinkedPackage",
       dependencies: [
+        .product(name: "_compose_map", package: "_compose_map"),
         .product(name: "_core_fcm_impl", package: "_core_fcm_impl"),
         .product(name: "_compose_credential", package: "_compose_credential"),
         .product(name: "_logger_analytics_impl", package: "_logger_analytics_impl"),
-        .product(name: "_logger_crashlytics_impl", package: "_logger_crashlytics_impl"),
-        .product(name: "_compose_map", package: "_compose_map")
+        .product(name: "_logger_crashlytics_impl", package: "_logger_crashlytics_impl")
       ]
     )
   ]

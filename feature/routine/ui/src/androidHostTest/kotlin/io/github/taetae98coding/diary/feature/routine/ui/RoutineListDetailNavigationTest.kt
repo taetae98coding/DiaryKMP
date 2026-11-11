@@ -53,7 +53,6 @@ class RoutineListDetailNavigationTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestTopLevelNavKey, RoutineHomeNavKey)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -86,6 +85,23 @@ class RoutineListDetailNavigationTest {
     }
 
     @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `TC-f731c7b3-d20c-4718-ae02-b9287ed7d17a 단독으로 표시된 루틴 추가에서 뒤로가면 RoutineHome으로 돌아간다`() {
+        setRoutineNavDisplay()
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(NavigationTestTopLevelNavKey, RoutineHomeNavKey)
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-8ac57d1f-2a84-4caa-8944-bbebde25bf75 상세 영역에 루틴 추가가 놓인 상태에서 뒤로가면 배치를 떠나 기본 목적지로 돌아간다`() {
         setRoutineNavDisplay()
         composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertExists()
@@ -110,7 +126,6 @@ class RoutineListDetailNavigationTest {
             }
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {
@@ -152,6 +167,7 @@ class RoutineListDetailNavigationTest {
         const val DEFAULT_ADD_TITLE = "Add Routine"
         const val DEFAULT_EMPTY_TITLE = "No routines yet"
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add routine"
+        const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
     }
 }
 

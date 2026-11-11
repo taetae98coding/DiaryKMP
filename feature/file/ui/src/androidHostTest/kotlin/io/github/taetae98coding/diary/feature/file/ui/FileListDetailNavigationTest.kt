@@ -128,7 +128,6 @@ class FileListDetailNavigationTest {
     private val addViewModelList = mutableListOf<FileAddViewModel>()
     private val pagingScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    // 목록을 불러올 때 서버가 돌려줄 목록과 불러온 횟수.
     private var serverFileList: List<DiaryFile> = emptyList()
     private var serverLoadCount = 0
     private val homePagingData =
@@ -137,7 +136,6 @@ class FileListDetailNavigationTest {
             pagingSourceFactory = { homePagingSource() },
         ).flow.cachedIn(pagingScope)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
@@ -879,7 +877,6 @@ class FileListDetailNavigationTest {
         module: Module,
         content: @Composable () -> Unit,
     ) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -949,7 +946,7 @@ class FileListDetailNavigationTest {
     }
 }
 
-// 파일 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 파일 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object NavigationTestMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

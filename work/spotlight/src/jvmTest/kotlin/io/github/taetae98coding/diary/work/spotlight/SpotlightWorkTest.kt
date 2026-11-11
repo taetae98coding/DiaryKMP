@@ -151,12 +151,16 @@ class SpotlightWorkTest :
             }
         }
 
-        test("TC-29e44189-cc2f-43d5-9a38-b738e75f615d 계정이 바뀌면 이전 계정의 항목을 빼고 바뀐 계정의 항목을 담는다") {
-            listOf(
-                Account.Guest to Arb.accountUser().next(),
-                Arb.accountUser().next() to Account.Guest,
-            ).forEach { (before, after) ->
+        // 로그아웃과 계정 탈퇴는 둘 다 계정이 사용자에서 게스트로 바뀌는 것으로 전달된다.
+        listOf(
+            Triple("로그인", true, false),
+            Triple("로그아웃", false, true),
+            Triple("계정 탈퇴", false, true),
+        ).forEach { (change, isGuestBefore, isGuestAfter) ->
+            test("TC-29e44189-cc2f-43d5-9a38-b738e75f615d $change 으로 계정이 바뀌면 이전 계정의 항목을 빼고 바뀐 계정의 항목을 담는다") {
                 runTest {
+                    val before: Account = if (isGuestBefore) Account.Guest else Arb.accountUser().next()
+                    val after: Account = if (isGuestAfter) Account.Guest else Arb.accountUser().next()
                     val beforeMemo = Arb.memoLocalEntity().next()
                     val afterMemo = Arb.memoLocalEntity().next()
                     val account = MutableStateFlow(Result.success(before))

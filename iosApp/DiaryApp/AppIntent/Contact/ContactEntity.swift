@@ -25,7 +25,7 @@ struct ContactEntity: AppEntity {
     @Property(title: LocalizedStringResource("Updated", table: "AppIntentCore"))
     var updatedAt: Date
 
-    // 목록 결과에는 데스크톱 연결과 같이 이름, 설명, 즐겨찾기만 있으므로, 나머지 정보는 상세 결과에서만 채워진다.
+    // 목록 결과에는 데스크톱 연결과 같이 이름, 설명, 즐겨찾기만 있으므로, 나머지 정보와 연결된 태그는 상세 결과에서만 채워진다.
     @Property(title: LocalizedStringResource("Height (cm)", table: "AppIntentCore"))
     var heightCm: Double?
 
@@ -50,6 +50,9 @@ struct ContactEntity: AppEntity {
     @Property(title: LocalizedStringResource("Phone Numbers", table: "AppIntentCore"))
     var phoneNumbers: [String]
 
+    @Property(title: LocalizedStringResource("Tags", table: "AppIntentCore"))
+    var tags: [TagEntity]
+
     private let nameQualifier: String
 
     init(contact: DiaryAppActionContact) {
@@ -68,6 +71,7 @@ struct ContactEntity: AppEntity {
         hometown = ""
         howWeMet = ""
         phoneNumbers = []
+        tags = []
     }
 
     // 상세 결과에는 같은 이름을 구별하는 글이 없으므로, 이름만 보여 준다.
@@ -87,6 +91,7 @@ struct ContactEntity: AppEntity {
         hometown = detail.hometown
         howWeMet = detail.howWeMet
         phoneNumbers = detail.phoneNumbers
+        tags = detail.tags.map(TagEntity.init(tag:))
     }
 
     var displayRepresentation: DisplayRepresentation {

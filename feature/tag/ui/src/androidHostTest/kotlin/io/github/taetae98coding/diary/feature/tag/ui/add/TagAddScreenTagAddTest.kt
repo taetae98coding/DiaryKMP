@@ -1,6 +1,12 @@
 package io.github.taetae98coding.diary.feature.tag.ui.add
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -239,6 +245,60 @@ class TagAddScreenTagAddTest {
         resultEventBus.sendTagAddedResult(id = addedTag.id, requestKey = OTHER_REQUEST_KEY)
         composeRule.waitForIdle()
 
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 화면을 다시 구성한다.
+    @Test
+    fun `TC-007772e2-0310-4d1e-b19b-4cf8c0cfe4b1 태그를 추가한 뒤 앱을 종료하고 새로 진입하면 추가한 태그가 자동 연결되지 않는다`() {
+        val addedTag = testTag(title = WORK_TAG_TITLE)
+        var launchCount by mutableIntStateOf(0)
+        var isInputScreenComposed by mutableStateOf(true)
+        var tagAddCount = 0
+        lateinit var resultEventBus: ResultEventBus
+        composeRule.setContent {
+            key(launchCount) {
+                val addViewModel = remember { screenTestViewModel() }
+                val tagLinkViewModel =
+                    remember {
+                        linkViewModel(
+                            tagList = listOf(addedTag),
+                            tagPagingData = MutableStateFlow(tagPagingDataOf(emptyList())),
+                        )
+                    }
+                resultEventBus = remember { ResultEventBus() }
+                if (isInputScreenComposed) {
+                    TagAddScreenTestTheme(resultEventBus = resultEventBus) {
+                        TagAddScreen(
+                            navigateUp = {},
+                            navigateToTagAdd = { tagAddCount += 1 },
+                            navigateToDetail = {},
+                            addedResultRequestKey = null,
+                            tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                            componentVisibleProvider = { TagAddScaffoldComponentVisible() },
+                            addViewModel = addViewModel,
+                            linkViewModel = tagLinkViewModel,
+                        )
+                    }
+                }
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.waitForIdle()
+        tagAddCount shouldBe 1
+        // TagAdd 화면에 가려진 연결 입력 화면은 구성에서 빠지므로, 화면을 구성에서 뺀 채 추가 결과를 보내 돌아오기 전에 종료한 상태를 만든다.
+        composeRule.runOnIdle { isInputScreenComposed = false }
+        composeRule.waitForIdle()
+        resultEventBus.sendTagAddedResult(id = addedTag.id)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            launchCount += 1
+            isInputScreenComposed = true
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).assertExists()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
     }
 

@@ -76,20 +76,28 @@ class MemoLinkAppFunctionServiceTest {
         }
 
     @Test
-    fun `메모 태그 연결은 받은 id를 공통 동작에 넘기고 완료 결과를 돌려준다`() =
+    fun `TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 메모 태그 연결과 해제는 완료를 돌려준다`() =
         runBlocking<Unit> {
             val memoId = Arb.kotlinUuid().next().toString()
             val tagId = Arb.kotlinUuid().next().toString()
             coEvery { memoLinkAppAction.tagAdd(memoId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { memoLinkAppAction.tagRemove(memoId = any(), tagId = any()) } returns AppActionDone(done = true)
 
-            val response =
+            val addResponse =
                 tester.execute(name = "memoTagAdd") {
                     setString(MEMO_ID, memoId)
                     setString("tagId", tagId)
                 }
+            val removeResponse =
+                tester.execute(name = "memoTagRemove") {
+                    setString(MEMO_ID, memoId)
+                    setString("tagId", tagId)
+                }
 
-            response.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
             coVerify(exactly = 1) { memoLinkAppAction.tagAdd(memoId = memoId, tagId = tagId) }
+            coVerify(exactly = 1) { memoLinkAppAction.tagRemove(memoId = memoId, tagId = tagId) }
         }
 
     @Test

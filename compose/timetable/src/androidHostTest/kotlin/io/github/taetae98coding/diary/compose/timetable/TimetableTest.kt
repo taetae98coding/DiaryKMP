@@ -284,6 +284,7 @@ class TimetableTest {
         scrollToTop()
         composeRule.onNodeWithText(VACATION).assertIsDisplayed()
         composeRule.onNodeWithText(ALL_DAY_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText("Wed").assertIsDisplayed()
         composeRule.onNodeWithText("23").assertIsDisplayed()
 
         composeRule.onNodeWithText(LAST_HOUR_LABEL).performScrollTo()

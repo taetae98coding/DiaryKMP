@@ -15,6 +15,7 @@ struct DeletePlaceIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
         let changedCount = try await appAction { try await DiaryPlaceAppAction.shared.delete(placeId: place.id) }
         return .result(
             value: Int(changedCount),
@@ -58,7 +59,9 @@ struct LinkTagToPlaceIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        _ = try await appAction { try await DiaryPlaceAppAction.shared.tagAdd(placeId: place.id, tagId: tag.id) }
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.add(kind: .PLACE, entityId: place.id, tagId: tag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
 }
@@ -78,7 +81,9 @@ struct UnlinkTagFromPlaceIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        _ = try await appAction { try await DiaryPlaceAppAction.shared.tagRemove(placeId: place.id, tagId: tag.id) }
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.remove(kind: .PLACE, entityId: place.id, tagId: tag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }
 }

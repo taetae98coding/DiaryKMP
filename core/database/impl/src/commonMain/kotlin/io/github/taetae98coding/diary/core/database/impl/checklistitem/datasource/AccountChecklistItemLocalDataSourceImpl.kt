@@ -22,4 +22,13 @@ internal class AccountChecklistItemLocalDataSourceImpl(
             checklistId = checklistId,
             sort = sort.queryValue,
         )
+
+    override fun find(
+        accountId: Uuid,
+        itemId: Uuid,
+    ): Flow<ChecklistItemLocalEntity?> =
+        database.accountChecklistItemDao().find(
+            accountId = accountId,
+            itemId = itemId,
+        )
 }

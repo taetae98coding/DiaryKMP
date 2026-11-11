@@ -123,7 +123,7 @@ class DDayAddDDayUseCaseTest :
                     coVerify(exactly = 1) { context.repository.upsert(account = checkNotNull(context.account), dday = any(), tagIdSet = tagIdSet) }
                 }
 
-                Then("TC-59804ef8-703f-41a2-b0fd-7747b4210ab8 기기에 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-59804ef8-703f-41a2-b0fd-7747b4210ab8 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                     coVerifyOrder {
                         context.repository.upsert(account = any(), dday = any(), tagIdSet = any())
                         context.requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)

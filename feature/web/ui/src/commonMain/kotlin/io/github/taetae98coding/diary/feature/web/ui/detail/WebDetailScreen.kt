@@ -1,12 +1,14 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -80,8 +82,7 @@ internal fun WebDetailScreen(
                         content
                             ?.detail
                             ?.url
-                            ?.takeUnless(uriHandler::tryOpenUri)
-                            ?.let { coroutineScope.launch { formState.snackbarHostState.showImmediate(message = openFailedMessage) } }
+                            ?.let { url -> coroutineScope.launch { openInNew(url = url, uriHandler = uriHandler, snackbarHostState = formState.snackbarHostState, openFailedMessage = openFailedMessage) } }
 
                     is WebDetailScaffoldEvent.ClickDelete -> webViewModel.delete()
 
@@ -111,5 +112,16 @@ internal fun WebDetailScreen(
                 snackbarHostState = formState.snackbarHostState,
             )
         }
+    }
+}
+
+private suspend fun openInNew(
+    url: String,
+    uriHandler: UriHandler,
+    snackbarHostState: SnackbarHostState,
+    openFailedMessage: String,
+) {
+    if (!uriHandler.tryOpenUri(url)) {
+        snackbarHostState.showImmediate(message = openFailedMessage)
     }
 }

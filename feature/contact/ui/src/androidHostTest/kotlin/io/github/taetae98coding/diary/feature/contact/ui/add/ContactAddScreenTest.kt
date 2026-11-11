@@ -18,6 +18,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextInputSelection
+import androidx.compose.ui.text.TextRange
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
@@ -133,7 +135,7 @@ class ContactAddScreenTest {
         listOf(
             "17a5b" to "175",
             "17.5.5" to "17.5",
-            "175.55" to "175.5",
+            "175.55" to TYPED_HEIGHT,
             "1755" to "175",
             ".5" to "5",
         ).forEach { (typed, expected) ->
@@ -190,6 +192,101 @@ class ContactAddScreenTest {
             composeRule.waitForIdle()
 
             composeRule.footSizeInput().assert(hasText(expected))
+        }
+    }
+
+    @Test
+    fun `TC-c74f9714-53f3-4ffb-9b28-ce1c1425e80c 자리 수를 채운 키의 중간에 숫자를 넣어도 값이 바뀌지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(
+            "175" to 0,
+            "175" to 1,
+            TYPED_HEIGHT to 1,
+            "17.5" to 3,
+        ).forEach { (typed, cursor) ->
+            composeRule.heightInput().performTextClearance()
+            composeRule.heightInput().performTextInput(typed)
+            composeRule.heightInput().performTextInputSelection(TextRange(cursor))
+            composeRule.heightInput().performTextInput("9")
+            composeRule.waitForIdle()
+
+            composeRule.heightInput().assert(hasText(typed))
+        }
+    }
+
+    @Test
+    fun `TC-c74f9714-53f3-4ffb-9b28-ce1c1425e80c 자리 수를 채운 신발 사이즈의 중간에 숫자를 넣어도 값이 바뀌지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(0, 1).forEach { cursor ->
+            composeRule.footSizeInput().performTextClearance()
+            composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+            composeRule.footSizeInput().performTextInputSelection(TextRange(cursor))
+            composeRule.footSizeInput().performTextInput("9")
+            composeRule.waitForIdle()
+
+            composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
+        }
+    }
+
+    @Test
+    fun `TC-ebb4a995-9895-4db7-b36c-3caf36ee0f3e 키의 숫자 사이에 소수점을 넣어 소수점 아래가 한 자리를 넘으면 값이 바뀌지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        composeRule.heightInput().performTextInput("175")
+        composeRule.heightInput().performTextInputSelection(TextRange(1))
+        composeRule.heightInput().performTextInput(".")
+        composeRule.waitForIdle()
+
+        composeRule.heightInput().assert(hasText("175"))
+    }
+
+    @Test
+    fun `TC-5f8e7fa5-752e-4c6a-8f08-3ec7337fad0e 키의 선택한 부분 위에 입력한 문자가 반영되지 않으면 값이 바뀌지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(
+            Triple("175", TextRange(1, 3), "a"),
+            Triple(TYPED_HEIGHT, TextRange(3, 4), "9"),
+        ).forEach { (typed, selection, replacement) ->
+            composeRule.heightInput().performTextClearance()
+            composeRule.heightInput().performTextInput(typed)
+            composeRule.heightInput().performTextInputSelection(selection)
+            composeRule.heightInput().performTextInput(replacement)
+            composeRule.waitForIdle()
+
+            composeRule.heightInput().assert(hasText(typed))
+        }
+    }
+
+    @Test
+    fun `TC-5f8e7fa5-752e-4c6a-8f08-3ec7337fad0e 신발 사이즈의 선택한 부분 위에 입력한 문자가 반영되지 않으면 값이 바뀌지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        composeRule.footSizeInput().performTextInput("250")
+        composeRule.footSizeInput().performTextInputSelection(TextRange(1, 3))
+        composeRule.footSizeInput().performTextInput("a")
+        composeRule.waitForIdle()
+
+        composeRule.footSizeInput().assert(hasText("250"))
+    }
+
+    @Test
+    fun `TC-d7f0a5dd-89a5-42ca-90f6-e609da3b4bef 키의 일부를 지워 기준에 맞지 않게 되면 남은 값을 기준에 맞게 다시 맞춘다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(
+            Triple(TYPED_HEIGHT, TextRange(3, 4), "175"),
+            Triple("1.5", TextRange(0, 1), "5"),
+        ).forEach { (typed, deleted, expected) ->
+            composeRule.heightInput().performTextClearance()
+            composeRule.heightInput().performTextInput(typed)
+            composeRule.heightInput().performTextInputSelection(deleted)
+            composeRule.heightInput().performTextInput("")
+            composeRule.waitForIdle()
+
+            composeRule.heightInput().assert(hasText(expected))
         }
     }
 

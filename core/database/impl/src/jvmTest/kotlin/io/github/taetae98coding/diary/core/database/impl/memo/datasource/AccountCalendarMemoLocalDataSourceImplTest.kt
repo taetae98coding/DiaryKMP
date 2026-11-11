@@ -674,17 +674,18 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             }
         }
 
-        test("TC-5d618a64-f553-499d-b100-d54cd74c88e4 선택된 유일한 태그가 현재 계정과 연결되어 있지 않으면 모든 메모가 조회된다") {
+        test("TC-5d618a64-f553-499d-b100-d54cd74c88e4 선택된 유일한 태그가 현재 계정과 연결되지 않게 되면 모든 메모가 조회된다") {
             val accountId = Arb.kotlinUuid().next()
-            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag().copy(isFinished = false, isDeleted = false)
-            tagTransaction.upsert(accountId = otherAccountId, tagList = listOf(tag), tagLinkList = emptyList())
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             val tagMemo = overlappingMemo()
             val noTagMemo = overlappingMemo()
             upsertWithTag(accountId, tagMemo, tag.id)
             upsert(accountId, noTagMemo)
-
             selectFilterTag(accountId = accountId, tagId = tag.id)
+            calendarMemoIdList(accountId = accountId) shouldBe listOf(tagMemo.id)
+
+            database.accountDataDao().deleteAccountTag(accountId = accountId)
 
             calendarMemoIdList(accountId = accountId) shouldContainExactlyInAnyOrder listOf(tagMemo.id, noTagMemo.id)
         }

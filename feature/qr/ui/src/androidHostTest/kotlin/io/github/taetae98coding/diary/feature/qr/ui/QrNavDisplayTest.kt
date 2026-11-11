@@ -4,7 +4,11 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -99,8 +103,8 @@ class QrNavDisplayTest {
     private val detailViewModelList = mutableListOf<QrDetailViewModel>()
     private var detailEffect: QrDetailEffect? = null
     private var homeQrList: List<Qr> = emptyList()
+    private var launchCount by mutableIntStateOf(0)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -341,8 +345,18 @@ class QrNavDisplayTest {
     @Test
     fun `TC-00427a56-819d-4a24-a374-818136412935 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val qrList = positionQrList()
-
         setQrNavDisplay(qrList = qrList)
+        scrollToPositionQr(qrList)
+
+        // 앱을 다시 실행하면 저장된 화면 상태와 ViewModel이 모두 사라지고 전환 이력도 처음부터 다시 쌓인다.
+        composeRule.runOnIdle {
+            backStack.clear()
+            backStack.add(QrNavDisplayMoreNavKey)
+            launchCount += 1
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+        composeRule.runOnIdle { backStack.add(QrHomeNavKey) }
         waitUntilQrIsDisplayed(qrList.first())
 
         composeRule.onNode(qrCard(qrList.first())).assertIsDisplayed()
@@ -390,20 +404,23 @@ class QrNavDisplayTest {
     private fun setQrNavDisplay(qrList: List<Qr> = emptyList()) {
         homeQrList = qrList
         composeRule.setContent {
-            QrNavDisplayTestHost {
-                NavDisplay(
-                    backStack = backStack,
-                    entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
-                    entryProvider =
-                        entryProvider {
-                            entry<QrNavDisplayMoreNavKey> { Text(text = MORE_CONTENT) }
-                            qrEntry(
-                                backStack = backStack,
-                                cameraPreviewContent = AndroidQrScanCameraPreviewContent(),
-                                qrActionLauncherFactory = AndroidQrActionLauncherFactory(),
-                            )
-                        },
-                )
+            // 실행 횟수가 바뀌면 저장 상태와 ViewModel 보관소 없이 화면 전체를 처음부터 다시 구성한다.
+            key(launchCount) {
+                QrNavDisplayTestHost {
+                    NavDisplay(
+                        backStack = backStack,
+                        entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+                        entryProvider =
+                            entryProvider {
+                                entry<QrNavDisplayMoreNavKey> { Text(text = MORE_CONTENT) }
+                                qrEntry(
+                                    backStack = backStack,
+                                    cameraPreviewContent = AndroidQrScanCameraPreviewContent(),
+                                    qrActionLauncherFactory = AndroidQrActionLauncherFactory(),
+                                )
+                            },
+                    )
+                }
             }
         }
         composeRule.waitForIdle()
@@ -411,7 +428,6 @@ class QrNavDisplayTest {
 
     @Composable
     private fun QrNavDisplayTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -490,7 +506,7 @@ class QrNavDisplayTest {
     }
 }
 
-// QR 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// QR 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object QrNavDisplayMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

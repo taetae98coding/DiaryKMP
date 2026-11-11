@@ -28,12 +28,14 @@ import io.github.taetae98coding.diary.compose.dday.SwipeDDayCard
 import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagDDay
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +47,11 @@ import org.robolectric.annotation.Config
 class TagDetailDDayTabTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-08893b99-d83c-4ef2-8400-eb88e6695b68 대상 태그와 연결된 디데이를 목록에 표시한다`() {
@@ -256,6 +263,22 @@ class TagDetailDDayTabTest {
         composeRule.onNodeWithText(FIRST_TITLE).assertIsDisplayed()
     }
 
+    @Test
+    fun `TC-1f64fda5-cb8b-4c2a-b5c2-6df4e1939631 기준일이 바뀐 디데이는 카드 문구가 바뀐다`() {
+        val exam = tagDDay(title = EXAM_TITLE, baseDate = LocalDate(year = 2026, month = 3, day = 20), countsBaseDay = false)
+        val pagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = listOf(exam)))
+        setDDayTab(pagingDataFlow = pagingDataFlow, today = LocalDate(year = 2026, month = 3, day = 19))
+        composeRule.onNodeWithText(EXAM_CARD_TEXT).assertIsDisplayed()
+
+        val changed = exam.copy(detail = exam.detail.copy(baseDate = LocalDate(year = 2026, month = 3, day = 21)))
+        composeRule.runOnIdle { pagingDataFlow.value = tagEntityPagingData(itemList = listOf(changed)) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CHANGED_EXAM_CARD_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithText(EXAM_CARD_TEXT).assertDoesNotExist()
+        composeRule.onNodeWithText(EXAM_TITLE).assertIsDisplayed()
+    }
+
     private fun assertRefreshingIndicator(pagingData: PagingData<DDay>) {
         val isRefreshing = mutableStateOf(true)
         setDDayTab(pagingDataFlow = MutableStateFlow(pagingData), isRefreshingProvider = { isRefreshing.value })
@@ -314,6 +337,9 @@ class TagDetailDDayTabTest {
         const val THIRD_TITLE = "GammaDDay"
         const val KOREAN_TITLE = "우리"
         const val KOREAN_CARD_TEXT = "430일(1년 2개월)"
+        const val EXAM_TITLE = "수능"
+        const val EXAM_CARD_TEXT = "D-1"
+        const val CHANGED_EXAM_CARD_TEXT = "D-2"
         const val DEFAULT_EMPTY_TITLE = "No D-Days linked to this tag"
         const val DEFAULT_EMPTY_DESCRIPTION = "Use the add button to create a D-Day."
         const val KOREAN_EMPTY_TITLE = "이 태그에 연결된 디데이가 없습니다"

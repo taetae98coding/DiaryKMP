@@ -28,7 +28,7 @@ struct MemoListIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
         let memoPage = try await appAction {
-            try await DiaryMemoAppAction.shared.list(sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.list(sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: memoPage.dialog)
     }
@@ -59,7 +59,7 @@ struct MemoFinishedListIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
         let memoPage = try await appAction {
-            try await DiaryMemoAppAction.shared.finishedList(sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.finishedList(sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: memoPage.dialog)
     }

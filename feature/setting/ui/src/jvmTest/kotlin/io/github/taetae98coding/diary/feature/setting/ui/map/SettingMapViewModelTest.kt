@@ -10,8 +10,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,32 +77,37 @@ class SettingMapViewModelTest : FunSpec() {
         }
 
         test("TC-5675f575-9e4c-44ce-9b35-6a1ff32ac7aa 선택되어 있지 않은 지도를 선택하면 저장되고 선택 상태가 옮겨진다") {
-            runTest(mainDispatcher) {
-                val storedProvider = MutableStateFlow(Result.success(MapProvider.NAVER))
-                val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { getDefaultMapProviderUseCase(Unit) } returns storedProvider
-                val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
-                coEvery { setDefaultMapProviderUseCase(MapProvider.GOOGLE) } coAnswers {
-                    storedProvider.value = Result.success(MapProvider.GOOGLE)
-                    Result.success(Unit)
+            listOf(
+                MapProvider.NAVER to MapProvider.GOOGLE,
+                MapProvider.GOOGLE to MapProvider.NAVER,
+            ).forEach { (stored, selected) ->
+                runTest(mainDispatcher) {
+                    val storedProvider = MutableStateFlow(Result.success(stored))
+                    val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
+                    every { getDefaultMapProviderUseCase(Unit) } returns storedProvider
+                    val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
+                    coEvery { setDefaultMapProviderUseCase(selected) } coAnswers {
+                        storedProvider.value = Result.success(selected)
+                        Result.success(Unit)
+                    }
+                    val viewModel =
+                        SettingMapViewModel(
+                            getDefaultMapProviderUseCase = getDefaultMapProviderUseCase,
+                            setDefaultMapProviderUseCase = setDefaultMapProviderUseCase,
+                        )
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe SettingMapUiState.Loading
+                        awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = stored)
+
+                        viewModel.selectDefaultProvider(provider = selected)
+                        advanceUntilIdle()
+
+                        awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = selected)
+                    }
+
+                    coVerify(exactly = 1) { setDefaultMapProviderUseCase(selected) }
                 }
-                val viewModel =
-                    SettingMapViewModel(
-                        getDefaultMapProviderUseCase = getDefaultMapProviderUseCase,
-                        setDefaultMapProviderUseCase = setDefaultMapProviderUseCase,
-                    )
-
-                viewModel.uiState.test {
-                    awaitItem() shouldBe SettingMapUiState.Loading
-                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.NAVER)
-
-                    viewModel.selectDefaultProvider(provider = MapProvider.GOOGLE)
-                    advanceUntilIdle()
-
-                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.GOOGLE)
-                }
-
-                coVerify(exactly = 1) { setDefaultMapProviderUseCase(MapProvider.GOOGLE) }
             }
         }
 
@@ -126,6 +133,73 @@ class SettingMapViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 0) { setDefaultMapProviderUseCase(any()) }
+            }
+        }
+
+        test("TC-578c5b17-14c5-4ca2-8013-6800ccdfd158 저장하는 동안 다시 선택해도 한 번만 저장한다") {
+            runTest(mainDispatcher) {
+                val saving = CompletableDeferred<Result<Unit>>()
+                val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
+                every { getDefaultMapProviderUseCase(Unit) } returns MutableStateFlow(Result.success(MapProvider.NAVER))
+                val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
+                coEvery { setDefaultMapProviderUseCase(MapProvider.GOOGLE) } coAnswers { saving.await() }
+                val viewModel =
+                    SettingMapViewModel(
+                        getDefaultMapProviderUseCase = getDefaultMapProviderUseCase,
+                        setDefaultMapProviderUseCase = setDefaultMapProviderUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingMapUiState.Loading
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.NAVER)
+
+                    viewModel.selectDefaultProvider(provider = MapProvider.GOOGLE)
+                    advanceUntilIdle()
+                    viewModel.selectDefaultProvider(provider = MapProvider.GOOGLE)
+                    advanceUntilIdle()
+                    saving.complete(Result.success(Unit))
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 1) { setDefaultMapProviderUseCase(MapProvider.GOOGLE) }
+            }
+        }
+
+        test("TC-aa38b8e1-3272-47ba-b270-f8d06880b9c1 저장이 끝난 뒤 다시 선택하면 저장한다") {
+            runTest(mainDispatcher) {
+                val storedProvider = MutableStateFlow(Result.success(MapProvider.NAVER))
+                val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
+                every { getDefaultMapProviderUseCase(Unit) } returns storedProvider
+                val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
+                coEvery { setDefaultMapProviderUseCase(any()) } coAnswers {
+                    storedProvider.value = Result.success(firstArg())
+                    Result.success(Unit)
+                }
+                val viewModel =
+                    SettingMapViewModel(
+                        getDefaultMapProviderUseCase = getDefaultMapProviderUseCase,
+                        setDefaultMapProviderUseCase = setDefaultMapProviderUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingMapUiState.Loading
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.NAVER)
+
+                    viewModel.selectDefaultProvider(provider = MapProvider.GOOGLE)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.GOOGLE)
+
+                    viewModel.selectDefaultProvider(provider = MapProvider.NAVER)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.NAVER)
+                }
+
+                coVerifyOrder {
+                    setDefaultMapProviderUseCase(MapProvider.GOOGLE)
+                    setDefaultMapProviderUseCase(MapProvider.NAVER)
+                }
             }
         }
 

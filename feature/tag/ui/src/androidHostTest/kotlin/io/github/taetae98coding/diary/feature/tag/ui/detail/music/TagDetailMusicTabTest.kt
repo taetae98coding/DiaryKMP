@@ -192,7 +192,7 @@ class TagDetailMusicTabTest {
     }
 
     @Test
-    fun `TC-e0b49707-d7ca-4003-a7bd-b216b33256f9 목록 위에 지금 정렬을 표시하고 정렬을 고르면 그 기준을 전달한다`() {
+    fun `목록 위에 지금 정렬을 표시하고 정렬을 고르면 그 기준을 전달한다`() {
         val eventList = mutableListOf<TagDetailMusicContentEvent>()
         setMusicTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagMusic(title = FIRST_TITLE))),

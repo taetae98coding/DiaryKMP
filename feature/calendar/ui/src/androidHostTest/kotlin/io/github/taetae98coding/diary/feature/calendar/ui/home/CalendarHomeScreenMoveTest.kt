@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -8,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -37,7 +41,9 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
@@ -46,14 +52,12 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHome
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.maps.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.clearMocks
@@ -307,6 +311,32 @@ class CalendarHomeScreenMoveTest {
         performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
         performMoveTo(dayCenter(day = 22))
         composeRule.runOnIdle { registry.performSave() }
+        performCancel()
+
+        movedList shouldBe emptyList()
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
+    }
+
+    @Test
+    fun `TC-2878d451-5ea4-4917-a22d-1cdbdb446c94 다른 화면이 위에 나타나 조작이 끊기면 이동이 취소되고 기간이 바뀌지 않는다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var isOverlayShown by mutableStateOf(false)
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            isOverlayShown = { isOverlayShown },
+            onState = { capturedState = it },
+        )
+
+        performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
+        performMoveTo(dayCenter(day = 22))
+        // 다른 화면이 위에 나타나면 캘린더는 구성에 남은 채 진행 중이던 제스처만 끊긴다.
+        composeRule.runOnIdle { isOverlayShown = true }
+        composeRule.waitForIdle()
         performCancel()
 
         movedList shouldBe emptyList()
@@ -965,7 +995,7 @@ class CalendarHomeScreenMoveTest {
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
-            birthdayList = listOf(CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8))),
+            birthdayList = listOf(Arb.calendarContactBirthday().next().copy(name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8))),
             navigateToContactDetail = contactDetailList::add,
             navigateToMemoAdd = memoAddList::add,
             onState = { capturedState = it },
@@ -1118,6 +1148,7 @@ class CalendarHomeScreenMoveTest {
         memoViewModel: CalendarHomeMemoViewModel? = null,
         saveableStateRegistry: SaveableStateRegistry? = null,
         isShown: () -> Boolean = { true },
+        isOverlayShown: () -> Boolean = { false },
         calendarStateGeneration: () -> Int = { 0 },
         onState: (CalendarHomeScaffoldState) -> Unit = {},
     ) {
@@ -1145,6 +1176,7 @@ class CalendarHomeScreenMoveTest {
                     hapticFeedback = hapticFeedback,
                     uriHandler = uriHandler,
                     isShown = isShown,
+                    isOverlayShown = isOverlayShown,
                     calendarStateGeneration = calendarStateGeneration,
                     onState = onState,
                 ) { state ->
@@ -1175,6 +1207,7 @@ class CalendarHomeScreenMoveTest {
         hapticFeedback: HapticFeedback?,
         uriHandler: UriHandler?,
         isShown: () -> Boolean,
+        isOverlayShown: () -> Boolean,
         calendarStateGeneration: () -> Int,
         onState: (CalendarHomeScaffoldState) -> Unit,
         content: @Composable (CalendarHomeScaffoldState) -> Unit,
@@ -1188,8 +1221,13 @@ class CalendarHomeScreenMoveTest {
                 LocalHapticFeedback provides (hapticFeedback ?: LocalHapticFeedback.current),
                 LocalUriHandler provides (uriHandler ?: LocalUriHandler.current),
             ) {
-                if (isShown()) {
-                    content(state)
+                Box {
+                    if (isShown()) {
+                        content(state)
+                    }
+                    if (isOverlayShown()) {
+                        Surface(modifier = Modifier.fillMaxSize()) {}
+                    }
                 }
             }
         }
@@ -1342,13 +1380,7 @@ class CalendarHomeScreenMoveTest {
         title: String,
         start: LocalDate,
         endInclusive: LocalDate,
-    ): CalendarMemo =
-        CalendarMemo(
-            id = Arb.kotlinUuid().next(),
-            title = title,
-            color = Arb.long().next(),
-            dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
-        )
+    ): CalendarMemo = Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive), title = title).next()
 
     // 7월 5일부터 11일까지의 주를 한 번에 모두 보이지 않을 만큼 같은 기간의 메모로 채운다.
     private fun filledWeekMemoList(): List<CalendarMemo> =

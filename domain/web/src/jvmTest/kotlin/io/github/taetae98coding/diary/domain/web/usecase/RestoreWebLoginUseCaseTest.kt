@@ -6,7 +6,12 @@ import io.github.taetae98coding.diary.core.model.web.WebLoginCookie
 import io.github.taetae98coding.diary.core.model.web.WebLoginRestoreState
 import io.github.taetae98coding.diary.core.testing.web.webLoginCookie
 import io.github.taetae98coding.diary.domain.web.repository.WebLoginRepository
+import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
+import io.github.taetae98coding.diary.logger.core.DiaryLog
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
@@ -18,6 +23,7 @@ import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
+import io.mockk.every
 import io.mockk.just
 import io.mockk.justRun
 import io.mockk.mockk
@@ -76,6 +82,10 @@ class RestoreWebLoginUseCaseTest :
             justRun { repository.setRestoring() }
             justRun { repository.unsetRestoring() }
             val useCase = RestoreWebLoginUseCase(webLoginRepository = repository)
+            val logList = mutableListOf<ConsoleLog>()
+            val delegate = mockk<DiaryLoggerDelegate>()
+            every { delegate.log(log = any()) } answers { (firstArg<DiaryLog>() as? ConsoleLog)?.let(logList::add) }
+            DiaryLogger.add(delegate = delegate)
 
             When("앱을 시작해 되돌린다") {
                 Then("TC-9ffe581d-39f9-4181-9ad3-b1e6aca53a53 웹 표시 수단에 쿠키를 넣지 않고 실패를 전달한 뒤 끝난다") {
@@ -86,6 +96,7 @@ class RestoreWebLoginUseCaseTest :
 
                     coVerify(exactly = 0) { repository.upsertWebViewLogin(login = any()) }
                     coVerify(exactly = 1) { repository.unsetRestoring() }
+                    logList.filter { log -> log.throwable === throwable } shouldHaveSize 1
                 }
             }
         }

@@ -151,9 +151,20 @@ class CalendarHomeFilterBottomSheetContentTest {
 
     @Test
     fun `TC-8749ddd0-f38d-465b-8fa0-d60938c99cb2 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
-        setBottomSheetContent(tagPagingData = tagPagingDataOf(emptyList()))
+        val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(tag(title = FIRST_TAG_TITLE))))
+        val emptyTagPagingFlow = MutableStateFlow(tagPagingDataOf(emptyList()))
+        var isEmpty by mutableStateOf(false)
+        setSwitchingContent { if (isEmpty) emptyTagPagingFlow else tagPagingFlow }
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertExists()
+        val textListWithTag = displayedTextList()
+
+        isEmpty = true
+        composeRule.waitUntil(timeoutMillis = TAG_UPDATE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(FIRST_TAG_TITLE).fetchSemanticsNodes().isEmpty()
+        }
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
+        displayedTextList() shouldBe textListWithTag - FIRST_TAG_TITLE
     }
 
     @Test

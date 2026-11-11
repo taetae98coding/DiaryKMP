@@ -21,6 +21,8 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
@@ -29,6 +31,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePicke
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_SEARCH_EMPTY_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_SEARCH_EMPTY_TITLE
+import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TAG_ADD
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_SET_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_UNSET_DESCRIPTION
@@ -44,9 +47,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshingTagPagingDat
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPickerList
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -369,6 +374,52 @@ class MemoAddScreenTagPickerOpenTest {
 
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
         tagAddCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-2a50e362-551c-4bfc-a9f1-b648e2c3d532 태그 조회 기능이 실패해도 추가 항목이 목록을 연다`() {
+        val pageTagUseCase = mockk<PageTagUseCase>()
+        every { pageTagUseCase(parameter = any()) } returns MutableStateFlow(Result.failure(IllegalStateException("page failed")))
+        val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+        every { getSelectedTagUseCase(parameter = any()) } returns MutableStateFlow(Result.success(emptyList()))
+        var tagAddCount = 0
+        setMemoAddScreen(
+            viewModels =
+                screenTestRealViewModel().copy(
+                    tagViewModel =
+                        MemoAddTagViewModel(
+                            initialPrimaryTagId = null,
+                            pageTagUseCase = pageTagUseCase,
+                            getSelectedTagUseCase = getSelectedTagUseCase,
+                        ),
+                ),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+        tagAddCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-ec1e3b41-50f1-4163-ac7c-fa73a23f2f0a 처음 불러오지 못한 채 연 목록에는 오류 안내나 재시도 동작이 없다`() {
+        setMemoAddScreen(viewModels = screenTestRealViewModel(tagPagingDataFlow = MutableStateFlow(refreshFailedTagPagingData())))
+
+        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+        // 오류 안내나 재시도 항목이 없으므로 목록 영역에는 아무 항목도 없다.
+        composeRule
+            .tagPickerList()
+            .fetchSemanticsNode()
+            .children
+            .shouldBeEmpty()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
     }
 
     @Test

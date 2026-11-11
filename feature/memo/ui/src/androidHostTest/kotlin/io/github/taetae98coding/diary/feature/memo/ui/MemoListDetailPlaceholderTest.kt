@@ -18,6 +18,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -81,15 +82,17 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -131,7 +134,6 @@ class MemoListDetailPlaceholderTest {
         resetAndroidUiDispatcher()
     }
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -222,6 +224,11 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
+    fun `TC-4e6f850c-a948-4ea4-88d7-24d1166ad321 검색에 다녀와도 선택 전 메모 추가의 입력과 선택이 남는다`() {
+        assertPlaceholderRetained(route = SearchHomeNavKey(initialType = SearchHomeType.MEMO))
+    }
+
+    @Test
     fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 메모 상세 위에 목록에서 연 메모 추가에서 뒤로가면 목록을 유지하고 보던 메모 상세로 되돌아간다`() {
         val input = placeholderInput()
         val detail = MemoDetailNavKey(id = Arb.kotlinUuid().next())
@@ -309,6 +316,31 @@ class MemoListDetailPlaceholderTest {
         composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertDoesNotExist()
     }
 
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `TC-29bacaef-39bb-4f55-b5c1-1e77f7c44a07 한 영역만 표시되면 목록에서 메모 추가를 실행할 수 있다`() {
+        currentInput = placeholderInput()
+        composeRule.setContent {
+            MemoPlaceholderTestHost {
+                NavDisplay(
+                    backStack = backStack,
+                    sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                    entryProvider =
+                        entryProvider {
+                            memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                        },
+                )
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction()).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(MemoHomeNavKey, MemoAddNavKey())
+    }
+
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
@@ -367,6 +399,7 @@ class MemoListDetailPlaceholderTest {
                                     metadata = ListDetailSceneStrategy.detailPane(sceneKey = MemoHomeNavKey),
                                 ) { Text(text = MEMO_ADD_CONTENT) }
                                 entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
+                                entry<SearchHomeNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<MemoFinishedListNavKey>(metadata = memoFinishedListPaneMetadata()) { Text(text = ROUTE_CONTENT) }
                                 entry<OtherTopLevelNavKey> { Text(text = OTHER_TOP_LEVEL_CONTENT) }
                             },
@@ -379,7 +412,6 @@ class MemoListDetailPlaceholderTest {
 
     @Composable
     private fun MemoPlaceholderTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -408,6 +440,8 @@ class MemoListDetailPlaceholderTest {
             factory { relaxedPlaceMapViewModel() }
             factory { relaxedPlacePickerMapViewModel() }
             factory { relaxedGeminiViewModel() }
+            factory { memoHomeViewModel(storedMemoList = MutableStateFlow(emptyList())) }
+            factory { screenTestSyncViewModel() }
         }
 
     private fun memoHomeViewModel(storedMemoList: MutableStateFlow<List<Memo>>): MemoHomeViewModel {
@@ -490,12 +524,12 @@ class MemoListDetailPlaceholderTest {
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(
-                title = "title-${Arb.string().next()}",
-                description = "description-${Arb.string().next()}",
-                tag = testTag(title = "tag-${Arb.string().next()}"),
-                web = testWeb(title = "web-${Arb.string().next()}"),
-                contact = testContact(name = "contact-${Arb.string().next()}"),
-                place = testPlace(title = "place-${Arb.string().next()}"),
+                title = "title-${Arb.nonBlankString().next()}",
+                description = "description-${Arb.nonBlankString().next()}",
+                tag = testTag(title = "tag-${Arb.nonBlankString().next()}"),
+                web = testWeb(title = "web-${Arb.nonBlankString().next()}"),
+                contact = testContact(name = "contact-${Arb.nonBlankString().next()}"),
+                place = testPlace(title = "place-${Arb.nonBlankString().next()}"),
             )
 
         fun hasRole(role: Role): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, role)

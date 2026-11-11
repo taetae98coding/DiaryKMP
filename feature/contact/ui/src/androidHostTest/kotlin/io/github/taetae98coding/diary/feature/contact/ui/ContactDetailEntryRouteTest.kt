@@ -83,7 +83,6 @@ class ContactDetailEntryRouteTest {
         resetAndroidUiDispatcher()
     }
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -159,7 +158,6 @@ class ContactDetailEntryRouteTest {
         val viewModelModule = viewModelModule(contactId = contactId, memoTitle = memoTitle)
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {
@@ -209,7 +207,7 @@ class ContactDetailEntryRouteTest {
     }
 }
 
-// 연락처 상세로 들어가는 캘린더 홈과 메모 목록 화면을 대신한다. 두 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 연락처 상세로 들어가는 캘린더 홈과 메모 목록 화면을 대신한다. 두 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object CalendarHomeStandInNavKey : ScreenNavKey {
     override val screenName: String
         get() = "CalendarHomeStandIn"

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -10,8 +11,6 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.every
@@ -20,12 +19,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.datetime.LocalDate
 
 class GetSettingHolidayUseCaseTest :
     BehaviorSpec({
         Given("저장된 전체 공휴일과 숨김 key가 있다") {
-            val holidayList = listOf(holiday())
+            val holidayList = listOf(Arb.holiday().next())
             val hiddenKeySet = setOf(holidayList.single().name)
             val useCase =
                 getSettingHolidayUseCase(
@@ -45,11 +43,11 @@ class GetSettingHolidayUseCaseTest :
         }
 
         Given("설정 화면용 공휴일을 계속 조회하고 있다") {
-            val initialHolidayList = listOf(holiday(name = uniqueName(suffix = "initial")))
+            val initialHolidayList = listOf(Arb.holiday().next().copy(name = uniqueName(suffix = "initial")))
             val changedHolidayList =
                 listOf(
-                    holiday(name = uniqueName(suffix = "changed-first")),
-                    holiday(name = uniqueName(suffix = "changed-second")),
+                    Arb.holiday().next().copy(name = uniqueName(suffix = "changed-first")),
+                    Arb.holiday().next().copy(name = uniqueName(suffix = "changed-second")),
                 )
             val holidayFlow = MutableStateFlow(initialHolidayList)
             val useCase =
@@ -74,7 +72,7 @@ class GetSettingHolidayUseCaseTest :
         }
 
         Given("숨기지 않은 공휴일을 설정 화면용으로 계속 조회하고 있다") {
-            val holidayList = listOf(holiday())
+            val holidayList = listOf(Arb.holiday().next())
             val hiddenKeySetFlow = MutableStateFlow<Set<String>>(emptySet())
             val useCase =
                 getSettingHolidayUseCase(
@@ -137,7 +135,7 @@ class GetSettingHolidayUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val useCase =
                 getSettingHolidayUseCase(
-                    holidayFlow = flowOf(listOf(holiday())),
+                    holidayFlow = flowOf(listOf(Arb.holiday().next())),
                     hiddenKeySetFlow = flow { throw failure },
                 )
 
@@ -168,26 +166,9 @@ private fun getSettingHolidayUseCase(
             },
     )
 
-private fun holiday(name: String = Arb.string().next()): Holiday {
-    val start = randomDate()
-
-    return Holiday(
-        name = name,
-        isHoliday = Arb.boolean().next(),
-        dateRange = start..start,
-    )
-}
-
 private fun uniqueName(suffix: String): String = "${Arb.string().next()}-$suffix"
 
 private fun Throwable.shouldHaveRootCause(expected: Throwable) {
     generateSequence(this) { throwable -> throwable.cause }
         .last() shouldBeSameInstanceAs expected
 }
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

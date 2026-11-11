@@ -45,7 +45,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -131,7 +130,7 @@ class RememberAppStateTest {
 
     @Test
     fun `요청 키를 가진 TagAdd 내비게이션 키를 화면 재생성 후 복원한다`() {
-        val navKey = TagAddNavKey(requestKey = Uuid.random())
+        val navKey = TagAddNavKey(requestKey = Arb.kotlinUuid().next())
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var appState: AppState
         restorationTester.setContent {
@@ -198,7 +197,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-0c98d16c-241e-4b8e-a459-6dd782ce11d4 화면 재생성 후 연락처 목록과 함께 놓인 상세 선택을 유지한다`() {
-        val detailNavKey = ContactDetailNavKey(id = Uuid.random())
+        val detailNavKey = ContactDetailNavKey(id = Arb.kotlinUuid().next())
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var appState: AppState
         restorationTester.setContent {
@@ -228,7 +227,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-3702fa15-098d-46a9-a36e-ec1d5b5aa318 시스템이 앱을 정리했다가 다시 만들어도 연락처 목록과 함께 놓인 상세 선택과 뒤로가기 기록을 유지한다`() {
-        val detailNavKey = ContactDetailNavKey(id = Uuid.random())
+        val detailNavKey = ContactDetailNavKey(id = Arb.kotlinUuid().next())
         val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = listOf(ContactHomeNavKey, detailNavKey))
 
         composeRule.runOnIdle {
@@ -241,7 +240,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-99c06fa7-892e-4ac3-ab5c-f159e79473c6 앱이 백그라운드에 다녀와도 연락처 목록과 함께 놓인 상세 선택을 유지한다`() {
-        val detailNavKey = ContactDetailNavKey(id = Uuid.random())
+        val detailNavKey = ContactDetailNavKey(id = Arb.kotlinUuid().next())
         val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = listOf(ContactHomeNavKey, detailNavKey))
 
         composeRule.runOnIdle {
@@ -326,7 +325,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-d5f32641-3fc3-4a11-8d45-cc992296b975 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 태그 목록과 함께 놓인 상세 선택과 뒤로가기 기록을 유지한다`() {
-        val detailNavKey = TagDetailNavKey(id = Uuid.random())
+        val detailNavKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = listOf(detailNavKey))
 
         composeRule.runOnIdle {
@@ -339,7 +338,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-d5f32641-3fc3-4a11-8d45-cc992296b975 앱이 백그라운드에 다녀와도 태그 목록과 함께 놓인 상세 선택을 유지한다`() {
-        val detailNavKey = TagDetailNavKey(id = Uuid.random())
+        val detailNavKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = listOf(detailNavKey))
 
         composeRule.runOnIdle {
@@ -378,7 +377,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-dc4a0691-9da3-49df-915a-2602cf3eb4e4 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 완료된 메모 목록과 함께 놓인 메모 상세 선택과 뒤로가기 기록을 유지한다`() {
-        val pathKeyList = listOf(MemoFinishedListNavKey, MemoDetailNavKey(id = Uuid.random()))
+        val pathKeyList = listOf(MemoFinishedListNavKey, MemoDetailNavKey(id = Arb.kotlinUuid().next()))
         val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
 
         assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
@@ -387,7 +386,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-dc4a0691-9da3-49df-915a-2602cf3eb4e4 앱이 백그라운드에 다녀와도 완료된 메모 목록과 함께 놓인 메모 상세 선택을 유지한다`() {
-        val pathKeyList = listOf(MemoFinishedListNavKey, MemoDetailNavKey(id = Uuid.random()))
+        val pathKeyList = listOf(MemoFinishedListNavKey, MemoDetailNavKey(id = Arb.kotlinUuid().next()))
         val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
 
         assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
@@ -396,7 +395,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-dc8a359a-9028-41d2-8813-a6314372eae2 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 완료된 태그 목록과 함께 놓인 태그 상세 선택과 뒤로가기 기록을 유지한다`() {
-        val pathKeyList = listOf(TagFinishedListNavKey, TagDetailNavKey(id = Uuid.random()))
+        val pathKeyList = listOf(TagFinishedListNavKey, TagDetailNavKey(id = Arb.kotlinUuid().next()))
         val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
 
         assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
@@ -405,7 +404,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-dc8a359a-9028-41d2-8813-a6314372eae2 앱이 백그라운드에 다녀와도 완료된 태그 목록과 함께 놓인 태그 상세 선택을 유지한다`() {
-        val pathKeyList = listOf(TagFinishedListNavKey, TagDetailNavKey(id = Uuid.random()))
+        val pathKeyList = listOf(TagFinishedListNavKey, TagDetailNavKey(id = Arb.kotlinUuid().next()))
         val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
 
         assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
@@ -489,21 +488,21 @@ class RememberAppStateTest {
     }
 
     private fun entityMemoFinishedListPathKeyListCases(): List<List<ScreenNavKey>> {
-        val contactId = Uuid.random()
-        val placeId = Uuid.random()
-        val webId = Uuid.random()
+        val contactId = Arb.kotlinUuid().next()
+        val placeId = Arb.kotlinUuid().next()
+        val webId = Arb.kotlinUuid().next()
 
         return listOf(
-            listOf(ContactHomeNavKey, ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId), MemoDetailNavKey(id = Uuid.random())),
-            listOf(PlaceHomeNavKey, PlaceDetailNavKey(id = placeId), PlaceMemoFinishedListNavKey(placeId = placeId), MemoDetailNavKey(id = Uuid.random())),
-            listOf(WebHomeNavKey, WebDetailNavKey(id = webId), WebMemoFinishedListNavKey(webId = webId), MemoDetailNavKey(id = Uuid.random())),
+            listOf(ContactHomeNavKey, ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId), MemoDetailNavKey(id = Arb.kotlinUuid().next())),
+            listOf(PlaceHomeNavKey, PlaceDetailNavKey(id = placeId), PlaceMemoFinishedListNavKey(placeId = placeId), MemoDetailNavKey(id = Arb.kotlinUuid().next())),
+            listOf(WebHomeNavKey, WebDetailNavKey(id = webId), WebMemoFinishedListNavKey(webId = webId), MemoDetailNavKey(id = Arb.kotlinUuid().next())),
         )
     }
 
     private fun tagMemoFinishedListPathKeyList(): List<ScreenNavKey> {
-        val tagId = Uuid.random()
+        val tagId = Arb.kotlinUuid().next()
 
-        return listOf(TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId), MemoDetailNavKey(id = Uuid.random()))
+        return listOf(TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId), MemoDetailNavKey(id = Arb.kotlinUuid().next()))
     }
 
     private fun restoredAppState(
@@ -550,7 +549,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-6be9adcd-df35-4fb3-886c-8b2b6762a465 시스템이 앱을 정리한 뒤 다시 만들면 상세 영역의 메모 상세와 뒤로가기 기록이 그대로다`() {
-        val detailNavKey = MemoDetailNavKey(id = Uuid.random())
+        val detailNavKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var appState: AppState
         restorationTester.setContent {
@@ -600,22 +599,21 @@ class RememberAppStateTest {
     fun `TC-d7992a4c-6aa1-40e0-8f4f-6bbee4216df3 앱을 종료하고 다시 실행한 뒤 완료된 메모 목록에 다시 진입하면 상세가 선택 전 상태다`() {
         val appState = relaunchableAppState()
 
+        // 다시 진입하는 동작은 목록 화면만 전환 이력에 더하므로(각 화면의 MemoFinishedListNavigationTest),
+        // 종료 전에 열었던 메모 상세가 다시 실행한 앱의 전환 이력에 남지 않는지를 판정한다.
         entityMemoFinishedListPathKeyListCases().forEach { pathKeyList ->
-            val listPathKeyList = pathKeyList.dropLast(1)
             composeRule.runOnIdle {
                 appState().navigateTo(TopLevelNavigation.More)
                 appState().backStack.addAll(pathKeyList)
+            }
+            composeRule.runOnIdle {
+                appState().backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, MoreHomeNavKey) + pathKeyList
             }
 
             relaunch()
 
             composeRule.runOnIdle {
                 appState().backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key)
-                appState().navigateTo(TopLevelNavigation.More)
-                appState().backStack.addAll(listPathKeyList)
-            }
-            composeRule.runOnIdle {
-                appState().backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, MoreHomeNavKey) + listPathKeyList
             }
         }
     }

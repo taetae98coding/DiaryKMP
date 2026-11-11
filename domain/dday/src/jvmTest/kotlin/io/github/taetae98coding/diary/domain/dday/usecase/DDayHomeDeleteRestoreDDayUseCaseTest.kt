@@ -36,7 +36,7 @@ class DDayHomeDeleteRestoreDDayUseCaseTest :
             val restoreUseCase = restoreUseCase(getAccountUseCase(Result.success(account)), requestSyncUseCase, repository, clock(now))
 
             When("목록에서 디데이를 삭제한다") {
-                Then("TC-2a38eccb-d6fd-4c10-b3ba-ef1fb0e3e885 TC-ec3e145c-10e3-4f3f-aa03-52f484fd1b0d 현재 계정의 디데이를 삭제와 고정 시각으로 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-2a38eccb-d6fd-4c10-b3ba-ef1fb0e3e885 TC-ec3e145c-10e3-4f3f-aa03-52f484fd1b0d 현재 계정의 디데이를 삭제와 고정 시각으로 저장한 뒤 동기화를 한 번 요청한다") {
                     val ddayId = Arb.kotlinUuid().next()
 
                     deleteUseCase(parameter = ddayId).shouldBeSuccess(1)
@@ -51,7 +51,7 @@ class DDayHomeDeleteRestoreDDayUseCaseTest :
             }
 
             When("삭제를 실행 취소한다") {
-                Then("TC-ae40f0f7-9272-43b6-9f35-a2098f5e6abb TC-ec3e145c-10e3-4f3f-aa03-52f484fd1b0d 현재 계정의 디데이를 미삭제와 고정 시각으로 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-ae40f0f7-9272-43b6-9f35-a2098f5e6abb TC-ec3e145c-10e3-4f3f-aa03-52f484fd1b0d 현재 계정의 디데이를 미삭제와 고정 시각으로 저장한 뒤 동기화를 한 번 요청한다") {
                     val ddayId = Arb.kotlinUuid().next()
 
                     restoreUseCase(parameter = ddayId).shouldBeSuccess(1)

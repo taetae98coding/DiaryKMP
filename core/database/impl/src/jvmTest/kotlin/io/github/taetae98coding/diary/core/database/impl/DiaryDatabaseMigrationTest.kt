@@ -14,6 +14,8 @@ import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistItemList
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistList
+import io.github.taetae98coding.diary.core.database.impl.dday.datasource.AccountDDayLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.transaction.AccountDDayTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.entitytag.datasource.AccountEntityTagSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
@@ -22,6 +24,7 @@ import io.github.taetae98coding.diary.core.database.impl.qr.transaction.findQrLi
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
+import io.github.taetae98coding.diary.core.testing.dday.localDDay
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -32,6 +35,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
+import kotlinx.coroutines.flow.first
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -76,6 +80,7 @@ class DiaryDatabaseMigrationTest :
             val qr = Arb.localQr(isDeleted = false).next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val checklistItem = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
+            val dday = Arb.localDDay(isDeleted = false).next()
 
             helper.createDatabase(version = 1).use { connection ->
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
@@ -108,6 +113,13 @@ class DiaryDatabaseMigrationTest :
                 database.findChecklistList() shouldBe listOf(checklist)
                 database.findChecklistItemList() shouldBe listOf(checklistItem)
 
+                AccountDDayTransactionImpl(database = database).upsert(
+                    accountId = accountId,
+                    dday = dday,
+                    ddayTagList = listOf(entityTag(entityId = dday.id)),
+                )
+                AccountDDayLocalDataSourceImpl(database = database).find(accountId = accountId, ddayId = dday.id).first() shouldBe dday
+
                 val entityTagTransaction = AccountEntityTagTransactionImpl(database = database)
                 listOf(EntityTagKindLocalEntity.CONTACT, EntityTagKindLocalEntity.MUSIC).forEach { kind ->
                     entityTagTransaction.upsert(
@@ -125,6 +137,7 @@ class DiaryDatabaseMigrationTest :
                     EntityTagKindLocalEntity.CHECKLIST,
                     EntityTagKindLocalEntity.MUSIC,
                     EntityTagKindLocalEntity.QR,
+                    EntityTagKindLocalEntity.DDAY,
                 ).forEach { kind ->
                     entityTagSyncDataSource.readPendingList(accountId = accountId, kind = kind).size shouldBe 1
                 }

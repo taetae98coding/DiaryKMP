@@ -453,6 +453,9 @@ class SyncWorkKindTest :
         }
 
         listOf(
+            PLACE to listOf(TAG),
+            TAG to listOf(DDAY),
+            DDAY to listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST, CHECKLIST_ITEM),
             MUSIC to listOf(TAG, PLACE, WEB, CONTACT),
             MEMO_PLACE to listOf(MEMO_TAG),
             MEMO_WEB to listOf(MEMO_TAG, MEMO_PLACE),

@@ -119,8 +119,6 @@ internal fun ContactDetailScreenTestHost(
     resultEventBus: ResultEventBus = ResultEventBus(),
     content: @Composable () -> Unit,
 ) {
-    // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
-    // 테스트마다 새 소유자를 제공해 이전 테스트의 탭별 ViewModel이 재사용되지 않게 한다.
     val viewModelStoreOwner =
         remember {
             object : ViewModelStoreOwner {

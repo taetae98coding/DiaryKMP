@@ -7,7 +7,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
@@ -35,6 +39,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -64,6 +69,8 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewMo
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
+import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeViewModel
 import io.github.taetae98coding.diary.feature.web.ui.home.testWeb
 import io.github.taetae98coding.diary.feature.web.ui.home.webPagingDataOf
@@ -101,8 +108,9 @@ class WebNavDisplayTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(WebNavDisplayMoreNavKey, WebHomeNavKey)
     private var homeWebList: List<Web> = emptyList()
+    private var memoTitleByWebId: Map<Uuid, String> = emptyMap()
+    private var launchCount by mutableIntStateOf(0)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -145,15 +153,51 @@ class WebNavDisplayTest {
         composeRule.onNode(webCard(webList[POSITION_SCROLL_INDEX])).assertDoesNotExist()
     }
 
-    // 목록 위치는 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
     @Test
     fun `TC-acd256e8-179e-468c-8575-e46609d638f6 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val webList = positionWebList()
-
         setWebNavDisplay(webList = webList)
+        scrollToPositionWeb(webList)
+
+        composeRule.runOnIdle { launchCount += 1 }
+        waitUntilWebIsDisplayed(webList.first())
 
         composeRule.onNode(webCard(webList.first())).assertIsDisplayed()
         composeRule.onNode(webCard(webList[POSITION_SCROLL_INDEX])).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-90d8f866-86e9-4286-9a54-885e416c1536 WebHome이 단독으로 표시된 상태에서 뒤로가면 더보기로 돌아간다`() {
+        setWebNavDisplay(webList = listOf(listedWeb()))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(WebNavDisplayMoreNavKey)
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-2abd8f05-8da5-456b-9ca0-ded1534afe50 상세 대상이 다른 웹 항목으로 바뀌면 메모 탭 목록이 새 웹 항목의 메모로 바뀐다`() {
+        val firstWeb = listedWeb()
+        val secondWeb = listedWeb()
+        memoTitleByWebId = mapOf(firstWeb.id to FIRST_WEB_MEMO_TITLE, secondWeb.id to SECOND_WEB_MEMO_TITLE)
+        setWebNavDisplay(webList = listOf(firstWeb, secondWeb))
+        composeRule.onNode(webCard(firstWeb)).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilTextIsDisplayed(FIRST_WEB_MEMO_TITLE)
+        composeRule.onNodeWithText(SECOND_WEB_MEMO_TITLE).assertDoesNotExist()
+
+        pressBack()
+        composeRule.onNode(webCard(secondWeb)).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilTextIsDisplayed(SECOND_WEB_MEMO_TITLE)
+
+        backStack.last() shouldBe WebDetailNavKey(id = secondWeb.id)
+        composeRule.onNodeWithText(SECOND_WEB_MEMO_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(FIRST_WEB_MEMO_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -244,8 +288,12 @@ class WebNavDisplayTest {
     }
 
     private fun waitUntilWebIsDisplayed(web: Web) {
+        waitUntilTextIsDisplayed(web.detail.title)
+    }
+
+    private fun waitUntilTextIsDisplayed(text: String) {
         composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
-            composeRule.onAllNodesWithText(web.detail.title).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -257,29 +305,10 @@ class WebNavDisplayTest {
     private fun setWebNavDisplay(webList: List<Web>) {
         homeWebList = webList
         composeRule.setContent {
-            WebNavDisplayTestHost {
-                val holder = rememberListDetailPlaceholderStateHolder()
-
-                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                    NavDisplay(
-                        backStack = backStack,
-                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                        entryDecorators =
-                            listOf(
-                                rememberSaveableStateHolderNavEntryDecorator(),
-                                rememberListDetailPlaceholderNavEntryDecorator(holder),
-                            ),
-                        entryProvider =
-                            entryProvider {
-                                entry<WebNavDisplayMoreNavKey> { Text(text = MORE_CONTENT) }
-                                webEntry(backStack = backStack)
-                                entry<SearchHomeNavKey> { Text(text = ROUTE_CONTENT) }
-                                entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
-                                entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
-                                entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
-                                entry<TagDetailNavKey> { Text(text = ROUTE_CONTENT) }
-                            },
-                    )
+            // 앱을 다시 실행하면 이전 실행의 화면 상태가 남지 않으므로, 저장 상태와 화면 상태를 보관하는 객체까지 새로 만드는 구성으로 재현한다.
+            key(launchCount) {
+                WebNavDisplayTestHost {
+                    NavDisplayContent()
                 }
             }
         }
@@ -287,8 +316,34 @@ class WebNavDisplayTest {
     }
 
     @Composable
+    private fun NavDisplayContent() {
+        val holder = rememberListDetailPlaceholderStateHolder()
+
+        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                entryDecorators =
+                    listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberListDetailPlaceholderNavEntryDecorator(holder),
+                    ),
+                entryProvider =
+                    entryProvider {
+                        entry<WebNavDisplayMoreNavKey> { Text(text = MORE_CONTENT) }
+                        webEntry(backStack = backStack)
+                        entry<SearchHomeNavKey> { Text(text = ROUTE_CONTENT) }
+                        entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
+                        entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
+                        entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
+                        entry<TagDetailNavKey> { Text(text = ROUTE_CONTENT) }
+                    },
+            )
+        }
+    }
+
+    @Composable
     private fun WebNavDisplayTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -343,9 +398,10 @@ class WebNavDisplayTest {
                 }
             }
             factory { detailTagScreenTestViewModel() }
-            factory {
+            factory { parameters ->
+                val memoList = listOfNotNull(memoTitleByWebId[parameters.get<Uuid>()]).map { title -> MemoListItem.Content(memo = webMemo(title = title)) }
                 mockk<WebDetailMemoViewModel>(relaxed = true).apply {
-                    every { memoPagingData } returns flowOf(PagingData.empty())
+                    every { memoPagingData } returns flowOf(webMemoPagingData(itemList = memoList))
                     every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns emptyFlow()
                 }
@@ -375,6 +431,8 @@ class WebNavDisplayTest {
         const val DEFAULT_FINISHED_LIST_SUBTITLE = "Finished Memos"
         const val MORE_CONTENT = "MoreContent"
         const val ROUTE_CONTENT = "RouteContent"
+        const val FIRST_WEB_MEMO_TITLE = "WebNavDisplayFirstWebMemo"
+        const val SECOND_WEB_MEMO_TITLE = "WebNavDisplaySecondWebMemo"
         const val DEFAULT_ADD_WEB_DESCRIPTION = "Add web"
         const val DEFAULT_SEARCH_DESCRIPTION = "Search"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
@@ -390,7 +448,7 @@ class WebNavDisplayTest {
     }
 }
 
-// 웹 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 웹 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object WebNavDisplayMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

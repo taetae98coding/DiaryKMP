@@ -24,15 +24,19 @@ struct AddQrIntent: AppIntent {
     )
     var value: String
 
+    @Parameter(title: LocalizedStringResource("Tags to Link", table: "AppIntentCore"))
+    var tags: [TagEntity]?
+
     static var parameterSummary: some ParameterSummary {
         Summary("Add QR code \(\.$title) \(\.$value)", table: "AppIntentQr") {
             \.$qrDescription
+            \.$tags
         }
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<QrEntity> & ProvidesDialog {
         let qrId = try await appAction {
-            try await DiaryQrAppAction.shared.add(title: title, qrDescription: qrDescription, value: value)
+            try await DiaryQrAppAction.shared.add(title: title, qrDescription: qrDescription, value: value, tagIds: (tags ?? []).map(\.id))
         }
         return .result(
             value: try await QrEntityQuery.require(qrId: qrId),
@@ -74,6 +78,7 @@ struct EditQrIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await QrEntityQuery.require(qrId: qr.id)
         let changedCount = try await appAction {
             try await DiaryQrAppAction.shared.update(qrId: qr.id, title: title, qrDescription: qrDescription, value: value)
         }

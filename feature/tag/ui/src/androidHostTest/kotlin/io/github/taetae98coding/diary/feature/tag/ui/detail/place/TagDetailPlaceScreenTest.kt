@@ -9,9 +9,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
@@ -25,6 +29,8 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.placeViewModelRef
 import io.github.taetae98coding.diary.feature.tag.ui.detail.screenTestViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
+import io.github.taetae98coding.diary.feature.tag.ui.detail.syncUiStateFlow
+import io.github.taetae98coding.diary.feature.tag.ui.detail.syncViewModelRef
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
@@ -37,6 +43,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.every
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -170,6 +178,32 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 장소 탭에서 목록을 당기면 동기화를 한 번 요청하고 진행 중임을 표시한다`() {
+        setScreenOnPlaceTab(placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))))
+        composeRule.onNodeWithText(PLACE_TITLE).assertIsDisplayed()
+        every { requireNotNull(syncViewModelRef).refresh() } answers { syncUiStateFlow.value = SyncRefreshUiState(isRefreshing = true) }
+
+        composeRule.refreshableList().performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { requireNotNull(syncViewModelRef).refresh() }
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 장소 탭이 빈 상태여도 당기면 동기화를 한 번 요청하고 진행 중임을 표시한다`() {
+        setScreenOnPlaceTab()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+        every { requireNotNull(syncViewModelRef).refresh() } answers { syncUiStateFlow.value = SyncRefreshUiState(isRefreshing = true) }
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { requireNotNull(syncViewModelRef).refresh() }
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
+    }
+
+    @Test
     fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 다른 탭에 다녀와도 바꿔 둔 보기 모드를 유지한다`() {
         setScreenOnPlaceTab(placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))))
         composeRule.onNodeWithText(PLACE_TITLE).assertIsDisplayed()
@@ -268,5 +302,6 @@ class TagDetailPlaceScreenTest {
         const val DEFAULT_EMPTY_TITLE = "No places linked to this tag"
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add place"
         const val KOREAN_ADD_BUTTON_DESCRIPTION = "장소 추가"
+        const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
     }
 }

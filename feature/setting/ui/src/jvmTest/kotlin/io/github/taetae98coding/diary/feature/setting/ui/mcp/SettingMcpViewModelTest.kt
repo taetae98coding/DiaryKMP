@@ -205,7 +205,7 @@ class SettingMcpViewModelTest : FunSpec() {
             }
         }
 
-        test("저장하는 동안 다시 켜도 한 번만 저장한다") {
+        test("TC-0b949bba-1655-4d43-b70a-7c144c03e480 저장하는 동안 다시 켜도 한 번만 저장한다") {
             runTest(mainDispatcher) {
                 val saving = CompletableDeferred<Result<Unit>>()
                 val enableUseCase = mockk<EnableMcpServerUseCase>()
@@ -232,6 +232,45 @@ class SettingMcpViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 1) { enableUseCase(Unit) }
+            }
+        }
+
+        test("TC-bb4bb6e6-a77e-4b07-8326-69c3cf1117ee 저장이 끝난 뒤 다시 누르면 저장한다") {
+            runTest(mainDispatcher) {
+                val storedEnabled = MutableStateFlow(Result.success(false))
+                val enableUseCase = mockk<EnableMcpServerUseCase>()
+                coEvery { enableUseCase(Unit) } coAnswers {
+                    storedEnabled.value = Result.success(true)
+                    Result.success(Unit)
+                }
+                val disableUseCase = mockk<DisableMcpServerUseCase>()
+                coEvery { disableUseCase(Unit) } coAnswers {
+                    storedEnabled.value = Result.success(false)
+                    Result.success(Unit)
+                }
+                val viewModel =
+                    viewModel(
+                        enabledFlow = storedEnabled,
+                        stateFlow = flowOf(Result.success(McpServerState.Off)),
+                        enableUseCase = enableUseCase,
+                        disableUseCase = disableUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingMcpUiState.Loading
+                    awaitItem() shouldBe SettingMcpUiState.Content(isEnabled = false, serverState = McpServerState.Off)
+
+                    viewModel.changeEnabled(isEnabled = true)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe SettingMcpUiState.Content(isEnabled = true, serverState = McpServerState.Off)
+
+                    viewModel.changeEnabled(isEnabled = false)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe SettingMcpUiState.Content(isEnabled = false, serverState = McpServerState.Off)
+                }
+
+                coVerify(exactly = 1) { enableUseCase(Unit) }
+                coVerify(exactly = 1) { disableUseCase(Unit) }
             }
         }
 

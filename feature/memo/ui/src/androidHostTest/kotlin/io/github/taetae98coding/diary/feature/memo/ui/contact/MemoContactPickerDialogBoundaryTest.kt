@@ -2,7 +2,12 @@ package io.github.taetae98coding.diary.feature.memo.ui.contact
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
@@ -84,6 +89,30 @@ class MemoContactPickerDialogBoundaryTest {
         composeRule.contactDialogNodeWithText(CONTACT_QUERY).assertExists()
         awaitDialogTextCount(text = FIRST_CONTACT_NAME, count = 1)
         awaitDialogTextCount(text = SECOND_CONTACT_NAME, count = 0)
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 화면을 다시 구성한다.
+    @Test
+    fun `TC-fbed4f5d-c640-4c82-955f-2267cb77d739 목록이 열린 채 앱을 종료하고 새로 진입하면 목록이 닫힌 상태로 시작한다`() {
+        val contactList = listOf(testContact(name = FIRST_CONTACT_NAME), testContact(name = SECOND_CONTACT_NAME))
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel = remember { viewModel(contactList = contactList, queryList = mutableListOf<String>().also(requestedQueryList::add)) }
+                ContactPickerDialogHost(viewModel = viewModel)
+            }
+        }
+        openDialogAndSearch()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        dialogState.isVisible shouldBe false
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+
+        composeRule.runOnIdle { dialogState.show() }
+        awaitDialogTextCount(text = SECOND_CONTACT_NAME, count = 1)
+        composeRule.contactDialogSearchField().assert(hasText(""))
     }
 
     @Composable

@@ -8,7 +8,6 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import kotlin.uuid.Uuid
 
-// 질의의 `%`, `_`가 와일드카드로 해석되지 않도록 LIKE 대신 INSTR로 부분 일치를 판정한다.
 @Dao
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 internal interface SearchTagDao {

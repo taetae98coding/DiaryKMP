@@ -23,8 +23,7 @@ class SignOutUseCaseTest :
             When("Diary에서 로그아웃한다") {
                 val result = useCase(parameter = Unit)
 
-                // 로그아웃은 Diary 세션만 다루므로 앱 안 웹 표시 수단의 로그인 정보와 보관한 세션 쿠키에 닿는 경로가 없다.
-                Then("TC-b99d369e-7d38-4b6c-bb80-99d14f627f6f Diary 세션만 지우고 웹 로그인 정보는 지우지 않는다") {
+                Then("로그아웃에 성공하고 Diary 세션에는 지우는 요청만 한다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { sessionRepository.delete() }
                     confirmVerified(sessionRepository)

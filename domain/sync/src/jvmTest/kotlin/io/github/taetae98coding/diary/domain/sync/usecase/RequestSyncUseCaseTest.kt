@@ -136,6 +136,7 @@ class RequestSyncUseCaseTest :
                         "TC-fbf49960-d768-4bea-bc33-740469a525b7",
                         "TC-94764581-fbce-4dbc-9cc0-a28ccf406f27",
                         "TC-448de895-ec55-4a6f-8a8a-e4ca87b5d5f0",
+                        "TC-54110044-b9ea-4ff2-b2c1-29777056471f",
                     ).joinToString(separator = " ", postfix = " 동기화가 요청되지 않는다"),
                 ) {
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)

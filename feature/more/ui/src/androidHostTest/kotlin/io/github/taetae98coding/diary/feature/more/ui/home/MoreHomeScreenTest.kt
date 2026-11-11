@@ -7,6 +7,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
@@ -406,11 +407,26 @@ class MoreHomeScreenTest {
         NON_USER_ACCOUNT_UI_STATES.forEach { uiState ->
             composeRule.runOnIdle { accountUiState.value = uiState }
 
+            clickAccountCard()
             composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION).performClick()
             composeRule.waitForIdle()
         }
 
         navigateCount shouldBe 0
+
+        // 같은 자리를 사용자 상태에서 누르면 Profile 화면으로 이동하므로, 위의 누름이 계정 카드에 닿았음을 확인한다.
+        composeRule.runOnIdle { accountUiState.value = MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL) }
+        clickAccountCard()
+
+        navigateCount shouldBe 1
+    }
+
+    // 프로필 이미지의 오른쪽, 계정 카드 안의 빈 자리를 누른다.
+    private fun clickAccountCard() {
+        composeRule
+            .onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION, useUnmergedTree = true)
+            .performTouchInput { click(Offset(x = width * ACCOUNT_CARD_CLICK_WIDTH_RATIO, y = centerY)) }
+        composeRule.waitForIdle()
     }
 
     @Test
@@ -704,6 +720,7 @@ class MoreHomeScreenTest {
         // 메뉴 격자는 화면에 보이는 항목만 배치하므로, 아래쪽 항목을 누르는 테스트에만 넉넉한 창을 준다.
         private const val MENU_VISIBLE_QUALIFIERS = "w480dp-h1600dp"
 
+        private const val ACCOUNT_CARD_CLICK_WIDTH_RATIO = 1.5f
         private const val DEFAULT_GUEST_LABEL = "Guest"
         private const val DEFAULT_SIGN_IN_LABEL = "Sign in"
         private const val DEFAULT_SIGN_OUT_LABEL = "Sign out"

@@ -4,6 +4,7 @@ import androidx.activity.ComponentDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -244,7 +245,9 @@ class PlaceAddTagAddTest {
     fun `TC-03b0f5b5-7702-4dd1-8d82-3bc38c818593 태그를 추가한 뒤 앱을 종료하고 새로 진입하면 추가한 태그가 자동 선택되지 않는다`() {
         val addedTag = placeTestTag(title = WORK_TAG_TITLE)
         var launchCount by mutableIntStateOf(0)
+        var isInputScreenComposed by mutableStateOf(true)
         var tagAddCount = 0
+        lateinit var resultEventBus: ResultEventBus
         composeRule.setContent {
             key(launchCount) {
                 val tagViewModel =
@@ -254,28 +257,40 @@ class PlaceAddTagAddTest {
                             tagPagingData = MutableStateFlow(loadedTagPagingDataOf(emptyList())),
                         )
                     }
-                PlaceAddScreenTestTheme(resultEventBus = remember { ResultEventBus() }) {
-                    PlaceAddScreen(
-                        addedResultRequestKey = null,
-                        navigateUp = {},
-                        navigateToTagAdd = { tagAddCount += 1 },
-                        navigateToTagDetail = {},
-                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
-                        initialCoordinate = null,
-                        addViewModel = screenTestViewModel(),
-                        searchViewModel = searchScreenTestViewModel(),
-                        tagViewModel = tagViewModel,
-                    )
+                resultEventBus = remember { ResultEventBus() }
+                if (isInputScreenComposed) {
+                    PlaceAddScreenTestTheme(resultEventBus = resultEventBus) {
+                        PlaceAddScreen(
+                            addedResultRequestKey = null,
+                            navigateUp = {},
+                            navigateToTagAdd = { tagAddCount += 1 },
+                            navigateToTagDetail = {},
+                            tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                            initialCoordinate = null,
+                            addViewModel = screenTestViewModel(),
+                            searchViewModel = searchScreenTestViewModel(),
+                            tagViewModel = tagViewModel,
+                        )
+                    }
                 }
             }
         }
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
         composeRule.waitForIdle()
         tagAddCount shouldBe 1
-
-        composeRule.runOnIdle { launchCount += 1 }
+        // TagAdd 화면에 가려진 태그 입력 화면은 구성에서 빠지므로, 화면을 구성에서 뺀 채 추가 결과를 보내 돌아오기 전에 종료한 상태를 만든다.
+        composeRule.runOnIdle { isInputScreenComposed = false }
+        composeRule.waitForIdle()
+        resultEventBus.sendTagAddedResult(id = addedTag.id)
         composeRule.waitForIdle()
 
+        composeRule.runOnIdle {
+            launchCount += 1
+            isInputScreenComposed = true
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).assertExists()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
     }
 

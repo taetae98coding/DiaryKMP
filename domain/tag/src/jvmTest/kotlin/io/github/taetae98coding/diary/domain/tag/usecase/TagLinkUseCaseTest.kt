@@ -74,10 +74,12 @@ class TagLinkUseCaseTest :
                     val fromTagId = Arb.kotlinUuid().next()
                     val toTagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)
+                    val syncUseCase = mockk<RequestSyncUseCase>()
+                    coEvery { syncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
                     val useCase =
                         AddTagLinkUseCase(
                             getAccountUseCase = getAccountUseCase,
-                            requestSyncUseCase = requestSyncUseCase,
+                            requestSyncUseCase = syncUseCase,
                             accountTagLinkRepository = syncRepository,
                             clock = clock,
                         )
@@ -93,8 +95,9 @@ class TagLinkUseCaseTest :
                             isDeleted = false,
                             updatedAt = now,
                         )
-                        requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
+                        syncUseCase(parameter = SyncTrigger.DATA_CHANGED)
                     }
+                    coVerify(exactly = 1) { syncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
 
@@ -128,10 +131,12 @@ class TagLinkUseCaseTest :
                     val fromTagId = Arb.kotlinUuid().next()
                     val toTagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)
+                    val syncUseCase = mockk<RequestSyncUseCase>()
+                    coEvery { syncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
                     val useCase =
                         RemoveTagLinkUseCase(
                             getAccountUseCase = getAccountUseCase,
-                            requestSyncUseCase = requestSyncUseCase,
+                            requestSyncUseCase = syncUseCase,
                             accountTagLinkRepository = syncRepository,
                             clock = clock,
                         )
@@ -147,8 +152,9 @@ class TagLinkUseCaseTest :
                             isDeleted = true,
                             updatedAt = now,
                         )
-                        requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
+                        syncUseCase(parameter = SyncTrigger.DATA_CHANGED)
                     }
+                    coVerify(exactly = 1) { syncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
 

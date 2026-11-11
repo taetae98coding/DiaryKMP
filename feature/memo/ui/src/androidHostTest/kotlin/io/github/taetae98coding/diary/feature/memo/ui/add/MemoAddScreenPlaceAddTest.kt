@@ -96,31 +96,37 @@ class MemoAddScreenPlaceAddTest {
 
     @Test
     fun `TC-ae4dfccd-1c16-4896-829d-d4003b9ea4ce PlaceAdd 화면에서 추가한 장소 여러 개가 돌아왔을 때 모두 선택된다`() {
+        val selectedPlace = testPlace(title = HOME_PLACE_TITLE)
         val firstAddedPlace = testPlace(title = FIRST_ADDED_PLACE_TITLE)
         val secondAddedPlace = testPlace(title = SECOND_ADDED_PLACE_TITLE)
         val resultEventBus = ResultEventBus()
         setMemoAddScreen(
-            viewModels = screenTestRealViewModel(placeList = listOf(firstAddedPlace, secondAddedPlace)),
+            viewModels = screenTestRealViewModel(placeList = listOf(selectedPlace, firstAddedPlace, secondAddedPlace)),
             resultEventBus = resultEventBus,
         )
+        composeRule.selectPlace(title = HOME_PLACE_TITLE)
+        composeRule.onNodeWithText(FIRST_ADDED_PLACE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(SECOND_ADDED_PLACE_TITLE).assertDoesNotExist()
 
         resultEventBus.sendPlaceAddedResult(firstAddedPlace)
         resultEventBus.sendPlaceAddedResult(secondAddedPlace)
         composeRule.waitForIdle()
 
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
         composeRule.onNodeWithText(FIRST_ADDED_PLACE_TITLE).assertExists()
         composeRule.onNodeWithText(SECOND_ADDED_PLACE_TITLE).assertExists()
     }
 
     @Test
     fun `TC-b9375659-81fa-4f2d-8c4d-f89f05ecf182 장소를 하나도 추가하지 않고 돌아오면 선택이 그대로 유지된다`() {
-        val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
+        val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE), testPlace(title = UNSELECTED_PLACE_TITLE))
         var placeAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(placeList = placeList),
             navigateToPlaceAdd = { placeAddCount += 1 },
         )
         composeRule.selectPlace(title = HOME_PLACE_TITLE)
+        composeRule.selectPlace(title = OFFICE_PLACE_TITLE)
 
         composeRule.openPlacePicker()
         composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_PLACE_ADD).performClick()
@@ -128,7 +134,8 @@ class MemoAddScreenPlaceAddTest {
 
         placeAddCount shouldBe 1
         composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
-        composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertExists()
+        composeRule.onNodeWithText(UNSELECTED_PLACE_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -242,5 +249,6 @@ class MemoAddScreenPlaceAddTest {
     private companion object {
         private const val FIRST_ADDED_PLACE_TITLE: String = "MemoPlaceFirstAdded"
         private const val SECOND_ADDED_PLACE_TITLE: String = "MemoPlaceSecondAdded"
+        private const val UNSELECTED_PLACE_TITLE: String = "MemoPlaceUnselected"
     }
 }

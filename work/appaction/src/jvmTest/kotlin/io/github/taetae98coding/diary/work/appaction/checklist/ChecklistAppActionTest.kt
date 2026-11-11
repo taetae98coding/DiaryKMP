@@ -7,6 +7,8 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistItemUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.CheckChecklistItemUseCase
@@ -19,12 +21,20 @@ import io.github.taetae98coding.diary.domain.checklist.usecase.ResetChecklistUse
 import io.github.taetae98coding.diary.domain.checklist.usecase.RestoreChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.UncheckChecklistItemUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.UpdateChecklistUseCase
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
+import io.github.taetae98coding.diary.work.appaction.tag.expected
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -47,9 +57,7 @@ class ChecklistAppActionTest :
         test("목록은 체크한 항목 수와 함께 MCP와 같은 항목을 돌려준다") {
             runTest {
                 val summaryList =
-                    Arb.list(Arb.checklist(), 1..3).next().map { checklist ->
-                        ChecklistSummary(checklist = checklist, checkedCount = Arb.int(0..10).next(), totalCount = Arb.int(10..20).next())
-                    }
+                    Arb.list(Arb.checklistSummary(), 1..3).next()
                 val pageChecklistUseCase = mockk<PageChecklistUseCase>()
                 every { pageChecklistUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(summaryList)))
                 val action = checklistAppActionOf(pageChecklistUseCase)
@@ -60,7 +68,7 @@ class ChecklistAppActionTest :
 
         test("목록은 100개씩 나눠 다음 페이지 위치를 알리고, 그 위치로 다음 페이지를 받는다") {
             runTest {
-                val summaryList = Arb.list(Arb.checklist(), 101..150).next().map { checklist -> ChecklistSummary(checklist = checklist, checkedCount = 0, totalCount = 0) }
+                val summaryList = Arb.list(Arb.checklistSummary(), 101..150).next()
                 val pageChecklistUseCase = mockk<PageChecklistUseCase>()
                 every { pageChecklistUseCase(parameter = Unit) } answers { flowOf(Result.success(PagingData.from(summaryList))) }
                 val action = checklistAppActionOf(pageChecklistUseCase)
@@ -73,15 +81,18 @@ class ChecklistAppActionTest :
             }
         }
 
-        test("체크리스트 하나를 항목 정렬을 담지 않으면 추가순, 담으면 그 정렬의 항목과 함께 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 체크리스트 하나를 고른 정렬의 항목, 연결된 태그와 함께 돌려준다") {
             runTest {
-                val checklist = Arb.checklist().next()
+                val checklist = Arb.checklist().next().copy(isDeleted = false)
                 val itemList = Arb.list(Arb.checklistItem(), 0..3).next()
                 val findChecklistUseCase = mockk<FindChecklistUseCase>()
                 val getChecklistItemUseCase = mockk<GetChecklistItemUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 every { findChecklistUseCase(parameter = checklist.id) } returns flowOf(Result.success(checklist))
                 every { getChecklistItemUseCase(parameter = any()) } returns flowOf(Result.success(itemList))
-                val action = checklistAppActionOf(findChecklistUseCase, getChecklistItemUseCase)
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.CHECKLIST, entityId = checklist.id)) } returns flowOf(Result.success(tagList))
+                val action = checklistAppActionOf(findChecklistUseCase, getChecklistItemUseCase, getEntityTagUseCase)
                 val expected =
                     AppActionChecklistDetail(
                         checklist =
@@ -93,6 +104,7 @@ class ChecklistAppActionTest :
                                 updatedAt = checklist.updatedAt.toString(),
                             ),
                         items = itemList.map { item -> item.expected() },
+                        tags = tagList.map { tag -> tag.expected() },
                     )
 
                 action.get(checklistId = checklist.id.toString(), itemSort = null) shouldBe expected
@@ -105,7 +117,7 @@ class ChecklistAppActionTest :
 
         test("항목 정렬이 고를 수 있는 값이 아니면 고를 수 있는 정렬을 알리며 실패한다") {
             runTest {
-                val checklist = Arb.checklist().next()
+                val checklist = Arb.checklist().next().copy(isDeleted = false)
                 val findChecklistUseCase = mockk<FindChecklistUseCase>()
                 val getChecklistItemUseCase = mockk<GetChecklistItemUseCase>()
                 every { findChecklistUseCase(parameter = checklist.id) } returns flowOf(Result.success(checklist))
@@ -141,8 +153,8 @@ class ChecklistAppActionTest :
                 coEvery { addChecklistUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
                 val action = checklistAppActionOf(addChecklistUseCase)
 
-                action.add(title = title, description = description, items = itemList) shouldBe AppActionId(id = addedId.toString())
-                action.add(title = title, description = null, items = emptyList())
+                action.add(title = title, description = description, items = itemList, tagIds = emptyList()) shouldBe AppActionId(id = addedId.toString())
+                action.add(title = title, description = null, items = emptyList(), tagIds = emptyList())
 
                 coVerify(exactly = 1) {
                     addChecklistUseCase(
@@ -155,7 +167,7 @@ class ChecklistAppActionTest :
 
         test("고칠 값을 담지 않은 항목은 지금 값을 유지하고, 없는 체크리스트는 고친 수 0을 돌려준다") {
             runTest {
-                val checklist = Arb.checklist().next()
+                val checklist = Arb.checklist().next().copy(isDeleted = false)
                 val missingId = Arb.kotlinUuid().next()
                 val description = Arb.string().next()
                 val changedCount = Arb.int(0..1).next()
@@ -207,13 +219,13 @@ class ChecklistAppActionTest :
                 coEvery { checkChecklistItemUseCase(parameter = itemId) } returns Result.success(changedCount)
                 coEvery { uncheckChecklistItemUseCase(parameter = itemId) } returns Result.success(changedCount)
                 coEvery { deleteChecklistItemUseCase(parameter = itemId) } returns Result.success(changedCount)
-                val action = checklistAppActionOf(addChecklistItemUseCase, checkChecklistItemUseCase, uncheckChecklistItemUseCase, deleteChecklistItemUseCase)
+                val action = checklistItemAppActionOf(addChecklistItemUseCase, checkChecklistItemUseCase, uncheckChecklistItemUseCase, deleteChecklistItemUseCase)
                 val expected = AppActionChangedCount(changedCount = changedCount)
 
-                action.itemAdd(checklistId = checklistId.toString(), content = content) shouldBe expected
-                action.itemCheck(itemId = itemId.toString()) shouldBe expected
-                action.itemUncheck(itemId = itemId.toString()) shouldBe expected
-                action.itemDelete(itemId = itemId.toString()) shouldBe expected
+                action.add(checklistId = checklistId.toString(), content = content) shouldBe expected
+                action.check(itemId = itemId.toString()) shouldBe expected
+                action.uncheck(itemId = itemId.toString()) shouldBe expected
+                action.delete(itemId = itemId.toString()) shouldBe expected
             }
         }
 
@@ -221,10 +233,10 @@ class ChecklistAppActionTest :
             runTest {
                 val checkChecklistItemUseCase = mockk<CheckChecklistItemUseCase>()
                 val addChecklistItemUseCase = mockk<AddChecklistItemUseCase>()
-                val action = checklistAppActionOf(checkChecklistItemUseCase, addChecklistItemUseCase)
+                val action = checklistItemAppActionOf(checkChecklistItemUseCase, addChecklistItemUseCase)
 
-                shouldThrow<AppActionException.InvalidArgument> { action.itemCheck(itemId = "not-id") }.message shouldBe "'itemId' must be an id."
-                shouldThrow<AppActionException.InvalidArgument> { action.itemAdd(checklistId = "not-id", content = "content") }.message shouldBe "'checklistId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.check(itemId = "not-id") }.message shouldBe "'itemId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.add(checklistId = "not-id", content = "content") }.message shouldBe "'checklistId' must be an id."
                 coVerify(exactly = 0) { checkChecklistItemUseCase(parameter = any()) }
                 coVerify(exactly = 0) { addChecklistItemUseCase(parameter = any()) }
             }
@@ -237,7 +249,94 @@ class ChecklistAppActionTest :
                 coEvery { addChecklistUseCase(parameter = any()) } returns Result.failure(IllegalStateException(message))
                 val action = checklistAppActionOf(addChecklistUseCase)
 
-                shouldThrow<AppActionException.Failure> { action.add(title = " ", description = null, items = emptyList()) }.message shouldBe "IllegalStateException: $message"
+                shouldThrow<AppActionException.Failure> { action.add(title = " ", description = null, items = emptyList(), tagIds = emptyList()) }.message shouldBe "IllegalStateException: $message"
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 체크리스트의 상세는 없는 체크리스트와 같이 null을 돌려준다") {
+            runTest {
+                val checklist = Arb.checklist().next().copy(isDeleted = true)
+                val findChecklistUseCase = mockk<FindChecklistUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findChecklistUseCase(parameter = checklist.id) } returns flowOf(Result.success(checklist))
+                val action = checklistAppActionOf(findChecklistUseCase, getEntityTagUseCase)
+
+                action.get(checklistId = checklist.id.toString(), itemSort = null) shouldBe null
+                verify(exactly = 0) { getEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddChecklistUseCase.Parameter>()
+                val addUseCase = mockk<AddChecklistUseCase>()
+                coEvery { addUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = checklistAppActionOf(addUseCase)
+
+                action.add(title = Arb.nonBlankString().next(), description = null, items = emptyList(), tagIds = tagIdSet.map { tagId -> tagId.toString() }) shouldBe AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
+        test("추가 요청의 태그 id가 id 형식이 아니면 추가하지 않고 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val addUseCase = mockk<AddChecklistUseCase>()
+                val action = checklistAppActionOf(addUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> { action.add(title = Arb.nonBlankString().next(), description = null, items = emptyList(), tagIds = listOf("tag")) }.message shouldBe "'tagIds' must be an id."
+                coVerify(exactly = 0) { addUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결과 해제는 체크리스트 종류로 요청하고 완료를 돌려준다") {
+            runTest {
+                val checklistId = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                action.add(kind = AppActionEntityTagKind.CHECKLIST, entityId = checklistId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.remove(kind = AppActionEntityTagKind.CHECKLIST, entityId = checklistId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+
+                coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.CHECKLIST, entityId = checklistId, tagId = tagId)) }
+                coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.CHECKLIST, entityId = checklistId, tagId = tagId)) }
+            }
+        }
+
+        test("태그 연결의 id가 id 형식이 아니면 연결하지 않고, 연결이 실패하면 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val message = Arb.nonBlankString().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException(message))
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.CHECKLIST, entityId = "not-id", tagId = Arb.kotlinUuid().next().toString()) }.message shouldBe "'checklistId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.CHECKLIST, entityId = Arb.kotlinUuid().next().toString(), tagId = "tag") }.message shouldBe "'tagId' must be an id."
+                shouldThrow<AppActionException.Failure> {
+                    action.remove(kind = AppActionEntityTagKind.CHECKLIST, entityId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
+                }.message shouldBe "IllegalStateException: $message"
+                coVerify(exactly = 0) { addEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("삭제된 체크리스트도 포함하는 조회는 삭제된 체크리스트를 돌려준다") {
+            runTest {
+                val checklist = Arb.checklist().next().copy(isDeleted = true)
+                val findChecklistUseCase = mockk<FindChecklistUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findChecklistUseCase(parameter = checklist.id) } returns flowOf(Result.success(checklist))
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.CHECKLIST, entityId = checklist.id)) } returns flowOf(Result.success(emptyList()))
+                val getChecklistItemUseCase = mockk<GetChecklistItemUseCase>()
+                every { getChecklistItemUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
+                val action = checklistAppActionOf(findChecklistUseCase, getEntityTagUseCase, getChecklistItemUseCase)
+
+                action.getIncludingDeleted(checklistId = checklist.id.toString(), itemSort = null)?.checklist?.id shouldBe checklist.id.toString()
             }
         }
     })

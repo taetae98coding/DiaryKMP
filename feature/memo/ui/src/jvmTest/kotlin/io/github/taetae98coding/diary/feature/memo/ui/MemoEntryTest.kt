@@ -25,6 +25,8 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
+import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
@@ -32,13 +34,14 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.datetime.LocalDate
-import kotlin.uuid.Uuid
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.atTime
+import kotlinx.datetime.plus
 
 class MemoEntryTest :
     FunSpec({
         test("TC-69618ec9-ff62-4854-acd2-a344b4e97e43 메모 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = MemoAddNavKey()
             val backStackCases =
                 listOf(
@@ -78,7 +81,7 @@ class MemoEntryTest :
         }
 
         test("TC-bc758a5f-a423-4e44-b44d-b2b2486e8884 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = MemoAddNavKey()
             val backStackCases =
                 listOf(
@@ -115,15 +118,25 @@ class MemoEntryTest :
             "TC-e21e272c-e40f-4e9d-aad7-bf5a54dfb035 TC-82555806-07af-4604-9e2c-148db442cb25 TC-e9e30493-4fea-45ac-aa7b-13d43f9f057a " +
                 "메모 목록이나 완료된 메모 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다",
         ) {
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val tagDetailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val tagDetailAddKey = MemoAddNavKey(primaryTagId = tagDetailKey.id)
+            val calendarDateRange = Arb.localDateRange().next()
             val calendarAddKey =
                 MemoAddNavKey(
                     initialDateRange =
                         MemoAddNavKey.InitialDateRange(
-                            start = LocalDate(2026, 8, 3),
-                            endInclusive = LocalDate(2026, 8, 4),
+                            start = calendarDateRange.start,
+                            endInclusive = calendarDateRange.endInclusive,
+                        ),
+                )
+            val timetableStart = Arb.kotlinxLocalDateTime().next()
+            val timetableAddKey =
+                MemoAddNavKey(
+                    initialDateTimeRange =
+                        MemoAddNavKey.InitialDateTimeRange(
+                            start = timetableStart,
+                            endInclusive = timetableStart.date.plus(1, DateTimeUnit.DAY).atTime(timetableStart.time),
                         ),
                 )
             val backStackCases =
@@ -131,6 +144,8 @@ class MemoEntryTest :
                     listOf(OtherTopLevelNavKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, calendarAddKey) to calendarAddKey,
                     listOf(OtherTopLevelNavKey, CalendarTimetableStandInNavKey, detailKey) to detailKey,
+                    listOf(OtherTopLevelNavKey, CalendarTimetableStandInNavKey, timetableAddKey) to timetableAddKey,
+                    listOf(OtherTopLevelNavKey, HolidayHomeStandInNavKey, calendarAddKey) to calendarAddKey,
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, tagDetailAddKey) to tagDetailAddKey,
                 )
@@ -140,10 +155,35 @@ class MemoEntryTest :
             }
         }
 
+        test("TC-21a264da-384a-4a43-934d-521849f5c051 단독으로 연 메모 상세와 그 위의 화면은 목록 바로 위에서도 목록·상세 배치에 참여하지 않는다") {
+            val standaloneKey = MemoDetailNavKey(id = Arb.kotlinUuid().next(), isStandalone = true)
+            val listSelectedKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+            val copiedKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+            val listKeyList =
+                listOf(
+                    MemoHomeNavKey,
+                    MemoFinishedListNavKey,
+                    TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()),
+                    ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()),
+                    PlaceMemoFinishedListNavKey(placeId = Arb.kotlinUuid().next()),
+                    WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()),
+                )
+
+            listKeyList.forEach { listKey ->
+                metadataOf(backStack = listOf(OtherTopLevelNavKey, listKey, standaloneKey), key = standaloneKey).shouldBeEmpty()
+                metadataOf(backStack = listOf(OtherTopLevelNavKey, listKey, standaloneKey, copiedKey), key = copiedKey).shouldBeEmpty()
+
+                val backStack = listOf(OtherTopLevelNavKey, listKey, listSelectedKey, standaloneKey)
+
+                metadataOf(backStack = backStack, key = standaloneKey).shouldBeEmpty()
+                metadataOf(backStack = backStack, key = listSelectedKey).keys shouldBe detailPaneMetadataKeys
+            }
+        }
+
         test("TC-5d4035f7-5d0b-4a78-9d62-bc8832d86406 TagMemoFinishedList에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = tagId)
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val backStackCases =
                 listOf(
                     listOf(OtherTopLevelNavKey, tagMemoFinishedListKey, detailKey) to detailKey,
@@ -161,10 +201,10 @@ class MemoEntryTest :
         }
 
         test("TC-82555806-07af-4604-9e2c-148db442cb25 상세 pane의 scene 키는 진입한 목록 pane마다 다르다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = tagId)
-            val otherTagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Uuid.random())
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val otherTagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = MemoAddNavKey()
             val sceneKeyCases =
                 listOf(
@@ -177,6 +217,7 @@ class MemoEntryTest :
                         tagMemoFinishedListKey,
                     // TagDetail 메모 탭에서 진입한 상세는 목록·상세 배치에 참여하지 않는다.
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, TagDetailNavKey(id = tagId), detailKey) to null,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, detailKey) to MemoFinishedListNavKey,
                 )
 
             sceneKeyCases.forEach { (backStack, expectedSceneKey) ->
@@ -185,7 +226,7 @@ class MemoEntryTest :
         }
 
         test("TC-69de256a-e21f-4869-9aee-af7ea3d53bd0 항목 완료 메모 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
 
             entityFinishedListCases().forEach { (entityDetailKey, finishedListKey) ->
                 val backStackCases =
@@ -201,9 +242,9 @@ class MemoEntryTest :
         }
 
         test("TC-b0eb45ed-3fc5-4394-880d-24592d42bb5e 항목 완료 메모 목록에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = MemoAddNavKey()
-            val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Uuid.random())
+            val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next())
 
             entityFinishedListCases().forEach { (entityDetailKey, finishedListKey) ->
                 val detailFromMemoTab = listOf(OtherTopLevelNavKey, entityDetailKey, detailKey)
@@ -251,6 +292,14 @@ class MemoEntryTest :
                 backStack.toList() shouldBe listOf(OtherTopLevelNavKey, MemoHomeNavKey) + homeDetailList + MemoFinishedListNavKey + MemoDetailNavKey(id = selectedId)
                 backStack.memoDetailPaneSceneKey(key = backStack.last()) shouldBe MemoFinishedListNavKey
                 metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
+
+                val nextSelectedId = Arb.kotlinUuid().next()
+
+                backStack.navigateToMemoDetail(nextSelectedId)
+
+                backStack.toList() shouldBe listOf(OtherTopLevelNavKey, MemoHomeNavKey) + homeDetailList + MemoFinishedListNavKey + MemoDetailNavKey(id = nextSelectedId)
+                backStack.memoDetailPaneSceneKey(key = backStack.last()) shouldBe MemoFinishedListNavKey
+                metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
             }
         }
 
@@ -292,7 +341,7 @@ class MemoEntryTest :
         }
 
         test("목록·상세 배치에 참여하지 않는 상세 화면에는 scene 키가 없다") {
-            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = listOf(OtherTopLevelNavKey, detailKey)
 
             backStack.memoDetailPaneSceneKey(key = detailKey).shouldBeNull()
@@ -333,10 +382,15 @@ private data object CalendarTimetableStandInNavKey : ScreenNavKey {
         get() = "CalendarTimetableStandIn"
 }
 
+private data object HolidayHomeStandInNavKey : ScreenNavKey {
+    override val screenName: String
+        get() = "HolidayHomeStandIn"
+}
+
 private fun entityFinishedListCases(): List<Pair<ScreenNavKey, ScreenNavKey>> {
-    val contactId = Uuid.random()
-    val placeId = Uuid.random()
-    val webId = Uuid.random()
+    val contactId = Arb.kotlinUuid().next()
+    val placeId = Arb.kotlinUuid().next()
+    val webId = Arb.kotlinUuid().next()
 
     return listOf(
         ContactDetailNavKey(id = contactId) to ContactMemoFinishedListNavKey(contactId = contactId),

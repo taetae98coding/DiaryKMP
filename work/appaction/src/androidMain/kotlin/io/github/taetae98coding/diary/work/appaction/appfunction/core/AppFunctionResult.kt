@@ -11,7 +11,7 @@ public data class AppFunctionId(
     val id: String,
 )
 
-/** How many items were changed. 0 means the item does not exist or was already in the requested state. */
+/** How many items were changed. 0 means no item matched the request, for example because the item does not exist. */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 public data class AppFunctionChangedCount(
     /** Number of changed items. */

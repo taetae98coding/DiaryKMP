@@ -33,10 +33,10 @@ import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.qr.QrListEffect
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WebListEffect
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
 import io.github.taetae98coding.diary.feature.tag.ui.tagContact
 import io.github.taetae98coding.diary.feature.tag.ui.tagDDay
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
@@ -47,6 +47,8 @@ import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tagQr
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -71,7 +73,7 @@ class TagDetailReturnTest {
     private val web = tagWeb(title = WEB_TITLE)
     private val place = tagPlace(title = PLACE_TITLE)
     private val contact = tagContact(name = CONTACT_TITLE)
-    private val checklist = tagChecklist(title = CHECKLIST_TITLE)
+    private val checklist = Arb.checklistSummary(title = CHECKLIST_TITLE).next()
     private val music = tagMusic(title = MUSIC_TITLE)
     private val qr = tagQr(title = QR_TITLE)
     private val dday = tagDDay(title = DDAY_TITLE)

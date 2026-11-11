@@ -113,6 +113,41 @@ class SupabaseAuthImplTest :
             client.close()
         }
 
+        test("TC-dff9f5e6-6bd3-4396-8de3-c99bde0dc40b TC-cf52b49b-0abb-4be5-9993-df80f5a89d42 사용자 정보를 다시 받아 저장된 사용자 정보를 바꾼다") {
+            val storedUser = user(profileImage = "https://example.com/stored.jpg")
+            val storedSession = session(storedUser, token = Arb.kotlinUuid().next().toString())
+            val retrievedProfileImage = "https://example.com/${Arb.kotlinUuid().next()}.jpg"
+            val retrievedUser =
+                storedUser
+                    .copy(email = "retrieved-${Arb.kotlinUuid().next()}@example.com")
+                    .withProfileImage(retrievedProfileImage)
+            val engine = MockEngine { respondJson(content = Json.encodeToString(UserInfo.serializer(), retrievedUser)) }
+            val sessionManager = MemorySessionManager()
+            val client = createClient(sessionManager = sessionManager, engine = engine, autoSaveToStorage = true)
+            client.auth.awaitInitialization()
+            client.auth.importSession(storedSession, autoRefresh = false)
+            val supabaseAuth = SupabaseAuthImpl(client)
+
+            supabaseAuth.getUserFlow().test {
+                awaitItem()?.email shouldBe storedUser.email
+
+                supabaseAuth.retrieveUserForCurrentSession()
+
+                val user = expectMostRecentItem()
+                user?.email shouldBe retrievedUser.email
+                user?.profileImage shouldBe retrievedProfileImage
+            }
+
+            engine.requestHistory shouldHaveSize 1
+            engine.requestHistory
+                .single()
+                .url.encodedPath shouldBe "/auth/v1/user"
+            engine.requestHistory.single().headers[HttpHeaders.Authorization] shouldBe "Bearer ${storedSession.accessToken}"
+            sessionManager.loadSessionOrNull()?.user?.email shouldBe retrievedUser.email
+
+            client.close()
+        }
+
         test("TC-06635dcf-adbd-4d7c-ae3b-c510d3a97ee4 자동 갱신이 멈춘 세션을 한 번 갱신하고 자동 갱신 없이 설정한다") {
             val storedSession = session(user(profileImage = "https://example.com/stored.jpg"), token = Arb.kotlinUuid().next().toString())
             val refreshedSession = storedSession.copy(accessToken = "access-${Arb.kotlinUuid().next()}", refreshToken = "refresh-${Arb.kotlinUuid().next()}")
@@ -130,25 +165,42 @@ class SupabaseAuthImplTest :
             client.close()
         }
 
-        test("TC-4aec434b-fd3a-4df7-9881-046bf3795d1e 갱신 정보가 폐기되었다고 응답하면 세션을 지운다") {
-            val storedSession = session(user(profileImage = "https://example.com/stored.jpg"), token = Arb.kotlinUuid().next().toString())
-            val engine = MockEngine { respondJson(content = INVALID_GRANT, status = HttpStatusCode.BadRequest) }
-            val sessionManager = MemorySessionManager(storedSession)
-            val client = createClient(sessionManager = sessionManager, engine = engine)
+        listOf(
+            "refresh_token_not_found" to HttpStatusCode.BadRequest,
+            "refresh_token_already_used" to HttpStatusCode.BadRequest,
+            "validation_failed" to HttpStatusCode.BadRequest,
+            "session_not_found" to HttpStatusCode.BadRequest,
+            "session_expired" to HttpStatusCode.BadRequest,
+            "user_not_found" to HttpStatusCode.NotFound,
+        ).forEach { (errorCode, status) ->
+            test("TC-4aec434b-fd3a-4df7-9881-046bf3795d1e 폐기 응답($errorCode)이면 세션을 지운다") {
+                val storedSession = session(user(profileImage = "https://example.com/stored.jpg"), token = Arb.kotlinUuid().next().toString())
+                val engine = MockEngine { respondError(status = status, errorCode = errorCode) }
+                val sessionManager = MemorySessionManager(storedSession)
+                val client = createClient(sessionManager = sessionManager, engine = engine)
 
-            SupabaseAuthImpl(client).refreshStoppedSession()
+                SupabaseAuthImpl(client).refreshStoppedSession()
 
-            engine.requestHistory shouldHaveSize 1
-            sessionManager.loadSessionOrNull().shouldBeNull()
-            client.auth.sessionStatus.value
-                .shouldBeInstanceOf<SessionStatus.NotAuthenticated>()
+                engine.requestHistory shouldHaveSize 1
+                sessionManager.loadSessionOrNull().shouldBeNull()
+                client.auth.sessionStatus.value
+                    .shouldBeInstanceOf<SessionStatus.NotAuthenticated>()
 
-            client.close()
+                client.close()
+            }
         }
 
         listOf<Pair<String, MockRequestHandler>>(
             "네트워크 연결 실패" to { throw IOException("연결 실패") },
             "서버의 일시적인 오류 응답" to { respondJson(content = "{}", status = HttpStatusCode.ServiceUnavailable) },
+            "요청이 너무 많음" to { respondError(status = HttpStatusCode.TooManyRequests, errorCode = "over_request_rate_limit") },
+            "갱신 겹침" to { respondError(status = HttpStatusCode.Conflict, errorCode = "conflict") },
+            "사용자 정지" to { respondError(status = HttpStatusCode.BadRequest, errorCode = "user_banned") },
+            "처리 시간 초과" to { respondError(status = HttpStatusCode.GatewayTimeout, errorCode = "request_timeout") },
+            "목록에 없는 종류" to { respondError(status = HttpStatusCode.BadRequest, errorCode = "bad_json") },
+            "모르는 종류" to { respondError(status = HttpStatusCode.BadRequest, errorCode = "code-${Arb.kotlinUuid().next()}") },
+            "종류 없는 응답" to { respondJson(content = "{}", status = HttpStatusCode.BadRequest) },
+            "읽을 수 없는 응답" to { respond(content = "<html></html>", status = HttpStatusCode.TooManyRequests) },
         ).forEach { (failure, handler) ->
             test("TC-c97615f3-df76-4736-97cf-66e30f37908d 갱신 실패($failure) 시 세션을 남긴 채 실패를 알린다") {
                 val storedSession = session(user(profileImage = "https://example.com/stored.jpg"), token = Arb.kotlinUuid().next().toString())
@@ -197,8 +249,6 @@ class SupabaseAuthImplTest :
         }
     }) {
     companion object {
-        private const val INVALID_GRANT = """{"code":400,"error_code":"refresh_token_not_found","msg":"Invalid Refresh Token: Refresh Token Not Found"}"""
-
         // 저장소에 쓰기 전에 상태를 먼저 알리는 순서를 테스트에서 그대로 만들기 위해, 자동 저장을 끄고
         // 저장소의 세션과 알림의 세션을 서로 다르게 둔다.
         private fun createClient(
@@ -240,6 +290,22 @@ class SupabaseAuthImplTest :
             )
 
         private fun UserSession.toTokenResponse(): String = Json.encodeToString(UserSession.serializer(), this)
+
+        private fun MockRequestHandleScope.respondError(
+            status: HttpStatusCode,
+            errorCode: String,
+        ): HttpResponseData =
+            respondJson(
+                content =
+                    JsonObject(
+                        mapOf(
+                            "code" to JsonPrimitive(status.value),
+                            "error_code" to JsonPrimitive(errorCode),
+                            "msg" to JsonPrimitive(status.description),
+                        ),
+                    ).toString(),
+                status = status,
+            )
 
         private fun MockRequestHandleScope.respondJson(
             content: String,

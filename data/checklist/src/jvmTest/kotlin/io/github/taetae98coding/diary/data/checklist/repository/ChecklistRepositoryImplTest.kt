@@ -47,7 +47,7 @@ import kotlin.uuid.Uuid
 
 class ChecklistRepositoryImplTest :
     FunSpec({
-        test("TC-a388b486-45c1-4ad0-bec2-ea1d46d75d3b TC-6850ed94-74b1-4a12-a215-a2f09c22f682 고른 태그와의 연결을 새 체크리스트와 같은 저장 작업에 담는다") {
+        test("TC-a388b486-45c1-4ad0-bec2-ea1d46d75d3b 고른 태그와의 연결을 새 체크리스트와 같은 저장 작업에 담는다") {
             val account = Arb.accountUser().next()
             val checklist = Arb.checklist(isDeleted = false).next()
             val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
@@ -127,6 +127,20 @@ class ChecklistRepositoryImplTest :
                 AccountChecklistItemRepositoryImpl(accountChecklistItemLocalDataSource = dataSource, accountChecklistItemTransaction = mockk())
 
             repository.get(account = account, checklistId = checklistId, sort = ChecklistItemSort.UNCHECKED_FIRST).first() shouldBe itemList
+        }
+
+        test("체크 항목 하나를 삭제 여부와 관계없이 도메인 모델로 바꿔 전달하고, 없으면 없음을 전달한다") {
+            val account = Arb.accountUser().next()
+            val item = Arb.checklistItem(isChecked = true, isDeleted = true).next()
+            val missingId = Arb.kotlinUuid().next()
+            val dataSource = mockk<AccountChecklistItemLocalDataSource>()
+            every { dataSource.find(accountId = account.id, itemId = item.id) } returns flowOf(item.toLocal())
+            every { dataSource.find(accountId = account.id, itemId = missingId) } returns flowOf(null)
+            val repository =
+                AccountChecklistItemRepositoryImpl(accountChecklistItemLocalDataSource = dataSource, accountChecklistItemTransaction = mockk())
+
+            repository.find(account = account, itemId = item.id).first() shouldBe item
+            repository.find(account = account, itemId = missingId).first().shouldBeNull()
         }
 
         test("체크 항목 변경을 현재 계정 식별자로 기기 저장에 넘기고 바뀐 개수를 전달한다") {

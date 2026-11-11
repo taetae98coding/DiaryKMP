@@ -407,10 +407,11 @@ class SyncWorkEntityTagTest :
                 }
             }
 
-            test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 $label 만 조회한다") {
+            test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 $label 만 업로드한다") {
                 val accountId = Arb.kotlinUuid().next()
                 val otherAccountId = Arb.kotlinUuid().next()
-                val context = case.context(accountId = accountId)
+                val entityTagList = entityTags(size = 1)
+                val context = case.context(accountId = accountId, entityTagList = entityTagList)
                 coEvery {
                     context.entityTagSyncLocalDataSource.readPendingList(accountId = otherAccountId, kind = case.kind)
                 } returns entityTags(size = 1)
@@ -418,12 +419,15 @@ class SyncWorkEntityTagTest :
                 context.subject.doWork()
 
                 coVerify(exactly = 1) {
-                    context.entityTagSyncLocalDataSource.readPendingList(accountId = accountId, kind = case.kind)
+                    context.entityTagRemoteDataSource.push(
+                        kind = case.remoteKind,
+                        entityTagList = entityTagList.map { entityTag -> entityTag.toRemote() },
+                    )
                 }
+                coVerify(exactly = 1) { context.entityTagRemoteDataSource.push(any(), any()) }
                 coVerify(exactly = 0) {
                     context.entityTagSyncLocalDataSource.readPendingList(accountId = otherAccountId, kind = any())
                 }
-                coVerify(exactly = 0) { context.entityTagRemoteDataSource.push(any(), any()) }
             }
         }
     })

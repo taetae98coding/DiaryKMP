@@ -292,7 +292,6 @@ class EntityMemoFinishedListDetailNavigationTest {
         val viewModelModule = viewModelModule(copiedId = copiedId)
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {

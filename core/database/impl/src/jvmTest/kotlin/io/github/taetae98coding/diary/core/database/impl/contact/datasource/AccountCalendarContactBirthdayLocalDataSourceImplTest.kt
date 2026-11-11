@@ -497,6 +497,51 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 }
         }
 
+        test("TC-62e3c7a7-ecb2-4a60-b1d4-3220dedb6b39 이름이 같은 연락처의 알게 된 경로가 바뀌면 다시 조회하지 않아도 구분 경로가 바뀐다") {
+            val sameName = "name-${Arb.nonBlankString().next()}-name"
+            val howWeMet = "how-${Arb.nonBlankString().next()}-met"
+            val changedHowWeMet = "changed-${Arb.nonBlankString().next()}-met"
+            val accountId = Arb.kotlinUuid().next()
+            val target = contact(birthday = LocalDate(1990, 7, 8), name = sameName).withHowWeMet(howWeMet)
+            upsert(accountId, target, contact(birthday = null, name = sameName))
+
+            dataSource
+                .get(accountId = accountId, dateRange = RANGE_START..RANGE_END_INCLUSIVE)
+                .map { list -> list.single().let { birthday -> birthday.contactId to birthday.nameQualifier } }
+                .distinctUntilChanged()
+                .test {
+                    awaitItem() shouldBe (target.id to howWeMet)
+
+                    upsert(accountId, target.withHowWeMet(changedHowWeMet))
+                    awaitItem() shouldBe (target.id to changedHowWeMet)
+                }
+        }
+
+        test("TC-501c5a81-f987-48f1-9898-ebe471897dcc 이름이 같던 다른 연락처가 없어지면 다시 조회하지 않아도 구분 경로가 빠진다") {
+            val sameName = "name-${Arb.nonBlankString().next()}-name"
+            val howWeMet = "how-${Arb.nonBlankString().next()}-met"
+            listOf<(ContactLocalEntity) -> ContactLocalEntity>(
+                { other -> other.copy(isDeleted = true) },
+                { other -> other.withName("other-$sameName") },
+            ).forEach { change ->
+                val accountId = Arb.kotlinUuid().next()
+                val target = contact(birthday = LocalDate(1990, 7, 8), name = sameName).withHowWeMet(howWeMet)
+                val other = contact(birthday = null, name = sameName)
+                upsert(accountId, target, other)
+
+                dataSource
+                    .get(accountId = accountId, dateRange = RANGE_START..RANGE_END_INCLUSIVE)
+                    .map { list -> list.single().let { birthday -> birthday.contactId to birthday.nameQualifier } }
+                    .distinctUntilChanged()
+                    .test {
+                        awaitItem() shouldBe (target.id to howWeMet)
+
+                        upsert(accountId, change(other))
+                        awaitItem() shouldBe (target.id to "")
+                    }
+            }
+        }
+
         test("TC-d55b6405-24dd-4df8-9c92-0a17711bd9fe 음력 생일에도 이름이 같은 연락처의 구분 경로를 함께 담는다") {
             val sameName = "name-${Arb.nonBlankString().next()}-name"
             val howWeMet = "how-${Arb.nonBlankString().next()}-met"

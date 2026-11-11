@@ -15,6 +15,7 @@ struct DeleteDDayIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await DDayEntityQuery.require(ddayId: dday.id)
         let changedCount = try await appAction { try await DiaryDDayAppAction.shared.delete(ddayId: dday.id) }
         return .result(
             value: Int(changedCount),
@@ -58,7 +59,9 @@ struct LinkTagToDDayIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        _ = try await appAction { try await DiaryDDayAppAction.shared.tagAdd(ddayId: dday.id, tagId: tag.id) }
+        _ = try await DDayEntityQuery.require(ddayId: dday.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.add(kind: .DDAY, entityId: dday.id, tagId: tag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
 }
@@ -78,7 +81,9 @@ struct UnlinkTagFromDDayIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        _ = try await appAction { try await DiaryDDayAppAction.shared.tagRemove(ddayId: dday.id, tagId: tag.id) }
+        _ = try await DDayEntityQuery.require(ddayId: dday.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.remove(kind: .DDAY, entityId: dday.id, tagId: tag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }
 }

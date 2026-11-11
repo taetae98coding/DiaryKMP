@@ -29,7 +29,7 @@ internal fun List<ScreenNavKey>.tagDetailContentKey(key: TagDetailNavKey): Any {
     val index = entryIndexOf(key)
 
     // 태그 목록과 완료된 태그 목록의 배치가 전환 이력에 함께 놓일 수 있으므로, 목록마다 다른 내용 키를 둔다.
-    return when (getOrNull(index - 1)) {
+    return when (getOrNull(index - 1).takeUnless { key.isStandalone }) {
         TagHomeNavKey -> LIST_SELECTED_TAG_DETAIL_CONTENT_KEY
         TagFinishedListNavKey -> FINISHED_LIST_SELECTED_TAG_DETAIL_CONTENT_KEY
         else -> "$key@$index"
@@ -45,7 +45,7 @@ internal fun List<ScreenNavKey>.tagDetailPaneSceneKey(key: ScreenNavKey): Screen
         ?.takeIf { listKey -> listKey == TagHomeNavKey || listKey == TagFinishedListNavKey }
 }
 
-private fun ScreenNavKey?.isTagDetailPaneKey(): Boolean = this is TagDetailNavKey || this is TagAddNavKey
+private fun ScreenNavKey?.isTagDetailPaneKey(): Boolean = (this is TagDetailNavKey && !isStandalone) || this is TagAddNavKey
 
 private const val LIST_SELECTED_TAG_DETAIL_CONTENT_KEY: String = "TagDetailNavKey(listSelected)"
 

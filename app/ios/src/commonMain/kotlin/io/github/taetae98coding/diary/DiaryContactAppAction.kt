@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactBirthdayCalendarValue
-import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactDetail
+import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactDetailWithTags
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactUpdateInput
 import io.github.taetae98coding.diary.work.appaction.contact.ContactAppAction
 import io.github.taetae98coding.diary.work.appaction.contact.appActionContactBirthdayArgument
@@ -36,11 +36,7 @@ public data class DiaryAppActionContactDetail(
     val isFavorite: Boolean,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
-)
-
-public data class DiaryAppActionContactMemoPage(
-    val items: List<DiaryAppActionMemo>,
-    val nextPageNumber: Int?,
+    val tags: List<DiaryAppActionTag>,
 )
 
 public object DiaryContactAppAction {
@@ -61,25 +57,7 @@ public object DiaryContactAppAction {
 
     public suspend fun get(contactId: String): DiaryAppActionContactDetail? = contactAppAction().get(contactId = contactId)?.toDiary()
 
-    public suspend fun memoList(
-        contactId: String,
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionContactMemoPage {
-        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> contactAppAction().memoList(contactId = contactId, sort = sort.toSortValue(), cursor = cursor) }
-
-        return DiaryAppActionContactMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
-    }
-
-    public suspend fun memoFinishedList(
-        contactId: String,
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionContactMemoPage {
-        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> contactAppAction().memoFinishedList(contactId = contactId, sort = sort.toSortValue(), cursor = cursor) }
-
-        return DiaryAppActionContactMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
-    }
+    public suspend fun getIncludingDeleted(contactId: String): DiaryAppActionContactDetail? = contactAppAction().getIncludingDeleted(contactId = contactId)?.toDiary()
 
     public suspend fun add(
         name: String,
@@ -92,6 +70,7 @@ public object DiaryContactAppAction {
         hometown: String?,
         howWeMet: String?,
         phoneNumbers: List<String>,
+        tagIds: List<String>,
     ): String =
         contactAppAction()
             .add(
@@ -105,6 +84,7 @@ public object DiaryContactAppAction {
                 hometown = hometown,
                 howWeMet = howWeMet,
                 phoneNumbers = phoneNumbers,
+                tagIds = tagIds,
             ).id
 
     public suspend fun update(
@@ -170,20 +150,21 @@ private fun String.toDiaryBirthdayCalendar(): DiaryAppActionContactBirthdayCalen
         else -> null
     }
 
-private fun AppActionContactDetail.toDiary(): DiaryAppActionContactDetail =
+private fun AppActionContactDetailWithTags.toDiary(): DiaryAppActionContactDetail =
     DiaryAppActionContactDetail(
-        id = id,
-        name = name,
-        contactDescription = description,
-        heightCm = heightCm,
-        footSizeMm = footSizeMm,
-        birthdayEpochMillis = birthday?.let { birthday -> appActionContactBirthdayEpochMillis(date = birthday.date) },
-        birthdayCalendar = birthday?.calendar?.toDiaryBirthdayCalendar(),
-        birthYear = birthYear,
-        hometown = hometown,
-        howWeMet = howWeMet,
-        phoneNumbers = phoneNumbers,
-        isFavorite = isFavorite,
-        createdAtEpochMillis = appActionEpochMillis(instant = createdAt),
-        updatedAtEpochMillis = appActionEpochMillis(instant = updatedAt),
+        id = contact.id,
+        name = contact.name,
+        contactDescription = contact.description,
+        heightCm = contact.heightCm,
+        footSizeMm = contact.footSizeMm,
+        birthdayEpochMillis = contact.birthday?.let { birthday -> appActionContactBirthdayEpochMillis(date = birthday.date) },
+        birthdayCalendar = contact.birthday?.calendar?.toDiaryBirthdayCalendar(),
+        birthYear = contact.birthYear,
+        hometown = contact.hometown,
+        howWeMet = contact.howWeMet,
+        phoneNumbers = contact.phoneNumbers,
+        isFavorite = contact.isFavorite,
+        createdAtEpochMillis = appActionEpochMillis(instant = contact.createdAt),
+        updatedAtEpochMillis = appActionEpochMillis(instant = contact.updatedAt),
+        tags = tags.map { tag -> tag.toDiary() },
     )

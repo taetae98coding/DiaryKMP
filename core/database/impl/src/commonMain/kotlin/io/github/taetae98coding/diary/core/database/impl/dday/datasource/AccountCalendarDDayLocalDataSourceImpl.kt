@@ -18,7 +18,6 @@ internal class AccountCalendarDDayLocalDataSourceImpl(
         accountId: Uuid,
         dateRange: LocalDateRange,
     ): Flow<List<CalendarDDayLocalEntity>> =
-        // DAO는 기간 타입을 바인딩할 수 없어 시작일과 종료일로 나눠 넘기고, SQL이 비교하는 값은 상수 이름과 끊어 둔 값으로 넘긴다.
         database.accountCalendarDDayDao().get(
             accountId = accountId,
             start = dateRange.start,
