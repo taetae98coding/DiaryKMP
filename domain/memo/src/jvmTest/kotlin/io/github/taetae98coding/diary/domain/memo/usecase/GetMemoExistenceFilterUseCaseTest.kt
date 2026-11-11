@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.MemoExistenceFilterRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -31,7 +32,7 @@ class GetMemoExistenceFilterUseCaseTest :
 
             When("유무 필터를 조회한다") {
                 Then("기기에 유지된 유무 필터를 반환한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().getOrThrow() shouldBe existence
                         awaitComplete()
                     }
@@ -51,7 +52,7 @@ class GetMemoExistenceFilterUseCaseTest :
 
             When("유무 필터를 조회한다") {
                 Then("조회 실패를 그대로 전달한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure { throwable -> throwable shouldBe failure }
                         awaitComplete()
                     }

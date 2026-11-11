@@ -107,6 +107,7 @@ import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -392,7 +393,7 @@ private fun mockedTestContext(
 
     return TestContext(
         accountId = accountId,
-        getAccountUseCase = mockk<GetAccountUseCase>().apply { every { this@apply(parameter = Unit) } returns accountFlow },
+        getAccountUseCase = mockk<GetAccountUseCase>().apply { every { this@apply() } returns accountFlow },
         supabaseAuth = mockk<SupabaseAuth>().apply { coEvery { refreshStoppedSession() } just Runs },
         prepareSyncUseCase = mockk<PrepareSyncUseCase>().apply { coEvery { this@apply(parameter = any()) } returns Result.success(Unit) },
         tagSyncLocalDataSource = mockk(),

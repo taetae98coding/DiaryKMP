@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
@@ -33,7 +34,7 @@ internal class MemoGeminiViewModel(
     private var generateJob: Job? = null
 
     private val setting: StateFlow<GeminiSetting?> =
-        getGeminiSettingUseCase(parameter = Unit)
+        getGeminiSettingUseCase()
             .map { result -> result.getOrNull() }
             .stateIn(
                 scope = viewModelScope,

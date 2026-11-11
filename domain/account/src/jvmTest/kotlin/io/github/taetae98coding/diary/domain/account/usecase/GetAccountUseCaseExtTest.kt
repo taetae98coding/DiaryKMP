@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.account.usecase
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -139,7 +140,7 @@ class GetAccountUseCaseExtTest :
 
         private fun getAccountUseCase(accountFlow: Flow<Result<Account>>): GetAccountUseCase =
             mockk<GetAccountUseCase>().also { useCase ->
-                every { useCase(Unit) } returns accountFlow
+                every { useCase() } returns accountFlow
             }
 
         private fun sourceFlow(

@@ -45,6 +45,7 @@ import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthd
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
@@ -181,7 +182,7 @@ class CalendarHomeScreenMoveTest {
         val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
         every { getCalendarMemoUseCase(parameter = any()) } returns storedMemoFlow
         val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-        every { getCalendarFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        every { getCalendarFilterUseCase() } returns flowOf(Result.success(emptyList()))
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(emptyList()),
             memoViewModel =
@@ -1101,7 +1102,7 @@ class CalendarHomeScreenMoveTest {
         val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
         every { getCalendarMemoUseCase(parameter = any()) } returns flowOf(Result.success(listOf(memo)))
         val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-        every { getCalendarFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        every { getCalendarFilterUseCase() } returns flowOf(Result.success(emptyList()))
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(emptyList()),
             memoViewModel =

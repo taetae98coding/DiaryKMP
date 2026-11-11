@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import io.github.taetae98coding.diary.domain.account.usecase.CheckAppleReauthenticationRequiredUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.DeleteAccountUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.logCrashlyticsFailure
@@ -54,7 +55,7 @@ internal class ProfileDeleteViewModel(
 
         viewModelScope.launch {
             try {
-                checkAppleReauthenticationRequiredUseCase(parameter = Unit)
+                checkAppleReauthenticationRequiredUseCase()
                     .onSuccess { isRequired ->
                         if (isRequired) {
                             // Apple 로그인 흐름 중 앱이 다시 시작되면 흐름이 중단되므로, 복원할 때는 다이얼로그를 닫힌 상태로 둔다.

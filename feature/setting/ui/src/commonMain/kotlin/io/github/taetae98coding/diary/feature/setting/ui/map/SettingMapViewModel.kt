@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.SetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
@@ -21,7 +22,7 @@ internal class SettingMapViewModel(
     private var isSaving = false
 
     val uiState: StateFlow<SettingMapUiState> =
-        getDefaultMapProviderUseCase(parameter = Unit)
+        getDefaultMapProviderUseCase()
             .map { result ->
                 result.fold(
                     onSuccess = { provider -> SettingMapUiState.Content(defaultProvider = provider) },

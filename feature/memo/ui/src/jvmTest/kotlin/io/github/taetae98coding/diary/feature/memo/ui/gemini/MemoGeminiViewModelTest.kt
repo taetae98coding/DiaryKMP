@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
 import io.github.taetae98coding.diary.core.testing.memo.memoDraftProgress
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
@@ -733,7 +734,7 @@ class MemoGeminiViewModelTest : FunSpec() {
         MemoGeminiViewModel(
             getGeminiSettingUseCase =
                 mockk {
-                    every { this@mockk(Unit) } returns flowOf(Result.success(completeSetting))
+                    every { this@mockk() } returns flowOf(Result.success(completeSetting))
                 },
             fetchMemoDraftUseCase = fetchMemoDraftUseCase,
         )
@@ -761,7 +762,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             MemoGeminiViewModel(
                 getGeminiSettingUseCase =
                     mockk {
-                        every { this@mockk(Unit) } returns settingFlow
+                        every { this@mockk() } returns settingFlow
                     },
                 fetchMemoDraftUseCase = fetchMemoDraftUseCase,
             )

@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +36,7 @@ public class PageFileUseCase internal constructor(
     // 세션 갱신 여부만 바뀌어도 계정 값이 새로 오므로, 계정이 바뀔 때만 목록을 처음부터 다시 불러온다.
     // 계정을 확인하지 못한 결과는 계정이 바뀐 것이 아니므로 버려, 이미 불러온 목록을 다시 불러오지 않게 한다.
     override fun execute(parameter: Unit): Flow<Result<PagingData<DiaryFile>>> =
-        getAccountUseCase(parameter = Unit)
+        getAccountUseCase()
             .mapNotNull { result -> result.getOrNull() }
             .map { account -> account as? Account.User }
             .distinctUntilChangedBy { user -> user?.id }

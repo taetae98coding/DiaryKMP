@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.domain.checklist.usecase.ResetChecklistUse
 import io.github.taetae98coding.diary.domain.checklist.usecase.RestoreChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.UncheckChecklistItemUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.UpdateChecklistUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
@@ -59,7 +60,7 @@ class ChecklistAppActionTest :
                 val summaryList =
                     Arb.list(Arb.checklistSummary(), 1..3).next()
                 val pageChecklistUseCase = mockk<PageChecklistUseCase>()
-                every { pageChecklistUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(summaryList)))
+                every { pageChecklistUseCase() } returns flowOf(Result.success(PagingData.from(summaryList)))
                 val action = checklistAppActionOf(pageChecklistUseCase)
 
                 action.list(cursor = null) shouldBe AppActionPage(items = summaryList.map { summary -> summary.expected() }, nextCursor = null)
@@ -70,7 +71,7 @@ class ChecklistAppActionTest :
             runTest {
                 val summaryList = Arb.list(Arb.checklistSummary(), 101..150).next()
                 val pageChecklistUseCase = mockk<PageChecklistUseCase>()
-                every { pageChecklistUseCase(parameter = Unit) } answers { flowOf(Result.success(PagingData.from(summaryList))) }
+                every { pageChecklistUseCase() } answers { flowOf(Result.success(PagingData.from(summaryList))) }
                 val action = checklistAppActionOf(pageChecklistUseCase)
 
                 val firstPage = action.list(cursor = null)

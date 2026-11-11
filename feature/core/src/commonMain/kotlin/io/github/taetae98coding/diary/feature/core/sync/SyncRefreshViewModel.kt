@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.core.sync
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -19,7 +20,7 @@ public class SyncRefreshViewModel internal constructor(
     private val requestSyncUseCase: RequestSyncUseCase,
 ) : ViewModel() {
     public val uiState: StateFlow<SyncRefreshUiState> =
-        getProgressReportedUseCase(parameter = Unit)
+        getProgressReportedUseCase()
             .map { result -> SyncRefreshUiState(isRefreshing = result.getOrDefault(false)) }
             .stateIn(
                 scope = viewModelScope,

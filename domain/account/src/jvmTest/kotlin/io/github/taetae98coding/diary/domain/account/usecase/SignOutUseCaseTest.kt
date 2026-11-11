@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.account.usecase
 
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
 import io.mockk.Runs
@@ -21,7 +22,7 @@ class SignOutUseCaseTest :
             val useCase = SignOutUseCase(sessionRepository = sessionRepository, loginProviderRepository = loginProviderRepository)
 
             When("Diary에서 로그아웃한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("로그아웃에 성공하고 Diary 세션에는 지우는 요청만 한다") {
                     result.shouldBeSuccess()

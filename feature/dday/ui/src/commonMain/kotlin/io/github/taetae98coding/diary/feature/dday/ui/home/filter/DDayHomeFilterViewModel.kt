@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.SelectDDayFilterTagUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UnselectAllDDayFilterTagUseCase
@@ -34,7 +35,7 @@ internal class DDayHomeFilterViewModel(
             .cachedIn(viewModelScope)
 
     val uiState: StateFlow<DDayHomeFilterUiState> =
-        getDDayFilterUseCase(parameter = Unit)
+        getDDayFilterUseCase()
             .map { result ->
                 DDayHomeFilterUiState(
                     selectedTagIdSet =
@@ -83,7 +84,7 @@ internal class DDayHomeFilterViewModel(
 
         viewModelScope.launch {
             try {
-                unselectAllDDayFilterTagUseCase(parameter = Unit)
+                unselectAllDDayFilterTagUseCase()
             } finally {
                 isUnselectAllTagInProgress = false
             }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllCalendarFilterTagUseCase
@@ -34,7 +35,7 @@ internal class CalendarHomeFilterViewModel(
             .cachedIn(viewModelScope)
 
     val uiState: StateFlow<CalendarHomeFilterUiState> =
-        getCalendarFilterUseCase(parameter = Unit)
+        getCalendarFilterUseCase()
             .map { result ->
                 CalendarHomeFilterUiState(
                     selectedTagIdSet =
@@ -83,7 +84,7 @@ internal class CalendarHomeFilterViewModel(
 
         viewModelScope.launch {
             try {
-                unselectAllCalendarFilterTagUseCase(parameter = Unit)
+                unselectAllCalendarFilterTagUseCase()
             } finally {
                 isUnselectAllTagInProgress = false
             }

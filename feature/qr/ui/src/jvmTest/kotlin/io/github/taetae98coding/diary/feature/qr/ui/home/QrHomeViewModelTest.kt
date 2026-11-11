@@ -8,6 +8,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.qr.QrListEffect
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.RestoreQrUseCase
@@ -205,7 +206,7 @@ class QrHomeViewModelTest : FunSpec() {
 
         private fun pageQrUseCase(qrListFlow: Flow<Result<List<Qr>>>): PageQrUseCase {
             val pageQrUseCase = mockk<PageQrUseCase>()
-            every { pageQrUseCase(parameter = Unit) } returns qrListFlow.map { result -> result.map { qrList -> PagingData.from(qrList) } }
+            every { pageQrUseCase() } returns qrListFlow.map { result -> result.map { qrList -> PagingData.from(qrList) } }
 
             return pageQrUseCase
         }

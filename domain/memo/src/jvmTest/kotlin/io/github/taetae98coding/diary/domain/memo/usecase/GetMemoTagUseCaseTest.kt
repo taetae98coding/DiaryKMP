@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoTagRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -29,7 +30,7 @@ class GetMemoTagUseCaseTest :
             val memoId = Arb.kotlinUuid().next()
             val tagList = List(2) { tag() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             every { accountMemoTagRepository.getTagList(account = account, memoId = memoId) } returns flowOf(tagList)
             val useCase =
@@ -48,7 +49,7 @@ class GetMemoTagUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>(relaxed = true)
             val useCase =
                 GetMemoTagUseCase(

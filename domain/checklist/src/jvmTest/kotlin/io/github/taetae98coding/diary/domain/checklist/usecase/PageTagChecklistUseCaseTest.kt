@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountTagChecklistRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -32,7 +33,7 @@ class PageTagChecklistUseCaseTest :
             val pagingData = PagingData.empty<ChecklistSummary>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagChecklistRepository = mockk<AccountTagChecklistRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagChecklistRepository.page(account = account, tagId = tagId, scope = scope) } returns flowOf(pagingData)
             val useCase = PageTagChecklistUseCase(getAccountUseCase = getAccountUseCase, accountTagChecklistRepository = accountTagChecklistRepository)
 
@@ -54,7 +55,7 @@ class PageTagChecklistUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagChecklistRepository = mockk<AccountTagChecklistRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase = PageTagChecklistUseCase(getAccountUseCase = getAccountUseCase, accountTagChecklistRepository = accountTagChecklistRepository)
 
             When("대상 태그의 체크리스트 페이지를 조회한다") {
@@ -76,7 +77,7 @@ class PageTagChecklistUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagChecklistRepository = mockk<AccountTagChecklistRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagChecklistRepository.page(account = account, tagId = tagId, scope = scope) } returns flow { throw failure }
             val useCase = PageTagChecklistUseCase(getAccountUseCase = getAccountUseCase, accountTagChecklistRepository = accountTagChecklistRepository)
 

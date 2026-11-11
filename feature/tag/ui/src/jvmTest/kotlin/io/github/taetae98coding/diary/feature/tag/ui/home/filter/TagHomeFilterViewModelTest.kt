@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.tag.ui.home.filter
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.usecase.DisableTopLevelTagFilterUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.EnableTopLevelTagFilterUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
@@ -95,13 +96,13 @@ class TagHomeFilterViewModelTest : FunSpec() {
 
         test("TC-7bcf8584-ace4-4e5a-b5fe-6aaf5fc8bb0a 최상위 태그만 보기를 켜면 필터를 켜는 동작을 한 번 실행한다") {
             runTest(mainDispatcher) {
-                val enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase()
+                val enableTopLevelTagFilterUseCase = stubEnableTopLevelTagFilterUseCase()
                 val viewModel = viewModel(enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase)
 
                 viewModel.enableTopLevelOnly()
                 runCurrent()
 
-                coVerify(exactly = 1) { enableTopLevelTagFilterUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { enableTopLevelTagFilterUseCase() }
             }
         }
 
@@ -109,9 +110,9 @@ class TagHomeFilterViewModelTest : FunSpec() {
             listOf(false, true).forEach { savedValue ->
                 runTest(mainDispatcher) {
                     val enableTopLevelTagFilterUseCase = mockk<EnableTopLevelTagFilterUseCase>()
-                    coEvery { enableTopLevelTagFilterUseCase(parameter = Unit) } returns Result.failure(IllegalStateException())
+                    coEvery { enableTopLevelTagFilterUseCase() } returns Result.failure(IllegalStateException())
                     val disableTopLevelTagFilterUseCase = mockk<DisableTopLevelTagFilterUseCase>()
-                    coEvery { disableTopLevelTagFilterUseCase(parameter = Unit) } returns Result.failure(IllegalStateException())
+                    coEvery { disableTopLevelTagFilterUseCase() } returns Result.failure(IllegalStateException())
                     val viewModel =
                         viewModel(
                             getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(MutableStateFlow(savedValue).map { value -> Result.success(value) }),
@@ -135,20 +136,20 @@ class TagHomeFilterViewModelTest : FunSpec() {
 
         test("TC-a9dac55d-0689-4876-b138-7041b9950710 최상위 태그만 보기를 끄면 필터를 끄는 동작을 한 번 실행한다") {
             runTest(mainDispatcher) {
-                val disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase()
+                val disableTopLevelTagFilterUseCase = stubDisableTopLevelTagFilterUseCase()
                 val viewModel = viewModel(disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase)
 
                 viewModel.disableTopLevelOnly()
                 runCurrent()
 
-                coVerify(exactly = 1) { disableTopLevelTagFilterUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { disableTopLevelTagFilterUseCase() }
             }
         }
 
         test("최상위 태그만 보기 설정이 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase()
-                val disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase()
+                val enableTopLevelTagFilterUseCase = stubEnableTopLevelTagFilterUseCase()
+                val disableTopLevelTagFilterUseCase = stubDisableTopLevelTagFilterUseCase()
                 val viewModel =
                     viewModel(
                         enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase,
@@ -161,8 +162,8 @@ class TagHomeFilterViewModelTest : FunSpec() {
                 viewModel.disableTopLevelOnly()
                 runCurrent()
 
-                coVerify(exactly = 1) { enableTopLevelTagFilterUseCase(parameter = Unit) }
-                coVerify(exactly = 1) { disableTopLevelTagFilterUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { enableTopLevelTagFilterUseCase() }
+                coVerify(exactly = 1) { disableTopLevelTagFilterUseCase() }
             }
         }
     }
@@ -170,8 +171,8 @@ class TagHomeFilterViewModelTest : FunSpec() {
     public companion object {
         private fun viewModel(
             getTopLevelTagFilterUseCase: GetTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(emptyFlow()),
-            enableTopLevelTagFilterUseCase: EnableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase(),
-            disableTopLevelTagFilterUseCase: DisableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase(),
+            enableTopLevelTagFilterUseCase: EnableTopLevelTagFilterUseCase = stubEnableTopLevelTagFilterUseCase(),
+            disableTopLevelTagFilterUseCase: DisableTopLevelTagFilterUseCase = stubDisableTopLevelTagFilterUseCase(),
         ): TagHomeFilterViewModel =
             TagHomeFilterViewModel(
                 getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase,
@@ -181,21 +182,21 @@ class TagHomeFilterViewModelTest : FunSpec() {
 
         private fun getTopLevelTagFilterUseCase(flow: Flow<Result<Boolean>>): GetTopLevelTagFilterUseCase {
             val getTopLevelTagFilterUseCase = mockk<GetTopLevelTagFilterUseCase>()
-            every { getTopLevelTagFilterUseCase(parameter = Unit) } returns flow
+            every { getTopLevelTagFilterUseCase() } returns flow
 
             return getTopLevelTagFilterUseCase
         }
 
-        private fun enableTopLevelTagFilterUseCase(): EnableTopLevelTagFilterUseCase {
+        private fun stubEnableTopLevelTagFilterUseCase(): EnableTopLevelTagFilterUseCase {
             val enableTopLevelTagFilterUseCase = mockk<EnableTopLevelTagFilterUseCase>()
-            coEvery { enableTopLevelTagFilterUseCase(parameter = Unit) } returns Result.success(Unit)
+            coEvery { enableTopLevelTagFilterUseCase() } returns Result.success(Unit)
 
             return enableTopLevelTagFilterUseCase
         }
 
-        private fun disableTopLevelTagFilterUseCase(): DisableTopLevelTagFilterUseCase {
+        private fun stubDisableTopLevelTagFilterUseCase(): DisableTopLevelTagFilterUseCase {
             val disableTopLevelTagFilterUseCase = mockk<DisableTopLevelTagFilterUseCase>()
-            coEvery { disableTopLevelTagFilterUseCase(parameter = Unit) } returns Result.success(Unit)
+            coEvery { disableTopLevelTagFilterUseCase() } returns Result.success(Unit)
 
             return disableTopLevelTagFilterUseCase
         }

@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.repository.DeviceCountryRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -39,7 +40,7 @@ class HolidayCountrySettingUseCaseTest :
 
             When("고른 국가 선택지를 조회한다") {
                 Then("기기값만 고른 상태로 제공된다") {
-                    val setting = useCase(parameter = Unit).first().shouldBeSuccess()
+                    val setting = useCase().first().shouldBeSuccess()
 
                     setting.selectedOptionSet shouldBe setOf(HolidayCountryOption.DEVICE)
                     setting.deviceCountry shouldBe deviceCountry
@@ -72,7 +73,7 @@ class HolidayCountrySettingUseCaseTest :
             When("적용 국가를 조회한다") {
                 Then("테스트 데이터의 적용 국가가 제공된다") {
                     caseList.forEach { case ->
-                        countrySettingUseCase(optionSet = case.optionSet, deviceCountry = case.deviceCountry)(parameter = Unit)
+                        countrySettingUseCase(optionSet = case.optionSet, deviceCountry = case.deviceCountry)()
                             .first()
                             .shouldBeSuccess()
                             .countrySet shouldBe case.countrySet
@@ -94,8 +95,8 @@ class HolidayCountrySettingUseCaseTest :
                 )
 
             When("기기 지역을 미국으로 바꾼 뒤 적용 국가를 다시 조회한다") {
-                val before = useCase(parameter = Unit).first().shouldBeSuccess().countrySet
-                val after = useCase(parameter = Unit).first().shouldBeSuccess().countrySet
+                val before = useCase().first().shouldBeSuccess().countrySet
+                val after = useCase().first().shouldBeSuccess().countrySet
 
                 Then("적용 국가는 미국이다") {
                     before shouldBe setOf(HolidayCountry.KOREA)
@@ -118,7 +119,7 @@ class HolidayCountrySettingUseCaseTest :
 
             When("고른 선택지는 그대로 둔 채 기기 지역을 미국으로 바꾼다") {
                 Then("이어지는 결과가 제공되지 않아 적용 국가는 한국으로 남는다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess().countrySet shouldBe setOf(HolidayCountry.KOREA)
 
                         expectNoEvents()
@@ -133,7 +134,7 @@ class HolidayCountrySettingUseCaseTest :
 
             When("선택지 하나를 바꾼다") {
                 Then("바뀐 선택지가 이어서 제공된다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess().selectedOptionSet shouldBe setOf(HolidayCountryOption.DEVICE)
 
                         optionSetFlow.value = setOf(HolidayCountryOption.DEVICE, HolidayCountryOption.UNITED_STATES)

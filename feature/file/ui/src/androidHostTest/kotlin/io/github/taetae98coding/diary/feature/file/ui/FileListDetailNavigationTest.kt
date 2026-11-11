@@ -60,6 +60,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
@@ -898,7 +899,7 @@ class FileListDetailNavigationTest {
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun viewModelModule(fileList: List<DiaryFile>): Module {
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
 
         serverFileList = fileList
 
@@ -911,11 +912,11 @@ class FileListDetailNavigationTest {
             }
             factory<FileHomeUploadViewModel> {
                 val getFileUploadStateUseCase = mockk<GetFileUploadStateUseCase>()
-                every { getFileUploadStateUseCase(parameter = Unit) } returns addMocks.state.map { state -> Result.success(state) }
+                every { getFileUploadStateUseCase() } returns addMocks.state.map { state -> Result.success(state) }
                 val getFileUploadEventUseCase = mockk<GetFileUploadEventUseCase>()
-                every { getFileUploadEventUseCase(parameter = Unit) } returns uploadEventFlow.map { event -> Result.success(event) }
+                every { getFileUploadEventUseCase() } returns uploadEventFlow.map { event -> Result.success(event) }
                 val getFileUploadSucceededEventUseCase = mockk<GetFileUploadSucceededEventUseCase>()
-                every { getFileUploadSucceededEventUseCase(parameter = Unit) } returns uploadSucceededChannel.receiveAsFlow().map { event -> Result.success(event) }
+                every { getFileUploadSucceededEventUseCase() } returns uploadSucceededChannel.receiveAsFlow().map { event -> Result.success(event) }
 
                 FileHomeUploadViewModel(
                     getFileUploadStateUseCase = getFileUploadStateUseCase,

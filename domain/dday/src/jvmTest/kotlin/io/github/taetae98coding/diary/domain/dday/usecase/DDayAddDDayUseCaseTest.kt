@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.ddayAddInput
 import io.github.taetae98coding.diary.domain.dday.exception.DDayRepeatBlankException
 import io.github.taetae98coding.diary.domain.dday.exception.DDayTitleBlankException
@@ -226,7 +227,7 @@ private class AddContext(
         AddDDayUseCase(
             getAccountUseCase =
                 mockk<GetAccountUseCase>().also { useCase ->
-                    every { useCase(parameter = Unit) } returns flowOf(accountResult)
+                    every { useCase() } returns flowOf(accountResult)
                 },
             requestSyncUseCase = requestSyncUseCase,
             accountDDayRepository = repository,

@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
@@ -478,21 +479,21 @@ class MemoHomeViewModelTest : FunSpec() {
 
         private fun existenceFilterUseCase(existenceFlow: Flow<Result<MemoExistenceFilter>> = flowOf(Result.success(MemoExistenceFilter()))): GetMemoExistenceFilterUseCase {
             val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
-            every { getMemoExistenceFilterUseCase(parameter = Unit) } returns existenceFlow
+            every { getMemoExistenceFilterUseCase() } returns existenceFlow
 
             return getMemoExistenceFilterUseCase
         }
 
         private fun filterTagIdUseCase(tagIdSetFlow: Flow<Result<Set<Uuid>>> = flowOf(Result.success(emptySet()))): GetMemoFilterTagIdUseCase {
             val getMemoFilterTagIdUseCase = mockk<GetMemoFilterTagIdUseCase>()
-            every { getMemoFilterTagIdUseCase(parameter = Unit) } returns tagIdSetFlow
+            every { getMemoFilterTagIdUseCase() } returns tagIdSetFlow
 
             return getMemoFilterTagIdUseCase
         }
 
         private fun filterUseCase(filterFlow: Flow<Result<List<Tag>>>): GetMemoFilterUseCase {
             val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
-            every { getMemoFilterUseCase(parameter = Unit) } returns filterFlow
+            every { getMemoFilterUseCase() } returns filterFlow
 
             return getMemoFilterUseCase
         }

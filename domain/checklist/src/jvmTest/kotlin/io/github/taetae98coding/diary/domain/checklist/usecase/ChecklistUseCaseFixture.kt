@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.checklist.usecase
 
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -17,13 +18,13 @@ internal fun itemContent(): String = "content-" + Arb.string().next()
 
 internal fun getAccountUseCase(account: Account): GetAccountUseCase {
     val useCase = mockk<GetAccountUseCase>()
-    every { useCase(parameter = Unit) } returns flowOf(Result.success(account))
+    every { useCase() } returns flowOf(Result.success(account))
     return useCase
 }
 
 internal fun failingGetAccountUseCase(throwable: Throwable): GetAccountUseCase {
     val useCase = mockk<GetAccountUseCase>()
-    every { useCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+    every { useCase() } returns flowOf(Result.failure(throwable))
     return useCase
 }
 

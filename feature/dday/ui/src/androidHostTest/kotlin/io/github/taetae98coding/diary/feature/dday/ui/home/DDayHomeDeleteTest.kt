@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
 import io.github.taetae98coding.diary.core.model.dday.DDay
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.DeleteDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
@@ -139,11 +140,11 @@ class DDayHomeDeleteTest {
     fun `TC-89ecf60a-56a4-4681-806b-7efde2cf0d29 삭제가 저장되지 못하면 안내를 표시하지 않는다`() {
         val dday = homeDDayOf(title = FIRST_TITLE)
         val pageDDayUseCase = mockk<PageDDayUseCase>()
-        every { pageDDayUseCase(parameter = Unit) } returns flowOf(Result.success(homeDDayPagingDataOf(listOf(dday))))
+        every { pageDDayUseCase() } returns flowOf(Result.success(homeDDayPagingDataOf(listOf(dday))))
         val getDDayFilterUseCase = mockk<GetDDayFilterUseCase>()
-        every { getDDayFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        every { getDDayFilterUseCase() } returns flowOf(Result.success(emptyList()))
         val getDDayFilterTagIdUseCase = mockk<GetDDayFilterTagIdUseCase>()
-        every { getDDayFilterTagIdUseCase(parameter = Unit) } returns flowOf(Result.success(emptySet()))
+        every { getDDayFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val deleteDDayUseCase = mockk<DeleteDDayUseCase>()
         coEvery { deleteDDayUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val viewModel =

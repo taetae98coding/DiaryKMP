@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.dday.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.repository.AccountDDayRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -107,7 +108,7 @@ class DDayHomeDeleteRestoreDDayUseCaseTest :
     public companion object {
         private fun getAccountUseCase(result: Result<Account>): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
-            every { useCase(parameter = Unit) } returns flowOf(result)
+            every { useCase() } returns flowOf(result)
             return useCase
         }
 

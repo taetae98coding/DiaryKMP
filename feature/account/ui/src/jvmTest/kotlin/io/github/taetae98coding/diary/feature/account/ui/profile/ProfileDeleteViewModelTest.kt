@@ -11,6 +11,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import io.github.taetae98coding.diary.core.testing.authentication.appleAuthorization
 import io.github.taetae98coding.diary.domain.account.usecase.CheckAppleReauthenticationRequiredUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.DeleteAccountUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -163,7 +164,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val savedStateHandle = SavedStateHandle()
                 val checkUseCase = mockk<CheckAppleReauthenticationRequiredUseCase>()
-                coEvery { checkUseCase(parameter = Unit) } coAnswers { CompletableDeferred<Result<Boolean>>().await() }
+                coEvery { checkUseCase() } coAnswers { CompletableDeferred<Result<Boolean>>().await() }
                 val deleteAccountUseCase = deleteAccountUseCase()
                 val viewModel = viewModel(savedStateHandle = savedStateHandle, checkUseCase = checkUseCase, deleteAccountUseCase = deleteAccountUseCase)
 
@@ -178,7 +179,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
                     restarted.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true, isInProgress = false)
                     expectNoEvents()
                 }
-                coVerify(exactly = 1) { checkUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { checkUseCase() }
                 coVerify(exactly = 0) { deleteAccountUseCase(parameter = any()) }
 
                 restarted.dismissConfirm()
@@ -209,7 +210,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val savedStateHandle = SavedStateHandle()
                 val checkUseCase = mockk<CheckAppleReauthenticationRequiredUseCase>()
-                coEvery { checkUseCase(parameter = Unit) } returns Result.success(true) coAndThen { CompletableDeferred<Result<Boolean>>().await() }
+                coEvery { checkUseCase() } returns Result.success(true) coAndThen { CompletableDeferred<Result<Boolean>>().await() }
                 val deleteAccountUseCase = deleteAccountUseCase()
                 val viewModel = viewModel(savedStateHandle = savedStateHandle, checkUseCase = checkUseCase, deleteAccountUseCase = deleteAccountUseCase)
 
@@ -227,7 +228,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
                     restarted.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true, isInProgress = false)
                     expectNoEvents()
                 }
-                coVerify(exactly = 2) { checkUseCase(parameter = Unit) }
+                coVerify(exactly = 2) { checkUseCase() }
                 coVerify(exactly = 0) { deleteAccountUseCase(parameter = any()) }
             }
         }
@@ -301,7 +302,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
         test("TC-0ad36304-87ed-4c7b-bf3c-34c2ff1b125e 재인증 필요 여부를 판단하지 못하면 탈퇴하지 않고 실패를 알린다") {
             runTest(mainDispatcher) {
                 val checkUseCase = mockk<CheckAppleReauthenticationRequiredUseCase>()
-                coEvery { checkUseCase(parameter = Unit) } returns Result.failure(IllegalStateException("read"))
+                coEvery { checkUseCase() } returns Result.failure(IllegalStateException("read"))
                 val deleteAccountUseCase = deleteAccountUseCase()
                 val viewModel = viewModel(checkUseCase = checkUseCase, deleteAccountUseCase = deleteAccountUseCase)
 
@@ -496,7 +497,7 @@ private fun deleteAccountUseCase(): DeleteAccountUseCase =
 
 private fun checkUseCase(isRequired: Boolean): CheckAppleReauthenticationRequiredUseCase =
     mockk<CheckAppleReauthenticationRequiredUseCase>().also { useCase ->
-        coEvery { useCase(parameter = Unit) } returns Result.success(isRequired)
+        coEvery { useCase() } returns Result.success(isRequired)
     }
 
 private fun viewModel(

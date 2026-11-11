@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeDateTime
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -54,7 +55,7 @@ class UpdateMemoUseCaseTest :
                         )
                 val detailSlot = slot<MemoDetail>()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
-                every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+                every { getAccountUseCase() } returns flowOf(Result.success(account))
                 val requestSyncUseCase = mockk<RequestSyncUseCase>()
                 coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
                 val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -97,7 +98,7 @@ class UpdateMemoUseCaseTest :
             val detailSlot = slot<MemoDetail>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -159,7 +160,7 @@ class UpdateMemoUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             val findMemoUseCase = mockk<FindMemoUseCase>()
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
@@ -196,7 +197,7 @@ class UpdateMemoUseCaseTest :
             val account = Arb.accountUser().next()
             val memoId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val findMemoUseCase = mockk<FindMemoUseCase>()

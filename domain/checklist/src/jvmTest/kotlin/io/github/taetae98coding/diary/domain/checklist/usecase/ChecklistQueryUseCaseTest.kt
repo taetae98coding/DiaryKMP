@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistItemRepository
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -35,7 +36,7 @@ class ChecklistQueryUseCaseTest :
             every { repository.page(account = account) } returns flowOf(PagingData.from(summaryList))
 
             When("체크리스트 목록을 조회한다") {
-                val pagingData = PageChecklistUseCase(getAccountUseCase(account), repository)(parameter = Unit).first().shouldBeSuccess()
+                val pagingData = PageChecklistUseCase(getAccountUseCase(account), repository)().first().shouldBeSuccess()
 
                 Then("TC-5474c60f-6cdd-47da-9556-061c02a51d7a TC-ffcb4f61-636d-4088-9c8d-3f376f926bbf 현재 계정의 체크리스트를 진행 정도와 함께 페이지로 전달한다") {
                     flowOf(pagingData).asSnapshot() shouldBe summaryList
@@ -50,7 +51,7 @@ class ChecklistQueryUseCaseTest :
             val itemRepository = mockk<AccountChecklistItemRepository>()
 
             When("체크리스트 목록을 조회한다") {
-                val result = PageChecklistUseCase(failingGetAccountUseCase(throwable), checklistRepository)(parameter = Unit).first()
+                val result = PageChecklistUseCase(failingGetAccountUseCase(throwable), checklistRepository)().first()
 
                 Then("TC-38cb2689-01a1-4743-a6a3-8ecc6efc2141 노출할 체크리스트를 전달하지 않고 계정 조회 실패를 그대로 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)

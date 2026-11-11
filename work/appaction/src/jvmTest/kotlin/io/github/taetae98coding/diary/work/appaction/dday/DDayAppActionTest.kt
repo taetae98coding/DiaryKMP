@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatSetOrNull
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
@@ -54,7 +55,7 @@ class DDayAppActionTest :
             runTest {
                 val dday = Arb.dday().next().copy(isDeleted = false, detail = Arb.ddayDetail(baseDate = LocalDate(2026, 4, 29)).next())
                 val pageDDayUseCase = mockk<PageDDayUseCase>()
-                every { pageDDayUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(listOf(dday))))
+                every { pageDDayUseCase() } returns flowOf(Result.success(PagingData.from(listOf(dday))))
                 val action = ddayAppActionOf(pageDDayUseCase, clockAt(date = LocalDate(2026, 3, 20)))
 
                 action.list(cursor = null) shouldBe

@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDayDetail
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.ddayAddInput
 import io.github.taetae98coding.diary.domain.dday.exception.DDayRepeatBlankException
@@ -278,7 +279,7 @@ private class DetailContext(
 
     private val getAccountUseCase: GetAccountUseCase =
         mockk<GetAccountUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns flowOf(accountResult)
+            every { useCase() } returns flowOf(accountResult)
         }
 
     private val clock: Clock = mockk<Clock>().also { clock -> every { clock.now() } returns now }

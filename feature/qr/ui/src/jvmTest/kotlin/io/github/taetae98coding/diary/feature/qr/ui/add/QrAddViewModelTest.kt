@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
@@ -221,7 +222,7 @@ class QrAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val providerFlow = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val useCase = mockk<GetDefaultMapProviderUseCase>()
-                every { useCase(Unit) } returns providerFlow
+                every { useCase() } returns providerFlow
                 val viewModel = viewModel(addQrUseCase = mockk(), defaultMapProviderUseCase = useCase)
                 advanceUntilIdle()
                 viewModel.uiState.value.defaultProvider shouldBe MapProvider.NAVER
@@ -289,6 +290,6 @@ class QrAddViewModelTest : FunSpec() {
 
     private fun defaultMapProviderUseCase(result: Result<MapProvider>): GetDefaultMapProviderUseCase =
         mockk<GetDefaultMapProviderUseCase>().also { useCase ->
-            every { useCase(Unit) } returns flowOf(result)
+            every { useCase() } returns flowOf(result)
         }
 }

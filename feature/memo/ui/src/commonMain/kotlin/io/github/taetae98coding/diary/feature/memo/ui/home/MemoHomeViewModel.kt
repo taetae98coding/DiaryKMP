@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
@@ -56,9 +57,9 @@ internal class MemoHomeViewModel(
 
     val filterUiState: StateFlow<MemoHomeScaffoldFilterUiState> =
         combine(
-            getMemoFilterUseCase(parameter = Unit),
-            getMemoFilterTagIdUseCase(parameter = Unit),
-            getMemoExistenceFilterUseCase(parameter = Unit),
+            getMemoFilterUseCase(),
+            getMemoFilterTagIdUseCase(),
+            getMemoExistenceFilterUseCase(),
         ) { tagListResult, storedTagIdSetResult, existenceResult ->
             MemoHomeScaffoldFilterUiState(
                 selectedTagIdSet =

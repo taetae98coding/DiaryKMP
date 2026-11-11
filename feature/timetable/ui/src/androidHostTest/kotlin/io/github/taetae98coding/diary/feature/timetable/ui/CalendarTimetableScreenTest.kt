@@ -50,6 +50,7 @@ import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -711,7 +712,7 @@ class CalendarTimetableScreenTest {
     @Test
     fun `TC-67e702c6-49f8-44c2-8e6a-c5add506e4f0 날씨 조회가 실패해도 메모와 공휴일을 표시한다`() {
         assertShownWithoutWeather(
-            weatherViewModel = calendarTimetableWeatherViewModel(getCurrentCalendarWeatherUseCase = getCurrentCalendarWeatherUseCase(flow = flowOf(weatherFailure()))),
+            weatherViewModel = calendarTimetableWeatherViewModel(getCurrentCalendarWeatherUseCase = stubGetCurrentCalendarWeatherUseCase(flow = flowOf(weatherFailure()))),
         )
     }
 
@@ -735,7 +736,7 @@ class CalendarTimetableScreenTest {
 
     @Test
     fun `TC-e6a3d4de-9fd0-4aab-9e4b-abda7222dd52 날짜를 옮겨도 날짜별 날씨를 다시 조회하지 않는다`() {
-        val getUseCase = getCurrentCalendarWeatherUseCase(flow = flowOf(Result.success(CalendarWeatherReport(weatherList = listOf(todayWeather(), tomorrowWeather())))))
+        val getUseCase = stubGetCurrentCalendarWeatherUseCase(flow = flowOf(Result.success(CalendarWeatherReport(weatherList = listOf(todayWeather(), tomorrowWeather())))))
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
             date = september(day = 23),
@@ -746,7 +747,7 @@ class CalendarTimetableScreenTest {
         swipePageLeft()
 
         composeRule.onNodeWithText(MIN_MAX_TEMPERATURE_TEXT).assertIsDisplayed()
-        verify(exactly = 1) { getUseCase(parameter = Unit) }
+        verify(exactly = 1) { getUseCase() }
     }
 
     @Test

@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.testing.holiday.holiday
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -33,7 +34,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("전체 공휴일과 숨김 key를 결합한 결과를 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe
                             holidayList.toHolidaySettingList(hiddenKeySet = hiddenKeySet)
                         awaitComplete()
@@ -58,7 +59,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("저장된 전체 공휴일이 바뀐다") {
                 Then("바뀐 공휴일로 구성한 결과를 이어서 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe
                             initialHolidayList.toHolidaySettingList(hiddenKeySet = emptySet())
 
@@ -82,7 +83,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("숨김 key가 바뀐다") {
                 Then("바뀐 숨김 상태를 적용한 결과를 이어서 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe
                             holidayList.toHolidaySettingList(hiddenKeySet = emptySet())
 
@@ -105,7 +106,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("빈 목록을 성공 결과로 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe emptyList()
                         awaitComplete()
                     }
@@ -123,7 +124,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("전체 공휴일을 읽지 못한 원인을 그대로 실패로 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure().shouldHaveRootCause(failure)
                         awaitComplete()
                     }
@@ -141,7 +142,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("숨김 key를 읽지 못한 원인을 그대로 실패로 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure().shouldHaveRootCause(failure)
                         awaitComplete()
                     }

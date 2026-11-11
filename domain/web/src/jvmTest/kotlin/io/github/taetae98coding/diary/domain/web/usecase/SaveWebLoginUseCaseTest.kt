@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.web.usecase
 
 import io.github.taetae98coding.diary.core.model.web.WebLogin
 import io.github.taetae98coding.diary.core.testing.web.webLogin
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.web.repository.WebLoginRepository
 import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
@@ -36,7 +37,7 @@ class SaveWebLoginUseCaseTest :
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
 
             When("앱이 활성 상태에서 벗어나 보관한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-908e16b2-fd82-4d9d-83b8-9d6431d795a4 웹 표시 수단에서 읽은 지금의 세션 쿠키를 보관한다") {
                     result.shouldBeSuccess()
@@ -64,7 +65,7 @@ class SaveWebLoginUseCaseTest :
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
 
             When("앱이 활성 상태에서 벗어나 보관한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-5af3c19f-698d-4340-bade-b68e163a5da9 보관하지 않고 실패로도 다루지 않으며 기기에 바로 기록하도록 한 번 요청한다") {
                     result.shouldBeSuccess()
@@ -82,7 +83,7 @@ class SaveWebLoginUseCaseTest :
             val logList = recordConsoleLog()
 
             When("앱이 활성 상태에서 벗어나 보관한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-31ff2113-2f58-4cb0-b0c3-3d0e4ed631ba 이전에 보관해 둔 것을 바꾸지 않고 실패를 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
@@ -103,7 +104,7 @@ class SaveWebLoginUseCaseTest :
             When("되돌리기가 끝나기 전에 보관할 계기가 오고, 그 뒤 되돌리기가 끝난다") {
                 Then("TC-f5c2e8ed-f73a-45ee-93a8-359a500b39ef 되돌리기가 끝나기 전에는 보관하지 않고 끝난 뒤에 한 번 보관한다") {
                     runTest {
-                        val result = async { useCase(parameter = Unit) }
+                        val result = async { useCase() }
                         runCurrent()
 
                         coVerify(exactly = 0) { repository.readWebViewLogin(siteUrlSet = any()) }
@@ -127,7 +128,7 @@ class SaveWebLoginUseCaseTest :
             val logList = recordConsoleLog()
 
             When("앱이 활성 상태에서 벗어나 보관한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-31ff2113-2f58-4cb0-b0c3-3d0e4ed631ba 실패를 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)

@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthd
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectCalendarFilterTagUseCase
@@ -131,7 +132,7 @@ class CalendarHomeScreenTagSelectTest {
         holidayList: List<Holiday> = emptyList(),
         weatherReport: CalendarWeatherReport = CalendarWeatherReport(),
     ) {
-        val getCalendarFilterUseCase = getCalendarFilterUseCase()
+        val getCalendarFilterUseCase = stubGetCalendarFilterUseCase()
         val filterViewModel = filterViewModel(getCalendarFilterUseCase = getCalendarFilterUseCase)
         val memoViewModel =
             CalendarHomeMemoViewModel(
@@ -181,9 +182,9 @@ class CalendarHomeScreenTagSelectTest {
         }
     }
 
-    private fun getCalendarFilterUseCase(): GetCalendarFilterUseCase =
+    private fun stubGetCalendarFilterUseCase(): GetCalendarFilterUseCase =
         mockk<GetCalendarFilterUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns selectedTagListFlow.map { tagList -> Result.success(tagList) }
+            every { useCase() } returns selectedTagListFlow.map { tagList -> Result.success(tagList) }
         }
 
     private fun filterViewModel(getCalendarFilterUseCase: GetCalendarFilterUseCase): CalendarHomeFilterViewModel {

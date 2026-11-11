@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatSetOrNull
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
@@ -77,7 +78,7 @@ class DDayMcpToolSetTest :
                     val searchDDayUseCase = mockk<SearchDDayUseCase>()
                     every { findDDayUseCase(parameter = dday.id) } returns flowOf(Result.success(dday))
                     every { getEntityTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
-                    every { pageDDayUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(listOf(dday))))
+                    every { pageDDayUseCase() } returns flowOf(Result.success(PagingData.from(listOf(dday))))
                     every { searchDDayUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(dday))))
                     val toolSet = toolSetOf<DDayMcpToolSet>(findDDayUseCase, getEntityTagUseCase, pageDDayUseCase, clock)
                     val searchToolSet = toolSetOf<SearchMcpToolSet>(searchDDayUseCase, clock)

@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.RestoreChecklistUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,7 +25,7 @@ internal class ChecklistHomeViewModel(
     private val restoreChecklistUseCase: RestoreChecklistUseCase,
 ) : ViewModel() {
     val checklistPagingData: Flow<PagingData<ChecklistSummary>> =
-        pageChecklistUseCase(parameter = Unit)
+        pageChecklistUseCase()
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 

@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
@@ -58,7 +59,7 @@ class AddMusicUseCaseTest :
                         val result = useCase(parameter = AddMusicUseCase.Parameter(detail = detail(title = blankTitle), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<MusicTitleBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any(), tagIdSet = any()) }
                     }
 
@@ -96,7 +97,7 @@ class AddMusicUseCaseTest :
                         val result = useCase(parameter = AddMusicUseCase.Parameter(detail = detail(link = link), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<MusicLinkNotYoutubeException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any(), tagIdSet = any()) }
                     }
                 }
@@ -107,7 +108,7 @@ class AddMusicUseCaseTest :
             val account = Arb.accountUser().next()
             val musicSlot = slot<Music>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMusicRepository = mockk<AccountMusicRepository>()
             coEvery { accountMusicRepository.upsert(account = account, music = capture(musicSlot), tagIdSet = any()) } just Runs
             val now = Arb.secondPrecisionInstant().next()
@@ -249,7 +250,7 @@ class AddMusicUseCaseTest :
         Given("곡을 추가할 수 있는 현재 계정이 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
@@ -272,7 +273,7 @@ class AddMusicUseCaseTest :
         Given("곡 저장은 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
@@ -301,7 +302,7 @@ class AddMusicUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
             val useCase =
                 AddMusicUseCase(
@@ -325,7 +326,7 @@ class AddMusicUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMusicRepository = mockk<AccountMusicRepository>()
             coEvery { accountMusicRepository.upsert(account = account, music = any(), tagIdSet = any()) } throws throwable
             val useCase =

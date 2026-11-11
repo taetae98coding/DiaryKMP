@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
@@ -312,7 +313,7 @@ private fun memoViewModel(
 
 private fun calendarFilterUseCase(flow: Flow<Result<List<Tag>>>): GetCalendarFilterUseCase {
     val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-    every { getCalendarFilterUseCase(parameter = Unit) } returns flow
+    every { getCalendarFilterUseCase() } returns flow
 
     return getCalendarFilterUseCase
 }

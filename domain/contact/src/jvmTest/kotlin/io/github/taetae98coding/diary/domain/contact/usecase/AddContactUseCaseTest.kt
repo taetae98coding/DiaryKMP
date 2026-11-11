@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.exception.ContactNameBlankException
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -65,7 +66,7 @@ class AddContactUseCaseTest :
                         val result = useCase(parameter = AddContactUseCase.Parameter(detail = Arb.contactDetailWithoutOption().next().copy(name = blankName), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<ContactNameBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any(), tagIdSet = any()) }
                     }
                 }
@@ -98,7 +99,7 @@ class AddContactUseCaseTest :
                         val result = useCase(parameter = AddContactUseCase.Parameter(detail = Arb.contactDetailWithoutOption().next().copy(phoneNumberList = phoneNumberList), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<ContactPhoneNumberBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any(), tagIdSet = any()) }
                     }
                 }
@@ -131,7 +132,7 @@ class AddContactUseCaseTest :
             val account = Arb.accountUser().next()
             val contactSlot = slot<Contact>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
             coEvery { accountContactRepository.upsert(account = account, contact = capture(contactSlot), tagIdSet = any()) } just Runs
             val now = Arb.secondPrecisionInstant().next()
@@ -391,7 +392,7 @@ class AddContactUseCaseTest :
         Given("연락처를 추가할 수 있는 현재 계정이 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
@@ -418,7 +419,7 @@ class AddContactUseCaseTest :
         Given("연락처 저장은 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
@@ -447,7 +448,7 @@ class AddContactUseCaseTest :
 
         Given("계정이 게스트 상태로 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
@@ -471,7 +472,7 @@ class AddContactUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
             val useCase =
                 AddContactUseCase(
@@ -495,7 +496,7 @@ class AddContactUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
             coEvery { accountContactRepository.upsert(account = account, contact = any(), tagIdSet = any()) } throws throwable
             val useCase =

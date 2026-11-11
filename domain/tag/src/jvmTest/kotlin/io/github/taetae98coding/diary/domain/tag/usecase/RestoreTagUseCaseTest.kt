@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.tag.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
@@ -35,7 +36,7 @@ class RestoreTagUseCaseTest :
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery {
                 accountTagRepository.updateDeleted(
@@ -77,7 +78,7 @@ class RestoreTagUseCaseTest :
             val account = Arb.constant(Account.Guest).next()
             val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery {
                 accountTagRepository.updateDeleted(account = account, tagId = id, isDeleted = any(), updatedAt = any())
@@ -104,7 +105,7 @@ class RestoreTagUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
             val useCase =
                 RestoreTagUseCase(
@@ -131,7 +132,7 @@ class RestoreTagUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery {
                 accountTagRepository.updateDeleted(account = account, tagId = any(), isDeleted = any(), updatedAt = any())

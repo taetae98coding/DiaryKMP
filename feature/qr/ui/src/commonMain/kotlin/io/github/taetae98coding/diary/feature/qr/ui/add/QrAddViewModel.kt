@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.qr.ui.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
@@ -30,7 +31,7 @@ internal class QrAddViewModel(
     val uiState: StateFlow<QrAddUiState> =
         combine(
             isInProgress,
-            getDefaultMapProviderUseCase(parameter = Unit),
+            getDefaultMapProviderUseCase(),
         ) { isInProgress, providerResult ->
             QrAddUiState(
                 isInProgress = isInProgress,

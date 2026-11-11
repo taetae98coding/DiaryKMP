@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.testing.location.coordinate
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeUiState
@@ -106,7 +107,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                 val coordinate = Arb.coordinate().next()
                 val completion = CompletableDeferred<Result<Coordinate>>()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-                coEvery { fetchCurrentLocationUseCase(parameter = Unit) } coAnswers { completion.await() }
+                coEvery { fetchCurrentLocationUseCase() } coAnswers { completion.await() }
                 val viewModel =
                     viewModel(
                         defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
@@ -117,7 +118,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                     awaitItem() shouldBe PlaceHomeUiState.Loading
                     viewModel.fetchCurrentLocation()
                     advanceUntilIdle()
-                    coVerify(exactly = 1) { fetchCurrentLocationUseCase(parameter = Unit) }
+                    coVerify(exactly = 1) { fetchCurrentLocationUseCase() }
                     expectNoEvents()
 
                     completion.complete(Result.success(coordinate))
@@ -183,7 +184,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 1) { fetchCurrentLocationUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { fetchCurrentLocationUseCase() }
             }
         }
 
@@ -192,7 +193,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                 val beforeCoordinate = Arb.coordinate().next()
                 val afterCoordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-                coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returnsMany
+                coEvery { fetchCurrentLocationUseCase() } returnsMany
                     listOf(Result.success(beforeCoordinate), Result.success(afterCoordinate))
 
                 viewModel(
@@ -253,7 +254,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
 
         private fun fetchCurrentLocationUseCase(currentLocation: Result<Coordinate>): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { useCase(parameter = Unit) } returns currentLocation
+            coEvery { useCase() } returns currentLocation
 
             return useCase
         }
@@ -264,7 +265,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             fetchCurrentLocationUseCase: FetchCurrentLocationUseCase = fetchCurrentLocationUseCase(currentLocation),
         ): PlaceHomeMapViewModel {
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(Unit) } returns defaultMapProvider
+            every { getDefaultMapProviderUseCase() } returns defaultMapProvider
 
             return PlaceHomeMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

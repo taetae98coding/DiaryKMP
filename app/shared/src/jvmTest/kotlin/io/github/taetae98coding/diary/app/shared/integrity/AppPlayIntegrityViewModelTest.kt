@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.app.shared.integrity
 
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.domain.integrity.usecase.LogPlayIntegrityUseCase
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
@@ -43,7 +44,7 @@ class AppPlayIntegrityViewModelTest : FunSpec() {
                 val serverResponse = CompletableDeferred<Unit>()
                 var finishedCount = 0
                 val useCase = mockk<LogPlayIntegrityUseCase>()
-                coEvery { useCase(Unit) } coAnswers {
+                coEvery { useCase() } coAnswers {
                     serverResponse.await()
                     finishedCount += 1
                     Result.success(Unit)
@@ -100,19 +101,19 @@ class AppPlayIntegrityViewModelTest : FunSpec() {
         test("확인 요청이 반복되어도 진행 중에는 UseCase를 한 번만 실행하고 끝나면 다시 요청할 수 있다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<LogPlayIntegrityUseCase>()
-                coEvery { useCase(Unit) } returns Result.success(Unit)
+                coEvery { useCase() } returns Result.success(Unit)
                 val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = useCase)
 
                 viewModel.log()
                 viewModel.log()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(Unit) }
+                coVerify(exactly = 1) { useCase() }
 
                 viewModel.log()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { useCase(Unit) }
+                coVerify(exactly = 2) { useCase() }
             }
         }
     }

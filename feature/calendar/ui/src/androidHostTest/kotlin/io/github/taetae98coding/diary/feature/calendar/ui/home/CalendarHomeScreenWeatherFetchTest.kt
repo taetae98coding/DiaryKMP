@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
@@ -61,12 +62,12 @@ class CalendarHomeScreenWeatherFetchTest {
     fun `TC-aac88cdb-1fb7-4741-9e2f-6a0b96e28565 날씨 동기화가 실패해도 날씨 없이 표시하고 다른 표시를 막지 않는다`() {
         val errorMessage = Arb.nonBlankString().next()
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-        coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } returns
+        coEvery { fetchCurrentWeatherUseCase() } returns
             Result.failure(IllegalStateException(errorMessage))
         val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
-        coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } returns Result.success(Unit)
+        coEvery { refreshCurrentWeatherUseCase() } returns Result.success(Unit)
         val getCurrentCalendarWeatherUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
-        every { getCurrentCalendarWeatherUseCase(parameter = Unit) } returns
+        every { getCurrentCalendarWeatherUseCase() } returns
             flowOf(Result.success(CalendarWeatherReport()))
         val weatherViewModel =
             CalendarHomeWeatherViewModel(

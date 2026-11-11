@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SubmitFcmTokenUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
@@ -94,9 +95,9 @@ class SubmitFcmTokenEffectTest {
     fun `TC-6fee7d8e-8951-49e5-a985-2864217598f2 화면이 재생성되면 같은 계정이어도 다시 등록한다`() {
         val account = Arb.accountUser().next().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+        every { getAccountUseCase() } returns flowOf(Result.success(account))
         val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
-        coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+        coEvery { submitFcmTokenUseCase() } returns Result.success(Unit)
         val viewModel =
             AppFcmTokenViewModel(
                 getAccountUseCase = getAccountUseCase,
@@ -114,13 +115,13 @@ class SubmitFcmTokenEffectTest {
             }
         }
         composeRule.runOnIdle {
-            coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+            coVerify(exactly = 1) { submitFcmTokenUseCase() }
         }
 
         restorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.runOnIdle {
-            coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+            coVerify(exactly = 2) { submitFcmTokenUseCase() }
         }
     }
 
@@ -129,9 +130,9 @@ class SubmitFcmTokenEffectTest {
         shadowOf(RuntimeEnvironment.getApplication()).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
         val account = Arb.accountUser().next().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+        every { getAccountUseCase() } returns flowOf(Result.success(account))
         val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
-        coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+        coEvery { submitFcmTokenUseCase() } returns Result.success(Unit)
         val viewModel =
             AppFcmTokenViewModel(
                 getAccountUseCase = getAccountUseCase,
@@ -149,7 +150,7 @@ class SubmitFcmTokenEffectTest {
         }
 
         composeRule.runOnIdle {
-            coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+            coVerify(exactly = 1) { submitFcmTokenUseCase() }
         }
     }
 

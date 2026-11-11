@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountCalendarMemoRepository
 import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.core.spec.style.BehaviorSpec
@@ -37,7 +38,7 @@ class GetCalendarMemoUseCaseTest :
             val memoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val otherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(memoList)
             every { accountCalendarMemoRepository.get(account = otherAccount, dateRange = dateRange) } returns flowOf(otherMemoList)
@@ -69,7 +70,7 @@ class GetCalendarMemoUseCaseTest :
             val memoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val otherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(memoList)
             every { accountCalendarMemoRepository.get(account = account, dateRange = otherDateRange) } returns flowOf(otherMemoList)
@@ -98,7 +99,7 @@ class GetCalendarMemoUseCaseTest :
             val changedMemoList = listOf(memo.copy(title = "새 제목 ${Arb.string().next()}"))
             val memoListFlow = MutableStateFlow(memoList)
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns memoListFlow
             val useCase =
@@ -129,7 +130,7 @@ class GetCalendarMemoUseCaseTest :
             val otherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(memoList)
             every { accountCalendarMemoRepository.get(account = otherAccount, dateRange = dateRange) } returns flowOf(otherMemoList)
@@ -157,7 +158,7 @@ class GetCalendarMemoUseCaseTest :
             val dateRange = Arb.localDateRange().next()
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(emptyList())
             val useCase =
@@ -180,7 +181,7 @@ class GetCalendarMemoUseCaseTest :
             val account = Arb.accountUser().next()
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flow { throw failure }
             val useCase =
@@ -205,7 +206,7 @@ class GetCalendarMemoUseCaseTest :
             val dateRange = Arb.localDateRange().next()
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>(relaxed = true)
             val useCase =
                 GetCalendarMemoUseCase(
@@ -237,7 +238,7 @@ class GetCalendarMemoUseCaseTest :
             val otherMemoListFlow = MutableStateFlow(otherMemoList)
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns memoListFlow
             every { accountCalendarMemoRepository.get(account = otherAccount, dateRange = dateRange) } returns otherMemoListFlow

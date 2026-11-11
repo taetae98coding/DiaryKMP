@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.map
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.SetDefaultMapProviderUseCase
 import io.kotest.core.spec.style.FunSpec
@@ -42,7 +43,7 @@ class SettingMapViewModelTest : FunSpec() {
         test("TC-b3d3d71c-dc8b-4df2-a279-68e891d1d5ac 저장된 기본 지도를 확인하기 전에는 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { getDefaultMapProviderUseCase(Unit) } returns emptyFlow()
+                every { getDefaultMapProviderUseCase() } returns emptyFlow()
                 val viewModel =
                     SettingMapViewModel(
                         getDefaultMapProviderUseCase = getDefaultMapProviderUseCase,
@@ -61,7 +62,7 @@ class SettingMapViewModelTest : FunSpec() {
             MapProvider.entries.forEach { provider ->
                 runTest(mainDispatcher) {
                     val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                    every { getDefaultMapProviderUseCase(Unit) } returns flowOf(Result.success(provider))
+                    every { getDefaultMapProviderUseCase() } returns flowOf(Result.success(provider))
                     val viewModel =
                         SettingMapViewModel(
                             getDefaultMapProviderUseCase = getDefaultMapProviderUseCase,
@@ -84,7 +85,7 @@ class SettingMapViewModelTest : FunSpec() {
                 runTest(mainDispatcher) {
                     val storedProvider = MutableStateFlow(Result.success(stored))
                     val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                    every { getDefaultMapProviderUseCase(Unit) } returns storedProvider
+                    every { getDefaultMapProviderUseCase() } returns storedProvider
                     val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
                     coEvery { setDefaultMapProviderUseCase(selected) } coAnswers {
                         storedProvider.value = Result.success(selected)
@@ -114,7 +115,7 @@ class SettingMapViewModelTest : FunSpec() {
         test("TC-b4ecf394-17c5-4b09-a718-a8d8ede7b3c3 이미 선택된 지도를 다시 선택하면 아무것도 바뀌지 않는다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { getDefaultMapProviderUseCase(Unit) } returns MutableStateFlow(Result.success(MapProvider.NAVER))
+                every { getDefaultMapProviderUseCase() } returns MutableStateFlow(Result.success(MapProvider.NAVER))
                 val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
                 val viewModel =
                     SettingMapViewModel(
@@ -140,7 +141,7 @@ class SettingMapViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val saving = CompletableDeferred<Result<Unit>>()
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { getDefaultMapProviderUseCase(Unit) } returns MutableStateFlow(Result.success(MapProvider.NAVER))
+                every { getDefaultMapProviderUseCase() } returns MutableStateFlow(Result.success(MapProvider.NAVER))
                 val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
                 coEvery { setDefaultMapProviderUseCase(MapProvider.GOOGLE) } coAnswers { saving.await() }
                 val viewModel =
@@ -171,7 +172,7 @@ class SettingMapViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val storedProvider = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { getDefaultMapProviderUseCase(Unit) } returns storedProvider
+                every { getDefaultMapProviderUseCase() } returns storedProvider
                 val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
                 coEvery { setDefaultMapProviderUseCase(any()) } coAnswers {
                     storedProvider.value = Result.success(firstArg())
@@ -206,7 +207,7 @@ class SettingMapViewModelTest : FunSpec() {
         test("TC-4f24cd13-6ed2-423e-a95a-3a83c293b027 저장되지 않으면 선택 상태가 옮겨지지 않는다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { getDefaultMapProviderUseCase(Unit) } returns MutableStateFlow(Result.success(MapProvider.NAVER))
+                every { getDefaultMapProviderUseCase() } returns MutableStateFlow(Result.success(MapProvider.NAVER))
                 val setDefaultMapProviderUseCase = mockk<SetDefaultMapProviderUseCase>()
                 coEvery { setDefaultMapProviderUseCase(MapProvider.GOOGLE) } returns Result.failure(IllegalStateException("save error"))
                 val viewModel =
@@ -230,7 +231,7 @@ class SettingMapViewModelTest : FunSpec() {
         test("TC-b3d3d71c-dc8b-4df2-a279-68e891d1d5ac 기본 지도를 읽지 못하면 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { getDefaultMapProviderUseCase(Unit) } returns flowOf(Result.failure(IllegalStateException("read error")))
+                every { getDefaultMapProviderUseCase() } returns flowOf(Result.failure(IllegalStateException("read error")))
                 val viewModel =
                     SettingMapViewModel(
                         getDefaultMapProviderUseCase = getDefaultMapProviderUseCase,

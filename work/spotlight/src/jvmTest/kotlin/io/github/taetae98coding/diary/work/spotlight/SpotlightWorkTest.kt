@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -270,7 +271,7 @@ private fun TestScope.startWork(
     index: SpotlightIndexState,
 ) {
     val getAccountUseCase = mockk<GetAccountUseCase>()
-    every { getAccountUseCase(parameter = Unit) } returns account
+    every { getAccountUseCase() } returns account
 
     backgroundScope.launch {
         SpotlightWork(

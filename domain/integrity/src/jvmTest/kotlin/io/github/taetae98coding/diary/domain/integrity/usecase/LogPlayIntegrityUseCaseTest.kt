@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.integrity.usecase
 
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
 import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
@@ -62,7 +63,7 @@ class LogPlayIntegrityUseCaseTest :
             val logList = recordLog()
 
             When("판정을 확인한다") {
-                val result = useCase(verdict = verdict)(parameter = Unit)
+                val result = useCase(verdict = verdict)()
 
                 Then("TC-142d9413-e8d5-4428-ad52-0cfdf72b80fc play_integrity 원격 분석 로그 하나에 표의 필드를 한 단계 목록으로 남긴다") {
                     result.shouldBeSuccess()
@@ -100,7 +101,7 @@ class LogPlayIntegrityUseCaseTest :
             val logList = recordLog()
 
             When("판정을 확인한다") {
-                useCase(verdict = verdict)(parameter = Unit)
+                useCase(verdict = verdict)()
 
                 Then("TC-772fd425-f1a4-4fb1-8dde-c660ed352753 받은 순서대로 쉼표로 이은 문자열 하나로 남긴다") {
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters["device_recognition_verdict"] shouldBe
@@ -122,7 +123,7 @@ class LogPlayIntegrityUseCaseTest :
             val logList = recordLog()
 
             When("판정을 확인한다") {
-                useCase(verdict = verdict)(parameter = Unit)
+                useCase(verdict = verdict)()
 
                 Then("TC-c656ccf9-2168-433e-a76d-679a9be989fd 숫자와 문자열은 종류를 지키고 참·거짓은 문자열로 남긴다") {
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
@@ -158,7 +159,7 @@ class LogPlayIntegrityUseCaseTest :
                                 "deviceIntegrity" to deviceIntegrity,
                             )
 
-                        useCase(verdict = verdict)(parameter = Unit)
+                        useCase(verdict = verdict)()
 
                         logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
                             JsonObject(mapOf("app_recognition_verdict" to JsonPrimitive(appRecognitionVerdict)))
@@ -177,7 +178,7 @@ class LogPlayIntegrityUseCaseTest :
             val logList = recordLog()
 
             When("판정을 확인한다") {
-                useCase(verdict = verdict)(parameter = Unit)
+                useCase(verdict = verdict)()
 
                 Then("TC-ebb2266a-6afe-40b0-9fb1-0c952d73538b 표에 없는 필드는 담지 않는다") {
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
@@ -190,7 +191,7 @@ class LogPlayIntegrityUseCaseTest :
             val logList = recordLog()
 
             When("판정을 확인한다") {
-                val result = useCase(verdict = null)(parameter = Unit)
+                val result = useCase(verdict = null)()
 
                 Then("TC-0ad09bab-6b59-4f35-9e63-0478f4bc6a48 원격 분석 로그를 남기지 않고 오류 없이 끝난다") {
                     result.shouldBeSuccess()
@@ -208,7 +209,7 @@ class LogPlayIntegrityUseCaseTest :
             val logList = recordLog()
 
             When("판정을 확인한다") {
-                val result = LogPlayIntegrityUseCase(playIntegrityRepository = repository)(parameter = Unit)
+                val result = LogPlayIntegrityUseCase(playIntegrityRepository = repository)()
 
                 Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f TC-3e0082f8-6e96-4f1f-ae14-648babc4b671 원격 분석 로그와 오류 보고 없이 끝난다") {
                     result.shouldBeFailure()

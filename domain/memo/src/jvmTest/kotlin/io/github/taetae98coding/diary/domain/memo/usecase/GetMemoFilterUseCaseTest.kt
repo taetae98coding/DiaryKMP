@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoFilterRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -27,7 +28,7 @@ class GetMemoFilterUseCaseTest :
             val tagList = listOf(tag(), tag())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountMemoFilterRepository = mockk<AccountMemoFilterRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountMemoFilterRepository.getTagList(account = account) } returns flowOf(tagList)
             val useCase =
                 GetMemoFilterUseCase(
@@ -37,7 +38,7 @@ class GetMemoFilterUseCaseTest :
 
             When("필터 선택 태그를 조회한다") {
                 Then("현재 계정의 필터 선택 태그를 반환한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().getOrThrow() shouldBe tagList
                         awaitComplete()
                     }
@@ -53,7 +54,7 @@ class GetMemoFilterUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountMemoFilterRepository = mockk<AccountMemoFilterRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase =
                 GetMemoFilterUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -62,7 +63,7 @@ class GetMemoFilterUseCaseTest :
 
             When("필터 선택 태그를 조회한다") {
                 Then("계정 조회 실패를 전달하고 저장소에 선택 태그를 요청하지 않는다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure { throwable -> throwable shouldBe failure }
                         awaitComplete()
                     }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,7 @@ internal class ProfileAccountViewModel(
     getAccountUseCase: GetAccountUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<ProfileAccountUiState> =
-        getAccountUseCase(parameter = Unit)
+        getAccountUseCase()
             .map { result ->
                 when (result.getOrNull()) {
                     null -> ProfileAccountUiState.Loading

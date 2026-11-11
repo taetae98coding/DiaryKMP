@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.sync.usecase
 
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncManager
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.kotest.core.spec.style.BehaviorSpec
@@ -15,7 +16,7 @@ class DDayAddDetailGuestRequestSyncUseCaseTest :
     BehaviorSpec({
         Given("로그인하지 않아 게스트 계정이 확인된다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             val syncManager = mockk<SyncManager>(relaxed = true)
             val useCase = RequestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
 

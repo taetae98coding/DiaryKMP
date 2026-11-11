@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
@@ -248,9 +249,9 @@ class MoreHomeScreenTest {
     @Test
     fun `TC-6d26e203-5964-4df1-a6c8-ce45d6667e28 확인 다이얼로그를 뒤로가기로 닫으면 로그아웃하지 않는다`() {
         val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-        every { findSyncPendingUseCase(Unit) } returns MutableStateFlow(Result.success(true))
+        every { findSyncPendingUseCase() } returns MutableStateFlow(Result.success(true))
         val signOutUseCase = mockk<SignOutUseCase>()
-        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        coEvery { signOutUseCase() } returns Result.success(Unit)
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
             signOutViewModel =
@@ -270,7 +271,7 @@ class MoreHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
-        coVerify(exactly = 0) { signOutUseCase(Unit) }
+        coVerify(exactly = 0) { signOutUseCase() }
         composeRule.onNodeWithText(USER_EMAIL).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
     }
@@ -513,9 +514,9 @@ class MoreHomeScreenTest {
     fun `TC-9e64434e-9a12-4514-a7a5-343ac5b60f14 화면 구성이 바뀌어 다시 그려져도 다이얼로그가 열린 상태를 유지한다`() {
         val syncPendingFlow = MutableStateFlow(Result.success(true))
         val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-        every { findSyncPendingUseCase(Unit) } returns syncPendingFlow
+        every { findSyncPendingUseCase() } returns syncPendingFlow
         val signOutUseCase = mockk<SignOutUseCase>()
-        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        coEvery { signOutUseCase() } returns Result.success(Unit)
         // 화면 구성이 바뀌어도 화면의 상태 보관 객체는 그대로 남으므로 같은 인스턴스로 다시 그린다.
         val signOutViewModel =
             MoreHomeSignOutViewModel(
@@ -558,15 +559,15 @@ class MoreHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
-        coVerify(exactly = 0) { signOutUseCase(Unit) }
+        coVerify(exactly = 0) { signOutUseCase() }
     }
 
     @Test
     fun `TC-b8ad0a35-4f48-41c9-95aa-63be43b43fff 닫은 다이얼로그는 화면 구성이 바뀌어 다시 그려져도 다시 열리지 않는다`() {
         val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-        every { findSyncPendingUseCase(Unit) } returns MutableStateFlow(Result.success(true))
+        every { findSyncPendingUseCase() } returns MutableStateFlow(Result.success(true))
         val signOutUseCase = mockk<SignOutUseCase>()
-        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        coEvery { signOutUseCase() } returns Result.success(Unit)
         val signOutViewModel =
             MoreHomeSignOutViewModel(
                 savedStateHandle = SavedStateHandle(),
@@ -610,15 +611,15 @@ class MoreHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
-        coVerify(exactly = 0) { signOutUseCase(Unit) }
+        coVerify(exactly = 0) { signOutUseCase() }
     }
 
     @Test
     fun `TC-350d604e-6bc5-4a40-a514-62e7d2bd3cda TC-083bc7b6-d2da-4342-9c9e-a06768f27edc 화면을 떠났다 들어오거나 앱을 새로 시작하면 다이얼로그가 닫힌 상태로 시작한다`() {
         val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-        every { findSyncPendingUseCase(Unit) } returns MutableStateFlow(Result.success(true))
+        every { findSyncPendingUseCase() } returns MutableStateFlow(Result.success(true))
         val signOutUseCase = mockk<SignOutUseCase>()
-        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        coEvery { signOutUseCase() } returns Result.success(Unit)
         val accountViewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL))
         val refreshViewModel = screenTestRefreshViewModel()
         var entryCount by mutableIntStateOf(0)
@@ -666,7 +667,7 @@ class MoreHomeScreenTest {
 
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
-        coVerify(exactly = 0) { signOutUseCase(Unit) }
+        coVerify(exactly = 0) { signOutUseCase() }
     }
 
     private fun setMoreHomeScreen(

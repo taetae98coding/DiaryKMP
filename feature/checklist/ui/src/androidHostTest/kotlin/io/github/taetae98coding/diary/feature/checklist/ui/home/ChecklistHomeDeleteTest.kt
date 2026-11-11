@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -126,7 +127,7 @@ class ChecklistHomeDeleteTest {
     fun `TC-388cee7d-d25c-4b17-bba6-85048cb39130 삭제가 저장되지 못하면 안내를 표시하지 않는다`() {
         val first = Arb.checklistSummary().next()
         val pageChecklistUseCase = mockk<PageChecklistUseCase>()
-        every { pageChecklistUseCase(parameter = Unit) } returns flowOf(Result.success(checklistPagingDataOf(listOf(first))))
+        every { pageChecklistUseCase() } returns flowOf(Result.success(checklistPagingDataOf(listOf(first))))
         val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
         coEvery { deleteChecklistUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val viewModel =

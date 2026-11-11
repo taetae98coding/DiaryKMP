@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.qr.ui.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
@@ -38,7 +39,7 @@ internal class QrDetailViewModel(
             findQrUseCase(parameter = id),
             isUpdateInProgress,
             isDeleteInProgress,
-            getDefaultMapProviderUseCase(parameter = Unit),
+            getDefaultMapProviderUseCase(),
         ) { result, isUpdateInProgress, isDeleteInProgress, providerResult ->
             result.getOrNull()?.let { qr ->
                 QrDetailUiState.Content(

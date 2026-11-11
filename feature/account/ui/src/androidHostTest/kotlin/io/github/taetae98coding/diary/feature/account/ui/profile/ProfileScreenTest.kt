@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.testing.authentication.appleAuthoriza
 import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
 import io.github.taetae98coding.diary.domain.account.usecase.CheckAppleReauthenticationRequiredUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.DeleteAccountUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -367,7 +368,7 @@ class ProfileScreenTest {
         val second = CompletableDeferred<AppleSignInResult>()
         val secondCheck = CompletableDeferred<Result<Boolean>>()
         val fixture = Fixture(isAppleReauthenticationRequired = true)
-        coEvery { fixture.checkUseCase(parameter = Unit) } returns Result.success(true) coAndThen { secondCheck.await() }
+        coEvery { fixture.checkUseCase() } returns Result.success(true) coAndThen { secondCheck.await() }
         coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { first.await() } coAndThen { second.await() }
         setScreen(fixture)
 
@@ -484,7 +485,7 @@ class ProfileScreenTest {
     fun `TC-c6f65655-042d-482c-8e05-bc07a3289ec6 판단 중 재생성되어도 재인증이 필요하면 재인증을 시작한다`() {
         val checkResult = CompletableDeferred<Result<Boolean>>()
         val fixture = Fixture(isAppleReauthenticationRequired = true)
-        coEvery { fixture.checkUseCase(parameter = Unit) } coAnswers { checkResult.await() }
+        coEvery { fixture.checkUseCase() } coAnswers { checkResult.await() }
         coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { CompletableDeferred<AppleSignInResult>().await() }
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ProfileContent(fixture) }
@@ -505,7 +506,7 @@ class ProfileScreenTest {
     fun `TC-c6f65655-042d-482c-8e05-bc07a3289ec6 판단 중 재생성되어도 재인증이 필요 없으면 진행 중을 유지하고 한 번만 요청한다`() {
         val checkResult = CompletableDeferred<Result<Boolean>>()
         val fixture = Fixture()
-        coEvery { fixture.checkUseCase(parameter = Unit) } coAnswers { checkResult.await() }
+        coEvery { fixture.checkUseCase() } coAnswers { checkResult.await() }
         coEvery { fixture.deleteAccountUseCase(parameter = any()) } coAnswers { CompletableDeferred<Result<Unit>>().await() }
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ProfileContent(fixture) }
@@ -665,8 +666,8 @@ private class Fixture(
     val checkUseCase: CheckAppleReauthenticationRequiredUseCase = mockk()
 
     init {
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
-        coEvery { checkUseCase(parameter = Unit) } returns
+        every { getAccountUseCase() } returns accountFlow
+        coEvery { checkUseCase() } returns
             if (isAppleReauthenticationCheckFailed) {
                 Result.failure(IllegalStateException("check"))
             } else {

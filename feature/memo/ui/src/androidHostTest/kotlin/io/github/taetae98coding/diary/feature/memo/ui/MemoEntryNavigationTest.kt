@@ -53,6 +53,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
@@ -635,11 +636,11 @@ class MemoEntryNavigationTest {
 
     private fun memoHomeViewModel(): MemoHomeViewModel {
         val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
-        every { getMemoFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        every { getMemoFilterUseCase() } returns flowOf(Result.success(emptyList()))
         val getMemoFilterTagIdUseCase = mockk<GetMemoFilterTagIdUseCase>()
-        every { getMemoFilterTagIdUseCase(parameter = Unit) } returns flowOf(Result.success(emptySet()))
+        every { getMemoFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
-        every { getMemoExistenceFilterUseCase(parameter = Unit) } returns flowOf(Result.success(MemoExistenceFilter()))
+        every { getMemoExistenceFilterUseCase() } returns flowOf(Result.success(MemoExistenceFilter()))
         val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
         every { pageMemoHomeUseCase(parameter = any()) } returns storedHomeMemoList.map { memoList -> Result.success(PagingData.from(memoList)) }
 

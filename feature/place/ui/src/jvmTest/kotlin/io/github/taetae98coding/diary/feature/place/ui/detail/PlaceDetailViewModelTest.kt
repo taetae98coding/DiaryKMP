@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInvalidException
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
@@ -270,7 +271,7 @@ class PlaceDetailViewModelTest : FunSpec() {
         test("TC-596c6648-c8da-4234-bc45-ba68f29b788c 기본 지도를 읽지 못하면 지도 제공자를 확인하지 않은 상태로 둔다") {
             runTest(mainDispatcher) {
                 val defaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { defaultMapProviderUseCase(Unit) } returns flowOf(Result.failure(IllegalStateException()))
+                every { defaultMapProviderUseCase() } returns flowOf(Result.failure(IllegalStateException()))
                 val viewModel = viewModel(defaultMapProviderUseCase = defaultMapProviderUseCase)
                 collectUiState(viewModel)
                 advanceUntilIdle()
@@ -286,7 +287,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val providerFlow = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val defaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { defaultMapProviderUseCase(Unit) } returns providerFlow
+                every { defaultMapProviderUseCase() } returns providerFlow
                 val viewModel = viewModel(defaultMapProviderUseCase = defaultMapProviderUseCase)
                 collectUiState(viewModel)
                 advanceUntilIdle()
@@ -449,7 +450,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             deletePlaceUseCase: DeletePlaceUseCase = mockk(),
             findPlaceUseCase: FindPlaceUseCase = findPlaceUseCase(id = id, place = place),
             defaultProvider: MapProvider = MapProvider.NAVER,
-            defaultMapProviderUseCase: GetDefaultMapProviderUseCase = defaultMapProviderUseCase(provider = defaultProvider),
+            defaultMapProviderUseCase: GetDefaultMapProviderUseCase = stubDefaultMapProviderUseCase(provider = defaultProvider),
         ): PlaceDetailViewModel =
             PlaceDetailViewModel(
                 id = id,
@@ -459,9 +460,9 @@ class PlaceDetailViewModelTest : FunSpec() {
                 getDefaultMapProviderUseCase = defaultMapProviderUseCase,
             )
 
-        private fun defaultMapProviderUseCase(provider: MapProvider = MapProvider.NAVER): GetDefaultMapProviderUseCase =
+        private fun stubDefaultMapProviderUseCase(provider: MapProvider = MapProvider.NAVER): GetDefaultMapProviderUseCase =
             mockk<GetDefaultMapProviderUseCase>().also { useCase ->
-                every { useCase(Unit) } returns flowOf(Result.success(provider))
+                every { useCase() } returns flowOf(Result.success(provider))
             }
 
         private fun findPlaceUseCase(

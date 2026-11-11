@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.Account
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
@@ -60,7 +61,7 @@ internal class SyncWorkImpl(
     private suspend fun awaitConfirmedAccount(): Account {
         refreshStoppedSession()
 
-        return getAccountUseCase(parameter = Unit)
+        return getAccountUseCase()
             .map { result -> result.getOrThrow() }
             .first { account ->
                 when (account) {

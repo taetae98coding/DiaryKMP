@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.web.exception.WebHeaderNameBlankException
@@ -60,7 +61,7 @@ class AddWebUseCaseTest :
                         val result = useCase(parameter = AddWebUseCase.Parameter(detail = detail(title = blankTitle), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<WebTitleBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountWebRepository.upsert(account = any(), web = any(), tagIdSet = any()) }
                     }
 
@@ -108,7 +109,7 @@ class AddWebUseCaseTest :
                         val result = useCase(parameter = AddWebUseCase.Parameter(detail = detail(url = blankUrl), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<WebUrlBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountWebRepository.upsert(account = any(), web = any(), tagIdSet = any()) }
                     }
                 }
@@ -141,7 +142,7 @@ class AddWebUseCaseTest :
                         val result = useCase(parameter = AddWebUseCase.Parameter(detail = detail(headerList = headerList), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<WebHeaderNameBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountWebRepository.upsert(account = any(), web = any(), tagIdSet = any()) }
                     }
 
@@ -170,7 +171,7 @@ class AddWebUseCaseTest :
             val account = Arb.accountUser().next()
             val webSlot = slot<Web>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery { accountWebRepository.upsert(account = account, web = capture(webSlot), tagIdSet = any()) } just Runs
             val now = Arb.secondPrecisionInstant().next()
@@ -281,7 +282,7 @@ class AddWebUseCaseTest :
         Given("웹 항목을 추가할 수 있는 현재 계정이 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
@@ -304,7 +305,7 @@ class AddWebUseCaseTest :
         Given("웹 항목 저장은 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
@@ -340,7 +341,7 @@ class AddWebUseCaseTest :
 
         Given("계정이 게스트 상태로 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
             val useCase =
                 AddWebUseCase(
@@ -362,7 +363,7 @@ class AddWebUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
             val useCase =
                 AddWebUseCase(
@@ -386,7 +387,7 @@ class AddWebUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery { accountWebRepository.upsert(account = account, web = any(), tagIdSet = any()) } throws throwable
             val useCase =

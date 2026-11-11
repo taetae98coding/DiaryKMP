@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
@@ -48,7 +49,7 @@ class QrAppActionTest :
             runTest {
                 val qrList = Arb.list(Arb.qr(), 101..150).next()
                 val pageQrUseCase = mockk<PageQrUseCase>()
-                every { pageQrUseCase(parameter = Unit) } answers { flowOf(Result.success(PagingData.from(qrList))) }
+                every { pageQrUseCase() } answers { flowOf(Result.success(PagingData.from(qrList))) }
                 val action = qrAppActionOf(pageQrUseCase)
 
                 val firstPage = action.list(cursor = null)
@@ -65,7 +66,7 @@ class QrAppActionTest :
                 val action = qrAppActionOf(pageQrUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.list(cursor = "abc") }.message shouldBe "'cursor' must be a nextCursor value from a previous page."
-                verify(exactly = 0) { pageQrUseCase(parameter = Unit) }
+                verify(exactly = 0) { pageQrUseCase() }
             }
         }
 
@@ -73,7 +74,7 @@ class QrAppActionTest :
             runTest {
                 val message = Arb.nonBlankString().next()
                 val pageQrUseCase = mockk<PageQrUseCase>()
-                every { pageQrUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException(message)))
+                every { pageQrUseCase() } returns flowOf(Result.failure(IllegalStateException(message)))
                 val action = qrAppActionOf(pageQrUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.list(cursor = null) }.message shouldBe "IllegalStateException: $message"

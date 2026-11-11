@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
@@ -22,7 +23,7 @@ internal class AppSyncViewModel(
 ) : ViewModel() {
     // 인증되지 않은 상태도 내보내야 같은 계정으로 다시 인증될 때 값이 다시 바뀐다.
     val uiState: StateFlow<AppSyncUiState> =
-        getAccountUseCase(parameter = Unit)
+        getAccountUseCase()
             .mapNotNull { result -> result.getOrNull() }
             .map { account -> account.toUiState() }
             .stateIn(

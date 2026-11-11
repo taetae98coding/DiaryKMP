@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.mcp
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.mcp.McpServerState
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.mcp.usecase.DisableMcpServerUseCase
 import io.github.taetae98coding.diary.domain.mcp.usecase.EnableMcpServerUseCase
 import io.github.taetae98coding.diary.domain.mcp.usecase.GetMcpServerEnabledUseCase
@@ -65,7 +66,7 @@ class SettingMcpViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val storedEnabled = MutableStateFlow(Result.success(false))
                 val enableUseCase = mockk<EnableMcpServerUseCase>()
-                coEvery { enableUseCase(Unit) } coAnswers {
+                coEvery { enableUseCase() } coAnswers {
                     storedEnabled.value = Result.success(true)
                     Result.success(Unit)
                 }
@@ -88,8 +89,8 @@ class SettingMcpViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingMcpUiState.Content(isEnabled = true, serverState = McpServerState.Off)
                 }
 
-                coVerify(exactly = 1) { enableUseCase(Unit) }
-                coVerify(exactly = 0) { disableUseCase(Unit) }
+                coVerify(exactly = 1) { enableUseCase() }
+                coVerify(exactly = 0) { disableUseCase() }
             }
         }
 
@@ -98,7 +99,7 @@ class SettingMcpViewModelTest : FunSpec() {
                 val storedEnabled = MutableStateFlow(Result.success(true))
                 val enableUseCase = mockk<EnableMcpServerUseCase>()
                 val disableUseCase = mockk<DisableMcpServerUseCase>()
-                coEvery { disableUseCase(Unit) } coAnswers {
+                coEvery { disableUseCase() } coAnswers {
                     storedEnabled.value = Result.success(false)
                     Result.success(Unit)
                 }
@@ -120,15 +121,15 @@ class SettingMcpViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingMcpUiState.Content(isEnabled = false, serverState = McpServerState.Off)
                 }
 
-                coVerify(exactly = 1) { disableUseCase(Unit) }
-                coVerify(exactly = 0) { enableUseCase(Unit) }
+                coVerify(exactly = 1) { disableUseCase() }
+                coVerify(exactly = 0) { enableUseCase() }
             }
         }
 
         test("TC-24a81b58-1da7-46d0-b69b-a32b19d06e94 저장에 실패하면 이전 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val enableUseCase = mockk<EnableMcpServerUseCase>()
-                coEvery { enableUseCase(Unit) } returns Result.failure(IllegalStateException("save error"))
+                coEvery { enableUseCase() } returns Result.failure(IllegalStateException("save error"))
                 val viewModel =
                     viewModel(
                         enabledFlow = MutableStateFlow(Result.success(false)),
@@ -147,7 +148,7 @@ class SettingMcpViewModelTest : FunSpec() {
                     viewModel.uiState.value shouldBe SettingMcpUiState.Content(isEnabled = false, serverState = McpServerState.Off)
                 }
 
-                coVerify(exactly = 1) { enableUseCase(Unit) }
+                coVerify(exactly = 1) { enableUseCase() }
             }
         }
 
@@ -209,7 +210,7 @@ class SettingMcpViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val saving = CompletableDeferred<Result<Unit>>()
                 val enableUseCase = mockk<EnableMcpServerUseCase>()
-                coEvery { enableUseCase(Unit) } coAnswers { saving.await() }
+                coEvery { enableUseCase() } coAnswers { saving.await() }
                 val viewModel =
                     viewModel(
                         enabledFlow = MutableStateFlow(Result.success(false)),
@@ -231,7 +232,7 @@ class SettingMcpViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 1) { enableUseCase(Unit) }
+                coVerify(exactly = 1) { enableUseCase() }
             }
         }
 
@@ -239,12 +240,12 @@ class SettingMcpViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val storedEnabled = MutableStateFlow(Result.success(false))
                 val enableUseCase = mockk<EnableMcpServerUseCase>()
-                coEvery { enableUseCase(Unit) } coAnswers {
+                coEvery { enableUseCase() } coAnswers {
                     storedEnabled.value = Result.success(true)
                     Result.success(Unit)
                 }
                 val disableUseCase = mockk<DisableMcpServerUseCase>()
-                coEvery { disableUseCase(Unit) } coAnswers {
+                coEvery { disableUseCase() } coAnswers {
                     storedEnabled.value = Result.success(false)
                     Result.success(Unit)
                 }
@@ -269,8 +270,8 @@ class SettingMcpViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingMcpUiState.Content(isEnabled = false, serverState = McpServerState.Off)
                 }
 
-                coVerify(exactly = 1) { enableUseCase(Unit) }
-                coVerify(exactly = 1) { disableUseCase(Unit) }
+                coVerify(exactly = 1) { enableUseCase() }
+                coVerify(exactly = 1) { disableUseCase() }
             }
         }
 
@@ -297,8 +298,8 @@ class SettingMcpViewModelTest : FunSpec() {
                         expectNoEvents()
                     }
 
-                    coVerify(exactly = 0) { enableUseCase(Unit) }
-                    coVerify(exactly = 0) { disableUseCase(Unit) }
+                    coVerify(exactly = 0) { enableUseCase() }
+                    coVerify(exactly = 0) { disableUseCase() }
                 }
             }
         }
@@ -322,7 +323,7 @@ class SettingMcpViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 0) { enableUseCase(Unit) }
+                coVerify(exactly = 0) { enableUseCase() }
             }
         }
     }
@@ -334,9 +335,9 @@ class SettingMcpViewModelTest : FunSpec() {
         disableUseCase: DisableMcpServerUseCase = mockk(),
     ): SettingMcpViewModel {
         val getEnabledUseCase = mockk<GetMcpServerEnabledUseCase>()
-        every { getEnabledUseCase(Unit) } returns enabledFlow
+        every { getEnabledUseCase() } returns enabledFlow
         val getStateUseCase = mockk<GetMcpServerStateUseCase>()
-        every { getStateUseCase(Unit) } returns stateFlow
+        every { getStateUseCase() } returns stateFlow
 
         return SettingMcpViewModel(
             getMcpServerEnabledUseCase = getEnabledUseCase,

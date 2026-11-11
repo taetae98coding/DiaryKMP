@@ -45,6 +45,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
@@ -1451,9 +1452,9 @@ class FileHomeScreenTest {
         updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
     ): FileHomeTestScreen {
         val getUpdatedFileUseCase = mockk<GetUpdatedFileUseCase>()
-        every { getUpdatedFileUseCase(parameter = Unit) } returns updated.map { fileMap -> Result.success(fileMap) }
+        every { getUpdatedFileUseCase() } returns updated.map { fileMap -> Result.success(fileMap) }
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
         val uploadViewModel = upload.viewModel()
 
         lastUpload = upload
@@ -1581,17 +1582,17 @@ private class FileUploadMocks {
 
     private val getFileUploadStateUseCase: GetFileUploadStateUseCase =
         mockk<GetFileUploadStateUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns state.map { value -> Result.success(value) }
+            every { useCase() } returns state.map { value -> Result.success(value) }
         }
 
     private val getFileUploadEventUseCase: GetFileUploadEventUseCase =
         mockk<GetFileUploadEventUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns eventFlow.map { event -> Result.success(event) }
+            every { useCase() } returns eventFlow.map { event -> Result.success(event) }
         }
 
     private val getFileUploadSucceededEventUseCase: GetFileUploadSucceededEventUseCase =
         mockk<GetFileUploadSucceededEventUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns succeededChannel.receiveAsFlow().map { event -> Result.success(event) }
+            every { useCase() } returns succeededChannel.receiveAsFlow().map { event -> Result.success(event) }
         }
 
     fun start() {
@@ -1619,7 +1620,7 @@ private class FileUploadMocks {
 // 테스트가 계정을 바꿀 때 보여 줄 목록의 흐름도 함께 바꾼다.
 private fun pageFileUseCase(paging: Flow<Flow<PagingData<DiaryFile>>>): PageFileUseCase {
     val useCase = mockk<PageFileUseCase>()
-    every { useCase(parameter = Unit) } returns paging.flatMapLatest { pagingData -> pagingData }.map { pagingData -> Result.success(pagingData) }
+    every { useCase() } returns paging.flatMapLatest { pagingData -> pagingData }.map { pagingData -> Result.success(pagingData) }
     return useCase
 }
 

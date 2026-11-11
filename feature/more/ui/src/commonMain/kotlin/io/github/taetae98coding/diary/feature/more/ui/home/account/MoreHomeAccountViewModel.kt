@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.more.ui.home.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,7 @@ internal class MoreHomeAccountViewModel(
     getAccountUseCase: GetAccountUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<MoreHomeAccountUiState> =
-        getAccountUseCase(parameter = Unit)
+        getAccountUseCase()
             .map { result ->
                 result.fold(
                     onSuccess = { account -> account.toUiState() },

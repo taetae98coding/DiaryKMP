@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.sync.work
 
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -664,6 +665,6 @@ class SyncWorkKindTest :
 
 private fun accountFailureUseCase(failure: Throwable): GetAccountUseCase {
     val useCase = mockk<GetAccountUseCase>()
-    every { useCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+    every { useCase() } returns flowOf(Result.failure(failure))
     return useCase
 }

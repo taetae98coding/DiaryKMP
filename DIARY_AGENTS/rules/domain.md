@@ -30,6 +30,10 @@ Repository는 행위 해석을 담지 않고 데이터 조작을 그대로 가�
 
 Boolean 플래그는 Repository 시그니처에서 시작한다. UseCase는 플래그로 분기하지 않고 행위별로 나눈다. 예: `FinishMemoUseCase`/`RestartMemoUseCase`가 `AccountMemoRepository.updateFinished(isFinished)` 하나를 함께 쓴다.
 
+## 입력 없는 UseCase 호출
+
+입력이 필요 없는 UseCase는 `UseCase<Unit, *>`·`FlowUseCase<Unit, *>`로 두고, 호출부는 `Unit`을 넘기지 않고 `:domain:core`의 `invoke()` 확장으로 부른다(`getAccountUseCase()`). MockK의 `every`·`coEvery`·`verify`도 같은 형태로 쓴다. 테스트에서 인자 없이 부를 수 있는 mock 헬퍼 함수가 `Unit` 입력 UseCase의 mock 변수·파라미터와 한 범위에 있으면 헬퍼를 다른 이름(`stubSignOutUseCase()`)으로 둔다. 같은 이름이면 `signOutUseCase()`가 변수의 `invoke()`가 아니라 헬퍼 호출로 해석되거나, 반대로 `x: X = x()` 기본값이 헬퍼가 아니라 파라미터 자신의 `invoke()`로 해석된다.
+
 ## sync·fetch·refresh 어휘
 
 로컬과 서버의 데이터를 맞추거나 서버의 현재 데이터를 얻는 연산에는 `sync`, `fetch`, `refresh` 세 이름만 쓰고, 각 이름을 **성공 후 보장하는 상태**로 정의한다. 서버를 호출하는지, 몇 번 호출하는지는 기준이 아니다.

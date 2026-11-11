@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.exception.FileNameBlankException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
 import io.github.taetae98coding.diary.domain.file.usecase.DownloadFileUseCase
@@ -109,7 +110,7 @@ internal class FileDetailMocks(
 
     fun accountViewModel(): FileDetailAccountViewModel {
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
 
         return FileDetailAccountViewModel(getAccountUseCase = getAccountUseCase)
     }

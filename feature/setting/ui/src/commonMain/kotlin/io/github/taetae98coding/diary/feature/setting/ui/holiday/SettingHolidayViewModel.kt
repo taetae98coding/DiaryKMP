@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.holiday
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetHolidayCountrySettingUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetSettingHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.SelectAllHolidayUseCase
@@ -30,8 +31,8 @@ internal class SettingHolidayViewModel(
 ) : ViewModel() {
     val uiState: StateFlow<SettingHolidayUiState> =
         combine(
-            getHolidayCountrySettingUseCase(parameter = Unit),
-            getSettingHolidayUseCase(parameter = Unit),
+            getHolidayCountrySettingUseCase(),
+            getSettingHolidayUseCase(),
         ) { countrySettingResult, holidaySettingListResult ->
             val countrySetting = countrySettingResult.getOrNull()
             val holidaySettingList = holidaySettingListResult.getOrNull()
@@ -66,19 +67,19 @@ internal class SettingHolidayViewModel(
 
     fun selectAll() {
         launchGuarded(key = InProgressKey.SelectAll) {
-            selectAllHolidayUseCase(parameter = Unit)
+            selectAllHolidayUseCase()
         }
     }
 
     fun deselectAll() {
         launchGuarded(key = InProgressKey.DeselectAll) {
-            unselectAllHolidayUseCase(parameter = Unit)
+            unselectAllHolidayUseCase()
         }
     }
 
     fun selectDaysOff() {
         launchGuarded(key = InProgressKey.SelectDaysOff) {
-            selectDaysOffHolidayUseCase(parameter = Unit)
+            selectDaysOffHolidayUseCase()
         }
     }
 

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.weather.usecase
 
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -28,7 +29,7 @@ class RefreshCurrentWeatherUseCaseTest :
             val useCase = RefreshCurrentWeatherUseCase(weatherRepository = repository)
 
             When("위치 권한 허용을 계기로 현재 날씨 동기화를 요청한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("동기화 간격을 적용하지 않고 조회를 요청한다") {
                     result.shouldBeSuccess()
@@ -45,7 +46,7 @@ class RefreshCurrentWeatherUseCaseTest :
             val useCase = RefreshCurrentWeatherUseCase(weatherRepository = repository)
 
             When("위치 권한 허용을 계기로 현재 날씨 동기화를 요청한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("실패 원인을 그대로 반환한다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
@@ -62,7 +63,7 @@ class RefreshCurrentWeatherUseCaseTest :
             val reportList = recordCrashlyticsLog()
 
             When("위치 권한 허용을 계기로 현재 날씨 동기화를 요청한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-11ea5e3e-4cc3-4063-8d4d-8b38b78a0d01 실패로 끝나고 오류 보고는 남지 않는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure

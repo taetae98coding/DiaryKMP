@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SubmitFcmTokenUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,7 @@ internal class AppFcmTokenViewModel(
     private val submitFcmTokenUseCase: SubmitFcmTokenUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<AppFcmTokenUiState> =
-        getAccountUseCase(parameter = Unit)
+        getAccountUseCase()
             .mapNotNull { result -> result.getOrNull() }
             .map { account -> AppFcmTokenUiState.Confirmed(account = account) }
             .stateIn(
@@ -40,7 +41,7 @@ internal class AppFcmTokenViewModel(
 
         viewModelScope.launch {
             try {
-                submitFcmTokenUseCase(parameter = Unit)
+                submitFcmTokenUseCase()
             } finally {
                 submittingAccountSet.remove(account)
             }

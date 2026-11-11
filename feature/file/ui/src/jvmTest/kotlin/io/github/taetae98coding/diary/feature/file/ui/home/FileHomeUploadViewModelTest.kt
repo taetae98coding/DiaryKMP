@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.file.ui.home
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
@@ -171,11 +172,11 @@ class FileHomeUploadViewModelTest : FunSpec() {
         succeededChannel: Channel<Result<FileUploadEvent.Succeeded>> = Channel(Channel.UNLIMITED),
     ): FileHomeUploadViewModel {
         val getStateUseCase = mockk<GetFileUploadStateUseCase>()
-        every { getStateUseCase(parameter = Unit) } returns stateFlow
+        every { getStateUseCase() } returns stateFlow
         val getEventUseCase = mockk<GetFileUploadEventUseCase>()
-        every { getEventUseCase(parameter = Unit) } returns eventChannel.receiveAsFlow()
+        every { getEventUseCase() } returns eventChannel.receiveAsFlow()
         val getSucceededEventUseCase = mockk<GetFileUploadSucceededEventUseCase>()
-        every { getSucceededEventUseCase(parameter = Unit) } returns succeededChannel.receiveAsFlow()
+        every { getSucceededEventUseCase() } returns succeededChannel.receiveAsFlow()
 
         return FileHomeUploadViewModel(
             getFileUploadStateUseCase = getStateUseCase,

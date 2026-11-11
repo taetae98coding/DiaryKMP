@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectMemoFilterTagUseCase
@@ -293,7 +294,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
         test("TC-733c582c-9b61-4349-8ede-0255c440cd32 태그 선택 전체 해제를 전체 해제 UseCase에 전달한다") {
             runTest(mainDispatcher) {
                 val unselectAllMemoFilterTagUseCase = mockk<UnselectAllMemoFilterTagUseCase>()
-                coEvery { unselectAllMemoFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { unselectAllMemoFilterTagUseCase() } returns Result.success(Unit)
                 val viewModel =
                     viewModel(
                         unselectAllMemoFilterTagUseCase = unselectAllMemoFilterTagUseCase,
@@ -303,7 +304,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    unselectAllMemoFilterTagUseCase(parameter = Unit)
+                    unselectAllMemoFilterTagUseCase()
                 }
             }
         }
@@ -316,7 +317,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                         place = MemoFilterExistence.ALL,
                     )
                 val unselectAllMemoFilterTagUseCase = mockk<UnselectAllMemoFilterTagUseCase>()
-                coEvery { unselectAllMemoFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { unselectAllMemoFilterTagUseCase() } returns Result.success(Unit)
                 val setMemoDateExistenceFilterUseCase = mockk<SetMemoDateExistenceFilterUseCase>()
                 val setMemoTagExistenceFilterUseCase = mockk<SetMemoTagExistenceFilterUseCase>()
                 val setMemoPlaceExistenceFilterUseCase = mockk<SetMemoPlaceExistenceFilterUseCase>()
@@ -342,7 +343,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                coVerify(exactly = 1) { unselectAllMemoFilterTagUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { unselectAllMemoFilterTagUseCase() }
                 coVerify(exactly = 0) { setMemoDateExistenceFilterUseCase(parameter = any()) }
                 coVerify(exactly = 0) { setMemoTagExistenceFilterUseCase(parameter = any()) }
                 coVerify(exactly = 0) { setMemoPlaceExistenceFilterUseCase(parameter = any()) }
@@ -357,7 +358,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                 val unselectMemoFilterTagUseCase = mockk<UnselectMemoFilterTagUseCase>()
                 coEvery { unselectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
                 val unselectAllMemoFilterTagUseCase = mockk<UnselectAllMemoFilterTagUseCase>()
-                coEvery { unselectAllMemoFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { unselectAllMemoFilterTagUseCase() } returns Result.success(Unit)
                 val setMemoDateExistenceFilterUseCase = mockk<SetMemoDateExistenceFilterUseCase>()
                 coEvery { setMemoDateExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) } returns Result.success(Unit)
                 val setMemoTagExistenceFilterUseCase = mockk<SetMemoTagExistenceFilterUseCase>()
@@ -386,7 +387,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { selectMemoFilterTagUseCase(parameter = tagId) }
                 coVerify(exactly = 1) { unselectMemoFilterTagUseCase(parameter = tagId) }
-                coVerify(exactly = 1) { unselectAllMemoFilterTagUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { unselectAllMemoFilterTagUseCase() }
                 coVerify(exactly = 1) { setMemoDateExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
                 coVerify(exactly = 1) { setMemoTagExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
                 coVerify(exactly = 1) { setMemoPlaceExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
@@ -420,7 +421,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
 
         private fun existenceFilterUseCase(flow: Flow<Result<MemoExistenceFilter>> = flowOf(Result.success(MemoExistenceFilter()))): GetMemoExistenceFilterUseCase {
             val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
-            every { getMemoExistenceFilterUseCase(parameter = Unit) } returns flow
+            every { getMemoExistenceFilterUseCase() } returns flow
 
             return getMemoExistenceFilterUseCase
         }
@@ -435,7 +436,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
 
         private fun filterUseCase(flow: Flow<Result<List<Tag>>>): GetMemoFilterUseCase {
             val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
-            every { getMemoFilterUseCase(parameter = Unit) } returns flow
+            every { getMemoFilterUseCase() } returns flow
 
             return getMemoFilterUseCase
         }

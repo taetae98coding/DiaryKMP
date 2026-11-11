@@ -20,3 +20,5 @@ public abstract class UseCase<in Parameter, out Output> {
 
     protected open fun onFailure(throwable: Throwable): Unit = Unit
 }
+
+public suspend operator fun <Output> UseCase<Unit, Output>.invoke(): Result<Output> = invoke(parameter = Unit)

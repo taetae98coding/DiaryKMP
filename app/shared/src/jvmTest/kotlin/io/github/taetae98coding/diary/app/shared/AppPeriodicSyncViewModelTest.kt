@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.SchedulePeriodicSyncUseCase
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -85,32 +86,32 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
         test("TC-d271b7b4-fb16-488a-a26d-a93e0462cc67 주기 동기화 예약을 요청하면 예약 UseCase를 실행한다") {
             runTest(mainDispatcher) {
                 val schedulePeriodicSyncUseCase = mockk<SchedulePeriodicSyncUseCase>()
-                coEvery { schedulePeriodicSyncUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { schedulePeriodicSyncUseCase() } returns Result.success(Unit)
                 val viewModel = viewModel(schedulePeriodicSyncUseCase = schedulePeriodicSyncUseCase)
 
                 viewModel.schedulePeriodicSync()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { schedulePeriodicSyncUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { schedulePeriodicSyncUseCase() }
             }
         }
 
         test("주기 동기화 예약이 진행 중일 때 다시 요청하면 예약 UseCase를 한 번만 실행하고, 끝난 뒤 다시 요청하면 다시 실행한다") {
             runTest(mainDispatcher) {
                 val schedulePeriodicSyncUseCase = mockk<SchedulePeriodicSyncUseCase>()
-                coEvery { schedulePeriodicSyncUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { schedulePeriodicSyncUseCase() } returns Result.success(Unit)
                 val viewModel = viewModel(schedulePeriodicSyncUseCase = schedulePeriodicSyncUseCase)
 
                 viewModel.schedulePeriodicSync()
                 viewModel.schedulePeriodicSync()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { schedulePeriodicSyncUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { schedulePeriodicSyncUseCase() }
 
                 viewModel.schedulePeriodicSync()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { schedulePeriodicSyncUseCase(parameter = Unit) }
+                coVerify(exactly = 2) { schedulePeriodicSyncUseCase() }
             }
         }
     }
@@ -121,7 +122,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
             schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase = mockk(relaxed = true),
         ): AppPeriodicSyncViewModel {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
 
             return AppPeriodicSyncViewModel(
                 getAccountUseCase = getAccountUseCase,

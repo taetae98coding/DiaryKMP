@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
@@ -55,7 +56,7 @@ class RequestFileUploadUseCaseTest :
             val accountB = Arb.accountUser().next()
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(accountA))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val fileUploadManager = mockk<FileUploadManager>(relaxUnitFun = true)
             val useCase = RequestFileUploadUseCase(getAccountUseCase = getAccountUseCase, fileUploadManager = fileUploadManager)
             val uri = Arb.fileUri().next()
@@ -144,7 +145,7 @@ class RequestFileUploadUseCaseTest :
 
         private fun getAccountUseCase(result: Result<Account>): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
-            every { useCase(parameter = Unit) } returns flowOf(result)
+            every { useCase() } returns flowOf(result)
             return useCase
         }
     }

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -41,7 +42,7 @@ class HolidayVisibilityActionUseCaseTest :
                 Then("TC-88dbfde2-a401-490e-a14a-53b22d3d74e3 해당 key를 숨김 설정에 추가한다") {
                     useCase(parameter = target.name).shouldBeSuccess()
 
-                    verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
+                    verify(exactly = 1) { getSettingHolidayUseCase() }
                     coVerify(exactly = 1) { repository.addHiddenKey(key = target.name) }
                     coVerify(exactly = 0) {
                         repository.removeHiddenKey(key = any())
@@ -66,7 +67,7 @@ class HolidayVisibilityActionUseCaseTest :
                 Then("TC-88dbfde2-a401-490e-a14a-53b22d3d74e3 해당 key를 숨김 설정에서 제거한다") {
                     useCase(parameter = target.name).shouldBeSuccess()
 
-                    verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
+                    verify(exactly = 1) { getSettingHolidayUseCase() }
                     coVerify(exactly = 1) { repository.removeHiddenKey(key = target.name) }
                     coVerify(exactly = 0) {
                         repository.addHiddenKey(key = any())
@@ -92,7 +93,7 @@ class HolidayVisibilityActionUseCaseTest :
                 Then("저장값을 변경하지 않는다") {
                     useCase(parameter = uniqueName(label = "unknown")).shouldBeSuccess()
 
-                    verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
+                    verify(exactly = 1) { getSettingHolidayUseCase() }
                     coVerify(exactly = 0) {
                         repository.addHiddenKey(key = any())
                         repository.removeHiddenKey(key = any())
@@ -107,7 +108,7 @@ class HolidayVisibilityActionUseCaseTest :
             val deselected = selected.copy(isVisible = false)
             val getSettingHolidayUseCase =
                 mockk<GetSettingHolidayUseCase>().also { useCase ->
-                    every { useCase(parameter = Unit) } returnsMany
+                    every { useCase() } returnsMany
                         listOf(
                             flowOf(Result.success(listOf(selected))),
                             flowOf(Result.success(listOf(deselected))),
@@ -127,7 +128,7 @@ class HolidayVisibilityActionUseCaseTest :
                     useCase(parameter = selected.name).shouldBeSuccess()
                     useCase(parameter = selected.name).shouldBeSuccess()
 
-                    verify(exactly = 2) { getSettingHolidayUseCase(parameter = Unit) }
+                    verify(exactly = 2) { getSettingHolidayUseCase() }
                     coVerifyOrder {
                         repository.addHiddenKey(key = selected.name)
                         repository.removeHiddenKey(key = selected.name)
@@ -146,7 +147,7 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("전체 선택한다") {
                 Then("TC-e13f36f5-758e-483b-86a5-ab234a2c2a53 빈 숨김 key 집합을 제출한다") {
-                    useCase(parameter = Unit).shouldBeSuccess()
+                    useCase().shouldBeSuccess()
 
                     verify(exactly = 0) { repository.getHiddenKeySet() }
                     coVerify(exactly = 1) { repository.submitHiddenKeySet(hiddenKeySet = emptySet()) }
@@ -176,7 +177,7 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("전체 선택 해제한다") {
                 Then("TC-c1bd92b8-0b4d-4d34-ac8f-6df87c943300 중복을 제거한 모든 key를 제출한다") {
-                    useCase(parameter = Unit).shouldBeSuccess()
+                    useCase().shouldBeSuccess()
 
                     verify(exactly = 1) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
@@ -218,7 +219,7 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("쉬는 날만 선택한다") {
                 Then("TC-c0011ed6-170c-41a4-a9b9-e9332ebce715 하나라도 쉬는 날인 key는 숨기지 않고 나머지 key만 제출한다") {
-                    useCase(parameter = Unit).shouldBeSuccess()
+                    useCase().shouldBeSuccess()
 
                     verify(exactly = 1) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
@@ -248,14 +249,14 @@ class HolidayVisibilityActionUseCaseTest :
                         coEvery { repository.submitHiddenKeySet(hiddenKeySet = any()) } just Runs
                         val useCase: suspend () -> Result<Unit> =
                             mapOf(
-                                "전체 선택" to suspend { SelectAllHolidayUseCase(holidaySettingRepository = repository)(parameter = Unit) },
+                                "전체 선택" to suspend { SelectAllHolidayUseCase(holidaySettingRepository = repository)() },
                                 "전체 해제" to
                                     suspend {
                                         UnselectAllHolidayUseCase(
                                             getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                                             holidayRepository = holidayRepository,
                                             holidaySettingRepository = repository,
-                                        )(parameter = Unit)
+                                        )()
                                     },
                                 "쉬는 날만 선택" to
                                     suspend {
@@ -263,7 +264,7 @@ class HolidayVisibilityActionUseCaseTest :
                                             getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                                             holidayRepository = holidayRepository,
                                             holidaySettingRepository = repository,
-                                        )(parameter = Unit)
+                                        )()
                                     },
                             ).getValue(action)
 
@@ -302,9 +303,9 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("각 일괄 선택을 실행한다") {
                 Then("각 동작의 최종 숨김 key 집합을 제출한다") {
-                    selectAllUseCase(parameter = Unit).shouldBeSuccess()
-                    deselectAllUseCase(parameter = Unit).shouldBeSuccess()
-                    selectDaysOffHolidayUseCase(parameter = Unit).shouldBeSuccess()
+                    selectAllUseCase().shouldBeSuccess()
+                    deselectAllUseCase().shouldBeSuccess()
+                    selectDaysOffHolidayUseCase().shouldBeSuccess()
 
                     verify(exactly = 2) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
@@ -331,7 +332,7 @@ class HolidayVisibilityActionUseCaseTest :
                 Then("조회 실패 원인을 그대로 제공하고 저장하지 않는다") {
                     toggleUseCase(parameter = uniqueName(label = "toggle")).shouldBeFailure() shouldBeSameInstanceAs failure
 
-                    verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
+                    verify(exactly = 1) { getSettingHolidayUseCase() }
                     coVerify(exactly = 0) {
                         repository.addHiddenKey(key = any())
                         repository.removeHiddenKey(key = any())
@@ -364,8 +365,8 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("공휴일 목록이 필요한 일괄 선택을 실행한다") {
                 Then("조회 실패 원인을 그대로 제공하고 저장하지 않는다") {
-                    deselectAllUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
-                    selectDaysOffUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
+                    deselectAllUseCase().shouldBeFailure() shouldBeSameInstanceAs failure
+                    selectDaysOffUseCase().shouldBeFailure() shouldBeSameInstanceAs failure
 
                     verify(exactly = 2) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
@@ -423,9 +424,9 @@ class HolidayVisibilityActionUseCaseTest :
                 Then("저장 실패 원인을 그대로 제공한다") {
                     selectToggleUseCase(parameter = selected.name).shouldBeFailure() shouldBeSameInstanceAs failure
                     deselectToggleUseCase(parameter = deselected.name).shouldBeFailure() shouldBeSameInstanceAs failure
-                    selectAllUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
-                    deselectAllUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
-                    selectDaysOffUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
+                    selectAllUseCase().shouldBeFailure() shouldBeSameInstanceAs failure
+                    deselectAllUseCase().shouldBeFailure() shouldBeSameInstanceAs failure
+                    selectDaysOffUseCase().shouldBeFailure() shouldBeSameInstanceAs failure
 
                     coVerify(exactly = 1) {
                         repository.addHiddenKey(key = selected.name)
@@ -447,7 +448,7 @@ private fun getSettingHolidayUseCase(holidaySettingList: List<HolidaySetting>): 
 
 private fun getSettingHolidayUseCase(result: Result<List<HolidaySetting>>): GetSettingHolidayUseCase =
     mockk<GetSettingHolidayUseCase>().also { useCase ->
-        every { useCase(parameter = Unit) } returns flowOf(result)
+        every { useCase() } returns flowOf(result)
     }
 
 private fun holidayRepository(holidayList: List<Holiday>): HolidayRepository =

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthd
 import io.github.taetae98coding.diary.core.testing.contact.lunarContactBirthday
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountCalendarContactBirthdayRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.lunar.repository.LunarRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -41,7 +42,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val birthdayList = listOf(calendarContactBirthday(), calendarContactBirthday()).sortedForCalendar()
             val otherBirthdayList = listOf(calendarContactBirthday())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = repository()
             every { repository.get(account = account, dateRange = dateRange) } returns flowOf(birthdayList)
             every { repository.get(account = otherAccount, dateRange = dateRange) } returns flowOf(otherBirthdayList)
@@ -65,7 +66,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val otherBirthdayList = listOf(calendarContactBirthday(), calendarContactBirthday()).sortedForCalendar()
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val repository = repository()
             every { repository.get(account = account, dateRange = dateRange) } returns flowOf(birthdayList)
             every { repository.get(account = otherAccount, dateRange = dateRange) } returns flowOf(otherBirthdayList)
@@ -89,7 +90,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val dateRange = dateRange()
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = repository()
             every { repository.get(account = account, dateRange = dateRange) } returns flowOf(emptyList())
             val useCase = useCase(getAccountUseCase = getAccountUseCase, repository = repository)
@@ -106,7 +107,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val account = Arb.accountUser().next()
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = repository()
             every { repository.get(account = account, dateRange = dateRange) } returns flow { throw failure }
             val useCase = useCase(getAccountUseCase = getAccountUseCase, repository = repository)
@@ -126,7 +127,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val dateRange = dateRange()
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val repository = mockk<AccountCalendarContactBirthdayRepository>(relaxed = true)
             val useCase = useCase(getAccountUseCase = getAccountUseCase, repository = repository)
 
@@ -394,7 +395,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val repository = mockk<AccountCalendarContactBirthdayRepository>()
             every { repository.get(account = any(), dateRange = dateRange) } returns flowOf(emptyList())
             every { repository.getLunar(account = any()) } returns flowOf(listOf(lunarBirthday))
@@ -429,7 +430,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val secondDateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
             val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = mockk<AccountCalendarContactBirthdayRepository>()
             every { repository.get(account = account, dateRange = any()) } returns flowOf(emptyList())
             every { repository.getLunar(account = account) } returns flowOf(listOf(lunarBirthday))
@@ -455,7 +456,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
             val solarBirthdayFlow = MutableStateFlow<List<CalendarContactBirthday>>(emptyList())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = mockk<AccountCalendarContactBirthdayRepository>()
             every { repository.get(account = account, dateRange = dateRange) } returns solarBirthdayFlow
             every { repository.getLunar(account = account) } returns flowOf(listOf(lunarBirthday))
@@ -536,7 +537,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             lunarRepository: LunarRepository = mockk<LunarRepository>().also { every { it.get(dateRange = dateRange) } returns flowOf(lunarDateList) },
         ): GetCalendarContactBirthdayUseCase {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = mockk<AccountCalendarContactBirthdayRepository>()
             every { repository.get(account = account, dateRange = dateRange) } returns flowOf(solarBirthdayList)
             every { repository.getLunar(account = account) } returns flowOf(lunarBirthdayList)

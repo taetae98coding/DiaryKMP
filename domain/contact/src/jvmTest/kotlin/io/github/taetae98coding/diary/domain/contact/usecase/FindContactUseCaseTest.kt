@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -27,7 +28,7 @@ class FindContactUseCaseTest :
             val account = Arb.accountUser().next()
             val contact = contact()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
             every { accountContactRepository.find(account = account, contactId = contact.id) } returns flowOf(contact)
             val useCase =
@@ -47,7 +48,7 @@ class FindContactUseCaseTest :
             val account = Arb.accountUser().next()
             val contactId = Uuid.random()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
             every { accountContactRepository.find(account = account, contactId = contactId) } returns flowOf(null)
             val useCase =
@@ -66,7 +67,7 @@ class FindContactUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
             val useCase =
                 FindContactUseCase(

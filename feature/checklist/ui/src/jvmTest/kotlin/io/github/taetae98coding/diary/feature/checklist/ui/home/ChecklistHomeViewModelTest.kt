@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.RestoreChecklistUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -225,7 +226,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
 
         private fun pageChecklistUseCase(summaryListFlow: Flow<Result<List<ChecklistSummary>>>): PageChecklistUseCase {
             val pageChecklistUseCase = mockk<PageChecklistUseCase>()
-            every { pageChecklistUseCase(parameter = Unit) } returns
+            every { pageChecklistUseCase() } returns
                 summaryListFlow.map { result -> result.map { summaryList -> PagingData.from(summaryList) } }
 
             return pageChecklistUseCase
