@@ -1,6 +1,6 @@
 # Diary KMP 지침
 
-`AGENTS.md`, `CLAUDE.md`는 이 문서를, `.claude/skills`, `.codex/skills`는 `DIARY_AGENTS/skills`를 가리키는 심볼릭 링크다. 사본을 만들지 않고 원본만 수정한다.
+`AGENTS.md`, `CLAUDE.md`는 이 문서를, `.claude/skills`, `.codex/skills`, `.agents/skills`는 `DIARY_AGENTS/skills`를 가리키는 심볼릭 링크다. 사본을 만들지 않고 원본만 수정한다.
 
 이 문서에는 코드와 `settings.gradle.kts`·`build-logic`에서 유추할 수 없는 판단 기준과 라우팅만 둔다.
 

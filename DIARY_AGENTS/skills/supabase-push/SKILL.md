@@ -14,7 +14,23 @@ description: Diary KMP 프로젝트에서 사용자가 Supabase config push, Sup
 - linked project, `config.toml`의 기본 `project_id`, 현재 브랜치, 이전 대화만으로 flavor를 추론하지 않는다.
 - `dev`, `real` 외의 flavor를 임의로 매핑하지 않는다.
 
-사용자가 flavor와 함께 push를 명시적으로 요청했다면 추가 확인 없이 실행한다.
+사용자가 flavor와 함께 push를 명시적으로 요청했다면 flavor는 다시 묻지 않고 `원격과의 차이 확인`부터 진행한다.
+
+## 원격과의 차이 확인
+
+push하기 전에 저장소 루트에서 helper를 `--diff`로 실행해, `config.toml`이 원격 프로젝트에서 무엇을 바꾸는지 먼저 본다.
+
+```shell
+python3 DIARY_AGENTS/skills/supabase-push/scripts/push_supabase_config.py --flavor dev --diff
+```
+
+`--diff`는 push와 같은 project ref와 환경으로 `supabase config diff --project-ref <ref>`를 실행한다. 이 명령은 읽기 전용이라 로컬과 원격 어느 쪽도 바꾸지 않는다. `config.toml`의 `env(...)` 값이 있어야 비교할 수 있으므로 Supabase CLI를 직접 부르지 않고 helper를 거친다.
+
+- 차이가 없으면 push하지 않고 그대로 보고한다.
+- 차이가 이번 요청으로 바꾸려던 설정뿐이면 `실행`으로 넘어간다.
+- 요청과 관계없는 설정이 바뀌는 것으로 나오면 push하지 않고, 바뀌는 키 이름을 사용자에게 보고해 결정을 받는다. `config.toml`이 선언한 값은 원격에서 직접 고친 설정도 덮어쓴다.
+
+diff 출력에는 client ID 같은 설정값이 나타날 수 있다. 값은 답변에 옮기지 않고 바뀌는 키 이름만 보고한다.
 
 ## 실행
 
@@ -24,12 +40,12 @@ description: Diary KMP 프로젝트에서 사용자가 Supabase config push, Sup
 python3 DIARY_AGENTS/skills/supabase-push/scripts/push_supabase_config.py --flavor dev
 ```
 
-`real` 요청에는 `--flavor real`을 사용한다. 진단만 요청받은 경우에만 `--dry-run`을 추가한다. 실제 push 요청을 `--dry-run`으로 대신하지 않는다.
+`real` 요청에는 `--flavor real`을 사용한다. 진단만 요청받은 경우에만 `--dry-run`을 추가한다. 실제 push 요청을 `--dry-run`이나 `--diff`로 대신하지 않는다.
 
 helper는 다음을 보장한다.
 
 - dev는 루트 `project_id`, real은 `[remotes.real].project_id`를 읽고 기대 project ref와 대조한다.
-- 항상 `supabase config push --project-ref <ref>`를 실행해 linked project에 의존하지 않는다.
+- 항상 `supabase config push --project-ref <ref>`를 실행해 linked project에 의존하지 않는다. 저장소가 쓰는 Supabase CLI v2(`2.117.0`에서 확인)는 TTY가 없는 실행에서 변경 확인 프롬프트를 묻지 않고 진행하므로, helper를 실행하면 `config.toml`이 선언한 값이 확인 없이 원격에 반영된다. 그래서 `원격과의 차이 확인`을 먼저 한다. CLI v3는 TTY가 없으면 `--yes` 없이는 push를 거절하므로, v3로 올릴 때 helper의 호출을 함께 고친다.
 - `local.properties`와 선택한 `iosApp/Config/DevLocal.xcconfig` 또는 `RealLocal.xcconfig`를 shell로 source하지 않고 데이터로 파싱한다.
 - `config.toml`의 활성 `env(...)` 참조를 검사하고, 지원하지 않는 참조나 누락·공백 값이 있으면 Supabase CLI 호출 전에 중단한다.
 - 상속받은 동일 이름의 환경변수를 제거하고 현재 child process용 값으로 새로 설정한다. `.env`, 임시 secret 파일, shell history 또는 `config.toml`에는 값을 쓰지 않는다.

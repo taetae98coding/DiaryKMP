@@ -4,6 +4,7 @@
 
 - dev나 real에 배포한 마이그레이션 파일은 고치지 않는다. 바꿀 내용은 새 마이그레이션으로 더한다. 아직 어디에도 배포하지 않은 마이그레이션은 고치거나 합쳐도 된다.
 - 마이그레이션을 더하거나 고쳤으면 배포 전에 `supabase/scripts/plpgsql-check.sh`를 통과시킨다. PL/pgSQL 본문은 함수를 만들 때가 아니라 처음 실행할 때 검사되므로, 배포가 성공해도 함수가 동작한다는 뜻이 아니다.
+- 태그 행을 지우는 함수는 지우기 전에 그 태그를 가리키는 `memo.primary_tag_id`를 직접 해제해 순번을 올린다. 행을 지우면 외래 키가 `null`로 바꾸지만 순번을 올리지 않아 기기가 해제를 내려받지 못한다.
 
 ## PL/pgSQL 함수
 
@@ -23,8 +24,8 @@ create or replace function public.register_fcm_token(token text, time_zone text,
 
 ## Edge Function 인증
 
-- 앱은 세션이 없으면 `apikey` 헤더만 보내고 `Authorization`을 붙이지 않는다. 세션 없이 받는 처리는 `createPublicClient`로, 로그인 세션이 필요한 처리는 `createUserClient`로 데이터베이스를 부른다.
-- 함수를 직접 호출해 확인할 때는 앱과 같은 헤더를 쓴다. 게스트 요청은 `apikey`만, 사용자 요청은 `apikey`와 사용자 세션의 `Authorization`을 보낸다. `Authorization: Bearer <apikey>`를 직접 붙이면 앱에서는 실패하는 요청이 성공한다.
+- 앱이 세션 없이 보내는 `Authorization`은 호출 경로마다 다르다. supabase-kt로 부르는 함수 호출(`SupabaseFunction.invoke`)은 프로젝트 키가 `sb_publishable_` 형식이면 `apikey` 헤더만 보내고 legacy JWT 키면 그 키를 `Authorization: Bearer`로 붙인다. 시스템 전송 수단이 쓰는 `SupabaseFunction.createRequest`는 키 형식과 무관하게 프로젝트 키를 `Authorization: Bearer`로 붙인다. 그래서 `Authorization`이 없을 수도, 있어도 로그인 세션이 아닐 수도 있다. 세션 없이 받는 처리는 `createPublicClient`로, 로그인 세션이 필요한 처리는 `createUserClient`로 데이터베이스를 부른다.
+- 함수를 직접 호출해 확인할 때는 앱과 같은 헤더를 쓴다. 게스트 요청은 확인하려는 호출 경로가 위에서 보내는 헤더 그대로, 사용자 요청은 `apikey`와 사용자 세션의 `Authorization`을 보낸다. 앱이 `apikey`만 보내는 경로에 `Authorization: Bearer <apikey>`를 직접 붙이면 앱에서는 실패하는 요청이 성공한다.
 
 ## 동기화 계약의 버전
 
@@ -67,3 +68,4 @@ coalesce(item -> 'detail' ->> 'howWeMet', ''),
 
 - 요청에 담는 원격 엔티티의 프로퍼티에는 기본값을 두지 않는다.
 - 요청을 직렬화하는 테스트는 빈 문자열과 `null`인 값으로도 모든 키가 남는지 확인한다.
+- 앱이 보내는 키가 늘거나 이름이 바뀌면 Edge Function의 요청 스키마도 함께 바꾼다. Edge Function은 스키마에 선언하지 않은 키를 버린 뒤 나머지만 저장하므로, 어긋나면 그 값만 조용히 사라진다.

@@ -19,31 +19,6 @@
 
 `Result.retry()`와 `BackoffPolicy`는 쓰지 않는다. 스펙([데이터 동기화](../../docs/spec/client/data-sync.md)의 `동기화 계기`)은 같은 계기 안에서 다시 시도하지 않고 다음 계기에 맡긴다.
 
-⚠️ 비권장 예시:
-
-```kotlin
-// 예외를 WorkManager가 실패로 바꿔 주는 데 기댄다. 같은 작업을 BGTask나 코루틴으로 옮기면 실패가 어디로 가는지 정해지지 않는다.
-override suspend fun doWork(): Result {
-    work.doWork()
-
-    return Result.success()
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-override suspend fun doWork(): Result =
-    try {
-        work.doWork()
-        Result.success()
-    } catch (exception: CancellationException) {
-        throw exception
-    } catch (_: Throwable) {
-        Result.failure()
-    }
-```
-
 ## 예약은 하나로 유지한다
 
 같은 작업의 예약은 어느 플랫폼에서든 하나만 남는다. 앱 시작, 계정 확인, 설정 변경 같은 계기마다 다시 예약해도 예약이 늘거나 실행 시각이 앞당겨지지 않아야 한다. ViewModel의 가드([viewmodel.md](viewmodel.md)의 `UseCase 호출 가드`)는 한 ViewModel 안의 중복 호출만 막으므로, 앱을 다시 시작하거나 다른 화면이 같은 예약을 요청하는 경우는 실행 수단이 보장한다.

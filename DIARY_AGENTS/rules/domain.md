@@ -4,7 +4,7 @@
 
 UseCase는 사용자 행위를 드러내는 행위 기반 이름을 사용한다. 예: `SelectMemoFilterTagUseCase`, `FinishMemoUseCase`.
 
-Repository는 행위 해석을 담지 않고 데이터 조작을 그대로 가리키는 이름을 사용한다. 행위를 데이터 조작으로 해석하는 책임은 UseCase가 가진다.
+Repository는 행위 해석을 담지 않고 데이터 조작을 그대로 가리키는 이름을 사용한다. 행위를 데이터 조작으로 해석하는 책임은 UseCase가 가진다. 예: `AccountMemoFilterRepository`는 `selectTag`/`unselectTag`가 아니라 `upsert`/`delete`를 선언하고, `SelectMemoFilterTagUseCase`가 선택을 `upsert`로 해석한다.
 
 이름은 **저장소에 실제로 무슨 일이 일어나는지**로 고른다. `update*`를 기계적으로 쓰지 않는다. 저장소가 기기 안인지 서버인지는 기준이 아니다.
 
@@ -29,42 +29,6 @@ Repository는 행위 해석을 담지 않고 데이터 조작을 그대로 가�
 집합을 다루는 Repository에 `add`/`remove`와 `submit`을 함께 두는 것은 중복이 아니다.
 
 Boolean 플래그는 Repository 시그니처에서 시작한다. UseCase는 플래그로 분기하지 않고 행위별로 나눈다. 예: `FinishMemoUseCase`/`RestartMemoUseCase`가 `AccountMemoRepository.updateFinished(isFinished)` 하나를 함께 쓴다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-public interface AccountMemoFilterRepository {
-    public suspend fun selectTag(
-        account: Account,
-        tagId: Uuid,
-    )
-
-    public suspend fun unselectTag(
-        account: Account,
-        tagId: Uuid,
-    )
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-// selectTag/unselectTag처럼 행위 이름을 쓰지 않는다.
-public interface AccountMemoFilterRepository {
-    public suspend fun upsert(account: Account, tagId: Uuid)
-
-    public suspend fun delete(account: Account, tagId: Uuid)
-}
-
-@Factory
-public class SelectMemoFilterTagUseCase internal constructor(
-    private val accountMemoFilterRepository: AccountMemoFilterRepository,
-) : UseCase<Uuid, Unit>() {
-    override suspend fun execute(parameter: Uuid) {
-        accountMemoFilterRepository.upsert(...)
-    }
-}
-```
 
 ## sync·fetch·refresh 어휘
 
@@ -94,29 +58,7 @@ UseCase도 Repository 연산 이름을 그대로 쓴다(`FetchHolidayUseCase`). 
 
 domain 정책이 계기로부터 결과를 도출한다면, UseCase는 **계기**를 받고 결과는 domain 안에서 정한다. 결과를 이름에 박으면 정책이 호출부로 샌다. 예: `RequestSyncWithProgressUseCase`가 아니라 `RequestSyncUseCase(SyncTrigger)`.
 
-⚠️ 비권장 예시:
-
-```kotlin
-// 진행 표시 여부는 계기로부터 도출되는 결과인데, UseCase 이름이 그 결과를 먼저 말한다.
-// 계정 확인 계기는 표시하지 않기로 정책이 바뀌면 호출부 이름부터 바꿔야 한다.
-public class RequestSyncWithProgressUseCase internal constructor(...)
-```
-
-✅ 권장 예시:
-
-```kotlin
-public enum class SyncTrigger { USER_REQUESTED, ACCOUNT_CONFIRMED, DATA_CHANGED }
-
-public class RequestSyncUseCase internal constructor(
-    private val syncManager: SyncManager,
-) : UseCase<SyncTrigger, Unit>() {
-    override suspend fun execute(parameter: SyncTrigger) {
-        syncManager.requestSync(reportsProgress = parameter.reportsProgress())
-    }
-
-    private fun SyncTrigger.reportsProgress(): Boolean = ...
-}
-```
+`RequestSyncWithProgressUseCase`처럼 진행 표시 여부를 이름에 넣으면, 계정 확인 계기는 표시하지 않기로 정책이 바뀔 때 호출부 이름부터 바꿔야 한다. `RequestSyncUseCase`는 `SyncTrigger`를 받아 `reportsProgress`를 안에서 도출하고 `SyncManager.requestSync(reportsProgress = ...)`로 넘긴다.
 
 정책의 결론은 Repository나 Manager 같은 port로 넘긴다. port는 정책을 판단하지 않는 메커니즘 경계이므로 `reportsProgress`처럼 결론을 파라미터로 받아도 된다.
 
@@ -130,14 +72,3 @@ UseCase가 다른 domain 모듈에서 무엇을 주입받을지는 [data.md](dat
 Repository를 직접 쓰던 조회에 나중에 정책이 붙어 UseCase가 정책을 갖게 되면, 그 Repository를 주입받던 다른 모듈의 UseCase를 새 UseCase로 바꾼다.
 
 domain 모듈 사이 의존에는 순환이 없어야 한다. 두 모듈이 서로의 UseCase나 Repository를 주입해야 한다면 모듈을 합치거나, 공유하는 정책을 둘이 함께 의존하는 아래쪽 모듈로 내린다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-// GetAccountUseCase가 가진 Account 판정 정책을 memo에서 다시 조합한다.
-public class GetCalendarMemoUseCase internal constructor(
-    private val sessionRepository: SessionRepository,
-    private val userDataRepository: UserDataRepository,
-    private val accountCalendarMemoRepository: AccountCalendarMemoRepository,
-)
-```

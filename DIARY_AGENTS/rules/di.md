@@ -13,11 +13,11 @@ Koin 모듈 구성과, 코드가 컨테이너를 직접 조회해도 되는 자�
 | Android `Activity`, `AppFunctionService` | `by inject()`, `KoinComponent` |
 | JVM·wasm `main`, iOS `DiaryStartupInitializer` | `StartupInitializer.initialize()`가 `startKoin` 직후 `AppDependencies`를 꺼내 돌려준다 |
 | Swift가 부르는 최상위 함수·`object` (`DiaryDeepLink`, 앱 동작) | `KoinPlatform.getKoin().get()` |
-| 운영체제 콜백(`BGTaskScheduler` 등록 콜백, 전송 세션)과 앱 시작 initializer | `KoinPlatform.getKoin().get()` |
+| 운영체제 콜백(`BGTaskScheduler` 등록 콜백, 전송 세션), 앱 시작 initializer, 창이 닫힌 뒤 프로세스 종료 전 처리(`saveWebLoginOnExit`) | `KoinPlatform.getKoin().get()` |
 
 다음 자리에서는 조회하지 않는다.
 
-- Composable. `koinInject`, `getKoin()`, `KoinPlatform`을 부르지 않는다. 예외는 [viewmodel.md](viewmodel.md)가 정하는 `koinViewModel`뿐이다.
+- Composable. `koinInject`, `getKoin()`, `KoinPlatform`을 부르지 않는다. 예외는 `koinViewModel`뿐이고, 부르는 자리는 [compose.md](compose.md)가 정한다(`파라미터 기본값과 선언 순서`: Screen은 ViewModel을 기본값 없이 받는다, `Preview를 두지 않는 컴포저블`: Content는 자기 ViewModel을 직접 얻는다).
 - `feature:*`, `compose:*`, `library:*` 모듈의 일반 class와 함수. 필요한 것은 생성자나 인자로 받는다.
 
 ## 앱 루트는 `AppDependencies`를 받는다
@@ -27,23 +27,6 @@ Koin 모듈 구성과, 코드가 컨테이너를 직접 조회해도 되는 자�
 - `List<T>` 생성자 인자는 Koin이 `getAll<T>()`로 채운다. 여러 모듈이 `@Single(binds = [T::class])`로 등록한 구현을 모을 때 쓴다.
 - 플랫폼마다 다른 구현은 `app:shared`의 플랫폼 소스셋 Koin 모듈(`AndroidAppModule`, `IosAppModule`, `JvmAppModule`, `WasmAppModule`)이 제공한다. `compose:*` 모듈은 Koin을 모르는 구현 class만 두고, 설정값(`BuildKonfig`)과 `Dispatchers.*`는 제공 함수에서만 참조한다.
 - 플랫폼 진입점은 `AppDependencies`를 `App`에 넘기기만 하고 그 안을 열어 쓰지 않는다. 진입점이 따로 필요한 객체(`AppDeepLink`)는 자기 조회로 얻는다.
-
-✅ 권장 예시:
-
-```kotlin
-// app:shared commonMain
-@Single
-public class AppDependencies(
-    internal val appDeepLink: AppDeepLink,
-    internal val deepLinkNavigationList: List<DeepLinkNavigation>,
-    internal val entryInstallerList: List<ScreenEntryInstaller>,
-    internal val mapContentOverride: DiaryMapContentOverride,
-)
-
-// app:jvm
-val dependencies = StartupInitializer.initialize(isDebug = true)
-singleWindowApplication { App(dependencies = dependencies) }
-```
 
 ## Composable이 만드는 플랫폼 보조 class는 팩토리를 주입받는다
 
@@ -55,39 +38,7 @@ singleWindowApplication { App(dependencies = dependencies) }
 - Compose UI 테스트는 Koin 없이 플랫폼 구현을 직접 만들어 넘긴다(`remember { AndroidFilePickerFactory() }.rememberFilePicker(...)`).
 - feature 안에서만 쓰는 플랫폼 표시 요소(QR 카메라 미리보기)는 보조 class의 타입이 플랫폼마다 달라 `rememberXxx()`로 돌려줄 공통 타입이 없으므로, 그리는 일 자체를 `XxxContent` 인터페이스의 `@Composable fun Content(...)`로 두고 같은 방식으로 등록·주입한다. 플랫폼 Composable은 그 파일의 `private` 함수로 두고 구현 class가 부른다. 여러 feature가 쓰는 표시 요소(지도)는 아래 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`를 따른다.
 
-⚠️ 비권장 예시:
-
-```kotlin
-@Composable
-internal actual fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {
-    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<FilePickerDispatcher>())
-    ...
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-// feature:file:ui commonMain
-internal interface FilePickerFactory {
-    @Composable
-    fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker
-}
-
-@Single(binds = [ScreenEntryInstaller::class])
-internal class FileEntryInstaller(
-    private val filePickerFactory: FilePickerFactory,
-) : ScreenEntryInstaller { ... }
-
-// feature:file:ui jvmMain
-@Single(binds = [FilePickerFactory::class])
-internal class JvmFilePickerFactory(
-    @FilePickerDispatcher private val dispatcher: CoroutineDispatcher,
-) : FilePickerFactory {
-    @Composable
-    override fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker { ... }
-}
-```
+예: `feature:file:ui`의 `FilePickerFactory`(`commonMain`), `JvmFilePickerFactory`(`jvmMain`, `@FilePickerDispatcher` 주입), 팩토리를 생성자로 받는 `FileEntryInstaller`.
 
 ## 플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다
 
@@ -96,4 +47,5 @@ internal class JvmFilePickerFactory(
 ## 모듈 구성
 
 - 모듈마다 `commonMain`에 `@Module @ComponentScan @Configuration` class를 하나 둔다. 같은 모듈의 플랫폼 소스셋에 둔 `@Single`·`@Factory` class도 이 scan이 모은다. 플랫폼 소스셋에 제공 함수가 필요할 때만 그 소스셋에 `@Module @Configuration` class를 더 둔다.
-- 앱은 `@KoinApplication`인 `DiaryKoinApplication` 하나로 모든 `@Configuration` 모듈을 모은다. 테스트도 `koinApplication<DiaryKoinApplication>()`으로 앱과 같은 구성을 띄우고, 가짜가 필요하면 `allowOverride(true)`로 그 정의만 바꾼다.
+- 앱은 `@KoinApplication`인 `DiaryKoinApplication` 하나로 모든 `@Configuration` 모듈을 모은다. 앱 전체 구성을 확인하는 `app:shared` 테스트도 `koinApplication<DiaryKoinApplication>()`으로 앱과 같은 구성을 띄우고, 가짜가 필요하면 `allowOverride(true)`로 그 정의만 바꾼다.
+- 한 모듈의 Koin 구성을 확인하는 테스트는 그 모듈의 테스트 소스셋에 빈 `@KoinApplication` `data object`(`IpNetworkTestKoinApplication`)를 두고 `koinApplication<XxxTestKoinApplication> { modules(...) }`로 띄운다. 모듈 밖에서 오는 의존(`HttpClient` 엔진 등)만 `modules`로 더한다.
