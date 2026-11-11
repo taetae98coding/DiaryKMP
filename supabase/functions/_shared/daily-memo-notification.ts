@@ -1,7 +1,5 @@
 import type { FcmMessage, FcmTarget } from "./fcm.ts";
 
-// 일일 메모 알림의 문구와 FCM 메시지 구성. 문구는 docs/design/daily-memo-notification.md와 같은 이름의 표를 따른다.
-
 export const DAILY_MEMO_NOTIFICATION_COLLAPSE_ID = "daily-memo";
 export const DAILY_MEMO_NOTIFICATION_ANDROID_CHANNEL_ID = "dailyMemo";
 export const DAILY_MEMO_NOTIFICATION_ANDROID_ICON = "ic_notification";

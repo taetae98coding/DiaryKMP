@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { z } from "npm:zod@3";
 import { MAX_FILE_NAME_LENGTH } from "../_shared/file.ts";
 import { HttpError, servePost } from "../_shared/http.ts";
-import { createUserClient } from "../_shared/supabase.ts";
+import { createUserClient, requireUserId } from "../_shared/supabase.ts";
 
 // file 표의 char_length 제약과 같이 UTF-16 단위가 아니라 문자 단위로 센다.
 const fileUpdateRequestSchema = z.object({
@@ -18,6 +18,8 @@ const fileUpdateRequestSchema = z.object({
 
 servePost(fileUpdateRequestSchema, async ({ id, name, title, description }, request) => {
   const client = createUserClient(request);
+  // 사용자 세션이 아닌 JWT는 데이터베이스 함수의 권한 오류가 되기 전에 여기서 거절한다.
+  await requireUserId(client, request);
   const { data, error } = await client.rpc("update_file", {
     file_id: id,
     file_name: name,
