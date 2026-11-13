@@ -22,6 +22,8 @@
 
 목록 화면에서 항목 추가를 실행하는 키보드 단축키의 키 조합과 처리 조건은 [목록 추가 단축키](./list-add-shortcut.md)가 소유한다. 각 문서는 그 화면에서 단축키가 실행하는 추가만 남긴다.
 
+iPhone과 iPad에서 상태 표시줄을 눌러 화면 본문을 맨 위로 되돌리는 조작의 수단, 누른 위치가 화면에 대응되는 기준, 돌아가는 움직임은 [맨 위로 돌아가기](./scroll-to-top.md)가 소유한다. 본문이 위아래로 스크롤되는 화면에 함께 적용되므로 각 화면 문서는 이 조작을 다시 적지 않는다.
+
 모든 화면의 상단 바가 플랫폼마다 그려지는 표현과 상단 바에 둘 수 있는 제목·동작 버튼의 종류는 [상단 바](./top-bar.md)가 소유한다. 각 화면 문서는 그 화면의 상단 바에 두는 제목과 버튼, 순서, 조건과 문구만 남긴다.
 
 iOS에서 시스템 표현으로 그리는 공통 컴포넌트의 목록은 [플랫폼별 컴포넌트 표현 범위](./platform-presentation.md)가 소유한다. 각 컴포넌트의 iOS 표현은 그 컴포넌트를 소유하는 문서가 정하고, 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3로 그린다.
@@ -167,6 +169,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [RoutineAdd 화면](./routine-add.md)
 - [RoutineHome 화면](./routine-home.md)
 - [Routine 목록·상세 배치](./routine-list-detail.md)
+- [맨 위로 돌아가기](./scroll-to-top.md)
 - [SearchHome 화면](./search-home.md)
 - [검색 입력](./search-input.md)
 - [묶음 목록 항목](./segmented-list-item.md)

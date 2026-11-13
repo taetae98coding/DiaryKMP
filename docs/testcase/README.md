@@ -145,6 +145,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/client/routine-add.md) |
 | [RoutineHome](./routine-home.md) | [RoutineHome 화면](../spec/client/routine-home.md) |
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/client/routine-list-detail.md) |
+| [맨 위로 돌아가기](./scroll-to-top.md) | [맨 위로 돌아가기](../spec/client/scroll-to-top.md) |
 | [SearchHome](./search-home.md) | [SearchHome 화면](../spec/client/search-home.md) |
 | [화면 조회 로깅](./screen-view-logging.md) | [화면 조회 로깅](../spec/client/screen-view-logging.md) |
 | [SettingFile](./setting-file.md) | [SettingFile 화면](../spec/client/setting-file.md) |

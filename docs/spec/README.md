@@ -161,6 +161,7 @@
 | 디데이 | [client](./client/dday.md) | [common](./common/dday.md) | — | — |
 | 디데이 태그 | [client](./client/dday-tag.md) | [common](./common/dday-tag.md) | — | — |
 | 로그인 | [client](./client/login.md) | [common](./common/login.md) | [server](./server/login.md) | [Login 디자인](../design/login.md) |
+| 맨 위로 돌아가기 | [client](./client/scroll-to-top.md) | — | — | [맨 위로 돌아가기 디자인](../design/scroll-to-top.md) |
 | 메모 Gemini 작성 도우미 | [client](./client/memo-gemini.md) | — | — | [메모 Gemini 작성 도우미 디자인](../design/memo-gemini.md) |
 | 메모 대표 태그 | [client](./client/memo-primary-tag.md) | [common](./common/memo-primary-tag.md) | — | — |
 | 메모 연락처 | [client](./client/memo-contact.md) | [common](./common/memo-contact.md) | — | — |
