@@ -125,6 +125,8 @@ def validate(data):
                 errors.append(f"{where}.default는 문자열이어야 한다.")
             continue
 
+        if "other" in item and not isinstance(item["other"], bool):
+            errors.append(f"{where}.other는 true 또는 false여야 한다.")
         options = item.get("options")
         if not isinstance(options, list) or len(options) < 2:
             errors.append(f"{where}.options는 선택지가 2개 이상이어야 한다.")
