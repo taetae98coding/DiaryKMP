@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.SwipeWebCard
 import io.github.taetae98coding.diary.compose.web.WebListEvent
@@ -54,7 +55,7 @@ internal fun SearchHomeWebList(
         emptyIcon = { WebIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
     ) {
         LazyColumn(
-            modifier = Modifier.testTag(SEARCH_HOME_WEB_LIST_TEST_TAG),
+            modifier = Modifier.testTag(SEARCH_HOME_WEB_LIST_TEST_TAG).systemScroll(listState) { listState.animateScrollToItem(0) },
             state = listState,
             contentPadding = DiaryTheme.dimens.screenPaddingValues,
             verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),

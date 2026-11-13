@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.compose.core.icon.TagIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.SwipeTagCard
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
@@ -54,7 +55,7 @@ internal fun SearchHomeTagList(
         emptyIcon = { TagIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
     ) {
         LazyColumn(
-            modifier = Modifier.testTag(SEARCH_HOME_TAG_LIST_TEST_TAG),
+            modifier = Modifier.testTag(SEARCH_HOME_TAG_LIST_TEST_TAG).systemScroll(listState) { listState.animateScrollToItem(0) },
             state = listState,
             contentPadding = DiaryTheme.dimens.screenPaddingValues,
             verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),

@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.core.icon.RoutineIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.routine.ui.Res
@@ -59,6 +60,7 @@ internal fun RoutineHomeScaffold(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .systemScroll(scrollState) { scrollState.animateScrollTo(0) }
                         .verticalScroll(scrollState),
                 description = stringResource(Res.string.routine_home_empty_description),
                 icon = { RoutineIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },

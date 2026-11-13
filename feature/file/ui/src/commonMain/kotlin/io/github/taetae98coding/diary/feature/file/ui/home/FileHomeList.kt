@@ -35,6 +35,7 @@ import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGestureBox
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
@@ -127,7 +128,7 @@ private fun FileHomeLazyColumn(
     filePagingItems: LazyPagingItems<DiaryFile> = remember { flowOf(PagingData.empty<DiaryFile>()) }.collectAsLazyPagingItems(),
 ) {
     LazyColumn(
-        modifier = modifier.testTag(FILE_HOME_LIST_TEST_TAG),
+        modifier = modifier.testTag(FILE_HOME_LIST_TEST_TAG).systemScroll(listState) { listState.animateScrollToItem(0) },
         state = listState,
         contentPadding = PaddingValues(vertical = DiaryTheme.dimens.screenVerticalPadding),
     ) {

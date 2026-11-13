@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
@@ -117,6 +118,7 @@ private fun DDayDetailScaffoldContent(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .systemScroll(state.scrollState) { state.scrollState.animateScrollTo(0) }
                         .verticalScroll(state.scrollState)
                         .padding(
                             start = DiaryTheme.dimens.screenHorizontalPadding,

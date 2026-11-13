@@ -264,6 +264,14 @@ rulers는 배치 단계에서만 값을 주므로 다음을 품는 영역에는 
 
 Robolectric 테스트에서는 `ViewCompat.dispatchApplyWindowInsets`를 `LocalView.current.rootView`에 보내 `WindowInsets`와 rulers를 함께 갱신한다. rulers의 inset은 `AndroidComposeView`의 부모가 받는다.
 
+## 화면 본문은 맨 위로 돌아가기에 반응한다
+
+**화면 본문의 세로 스크롤 컨테이너에는 `compose:core`의 `Modifier.systemScroll(state) { state.animateScrollToItem(0) }`를 붙인다.** iOS에서 상태 표시줄을 누르면 실행되고 다른 플랫폼에서는 아무 일도 하지 않는다. 대상과 돌아가는 자리는 [맨 위로 돌아가기 스펙](../../docs/spec/client/scroll-to-top.md)이 정한다.
+
+- iOS는 스크롤 영역의 자리와 맨 위 여부를 보고 한 번에 하나를 골라 돌린다. 이 modifier는 붙은 노드의 자리와 `state`의 맨 위 여부를 iOS에 그대로 알린다. 그래서 `verticalScroll`을 쓰는 본문에서는 `verticalScroll`보다 앞에 붙여, 스크롤되는 내용이 아니라 보이는 영역의 자리를 알리게 한다.
+- `DiaryRefreshableGrid`, `DiaryRefreshableStaggeredGrid`, `DiaryInputColumn`, `MemoList`는 안에서 붙이므로 이 컴포넌트를 쓰는 화면은 다시 붙이지 않는다.
+- 본문 안이나 곁의 작은 스크롤 영역에는 붙이지 않는다. 다이얼로그와 Bottom Sheet 안에서는 붙여도 반응하지 않는다. iOS 구현이 화면 위에 창이 떠 있는 동안에는 실행하지 않기 때문이다.
+
 ## 자주 바뀌는 state의 파생 값
 
 **자주 바뀌는 state(`TextFieldState.text`, 스크롤·드래그 오프셋, 애니메이션 진행값)를 드물게 바뀌는 값으로 줄여 composition에서 읽으면 `derivedStateOf`로 감싼다.**

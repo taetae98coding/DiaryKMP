@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountCard
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
@@ -36,6 +38,8 @@ internal fun MoreHomeScaffold(
     accountUiStateProvider: () -> MoreHomeAccountUiState = { MoreHomeAccountUiState.Loading },
     signOutUiStateProvider: () -> MoreHomeSignOutUiState = { MoreHomeSignOutUiState() },
 ) {
+    val gridState = rememberLazyGridState()
+
     Scaffold(
         modifier = modifier,
         topBar = { MoreHomeTopBar(onEvent = onEvent) },
@@ -45,7 +49,9 @@ internal fun MoreHomeScaffold(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .systemScroll(gridState) { gridState.animateScrollToItem(0) },
+            state = gridState,
             contentPadding = DiaryTheme.dimens.screenPaddingValues,
             horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.componentSpacing),
             verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.componentSpacing),

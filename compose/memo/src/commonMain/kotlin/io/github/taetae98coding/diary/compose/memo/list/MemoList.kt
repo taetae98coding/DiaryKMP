@@ -23,6 +23,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGestureBox
 import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.memo.previewMemo
@@ -68,7 +69,7 @@ public fun MemoList(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().systemScroll(listState) { listState.animateScrollToItem(0) },
                     state = listState,
                     contentPadding = DiaryTheme.dimens.screenPaddingValues,
                     verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
