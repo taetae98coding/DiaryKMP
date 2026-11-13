@@ -41,8 +41,10 @@ internal class SystemScrollTarget(
         scrollView.delegate = delegate
     }
 
+    // UIKit은 탭 화면의 뷰에서 첫 하위 뷰를 따라 내려가다 처음 만나는 스크롤 뷰를 그 화면의 스크롤 뷰로 보고, 탭 바는 그 offset이 바뀔 때마다 자기 표시를 다시 조정한다.
+    // 맨 앞에 붙이면 이 스크롤 뷰가 골라져 목록이 맨 위를 벗어나거나 iOS가 이 스크롤 뷰를 맨 위로 옮길 때마다 탭 바가 반응하므로, 먼저 붙어 있는 Compose 화면 뷰보다 뒤에 붙인다.
     fun attach() {
-        hostView.insertSubview(scrollView, atIndex = 0)
+        hostView.addSubview(scrollView)
     }
 
     fun detach() {
