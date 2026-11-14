@@ -180,6 +180,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [Setting 목록·상세 배치](./setting-list-detail.md)
 - [SettingMap 화면](./setting-map.md)
 - [SettingMcp 화면](./setting-mcp.md)
+- [공유로 항목 추가](./share-add.md)
 - [Spotlight 항목](./spotlight.md)
 - [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md)
 - [새로고침](./sync-refresh.md)

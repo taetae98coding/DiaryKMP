@@ -146,6 +146,7 @@
 | 계정 조회 | [client](./client/account.md) | — | — | — |
 | 계정 탈퇴 | [client](./client/account-deletion.md) | [common](./common/account-deletion.md) | [server](./server/account-deletion.md) | [Profile 디자인](../design/profile.md) |
 | 곡 태그 | [client](./client/music-tag.md) | [common](./common/music-tag.md) | — | — |
+| 공유로 항목 추가 | [client](./client/share-add.md) | — | — | [공유로 항목 추가 디자인](../design/share-add.md) |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |

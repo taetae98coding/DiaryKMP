@@ -155,6 +155,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [Setting 목록·상세 배치](./setting-list-detail.md) | [Setting 목록·상세 배치](../spec/client/setting-list-detail.md) |
 | [SettingMap](./setting-map.md) | [SettingMap 화면](../spec/client/setting-map.md) |
 | [SettingMcp](./setting-mcp.md) | [SettingMcp 화면](../spec/client/setting-mcp.md) |
+| [공유로 항목 추가](./share-add.md) | [공유로 항목 추가](../spec/client/share-add.md) |
 | [Spotlight 항목 노출](./spotlight.md) | [Spotlight 항목 노출](../spec/client/spotlight.md) |
 | [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md) | [SwipeToFinishAndDelete 컴포넌트](../spec/client/swipe-to-finish-and-delete.md) |
 | [새로고침](./sync-refresh.md) | [새로고침](../spec/client/sync-refresh.md) |
