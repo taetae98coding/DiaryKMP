@@ -17,6 +17,7 @@ Bottom Sheet 안에 어떤 필터를 어떤 순서로 담는지, 각 필터의 �
 - [TagDetail 화면 디자인](./tag-detail.md)
 - [목록 정렬 디자인](./list-sort.md)
 - [WebDetail 화면 디자인](./web-detail.md)
+- [MemoDetail 화면 디자인](./memo-detail.md)
 
 ## 필터 아이콘 버튼
 

@@ -111,6 +111,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [메모 태그](./memo-tag.md) | [메모 태그](../spec/client/memo-tag.md), [메모 태그](../spec/common/memo-tag.md) |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | [메모 웹 입력 컴포넌트](../spec/client/memo-web-input.md) |
 | [메모 웹](./memo-web.md) | [메모 웹](../spec/client/memo-web.md), [메모 웹](../spec/common/memo-web.md) |
+| [항목 공유 공통](./entity-share.md) | [항목 공유 공통](../spec/client/entity-share.md) |
 | [항목 완료 메모 목록](./entity-memo-finished-list.md) | [항목 완료 메모 목록 화면](../spec/client/entity-memo-finished-list.md) |
 | [항목 완료 메모 목록·상세 배치](./entity-memo-finished-list-detail.md) | [항목 완료 메모 목록·상세 배치](../spec/client/entity-memo-finished-list-detail.md) |
 | [항목 태그 입력 컴포넌트](./entity-tag-input.md) | [항목 태그 입력 컴포넌트](../spec/client/entity-tag-input.md) |
@@ -234,6 +235,8 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
   - 네 문서가 공통 스펙의 절을 각자의 대상 항목과 동작에 맞춰 각각 갖는다.
 - [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md) → [ContactDetail](./contact-detail.md), [MemoDetail](./memo-detail.md), [MusicDetail](./music-detail.md), [PlaceDetail](./place-detail.md), [QrDetail](./qr-detail.md), [TagDetail](./tag-detail.md), [WebDetail](./web-detail.md), [ChecklistDetail](./checklist-detail.md), [DDayDetail](./dday-detail.md)
   - 각 상세 화면 문서가 공통 스펙의 절을 자기 화면의 입력과 동작에 맞춰 각각 갖는다.
+- [항목 공유 공통 스펙](../spec/client/entity-share.md) → [WebDetail](./web-detail.md), [MusicDetail](./music-detail.md), [PlaceDetail](./place-detail.md), [ContactDetail](./contact-detail.md), [MemoDetail](./memo-detail.md), [QrDetail](./qr-detail.md)
+  - 화면과 무관하게 한 번만 판정하는 글 형식, 파일 이름, 환경별 제공 판정, 공유 시트 요청 내용과 공유 시트를 열지 못한 결과, 글 공유를 복사로 대신할 때 클립보드에 쓰는 내용과 복사하지 못한 결과는 [항목 공유 공통](./entity-share.md)이 갖는다. 각 상세 화면 문서는 공유 버튼의 제공과 조회 중 표현, 보내는 내용, 공유할 수 없을 때의 피드백, 공유하지 못했을 때의 안내, 글 공유를 복사로 대신하는 화면(WebDetail, MusicDetail, PlaceDetail, MemoDetail)이면 복사로 대신했을 때의 안내, 공유가 화면의 입력과 상태를 바꾸지 않는 것, 공유 시트가 열린 동안 화면이 재생성되어도 공유를 다시 시작하지 않는 것의 케이스를 자기 화면에 맞춰 각각 갖는다.
 - [항목 상세 메모 탭 공통 스펙](../spec/client/entity-detail-memo.md) → [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)
   - 세 메모 탭 문서가 공통 스펙의 같은 절을 각자의 상세 대상 항목과 입력에 맞춰 각각 갖는다.
 - [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md) → [Checklist](./checklist-list-detail.md), [Contact](./contact-list-detail.md), [File](./file-list-detail.md), [Memo](./memo-list-detail.md), [MemoFinishedList](./memo-finished-list-detail.md), [Playlist](./playlist-list-detail.md), [QR](./qr-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagFinishedList](./tag-finished-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록](./entity-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치, [DDay](./dday-list-detail.md)

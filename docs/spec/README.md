@@ -220,6 +220,7 @@
 | 페이지 조회 목록의 자리 표시 | [client](./client/paged-list-placeholder.md) | — | — | [페이지 조회 목록의 자리 표시 디자인](../design/paged-list-placeholder.md) |
 | 푸시 알림 수신 등록 | [client](./client/fcm-token.md) | [common](./common/fcm-token.md) | [server](./server/fcm-token.md) | — |
 | 프로필 이미지 변경 | [client](./client/profile-image.md) | [common](./common/profile-image.md) | [server](./server/profile-image.md) | — |
+| 항목 공유 공통 | [client](./client/entity-share.md) | — | — | [항목 공유 공통 디자인](../design/entity-share.md) |
 | 항목 목록 화면 공통 | [client](./client/entity-home.md) | — | — | [항목 목록 화면 공통 디자인](../design/entity-home.md) |
 | 항목 상세 메모 탭 공통 | [client](./client/entity-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md) |
 | 항목 상세 화면 공통 | [client](./client/entity-detail.md) | — | — | [항목 상세 화면 공통 디자인](../design/entity-detail.md) |
