@@ -20,6 +20,9 @@ import io.github.taetae98coding.diary.compose.dday.DDayListState
 import io.github.taetae98coding.diary.compose.dday.UpdateDDayListTodayEffect
 import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.routine.RoutineListState
+import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffect
+import io.github.taetae98coding.diary.compose.routine.rememberRoutineListState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistContent
@@ -41,9 +44,12 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlace
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTargetHost
 import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrFloatingActionButton
+import io.github.taetae98coding.diary.feature.tag.ui.detail.routine.TagDetailRoutineContent
+import io.github.taetae98coding.diary.feature.tag.ui.detail.routine.TagDetailRoutineFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.rememberTagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTabState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.rememberTagDetailTabState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.tagDetailTabShortcut
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebContent
@@ -74,6 +80,9 @@ internal fun TagDetailScreen(
     navigateToQrDetail: (Uuid) -> Unit,
     navigateToDDayAdd: () -> Unit,
     navigateToDDayDetail: (Uuid) -> Unit,
+    navigateToRoutineAdd: () -> Unit,
+    navigateToRoutineDetail: (Uuid) -> Unit,
+    navigateToRoutineFinishedList: () -> Unit,
     id: Uuid,
     tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> TagDetailScaffoldComponentVisible,
@@ -108,6 +117,9 @@ internal fun TagDetailScreen(
                     navigateToQrDetail = navigateToQrDetail,
                     navigateToDDayAdd = navigateToDDayAdd,
                     navigateToDDayDetail = navigateToDDayDetail,
+                    navigateToRoutineAdd = navigateToRoutineAdd,
+                    navigateToRoutineDetail = navigateToRoutineDetail,
+                    navigateToRoutineFinishedList = navigateToRoutineFinishedList,
                 ),
             id = id,
             tagAddRequestKey = tagAddRequestKey,
@@ -136,6 +148,7 @@ private fun TagDetailScreenContent(
     val tabState = rememberTagDetailTabState()
     val scopeState = rememberTagDetailScopeState()
     val ddayListState = rememberDDayListState()
+    val routineListState = rememberRoutineListState()
     val viewModelStoreProvider = rememberViewModelStoreProvider()
     val uiState by detailViewModel.uiState.collectAsStateWithLifecycle()
     val content = uiState as? TagDetailUiState.Content
@@ -147,21 +160,16 @@ private fun TagDetailScreenContent(
     TagDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigation.navigateUp)
     DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.snackbarHostState)
     UpdateDDayListTodayEffect(state = ddayListState)
+    UpdateRoutineListTodayEffect(state = routineListState)
 
     TagDetailScaffold(
         onEvent = { event -> handleTagDetailScaffoldEvent(event = event, viewModel = detailViewModel, scopeState = scopeState, navigateUp = navigation.navigateUp) },
         modifier =
-            modifier.tagDetailTabShortcut(
+            modifier.tagDetailScreenShortcut(
+                navigation = navigation,
                 onUpdate = { detailViewModel.update(detail = scaffoldState.detail) },
-                onMemoAdd = navigation.navigateToMemoAdd,
-                onWebAdd = navigation.navigateToWebAdd,
                 onPlaceAdd = { navigation.navigateToPlaceAdd(placeState.addCoordinate) },
-                onContactAdd = navigation.navigateToContactAdd,
-                onChecklistAdd = navigation.navigateToChecklistAdd,
-                onMusicAdd = navigation.navigateToMusicAdd,
-                onQrAdd = navigation.navigateToQrAdd,
-                onDDayAdd = navigation.navigateToDDayAdd,
-                state = tabState,
+                tabState = tabState,
                 isUpdateEnabledProvider = { isUpdateEnabled },
             ),
         uiStateProvider = { uiState },
@@ -191,11 +199,35 @@ private fun TagDetailScreenContent(
             placeMapState = placeMapState,
             scopeState = scopeState,
             ddayListState = ddayListState,
+            routineListState = routineListState,
             uiStateProvider = { uiState },
             state = scaffoldState,
         )
     }
 }
+
+@Composable
+private fun Modifier.tagDetailScreenShortcut(
+    navigation: TagDetailNavigation,
+    onUpdate: () -> Unit,
+    onPlaceAdd: () -> Unit,
+    tabState: TagDetailTabState,
+    isUpdateEnabledProvider: () -> Boolean,
+): Modifier =
+    tagDetailTabShortcut(
+        onUpdate = onUpdate,
+        onMemoAdd = navigation.navigateToMemoAdd,
+        onWebAdd = navigation.navigateToWebAdd,
+        onPlaceAdd = onPlaceAdd,
+        onContactAdd = navigation.navigateToContactAdd,
+        onChecklistAdd = navigation.navigateToChecklistAdd,
+        onMusicAdd = navigation.navigateToMusicAdd,
+        onQrAdd = navigation.navigateToQrAdd,
+        onDDayAdd = navigation.navigateToDDayAdd,
+        onRoutineAdd = navigation.navigateToRoutineAdd,
+        state = tabState,
+        isUpdateEnabledProvider = isUpdateEnabledProvider,
+    )
 
 @Composable
 private fun rememberIsUpdateEnabled(
@@ -242,6 +274,7 @@ private fun TabFloatingActionButton(
                 TagDetailTab.MUSIC -> TagDetailMusicFloatingActionButton(onClick = navigation.navigateToMusicAdd)
                 TagDetailTab.QR -> TagDetailQrFloatingActionButton(onClick = navigation.navigateToQrAdd)
                 TagDetailTab.DDAY -> TagDetailDDayFloatingActionButton(onClick = navigation.navigateToDDayAdd)
+                TagDetailTab.ROUTINE -> TagDetailRoutineFloatingActionButton(onClick = navigation.navigateToRoutineAdd)
             }
         }
     }
@@ -259,6 +292,7 @@ private fun TabContent(
     placeMapState: DiaryMapState,
     scopeState: TagDetailScopeState,
     ddayListState: DDayListState,
+    routineListState: RoutineListState,
     uiStateProvider: () -> TagDetailUiState,
     state: TagFormState,
 ) {
@@ -286,15 +320,7 @@ private fun TabContent(
                 snackbarHostState = state.snackbarHostState,
             )
 
-        TagDetailTab.WEB ->
-            TagDetailWebContent(
-                id = id,
-                viewModelStoreProvider = viewModelStoreProvider,
-                navigateToWebDetail = navigation.navigateToWebDetail,
-                scopeState = scopeState,
-                modifier = Modifier.fillMaxSize(),
-                snackbarHostState = state.snackbarHostState,
-            )
+        TagDetailTab.WEB -> TagDetailWebContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToWebDetail = navigation.navigateToWebDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
 
         TagDetailTab.PLACE ->
             TagDetailPlaceContent(
@@ -317,13 +343,16 @@ private fun TabContent(
 
         TagDetailTab.QR -> TagDetailQrContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToQrDetail = navigation.navigateToQrDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
 
-        TagDetailTab.DDAY ->
-            TagDetailDDayContent(
+        TagDetailTab.DDAY -> TagDetailDDayContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToDDayDetail = navigation.navigateToDDayDetail, scopeState = scopeState, listState = ddayListState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
+
+        TagDetailTab.ROUTINE ->
+            TagDetailRoutineContent(
                 id = id,
                 viewModelStoreProvider = viewModelStoreProvider,
-                navigateToDDayDetail = navigation.navigateToDDayDetail,
+                navigateToRoutineDetail = navigation.navigateToRoutineDetail,
+                navigateToRoutineFinishedList = navigation.navigateToRoutineFinishedList,
                 scopeState = scopeState,
-                listState = ddayListState,
+                listState = routineListState,
                 modifier = Modifier.fillMaxSize(),
                 snackbarHostState = state.snackbarHostState,
             )

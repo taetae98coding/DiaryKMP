@@ -13,6 +13,8 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFuncti
 import io.github.taetae98coding.diary.work.appaction.appfunction.music.toAppFunctionMusicPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQrPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.toAppFunctionQrPage
+import io.github.taetae98coding.diary.work.appaction.appfunction.routine.AppFunctionRoutinePage
+import io.github.taetae98coding.diary.work.appaction.appfunction.routine.toAppFunctionRoutinePage
 import io.github.taetae98coding.diary.work.appaction.tag.TagItemAppAction
 
 internal class TagItemAppFunction(
@@ -76,4 +78,15 @@ internal class TagItemAppFunction(
         scope: String?,
         cursor: String?,
     ): AppFunctionDDayPage = appFunctionCall { tagItemAppAction.ddayList(tagId = tagId, scope = scope, cursor = cursor).toAppFunctionDDayPage() }
+
+    suspend fun routineList(
+        tagId: String,
+        scope: String?,
+        cursor: String?,
+    ): AppFunctionRoutinePage = appFunctionCall { tagItemAppAction.routineList(tagId = tagId, scope = scope, cursor = cursor).toAppFunctionRoutinePage() }
+
+    suspend fun routineFinishedList(
+        tagId: String,
+        cursor: String?,
+    ): AppFunctionRoutinePage = appFunctionCall { tagItemAppAction.routineFinishedList(tagId = tagId, cursor = cursor).toAppFunctionRoutinePage() }
 }

@@ -26,4 +26,7 @@ internal class TagDetailNavigation(
     val navigateToQrDetail: (Uuid) -> Unit,
     val navigateToDDayAdd: () -> Unit,
     val navigateToDDayDetail: (Uuid) -> Unit,
+    val navigateToRoutineAdd: () -> Unit,
+    val navigateToRoutineDetail: (Uuid) -> Unit,
+    val navigateToRoutineFinishedList: () -> Unit,
 )

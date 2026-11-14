@@ -22,18 +22,13 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
-import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +47,11 @@ class RoutineListDetailNavigationTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestTopLevelNavKey, RoutineHomeNavKey)
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @After
     fun tearDown() {
@@ -79,7 +79,7 @@ class RoutineListDetailNavigationTest {
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        backStack.last() shouldBe RoutineAddNavKey
+        backStack.last() shouldBe RoutineAddNavKey()
         composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
     }
@@ -118,11 +118,12 @@ class RoutineListDetailNavigationTest {
     private fun setRoutineNavDisplay() {
         val viewModelModule =
             module {
-                factory<SyncRefreshViewModel> {
-                    mockk<SyncRefreshViewModel>(relaxed = true) {
-                        every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                    }
-                }
+                factory { routineHomeViewModel() }
+                factory { routineHomeCalendarViewModel() }
+                factory { routineHomeHolidayViewModel() }
+                factory { routineSyncRefreshViewModel() }
+                factory { routineAddViewModel() }
+                factory { routineAddTagViewModel() }
             }
 
         composeRule.setContent {
@@ -135,7 +136,7 @@ class RoutineListDetailNavigationTest {
 
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
+                    RoutineTestTheme {
                         val holder = rememberListDetailPlaceholderStateHolder()
 
                         CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {

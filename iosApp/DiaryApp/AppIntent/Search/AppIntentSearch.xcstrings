@@ -139,6 +139,52 @@
         }
       }
     },
+    "Found %lld routines.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld routine."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld routines."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루틴 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld routines. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld routines. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루틴 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
     "Found %lld tags.": {
       "extractionState": "manual",
       "localizations": {
@@ -278,6 +324,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "메모 검색"
+          }
+        }
+      }
+    },
+    "Search Routines": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Routines"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루틴 검색"
+          }
+        }
+      }
+    },
+    "Search Routines for ${query}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Routines for ${query}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루틴 검색: ${query}"
           }
         }
       }
@@ -448,6 +528,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "앱에 저장한 장소를 검색합니다. 앱 밖의 장소는 찾지 않습니다."
+          }
+        }
+      }
+    },
+    "Searches routines saved in the app, including finished ones, with this period's total and progress.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searches routines saved in the app, including finished ones, with this period's total and progress."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료된 루틴을 포함해 앱에 저장한 루틴을 이번 주기의 합계와 달성률과 함께 검색합니다."
           }
         }
       }

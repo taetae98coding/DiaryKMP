@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.mcp.tool.tag
 
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.core.testing.contact.contact
@@ -8,6 +9,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.core.testing.routine.routine
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistUseCase
@@ -31,6 +33,9 @@ import io.github.taetae98coding.diary.domain.playlist.usecase.AddMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.AddRoutineUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.FindRoutineSummaryUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.FindRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
@@ -42,6 +47,7 @@ import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.github.taetae98coding.diary.work.appaction.core.AppActionRandomColor
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolCallResult
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.call
@@ -54,6 +60,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.memo.MemoMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.music.MusicMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.place.PlaceMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.qr.QrMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.routine.RoutineMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tool
 import io.github.taetae98coding.diary.work.mcp.tool.toolSetOf
 import io.github.taetae98coding.diary.work.mcp.tool.web.WebMcpToolSet
@@ -262,7 +269,7 @@ private fun stubEntityTag(
     return getEntityTagUseCase
 }
 
-private fun entityTagCaseList(): List<EntityTagCase> = listOf(memoTagCase(), placeTagCase(), webTagCase(), contactTagCase(), checklistTagCase(), qrTagCase(), musicTagCase(), ddayTagCase())
+private fun entityTagCaseList(): List<EntityTagCase> = listOf(memoTagCase(), placeTagCase(), webTagCase(), contactTagCase(), checklistTagCase(), qrTagCase(), musicTagCase(), ddayTagCase(), routineTagCase())
 
 private fun memoTagCase(): EntityTagCase =
     EntityTagCase(
@@ -412,6 +419,24 @@ private fun ddayTagCase(): EntityTagCase =
         stubTag = { ddayId, tagList -> stubEntityTag(kind = EntityTagKind.DDAY, entityId = ddayId, tagList = tagList) },
     )
 
+private fun routineTagCase(): EntityTagCase =
+    EntityTagCase(
+        entity = "routine",
+        idName = "routineId",
+        toolSet = { useCaseList -> toolSetOf<RoutineMcpToolSet>(*useCaseList.toTypedArray(), AppActionRandomColor()) },
+        // 시작 날짜를 담지 않으면 오늘을 쓰므로, 시계 없이 추가할 수 있게 시작 날짜를 담는다.
+        addArguments = { mapOf("title" to JsonPrimitive(Arb.nonBlankString().next()), "startDate" to JsonPrimitive(Arb.kotlinxLocalDate().next().toString())) },
+        stubAdd = { addedId ->
+            val parameter = slot<AddRoutineUseCase.Parameter>()
+            val addRoutineUseCase = mockk<AddRoutineUseCase>()
+            coEvery { addRoutineUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+            StubbedAdd(useCase = addRoutineUseCase) { parameter.captured.tagIdSet }
+        },
+        stubFound = { isDeleted -> stubFoundRoutine(isDeleted = isDeleted) },
+        stubLink = { result -> stubEntityLink(kind = EntityTagKind.ROUTINE, result = result) },
+        stubTag = { routineId, tagList -> stubEntityTag(kind = EntityTagKind.ROUTINE, entityId = routineId, tagList = tagList) },
+    )
+
 internal fun stubFoundMemo(isDeleted: Boolean): StubbedFind {
     val memo = Arb.memo().next().copy(isDeleted = isDeleted)
     val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -493,4 +518,17 @@ internal fun stubFoundDDay(isDeleted: Boolean): StubbedFind {
     every { clock.now() } returns Arb.secondPrecisionInstant().next()
 
     return StubbedFind(id = dday.id, useCaseList = listOf(findDDayUseCase, clock))
+}
+
+// 루틴 상세는 이번 주기의 합계와 오늘로 계산한 값을 함께 담으므로 합계 조회와 시계를 함께 준다.
+internal fun stubFoundRoutine(isDeleted: Boolean): StubbedFind {
+    val routine = Arb.routine().next().copy(isDeleted = isDeleted)
+    val findRoutineUseCase = mockk<FindRoutineUseCase>()
+    val findRoutineSummaryUseCase = mockk<FindRoutineSummaryUseCase>()
+    val clock = mockk<Clock>()
+    every { findRoutineUseCase(parameter = routine.id) } returns flowOf(Result.success(routine))
+    every { findRoutineSummaryUseCase(parameter = any()) } returns flowOf(Result.success(RoutineSummary(routine = routine, cycleAmount = 0)))
+    every { clock.now() } returns Arb.secondPrecisionInstant().next()
+
+    return StubbedFind(id = routine.id, useCaseList = listOf(findRoutineUseCase, findRoutineSummaryUseCase, clock))
 }

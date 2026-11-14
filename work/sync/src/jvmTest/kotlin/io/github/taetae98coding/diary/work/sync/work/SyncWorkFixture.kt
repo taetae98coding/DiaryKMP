@@ -40,6 +40,12 @@ import io.github.taetae98coding.diary.core.database.api.place.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.api.qr.datasource.AccountQrSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQrSyncTransaction
+import io.github.taetae98coding.diary.core.database.api.routine.datasource.AccountRoutineSyncLocalDataSource
+import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routine.transaction.AccountRoutineSyncTransaction
+import io.github.taetae98coding.diary.core.database.api.routinerecord.datasource.AccountRoutineRecordSyncLocalDataSource
+import io.github.taetae98coding.diary.core.database.api.routinerecord.entity.RoutineRecordLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routinerecord.transaction.AccountRoutineRecordSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.datasource.AccountTagSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -78,6 +84,10 @@ import io.github.taetae98coding.diary.core.network.api.place.datasource.PlaceRem
 import io.github.taetae98coding.diary.core.network.api.place.entity.PlacePullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.qr.datasource.QrRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrPullRemoteEntity
+import io.github.taetae98coding.diary.core.network.api.routine.datasource.RoutineRemoteDataSource
+import io.github.taetae98coding.diary.core.network.api.routine.entity.RoutinePullRemoteEntity
+import io.github.taetae98coding.diary.core.network.api.routinerecord.datasource.RoutineRecordRemoteDataSource
+import io.github.taetae98coding.diary.core.network.api.routinerecord.entity.RoutineRecordPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.datasource.TagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.taglink.datasource.TagLinkRemoteDataSource
@@ -103,6 +113,10 @@ import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.core.testing.qr.remoteQr
+import io.github.taetae98coding.diary.core.testing.routine.localRoutine
+import io.github.taetae98coding.diary.core.testing.routine.localRoutineRecord
+import io.github.taetae98coding.diary.core.testing.routine.remoteRoutine
+import io.github.taetae98coding.diary.core.testing.routine.remoteRoutineRecord
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
@@ -148,6 +162,8 @@ internal data class TestContext(
     val checklistSyncLocalDataSource: AccountChecklistSyncLocalDataSource,
     val checklistItemSyncLocalDataSource: AccountChecklistItemSyncLocalDataSource,
     val ddaySyncLocalDataSource: AccountDDaySyncLocalDataSource,
+    val routineSyncLocalDataSource: AccountRoutineSyncLocalDataSource,
+    val routineRecordSyncLocalDataSource: AccountRoutineRecordSyncLocalDataSource,
     val memoSyncLocalDataSource: AccountMemoSyncLocalDataSource,
     val memoTagSyncLocalDataSource: AccountMemoTagSyncLocalDataSource,
     val memoPlaceSyncLocalDataSource: AccountMemoPlaceSyncLocalDataSource,
@@ -172,6 +188,8 @@ internal data class TestContext(
     val accountChecklistSyncTransaction: AccountChecklistSyncTransaction,
     val accountChecklistItemSyncTransaction: AccountChecklistItemSyncTransaction,
     val accountDDaySyncTransaction: AccountDDaySyncTransaction,
+    val accountRoutineSyncTransaction: AccountRoutineSyncTransaction,
+    val accountRoutineRecordSyncTransaction: AccountRoutineRecordSyncTransaction,
     val tagRemoteDataSource: TagRemoteDataSource,
     val placeRemoteDataSource: PlaceRemoteDataSource,
     val webRemoteDataSource: WebRemoteDataSource,
@@ -188,6 +206,8 @@ internal data class TestContext(
     val checklistRemoteDataSource: ChecklistRemoteDataSource,
     val checklistItemRemoteDataSource: ChecklistItemRemoteDataSource,
     val ddayRemoteDataSource: DDayRemoteDataSource,
+    val routineRemoteDataSource: RoutineRemoteDataSource,
+    val routineRecordRemoteDataSource: RoutineRecordRemoteDataSource,
     val accountSyncTimeLocalDataSource: AccountSyncTimeLocalDataSource,
     val clock: Clock,
     val syncedAt: Instant,
@@ -259,6 +279,20 @@ internal data class TestContext(
                     syncCursorLocalDataSource = syncCursorLocalDataSource,
                     accountDDaySyncTransaction = accountDDaySyncTransaction,
                     ddayRemoteDataSource = ddayRemoteDataSource,
+                ),
+            routineSyncWork =
+                RoutineSyncWork(
+                    accountRoutineSyncLocalDataSource = routineSyncLocalDataSource,
+                    syncCursorLocalDataSource = syncCursorLocalDataSource,
+                    accountRoutineSyncTransaction = accountRoutineSyncTransaction,
+                    routineRemoteDataSource = routineRemoteDataSource,
+                ),
+            routineRecordSyncWork =
+                RoutineRecordSyncWork(
+                    accountRoutineRecordSyncLocalDataSource = routineRecordSyncLocalDataSource,
+                    syncCursorLocalDataSource = syncCursorLocalDataSource,
+                    accountRoutineRecordSyncTransaction = accountRoutineRecordSyncTransaction,
+                    routineRecordRemoteDataSource = routineRecordRemoteDataSource,
                 ),
             memoSyncWork =
                 MemoSyncWork(
@@ -355,6 +389,8 @@ internal fun context(
     checklistList: List<ChecklistLocalEntity> = emptyList(),
     checklistItemList: List<ChecklistItemLocalEntity> = emptyList(),
     ddayList: List<DDayLocalEntity> = emptyList(),
+    routineList: List<RoutineLocalEntity> = emptyList(),
+    routineRecordList: List<RoutineRecordLocalEntity> = emptyList(),
 ): TestContext {
     val context = mockedTestContext(accountId = accountId, accountFlow = accountFlow)
 
@@ -375,6 +411,8 @@ internal fun context(
         checklistList = checklistList,
         checklistItemList = checklistItemList,
         ddayList = ddayList,
+        routineList = routineList,
+        routineRecordList = routineRecordList,
     )
     context.stubTransactions()
     context.stubRemoteDataSources()
@@ -405,6 +443,8 @@ private fun mockedTestContext(
         checklistSyncLocalDataSource = mockk(),
         checklistItemSyncLocalDataSource = mockk(),
         ddaySyncLocalDataSource = mockk(),
+        routineSyncLocalDataSource = mockk(),
+        routineRecordSyncLocalDataSource = mockk(),
         memoSyncLocalDataSource = mockk(),
         memoTagSyncLocalDataSource = mockk(),
         memoPlaceSyncLocalDataSource = mockk(),
@@ -429,6 +469,8 @@ private fun mockedTestContext(
         accountChecklistSyncTransaction = mockk(),
         accountChecklistItemSyncTransaction = mockk(),
         accountDDaySyncTransaction = mockk(),
+        accountRoutineSyncTransaction = mockk(),
+        accountRoutineRecordSyncTransaction = mockk(),
         tagRemoteDataSource = mockk(),
         placeRemoteDataSource = mockk(),
         webRemoteDataSource = mockk(),
@@ -445,6 +487,8 @@ private fun mockedTestContext(
         checklistRemoteDataSource = mockk(),
         checklistItemRemoteDataSource = mockk(),
         ddayRemoteDataSource = mockk(),
+        routineRemoteDataSource = mockk(),
+        routineRecordRemoteDataSource = mockk(),
         accountSyncTimeLocalDataSource = mockk(relaxed = true),
         clock = clock,
         syncedAt = syncedAt,
@@ -468,6 +512,8 @@ private fun TestContext.stubPending(
     checklistList: List<ChecklistLocalEntity>,
     checklistItemList: List<ChecklistItemLocalEntity>,
     ddayList: List<DDayLocalEntity>,
+    routineList: List<RoutineLocalEntity>,
+    routineRecordList: List<RoutineRecordLocalEntity>,
 ) {
     coEvery { tagSyncLocalDataSource.readPendingList(accountId = accountId) } returns tagList
     coEvery { placeSyncLocalDataSource.readPendingList(accountId = accountId) } returns placeList
@@ -489,6 +535,8 @@ private fun TestContext.stubPending(
     coEvery { checklistSyncLocalDataSource.readPendingList(accountId = accountId) } returns checklistList
     coEvery { checklistItemSyncLocalDataSource.readPendingList(accountId = accountId) } returns checklistItemList
     coEvery { ddaySyncLocalDataSource.readPendingList(accountId = accountId) } returns ddayList
+    coEvery { routineSyncLocalDataSource.readPendingList(accountId = accountId) } returns routineList
+    coEvery { routineRecordSyncLocalDataSource.readPendingList(accountId = accountId) } returns routineRecordList
     coEvery { syncCursorLocalDataSource.read(accountId = any(), kind = any()) } returns 0L
 }
 
@@ -531,6 +579,8 @@ private fun TestContext.stubTransactions() {
     coEvery { accountChecklistSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountChecklistItemSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountDDaySyncTransaction.clearPending(any(), any()) } returns Unit
+    coEvery { accountRoutineSyncTransaction.clearPending(any(), any()) } returns Unit
+    coEvery { accountRoutineRecordSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountTagSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountPlaceSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountWebSyncTransaction.upsert(any(), any(), any()) } returns Unit
@@ -547,6 +597,8 @@ private fun TestContext.stubTransactions() {
     coEvery { accountChecklistSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountChecklistItemSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountDDaySyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountRoutineSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountRoutineRecordSyncTransaction.upsert(any(), any(), any()) } returns Unit
 }
 
 private fun TestContext.stubRemoteDataSources() {
@@ -566,6 +618,8 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { checklistRemoteDataSource.push(any()) } returns Unit
     coEvery { checklistItemRemoteDataSource.push(any()) } returns Unit
     coEvery { ddayRemoteDataSource.push(any()) } returns Unit
+    coEvery { routineRemoteDataSource.push(any()) } returns Unit
+    coEvery { routineRecordRemoteDataSource.push(any()) } returns Unit
     coEvery { tagRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { placeRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { webRemoteDataSource.pull(any()) } returns emptyList()
@@ -582,6 +636,8 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { checklistRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { checklistItemRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { ddayRemoteDataSource.pull(any()) } returns emptyList()
+    coEvery { routineRemoteDataSource.pull(any()) } returns emptyList()
+    coEvery { routineRecordRemoteDataSource.pull(any()) } returns emptyList()
 }
 
 internal fun places(size: Int): List<PlaceLocalEntity> = List(size) { place() }
@@ -785,6 +841,20 @@ internal fun ddays(size: Int): List<DDayLocalEntity> = List(size) { Arb.localDDa
 internal fun ddayPulls(usnList: List<Long>): List<DDayPullRemoteEntity> =
     usnList.map { usn ->
         DDayPullRemoteEntity(dday = Arb.remoteDDay(isDeleted = Arb.boolean().next()).next(), usn = usn)
+    }
+
+internal fun routines(size: Int): List<RoutineLocalEntity> = List(size) { Arb.localRoutine(isDeleted = Arb.boolean().next()).next() }
+
+internal fun routinePulls(usnList: List<Long>): List<RoutinePullRemoteEntity> =
+    usnList.map { usn ->
+        RoutinePullRemoteEntity(routine = Arb.remoteRoutine(isDeleted = Arb.boolean().next()).next(), usn = usn)
+    }
+
+internal fun routineRecords(size: Int): List<RoutineRecordLocalEntity> = List(size) { Arb.localRoutineRecord(routineId = Arb.kotlinUuid().next(), isDeleted = Arb.boolean().next()).next() }
+
+internal fun routineRecordPulls(usnList: List<Long>): List<RoutineRecordPullRemoteEntity> =
+    usnList.map { usn ->
+        RoutineRecordPullRemoteEntity(routineRecord = Arb.remoteRoutineRecord(routineId = Arb.kotlinUuid().next(), isDeleted = Arb.boolean().next()).next(), usn = usn)
     }
 
 internal fun checklists(size: Int): List<ChecklistLocalEntity> = List(size) { Arb.localChecklist(isDeleted = Arb.boolean().next()).next() }

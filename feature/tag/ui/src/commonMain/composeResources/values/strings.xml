@@ -87,4 +87,12 @@
     <string name="tag_detail_dday_add_button_content_description">Add D-Day</string>
     <string name="tag_detail_dday_empty_title">No D-Days linked to this tag</string>
     <string name="tag_detail_dday_empty_description">Use the add button to create a D-Day.</string>
+    <string name="tag_detail_tab_routine_content_description">Routine</string>
+    <string name="tag_detail_routine_add_button_content_description">Add routine</string>
+    <string name="tag_detail_routine_empty_title">No routines linked to this tag</string>
+    <string name="tag_detail_routine_empty_description">Use the add button to create a routine.</string>
+    <string name="tag_detail_routine_finished_list_action_label">Finished routines</string>
+    <string name="tag_routine_finished_list_subtitle">Finished Routines</string>
+    <string name="tag_routine_finished_list_navigate_up_button_content_description">Navigate up</string>
+    <string name="tag_routine_finished_list_empty_title">No finished routines for this tag</string>
 </resources>

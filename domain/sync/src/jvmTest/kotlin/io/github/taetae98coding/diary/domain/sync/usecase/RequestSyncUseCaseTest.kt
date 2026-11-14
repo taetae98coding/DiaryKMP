@@ -157,7 +157,7 @@ class RequestSyncUseCaseTest :
             }
 
             When("사용자가 화면을 당겨 새로고침을 요청한다") {
-                Then("TC-3b111d97-65d8-466f-9f19-c16776baaf75 TC-3133b1a9-6ea0-47a7-871f-623da1d0c0cf 계정 데이터 서버 동기화가 요청되지 않아 진행 표시 대상도 없다") {
+                Then("TC-3b111d97-65d8-466f-9f19-c16776baaf75 TC-3133b1a9-6ea0-47a7-871f-623da1d0c0cf TC-2b48371b-6d28-4d10-865d-ebcb77162a89 계정 데이터 서버 동기화가 요청되지 않아 진행 표시 대상도 없다") {
                     val result = useCase(parameter = SyncTrigger.USER_REQUESTED)
 
                     result.shouldBeSuccess(Unit)

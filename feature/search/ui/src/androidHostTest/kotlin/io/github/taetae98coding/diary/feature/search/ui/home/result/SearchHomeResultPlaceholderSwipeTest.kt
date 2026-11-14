@@ -17,6 +17,8 @@ import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.RoutineListEvent
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
@@ -26,8 +28,10 @@ import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePla
 import io.github.taetae98coding.diary.feature.search.ui.home.resultDDay
 import io.github.taetae98coding.diary.feature.search.ui.home.resultMemo
 import io.github.taetae98coding.diary.feature.search.ui.home.resultPlace
+import io.github.taetae98coding.diary.feature.search.ui.home.resultRoutine
 import io.github.taetae98coding.diary.feature.search.ui.home.resultTag
 import io.github.taetae98coding.diary.feature.search.ui.home.resultWeb
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineList
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagList
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebList
 import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
@@ -155,6 +159,26 @@ class SearchHomeResultPlaceholderSwipeTest {
             }
         }
         swipePlaceholder(testTag = DDAY_CARD_TEST_TAG)
+
+        eventList.shouldBeEmpty()
+    }
+
+    @Test
+    fun `TC-90faa2f5-2b53-45ca-b379-6899323a311d 루틴 결과의 자리 표시 자리는 밀어도 동작을 요청하지 않는다`() {
+        val eventList = mutableListOf<RoutineListEvent>()
+        val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = resultRoutine())
+
+        composeRule.setContent {
+            DiaryTheme {
+                SearchHomeRoutineList(
+                    onRoutineListEvent = eventList::add,
+                    modifier = Modifier.fillMaxSize(),
+                    routinePagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                    query = QUERY,
+                )
+            }
+        }
+        swipePlaceholder(testTag = ROUTINE_CARD_TEST_TAG)
 
         eventList.shouldBeEmpty()
     }

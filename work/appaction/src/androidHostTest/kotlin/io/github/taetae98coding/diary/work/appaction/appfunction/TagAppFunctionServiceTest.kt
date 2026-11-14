@@ -117,6 +117,8 @@ class TagAppFunctionServiceTest {
                     "tagMusicList",
                     "tagQrList",
                     "tagDdayList",
+                    "tagRoutineList",
+                    "tagRoutineFinishedList",
                 )
         }
 

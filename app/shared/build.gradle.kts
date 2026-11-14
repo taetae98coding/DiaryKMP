@@ -51,6 +51,7 @@ kotlin {
                 implementation(projects.data.place)
                 implementation(projects.data.playlist)
                 implementation(projects.data.qr)
+                implementation(projects.data.routine)
                 implementation(projects.data.search)
                 implementation(projects.data.setting)
                 implementation(projects.data.sync)
@@ -71,6 +72,7 @@ kotlin {
                 implementation(projects.domain.place)
                 implementation(projects.domain.playlist)
                 implementation(projects.domain.qr)
+                implementation(projects.domain.routine)
                 implementation(projects.domain.search)
                 implementation(projects.domain.setting)
                 api(projects.domain.share)
@@ -154,6 +156,8 @@ kotlin {
 
         androidHostTest {
             dependencies {
+                implementation(projects.compose.routine)
+
                 implementation(libs.androidx.lifecycle.runtime.testing)
             }
         }

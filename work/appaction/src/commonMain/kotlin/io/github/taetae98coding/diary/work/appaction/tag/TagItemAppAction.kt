@@ -9,6 +9,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageTagMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PageTagPlaceUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageTagMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageTagQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedTagRoutineUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageTagRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageTagWebUseCase
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistSummary
@@ -36,6 +38,8 @@ import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
 import io.github.taetae98coding.diary.work.appaction.place.toAppActionPlace
 import io.github.taetae98coding.diary.work.appaction.qr.AppActionQr
 import io.github.taetae98coding.diary.work.appaction.qr.toAppActionQr
+import io.github.taetae98coding.diary.work.appaction.routine.AppActionRoutine
+import io.github.taetae98coding.diary.work.appaction.routine.toAppActionRoutine
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.github.taetae98coding.diary.work.appaction.web.toAppActionWeb
 import kotlinx.datetime.TimeZone
@@ -55,6 +59,8 @@ public class TagItemAppAction internal constructor(
     private val pageTagMusicUseCase: PageTagMusicUseCase,
     private val pageTagQrUseCase: PageTagQrUseCase,
     private val pageTagDDayUseCase: PageTagDDayUseCase,
+    private val pageTagRoutineUseCase: PageTagRoutineUseCase,
+    private val pageFinishedTagRoutineUseCase: PageFinishedTagRoutineUseCase,
     private val clock: Clock,
 ) {
     public suspend fun memoList(
@@ -187,6 +193,40 @@ public class TagItemAppAction internal constructor(
                 val today = clock.todayIn(TimeZone.currentSystemDefault())
 
                 pageTagDDayUseCase.readPage(parameter = parameter, offset = offset).map { dday -> dday.toAppActionDDay(today = today) }
+            }
+        }
+
+    public suspend fun routineList(
+        tagId: String,
+        scope: String?,
+        cursor: String?,
+    ): AppActionPage<AppActionRoutine> =
+        runAppAction {
+            val id = tagId.toUuidArgument(name = TAG_ID)
+            val tagScope = scope.toTagScopeArgument()
+            val offset = cursor.toPageOffset()
+
+            findTagUseCase.pageActive(id = id, isDeleted = Tag::isDeleted) {
+                val today = clock.todayIn(TimeZone.currentSystemDefault())
+                val parameter = PageTagRoutineUseCase.Parameter(tagId = id, scope = tagScope, today = today)
+
+                pageTagRoutineUseCase.readPage(parameter = parameter, offset = offset).map { summary -> summary.toAppActionRoutine(today = today) }
+            }
+        }
+
+    public suspend fun routineFinishedList(
+        tagId: String,
+        cursor: String?,
+    ): AppActionPage<AppActionRoutine> =
+        runAppAction {
+            val id = tagId.toUuidArgument(name = TAG_ID)
+            val offset = cursor.toPageOffset()
+
+            findTagUseCase.pageActive(id = id, isDeleted = Tag::isDeleted) {
+                val today = clock.todayIn(TimeZone.currentSystemDefault())
+                val parameter = PageFinishedTagRoutineUseCase.Parameter(tagId = id, today = today)
+
+                pageFinishedTagRoutineUseCase.readPage(parameter = parameter, offset = offset).map { summary -> summary.toAppActionRoutine(today = today) }
             }
         }
 }

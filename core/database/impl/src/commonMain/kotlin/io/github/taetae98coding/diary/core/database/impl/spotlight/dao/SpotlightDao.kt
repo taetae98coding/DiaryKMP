@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEnt
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import kotlinx.coroutines.flow.Flow
@@ -123,4 +124,16 @@ internal interface SpotlightDao {
         """,
     )
     fun getDDayList(accountId: Uuid): Flow<List<DDayLocalEntity>>
+
+    @Query(
+        """
+        SELECT routine.*
+        FROM routine
+        INNER JOIN account_routine
+            ON account_routine.routine_id = routine.id AND account_routine.account_id = :accountId
+        WHERE routine.is_deleted = 0
+        ORDER BY routine.id ASC
+        """,
+    )
+    fun getRoutineList(accountId: Uuid): Flow<List<RoutineLocalEntity>>
 }

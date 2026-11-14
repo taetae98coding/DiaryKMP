@@ -9,12 +9,15 @@ import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.core.testing.routine.routineSummary
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageTagChecklistUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageTagContactUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.PageTagDDayUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageTagMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageTagQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedTagRoutineUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageTagRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolCallResult
@@ -24,6 +27,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.dday.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.music.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.qr.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.routine.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.tool
 import io.github.taetae98coding.diary.work.mcp.tool.toolSetOf
 import io.kotest.core.spec.style.FunSpec
@@ -129,6 +133,47 @@ class TagItemMcpToolSetTest :
 
                 result shouldBe pageOf(ddayList.map { dday -> dday.toJson(today = today) })
                 verify(exactly = 1) { pageTagDDayUseCase(parameter = PageTagDDayUseCase.Parameter(tagId = tag.id, scope = TagScope.SELF)) }
+            }
+        }
+
+        test("태그의 루틴 목록은 오늘을 넘겨 조회하고 오늘로 계산한 값을 함께 담는다") {
+            runTest {
+                val tag = storedTag()
+                val now = Arb.secondPrecisionInstant().next()
+                val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val summaryList = Arb.list(Arb.routineSummary(), 1..3).next()
+                val pageTagRoutineUseCase = mockk<PageTagRoutineUseCase>()
+                val clock = mockk<Clock>()
+                every { pageTagRoutineUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(summaryList)))
+                every { clock.now() } returns now
+
+                val result = toolSetOf<TagItemMcpToolSet>(tag.findUseCase, pageTagRoutineUseCase, clock).tool(name = "tag_routine_list").call(arguments = tag.arguments())
+
+                result shouldBe pageOf(summaryList.map { summary -> summary.toJson(today = today) })
+                verify(exactly = 1) { pageTagRoutineUseCase(parameter = PageTagRoutineUseCase.Parameter(tagId = tag.id, scope = TagScope.SELF, today = today)) }
+            }
+        }
+
+        test("TC-e408a0ff-1873-49ab-8f51-d7ca57065fee 태그의 루틴은 완료되지 않은 목록과 완료된 목록을 따로 받는다") {
+            runTest {
+                val tag = storedTag()
+                val now = Arb.secondPrecisionInstant().next()
+                val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val unfinished = Arb.routineSummary().next().let { summary -> summary.copy(routine = summary.routine.copy(isFinished = false, isDeleted = false)) }
+                val finished = Arb.routineSummary().next().let { summary -> summary.copy(routine = summary.routine.copy(isFinished = true, isDeleted = false)) }
+                val pageTagRoutineUseCase = mockk<PageTagRoutineUseCase>()
+                val pageFinishedTagRoutineUseCase = mockk<PageFinishedTagRoutineUseCase>()
+                val clock = mockk<Clock>()
+                every { pageTagRoutineUseCase(parameter = PageTagRoutineUseCase.Parameter(tagId = tag.id, scope = TagScope.SELF, today = today)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(unfinished))))
+                every { pageFinishedTagRoutineUseCase(parameter = PageFinishedTagRoutineUseCase.Parameter(tagId = tag.id, today = today)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(finished))))
+                every { clock.now() } returns now
+                val toolSet = toolSetOf<TagItemMcpToolSet>(tag.findUseCase, pageTagRoutineUseCase, pageFinishedTagRoutineUseCase, clock)
+
+                toolSet.tool(name = "tag_routine_list").call(arguments = tag.arguments()) shouldBe pageOf(listOf(unfinished.toJson(today = today)))
+                toolSet.tool(name = "tag_routine_finished_list").call(arguments = tag.arguments()) shouldBe pageOf(listOf(finished.toJson(today = today)))
+                toolSet.tool(name = "tag_routine_finished_list").parameterList.map { parameter -> parameter.name } shouldBe listOf("tagId", "cursor")
             }
         }
 

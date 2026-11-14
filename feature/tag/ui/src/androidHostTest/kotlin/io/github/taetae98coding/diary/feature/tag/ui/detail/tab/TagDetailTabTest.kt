@@ -40,6 +40,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DES
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MUSIC_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_QR_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_ROUTINE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_UPDATE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_WEB_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.EDIT_SUFFIX
@@ -82,6 +83,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMusic
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tagQr
+import io.github.taetae98coding.diary.feature.tag.ui.tagRoutine
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
@@ -137,7 +139,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-b94bf54c-a0e5-4874-af6c-3d6508e99b5e 아홉 탭이 정해진 순서로 놓인다`() {
+    fun `TC-79088e46-429f-4d1f-b42c-47c46d916a42 열 탭이 정해진 순서로 놓인다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
 
         val leftList =
@@ -148,7 +150,7 @@ class TagDetailTabTest {
                     .positionInRoot.x
             }
 
-        leftList.size shouldBe 9
+        leftList.size shouldBe 10
         leftList.zipWithNext().forEach { (left, right) -> (left < right) shouldBe true }
     }
 
@@ -163,8 +165,8 @@ class TagDetailTabTest {
 
         repeat(ALL_TAB_DESCRIPTION_LIST.size - 1) { swipePager { swipeLeft() } }
 
-        composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).assertIsSelected()
-        val lastTab = composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).fetchSemanticsNode()
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).assertIsSelected()
+        val lastTab = composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).fetchSemanticsNode()
         (lastTab.positionInRoot.x >= 0F) shouldBe true
         (lastTab.positionInRoot.x + lastTab.size.width <= rootWidth) shouldBe true
     }
@@ -325,6 +327,31 @@ class TagDetailTabTest {
     }
 
     @Test
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 태그 디테일 탭에서 루틴 탭을 선택하면 루틴 목록을 표시한다`() {
+        setTagDetailScaffold()
+
+        selectTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(ROUTINE_TITLE).assertExists()
+        composeRule.titleInput().assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 루틴 탭에서 태그 디테일 탭으로 전환하면 태그 입력을 표시한다`() {
+        setTagDetailScaffold()
+        selectTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+
+        selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertDoesNotExist()
+        composeRule.onNodeWithText(ROUTINE_TITLE).assertDoesNotExist()
+        composeRule.titleInput().assertExists()
+    }
+
+    @Test
     fun `TC-cdd19aa0-7518-4f99-a7aa-c7566fcbbcd1 본문을 왼쪽으로 밀면 다음 탭으로 한 칸씩 전환된다`() {
         setTagDetailScaffold()
 
@@ -351,12 +378,18 @@ class TagDetailTabTest {
 
         swipePager { swipeLeft() }
         composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeLeft() }
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).assertIsSelected()
     }
 
     @Test
     fun `TC-cdd19aa0-7518-4f99-a7aa-c7566fcbbcd1 본문을 오른쪽으로 밀면 이전 탭으로 한 칸씩 전환된다`() {
         setTagDetailScaffold()
-        selectTab(DEFAULT_DDAY_TAB_DESCRIPTION)
+        selectTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+
+        swipePager { swipeRight() }
+        composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).assertIsSelected()
 
         swipePager { swipeRight() }
         composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).assertIsSelected()
@@ -414,7 +447,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-fc703af2-be5d-4d72-b6e0-6075a5fc5baa 조회 중에도 연락처 체크리스트 곡 QR 디데이 탭을 전환할 수 있다`() {
+    fun `TC-fc703af2-be5d-4d72-b6e0-6075a5fc5baa 조회 중에도 연락처 체크리스트 곡 QR 디데이 루틴 탭을 전환할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { TagDetailUiState.Loading })
 
         listOf(
@@ -423,6 +456,7 @@ class TagDetailTabTest {
             DEFAULT_MUSIC_TAB_DESCRIPTION,
             DEFAULT_QR_TAB_DESCRIPTION,
             DEFAULT_DDAY_TAB_DESCRIPTION,
+            DEFAULT_ROUTINE_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             selectTab(tabDescription)
 
@@ -455,6 +489,7 @@ class TagDetailTabTest {
             DEFAULT_MUSIC_TAB_DESCRIPTION,
             DEFAULT_QR_TAB_DESCRIPTION,
             DEFAULT_DDAY_TAB_DESCRIPTION,
+            DEFAULT_ROUTINE_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             selectTab(tabDescription)
             selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
@@ -480,6 +515,7 @@ class TagDetailTabTest {
             DEFAULT_MUSIC_TAB_DESCRIPTION,
             DEFAULT_QR_TAB_DESCRIPTION,
             DEFAULT_DDAY_TAB_DESCRIPTION,
+            DEFAULT_ROUTINE_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             selectTab(tabDescription)
 
@@ -489,7 +525,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-da819417-0703-492e-aa50-7454b09eb9b2 완료된 태그의 TagDetail 화면에서도 아홉 탭을 모두 사용할 수 있다`() {
+    fun `TC-da819417-0703-492e-aa50-7454b09eb9b2 완료된 태그의 TagDetail 화면에서도 열 탭을 모두 사용할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
 
         listOf(
@@ -501,6 +537,7 @@ class TagDetailTabTest {
             DEFAULT_MUSIC_TAB_DESCRIPTION,
             DEFAULT_QR_TAB_DESCRIPTION,
             DEFAULT_DDAY_TAB_DESCRIPTION,
+            DEFAULT_ROUTINE_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             selectTab(tabDescription)
 
@@ -550,6 +587,9 @@ class TagDetailTabTest {
             val ddayPagingItems =
                 remember { MutableStateFlow(tagEntityPagingData(itemList = listOf(tagDDay(title = DDAY_TITLE)))) }
                     .collectAsLazyPagingItems()
+            val routinePagingItems =
+                remember { MutableStateFlow(tagEntityPagingData(itemList = listOf(tagRoutine(title = ROUTINE_TITLE)))) }
+                    .collectAsLazyPagingItems()
 
             DiaryTheme {
                 TagDetailScaffold(
@@ -569,6 +609,7 @@ class TagDetailTabTest {
                         musicPagingItems = musicPagingItems,
                         qrPagingItems = qrPagingItems,
                         ddayPagingItems = ddayPagingItems,
+                        routinePagingItems = routinePagingItems,
                     )
                 }
             }
@@ -583,6 +624,7 @@ class TagDetailTabTest {
         const val MUSIC_TITLE = "TagDetailTabMusic"
         const val QR_TITLE = "TagDetailTabQr"
         const val DDAY_TITLE = "TagDetailTabDDay"
+        const val ROUTINE_TITLE = "TagDetailTabRoutine"
         val ALL_TAB_DESCRIPTION_LIST =
             listOf(
                 DEFAULT_DETAIL_TAB_DESCRIPTION,
@@ -594,6 +636,7 @@ class TagDetailTabTest {
                 DEFAULT_MUSIC_TAB_DESCRIPTION,
                 DEFAULT_QR_TAB_DESCRIPTION,
                 DEFAULT_DDAY_TAB_DESCRIPTION,
+                DEFAULT_ROUTINE_TAB_DESCRIPTION,
             )
     }
 }
@@ -638,7 +681,7 @@ class TagDetailTabScreenTest {
     }
 
     @Test
-    fun `TC-fb0d8369-55b2-4620-b240-286aa1e43a61 수정 반영 동작은 연락처 체크리스트 곡 QR 디데이 탭에서 제공되지 않는다`() {
+    fun `TC-fb0d8369-55b2-4620-b240-286aa1e43a61 수정 반영 동작은 연락처 체크리스트 곡 QR 디데이 루틴 탭에서 제공되지 않는다`() {
         setTagDetailScreen()
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
 
@@ -648,6 +691,7 @@ class TagDetailTabScreenTest {
             DEFAULT_MUSIC_TAB_DESCRIPTION to DEFAULT_MUSIC_ADD_BUTTON_DESCRIPTION,
             DEFAULT_QR_TAB_DESCRIPTION to DEFAULT_QR_ADD_BUTTON_DESCRIPTION,
             DEFAULT_DDAY_TAB_DESCRIPTION to DEFAULT_DDAY_ADD_BUTTON_DESCRIPTION,
+            DEFAULT_ROUTINE_TAB_DESCRIPTION to DEFAULT_ROUTINE_ADD_BUTTON_DESCRIPTION,
         ).forEach { (tabDescription, addButtonDescription) ->
             composeRule.selectTagDetailTab(tabDescription)
 
@@ -733,6 +777,16 @@ class TagDetailTabScreenTest {
     }
 
     @Test
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 루틴 탭이 유지된다`() {
+        assertSelectedTabIsRestored(tabDescription = DEFAULT_ROUTINE_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 루틴 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+        assertNavigateUpKeepsTab(tabDescription = DEFAULT_ROUTINE_TAB_DESCRIPTION)
+    }
+
+    @Test
     fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 연락처 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
         assertNavigateUpKeepsTab(tabDescription = DEFAULT_CONTACT_TAB_DESCRIPTION)
     }
@@ -795,6 +849,9 @@ class TagDetailTabScreenTest {
                 navigateToQrDetail = {},
                 navigateToDDayAdd = {},
                 navigateToDDayDetail = {},
+                navigateToRoutineAdd = {},
+                navigateToRoutineDetail = {},
+                navigateToRoutineFinishedList = {},
             )
         }
     }
@@ -924,6 +981,7 @@ class TagDetailTabScreenTest {
         const val DEFAULT_MUSIC_ADD_BUTTON_DESCRIPTION = "Add music"
         const val DEFAULT_QR_ADD_BUTTON_DESCRIPTION = "Add QR code"
         const val DEFAULT_DDAY_ADD_BUTTON_DESCRIPTION = "Add D-Day"
+        const val DEFAULT_ROUTINE_ADD_BUTTON_DESCRIPTION = "Add routine"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
     }
 }

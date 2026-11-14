@@ -595,6 +595,52 @@
         }
       }
     },
+    "Found %lld routines.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld routine."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld routines."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루틴 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld routines. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld routines. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "루틴 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
     "Found %lld songs.": {
       "extractionState": "manual",
       "localizations": {
@@ -818,6 +864,23 @@
         }
       }
     },
+    "Get ${tag}'s Finished Routines": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Finished Routines"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 완료된 루틴 보기"
+          }
+        }
+      }
+    },
     "Get ${tag}'s In-Progress Memos": {
       "extractionState": "manual",
       "localizations": {
@@ -865,6 +928,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "${tag}의 QR 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s Routines": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Routines"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 루틴 보기"
           }
         }
       }
@@ -1022,6 +1102,23 @@
         }
       }
     },
+    "Get Tag's Finished Routines": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Finished Routines"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 완료된 루틴 보기"
+          }
+        }
+      }
+    },
     "Get Tag's In-Progress Memos": {
       "extractionState": "manual",
       "localizations": {
@@ -1069,6 +1166,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "태그의 QR 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's Routines": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Routines"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 루틴 보기"
           }
         }
       }
@@ -1209,6 +1323,23 @@
         }
       }
     },
+    "Gets finished routines linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets finished routines linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 완료된 루틴을 가져옵니다."
+          }
+        }
+      }
+    },
     "Gets finished tags.": {
       "extractionState": "manual",
       "localizations": {
@@ -1256,6 +1387,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "태그에 연결된 장소를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets routines linked to a tag that aren't finished, in progress first, then not started.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets routines linked to a tag that aren't finished, in progress first, then not started."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된, 완료하지 않은 루틴을 진행 중, 시작 전 순으로 가져옵니다."
           }
         }
       }

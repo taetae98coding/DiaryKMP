@@ -11,6 +11,7 @@ public enum class DiaryAppActionEntityTagKind {
     QR,
     MUSIC,
     DDAY,
+    ROUTINE,
 }
 
 public object DiaryEntityTagAppAction {
@@ -38,4 +39,5 @@ private fun DiaryAppActionEntityTagKind.toKind(): AppActionEntityTagKind =
         DiaryAppActionEntityTagKind.QR -> AppActionEntityTagKind.QR
         DiaryAppActionEntityTagKind.MUSIC -> AppActionEntityTagKind.MUSIC
         DiaryAppActionEntityTagKind.DDAY -> AppActionEntityTagKind.DDAY
+        DiaryAppActionEntityTagKind.ROUTINE -> AppActionEntityTagKind.ROUTINE
     }

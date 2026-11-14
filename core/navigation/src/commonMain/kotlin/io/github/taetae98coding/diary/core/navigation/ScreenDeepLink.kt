@@ -21,6 +21,7 @@ public object ScreenDeepLink {
     public const val QR_DETAIL: String = "diary://qr-detail?id={id}"
     public const val MUSIC_DETAIL: String = "diary://music-detail?id={id}"
     public const val DDAY_DETAIL: String = "diary://dday-detail?id={id}"
+    public const val ROUTINE_DETAIL: String = "diary://routine-detail?id={id}"
 
     // 다른 앱의 공유로 받은 내용을 채운 추가 화면을 여는 주소의 형태다. 중괄호 이름은 각 추가 화면 키(메모는 주소 값 클래스)의 속성 이름과 같아야 하고, 값이 없으면 그 이름을 빼고 담는다.
     // 전화번호처럼 여러 개인 값은 같은 이름을 반복해 담는다. 날짜는 YYYY-MM-DD, 날짜와 시각은 YYYY-MM-DDTHH:MM 형태로 담는다.

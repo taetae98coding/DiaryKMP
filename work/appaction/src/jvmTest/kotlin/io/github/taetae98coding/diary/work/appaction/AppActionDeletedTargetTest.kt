@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.core.testing.routine.routine
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.checklist.usecase.FindChecklistItemUseCase
@@ -19,6 +20,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.FindMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.FindRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -40,6 +42,8 @@ import io.github.taetae98coding.diary.work.appaction.memolink.memoLinkAppActionO
 import io.github.taetae98coding.diary.work.appaction.music.musicAppActionOf
 import io.github.taetae98coding.diary.work.appaction.place.placeAppActionOf
 import io.github.taetae98coding.diary.work.appaction.qr.qrAppActionOf
+import io.github.taetae98coding.diary.work.appaction.routine.routineAppActionOf
+import io.github.taetae98coding.diary.work.appaction.routine.routineRecordAppActionOf
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
 import io.github.taetae98coding.diary.work.appaction.tag.TagLinkAppAction
 import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
@@ -213,6 +217,13 @@ private fun ddayTarget(state: TargetState): Target<FindDDayUseCase> =
         .copy(isDeleted = true)
         .let { dday -> target(state = state, id = dday.id, deleted = dday) }
 
+private fun routineTarget(state: TargetState): Target<FindRoutineUseCase> =
+    Arb
+        .routine()
+        .next()
+        .copy(isDeleted = true)
+        .let { routine -> target(state = state, id = routine.id, deleted = routine) }
+
 private fun changeCaseList(): List<TargetCase> = memoChangeCaseList() + tagChangeCaseList() + linkedEntityChangeCaseList() + contactChangeCaseList() + checklistChangeCaseList() + taggedEntityChangeCaseList()
 
 private fun memoChangeCaseList(): List<TargetCase> =
@@ -331,6 +342,24 @@ private fun taggedEntityChangeCaseList(): List<TargetCase> =
             )
         },
         TargetCase(name = "디데이 삭제") { state -> ddayTarget(state).let { dday -> ddayAppActionOf(dday.findUseCase).delete(ddayId = dday.id) } },
+        TargetCase(name = "루틴 수정") { state ->
+            val routine = routineTarget(state)
+            routineAppActionOf(routine.findUseCase).update(
+                routineId = routine.id,
+                title = null,
+                description = null,
+                color = null,
+                startDate = null,
+                cycle = null,
+                unit = null,
+                goalAmount = null,
+                clearGoalAmount = null,
+                amountPerRecord = null,
+            )
+        },
+        TargetCase(name = "루틴 완료") { state -> routineTarget(state).let { routine -> routineAppActionOf(routine.findUseCase).finish(routineId = routine.id) } },
+        TargetCase(name = "루틴 다시 시작") { state -> routineTarget(state).let { routine -> routineAppActionOf(routine.findUseCase).restart(routineId = routine.id) } },
+        TargetCase(name = "루틴 삭제") { state -> routineTarget(state).let { routine -> routineAppActionOf(routine.findUseCase).delete(routineId = routine.id) } },
     )
 
 private fun linkCaseList(): List<TargetCase> = memoLinkCaseList() + entityTagLinkCaseList() + tagLinkCaseList()
@@ -367,6 +396,7 @@ private fun entityTagLinkCaseList(): List<TargetCase> =
         AppActionEntityTagKind.QR to ::qrTarget,
         AppActionEntityTagKind.MUSIC to ::musicTarget,
         AppActionEntityTagKind.DDAY to ::ddayTarget,
+        AppActionEntityTagKind.ROUTINE to ::routineTarget,
     ).flatMap { (kind, target) ->
         listOf(
             TargetCase(name = "$kind 태그 연결: 항목", expected = notDone) { state -> target(state).let { entity -> entityTagAppActionOf(entity.findUseCase).add(kind = kind, entityId = entity.id, tagId = activeId()) } },
@@ -413,6 +443,9 @@ private fun tagListCaseList(): List<TargetCase> =
         TargetCase(name = "태그의 곡") { state -> tagTarget(state).let { tag -> tagItemAppActionOf(tag.findUseCase).musicList(tagId = tag.id, scope = null, sort = null, cursor = null) } },
         TargetCase(name = "태그의 QR") { state -> tagTarget(state).let { tag -> tagItemAppActionOf(tag.findUseCase).qrList(tagId = tag.id, scope = null, cursor = null) } },
         TargetCase(name = "태그의 디데이") { state -> tagTarget(state).let { tag -> tagItemAppActionOf(tag.findUseCase).ddayList(tagId = tag.id, scope = null, cursor = null) } },
+        TargetCase(name = "태그의 루틴") { state -> tagTarget(state).let { tag -> tagItemAppActionOf(tag.findUseCase).routineList(tagId = tag.id, scope = null, cursor = null) } },
+        TargetCase(name = "태그의 완료된 루틴") { state -> tagTarget(state).let { tag -> tagItemAppActionOf(tag.findUseCase).routineFinishedList(tagId = tag.id, cursor = null) } },
+        TargetCase(name = "루틴의 기록") { state -> routineTarget(state).let { routine -> routineRecordAppActionOf(routine.findUseCase).list(routineId = routine.id, cursor = null) } },
     )
 
 private fun memoListCaseList(): List<TargetCase> =

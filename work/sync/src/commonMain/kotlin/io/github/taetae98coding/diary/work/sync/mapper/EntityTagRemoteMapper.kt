@@ -32,4 +32,5 @@ internal fun EntityTagKindLocalEntity.toRemote(): EntityTagKindRemoteEntity =
         EntityTagKindLocalEntity.MUSIC -> EntityTagKindRemoteEntity.MUSIC
         EntityTagKindLocalEntity.QR -> EntityTagKindRemoteEntity.QR
         EntityTagKindLocalEntity.DDAY -> EntityTagKindRemoteEntity.DDAY
+        EntityTagKindLocalEntity.ROUTINE -> EntityTagKindRemoteEntity.ROUTINE
     }

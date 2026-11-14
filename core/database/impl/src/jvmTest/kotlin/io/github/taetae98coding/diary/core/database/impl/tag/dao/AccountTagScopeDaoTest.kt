@@ -25,6 +25,9 @@ import io.github.taetae98coding.diary.core.database.impl.music.transaction.Accou
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountTagQrLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.datasource.AccountTagRoutineLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.routineCurrentCycleOf
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
@@ -35,6 +38,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.localRoutine
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -50,6 +54,7 @@ import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
+import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
 private const val SOUTH = -90.0
@@ -224,6 +229,26 @@ class AccountTagScopeDaoTest :
             linkEntity(accountId = accountId, kind = EntityTagKindLocalEntity.QR, entityId = qr.id, tagId = tagId)
             return qr.id
         }
+
+        suspend fun insertRoutine(
+            accountId: Uuid,
+            tagId: Uuid,
+        ): Uuid {
+            val routine = Arb.localRoutine(startDate = LocalDate(2026, 1, 1)).next()
+            AccountRoutineTransactionImpl(database = database).upsert(accountId = accountId, routine = routine, routineTagList = emptyList())
+            linkEntity(accountId = accountId, kind = EntityTagKindLocalEntity.ROUTINE, entityId = routine.id, tagId = tagId)
+            return routine.id
+        }
+
+        fun routinePagingSource(
+            accountId: Uuid,
+            tagId: Uuid,
+        ) = AccountTagRoutineLocalDataSourceImpl(database = database).page(
+            accountId = accountId,
+            tagId = tagId,
+            scope = TagScopeLocalEntity.CHILD,
+            currentCycle = routineCurrentCycleOf(today = LocalDate(2026, 3, 20)),
+        )
 
         suspend fun insertDDay(
             accountId: Uuid,
@@ -402,6 +427,7 @@ class AccountTagScopeDaoTest :
             val childMusicId = insertMusic(accountId = accountId, tagId = childTag.id)
             val childQrId = insertQr(accountId = accountId, tagId = childTag.id)
             val childDDayId = insertDDay(accountId = accountId, tagId = childTag.id)
+            val childRoutineId = insertRoutine(accountId = accountId, tagId = childTag.id)
 
             val memoPagingSource =
                 database.accountTagMemoDao().page(
@@ -456,6 +482,7 @@ class AccountTagScopeDaoTest :
                     tagId = rootTag.id,
                     scope = TagScopeLocalEntity.CHILD,
                 )
+            val routinePagingSource = routinePagingSource(accountId = accountId, tagId = rootTag.id)
             memoPagingSource.pagedIdList { memo -> memo.id }.shouldBeEmpty()
             webPagingSource.pagedIdList { web -> web.id }.shouldBeEmpty()
             placePagingSource.pagedIdList { place -> place.id }.shouldBeEmpty()
@@ -464,6 +491,7 @@ class AccountTagScopeDaoTest :
             musicPagingSource.pagedIdList { music -> music.id }.shouldBeEmpty()
             qrPagingSource.pagedIdList { qr -> qr.id }.shouldBeEmpty()
             ddayPagingSource.pagedIdList { dday -> dday.id }.shouldBeEmpty()
+            routinePagingSource.pagedIdList { summary -> summary.routine.id }.shouldBeEmpty()
 
             val pagingSourceList: List<PagingSource<Int, *>> =
                 listOf(
@@ -475,6 +503,7 @@ class AccountTagScopeDaoTest :
                     musicPagingSource,
                     qrPagingSource,
                     ddayPagingSource,
+                    routinePagingSource,
                 )
 
             val invalidatedList =
@@ -506,6 +535,7 @@ class AccountTagScopeDaoTest :
             AccountTagDDayLocalDataSourceImpl(database = database)
                 .page(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD)
                 .pagedIdList { dday -> dday.id } shouldBe listOf(childDDayId)
+            routinePagingSource(accountId = accountId, tagId = rootTag.id).pagedIdList { summary -> summary.routine.id } shouldBe listOf(childRoutineId)
         }
 
         test("TC-11a748b2-3712-4bb6-b382-9f0c78449aab 표시 범위를 넓혀도 각 탭의 나머지 노출 기준은 유지된다") {

@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -28,6 +29,7 @@ class SpotlightItemMapperTest :
             val qr = Arb.qrLocalEntity().next().let { it.copy(detail = it.detail.copy(value = Arb.nonBlankString().next())) }
             val music = Arb.musicLocalEntity().next()
             val dday = Arb.ddayLocalEntity().next()
+            val routine = Arb.routineLocalEntity().next()
 
             memo.toSpotlightItem() shouldBe
                 SpotlightItem(
@@ -101,6 +103,20 @@ class SpotlightItemMapperTest :
                     icon = SpotlightIcon.DDAY,
                     iconColor = dday.detail.color,
                 )
+            routine.toSpotlightItem() shouldBe
+                SpotlightItem(
+                    identifier = "diary://routine-detail?id=${routine.id}",
+                    title = routine.detail.title,
+                    description = routine.detail.description,
+                    icon = SpotlightIcon.ROUTINE,
+                    iconColor = routine.detail.color,
+                )
+        }
+
+        test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 루틴은 완료 여부와 관계없이 같은 정보를 담는다") {
+            val routine = Arb.routineLocalEntity().next()
+
+            routine.copy(isFinished = true).toSpotlightItem() shouldBe routine.copy(isFinished = false).toSpotlightItem()
         }
 
         test("TC-4feb13cd-47f2-4919-86ca-6e316bab251d QR에 담긴 내용은 어디에도 담지 않는다") {

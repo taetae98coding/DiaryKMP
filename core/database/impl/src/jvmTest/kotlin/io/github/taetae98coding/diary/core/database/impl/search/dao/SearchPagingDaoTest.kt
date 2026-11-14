@@ -12,6 +12,8 @@ import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoEx
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineSummaryLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
@@ -23,6 +25,9 @@ import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemo
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routine.insertRoutine
+import io.github.taetae98coding.diary.core.database.impl.routine.routineCurrentCycleOf
+import io.github.taetae98coding.diary.core.database.impl.search.datasource.SearchRoutineLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
 import io.github.taetae98coding.diary.core.testing.dday.ddayDetailLocalEntity
@@ -32,9 +37,11 @@ import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.localRoutine
 import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
@@ -49,6 +56,7 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
+import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
 class SearchPagingDaoTest :
@@ -229,6 +237,25 @@ class SearchPagingDaoTest :
                 .data
                 .map { dday -> dday.id }
 
+        suspend fun routinePagingSource(accountId: Uuid): PagingSource<Int, RoutineSummaryLocalEntity> = SearchRoutineLocalDataSourceImpl(database = database).page(accountId = accountId, query = QUERY, currentCycle = routineCurrentCycleOf(today = ROUTINE_TODAY))
+
+        suspend fun routineIdList(accountId: Uuid): List<Uuid> =
+            routinePagingSource(accountId = accountId)
+                .load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
+                .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, RoutineSummaryLocalEntity>>()
+                .data
+                .map { summary -> summary.routine.id }
+
+        test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 루틴은 제목과 설명 중 하나가 질의를 포함하면 결과가 된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val titleMatched = routine(title = "$QUERY 준비")
+            val descriptionMatched = routine(description = "$QUERY 전에")
+            val unmatched = routine()
+            database.insertRoutine(accountId, titleMatched, descriptionMatched, unmatched)
+
+            routineIdList(accountId) shouldContainExactlyInAnyOrder listOf(titleMatched.id, descriptionMatched.id)
+        }
+
         test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 메모는 제목과 설명 중 하나가 질의를 포함하면 결과가 된다") {
             val accountId = Arb.kotlinUuid().next()
             val titleMatched = memo(title = "$QUERY 계획")
@@ -345,12 +372,14 @@ class SearchPagingDaoTest :
             insertPlace(accountId, place(title = QUERY, isDeleted = true))
             insertWeb(accountId, web(title = QUERY, isDeleted = true))
             insertDDay(accountId, dday(title = QUERY, isDeleted = true))
+            database.insertRoutine(accountId, routine(title = QUERY, isDeleted = true))
 
             memoIdList(accountId).shouldBeEmpty()
             tagIdList(accountId).shouldBeEmpty()
             placeIdList(accountId).shouldBeEmpty()
             webIdList(accountId).shouldBeEmpty()
             ddayIdList(accountId).shouldBeEmpty()
+            routineIdList(accountId).shouldBeEmpty()
         }
 
         test("TC-ab2e0d4c-f761-4de6-b44c-6ed7de86c7f9 완료된 메모와 완료된 태그도 결과가 된다") {
@@ -415,6 +444,34 @@ class SearchPagingDaoTest :
                 .loadTagPage(loadSize = PAGE_SIZE)
                 .data
                 .map { tag -> tag.id } shouldBe tagList.take(PAGE_SIZE).map { tag -> tag.id }
+        }
+
+        test("TC-dbb63bc4-ee53-4d78-ac07-f920773ca782 루틴을 이어서 조회해도 다른 유형의 조회 범위는 바뀌지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val routineList = List(ITEM_COUNT) { index -> routine(title = "$QUERY-${index.pad()}") }
+            val memoList = List(ITEM_COUNT) { index -> memo(title = "$QUERY-${index.pad()}") }
+            database.insertRoutine(accountId, *routineList.toTypedArray())
+            insertMemo(accountId, *memoList.toTypedArray())
+
+            val pagingSource = routinePagingSource(accountId = accountId)
+            val firstPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Refresh(key = null, loadSize = PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, RoutineSummaryLocalEntity>>()
+            firstPage.data.map { summary -> summary.routine.id } shouldBe routineList.take(PAGE_SIZE).map { routine -> routine.id }
+
+            val secondPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Append(key = checkNotNull(firstPage.nextKey), loadSize = PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, RoutineSummaryLocalEntity>>()
+            secondPage.data.map { summary -> summary.routine.id } shouldBe routineList.drop(PAGE_SIZE).take(PAGE_SIZE).map { routine -> routine.id }
+
+            database
+                .searchMemoDao()
+                .page(accountId = accountId, query = QUERY, sort = ListSortLocalEntity.DEFAULT.queryValue)
+                .loadMemoPage(loadSize = PAGE_SIZE)
+                .data
+                .map { memo -> memo.id } shouldBe memoList.take(PAGE_SIZE).map { memo -> memo.id }
         }
 
         test("TC-dbb63bc4-ee53-4d78-ac07-f920773ca782 디데이를 이어서 조회해도 다른 유형의 조회 범위는 바뀌지 않는다") {
@@ -489,12 +546,14 @@ class SearchPagingDaoTest :
             insertPlace(otherAccountId, place(title = QUERY))
             insertWeb(otherAccountId, web(title = QUERY))
             insertDDay(otherAccountId, dday(title = QUERY))
+            database.insertRoutine(otherAccountId, routine(title = QUERY))
 
             memoIdList(accountId).shouldBeEmpty()
             tagIdList(accountId).shouldBeEmpty()
             placeIdList(accountId).shouldBeEmpty()
             webIdList(accountId).shouldBeEmpty()
             ddayIdList(accountId).shouldBeEmpty()
+            routineIdList(accountId).shouldBeEmpty()
         }
 
         test("TC-1d910620-bfc0-4ea1-871c-f17561570aaf MemoHome에 걸어 둔 필터는 메모 결과를 좁히지 않는다") {
@@ -537,6 +596,7 @@ class SearchPagingDaoTest :
         private const val ITEM_COUNT: Int = 25
         private const val PAGE_SIZE: Int = 10
         private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
+        private val ROUTINE_TODAY: LocalDate = LocalDate(2026, 3, 20)
         private const val SEOUL_LATITUDE: Double = 37.5665
         private const val SEOUL_LONGITUDE: Double = 126.978
         private const val PARIS_LATITUDE: Double = 48.8566
@@ -670,6 +730,16 @@ class SearchPagingDaoTest :
                     updatedAt = Arb.secondPrecisionInstant().next(),
                     createdAt = Arb.secondPrecisionInstant().next(),
                 )
+
+        // 오늘 2026-03-20에 진행 중이라 결과가 제목 오름차순으로 놓이는 루틴이다.
+        private fun routine(
+            title: String = Arb.alphanumericString(prefix = "RoutineTitle").next(),
+            description: String = Arb.alphanumericString(prefix = "RoutineDescription").next(),
+            isDeleted: Boolean = false,
+        ): RoutineLocalEntity =
+            Arb.localRoutine(startDate = LocalDate(2026, 1, 1), title = title, isDeleted = isDeleted).next().let { routine ->
+                routine.copy(detail = routine.detail.copy(description = description))
+            }
 
         private fun dday(
             title: String = Arb.string().next(),

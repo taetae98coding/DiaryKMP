@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagRoutineFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffoldComponentVisible
 import kotlin.uuid.Uuid
 
@@ -67,6 +68,15 @@ private fun List<ScreenNavKey>.entryIndexOf(key: ScreenNavKey): Int {
 
 internal fun NavBackStack<ScreenNavKey>.navigateUpFromTagMemoFinishedList() {
     val index = indexOfLast { key -> key is TagMemoFinishedListNavKey }
+    if (index < 0) return
+
+    while (size > index) {
+        removeLastOrNull()
+    }
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateUpFromTagRoutineFinishedList() {
+    val index = indexOfLast { key -> key is TagRoutineFinishedListNavKey }
     if (index < 0) return
 
     while (size > index) {

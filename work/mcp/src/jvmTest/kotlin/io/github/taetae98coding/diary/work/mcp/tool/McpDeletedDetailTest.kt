@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.memo.MemoMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.music.MusicMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.place.PlaceMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.qr.QrMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.routine.RoutineMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.StubbedFind
 import io.github.taetae98coding.diary.work.mcp.tool.tag.TagMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundChecklist
@@ -18,6 +19,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundMemo
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundMusic
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundPlace
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundQr
+import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundRoutine
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundWeb
 import io.github.taetae98coding.diary.work.mcp.tool.web.WebMcpToolSet
 import io.kotest.core.spec.style.FunSpec
@@ -74,4 +76,5 @@ private fun detailCaseList(): List<DetailCase> =
         DetailCase(toolName = "qr_get", idName = "qrId", toolSet = { useCaseList -> toolSetOf<QrMcpToolSet>(*useCaseList.toTypedArray()) }, stubFound = { stubFoundQr(isDeleted = true) }),
         DetailCase(toolName = "music_get", idName = "musicId", toolSet = { useCaseList -> toolSetOf<MusicMcpToolSet>(*useCaseList.toTypedArray()) }, stubFound = { stubFoundMusic(isDeleted = true) }),
         DetailCase(toolName = "dday_get", idName = "ddayId", toolSet = { useCaseList -> toolSetOf<DDayMcpToolSet>(*useCaseList.toTypedArray()) }, stubFound = { stubFoundDDay(isDeleted = true) }),
+        DetailCase(toolName = "routine_get", idName = "routineId", toolSet = { useCaseList -> toolSetOf<RoutineMcpToolSet>(*useCaseList.toTypedArray()) }, stubFound = { stubFoundRoutine(isDeleted = true) }),
     )

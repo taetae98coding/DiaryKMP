@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.Acc
 import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
@@ -29,6 +30,7 @@ import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.localPlace
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.core.testing.web.localWeb
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -199,6 +201,11 @@ class AccountTagLinkMeaningTest :
                         val dday = Arb.ddayLocalEntity().next().copy(isDeleted = false)
                         AccountDDayTransactionImpl(database = database).upsert(accountId = accountId, dday = dday, ddayTagList = emptyList())
                         dday.id
+                    },
+                    EntityTagKindLocalEntity.ROUTINE to { accountId ->
+                        val routine = Arb.routineLocalEntity().next().copy(isFinished = false, isDeleted = false)
+                        AccountRoutineTransactionImpl(database = database).upsert(accountId = accountId, routine = routine, routineTagList = emptyList())
+                        routine.id
                     },
                 )
 

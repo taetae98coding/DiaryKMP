@@ -27,6 +27,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.music.MusicListEffect
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.compose.qr.QrListEffect
+import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
 import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
@@ -36,6 +37,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -54,6 +56,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlace
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.detail.routine.TagDetailRoutineViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
@@ -88,6 +91,8 @@ internal val qrPagingDataFlow = MutableStateFlow(PagingData.empty<Qr>())
 internal val qrEffectFlow = MutableSharedFlow<QrListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val ddayPagingDataFlow = MutableStateFlow(PagingData.empty<DDay>())
 internal val ddayEffectFlow = MutableSharedFlow<DDayListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
+internal val routinePagingDataFlow = MutableStateFlow(PagingData.empty<RoutineSummary>())
+internal val routineEffectFlow = MutableSharedFlow<RoutineListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val syncUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 
 // 탭이 Koin으로 얻는 ViewModel은 호출 검증을 위해 테스트가 참조할 수 있어야 한다.
@@ -120,6 +125,9 @@ internal var placeViewModelRef: TagDetailPlaceViewModel? = null
     private set
 
 internal var ddayViewModelRef: TagDetailDDayViewModel? = null
+    private set
+
+internal var routineViewModelRef: TagDetailRoutineViewModel? = null
     private set
 
 internal var placeMapViewModelRef: TagDetailPlaceMapViewModel? = null
@@ -211,6 +219,14 @@ internal val tagDetailTabViewModelModule =
                 }.also { ddayViewModelRef = it }
         }
         factory {
+            mockk<TagDetailRoutineViewModel>(relaxed = true)
+                .apply {
+                    every { routinePagingData } returns routinePagingDataFlow
+                    every { effect } returns routineEffectFlow
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
+                }.also { routineViewModelRef = it }
+        }
+        factory {
             mockk<TagDetailPlaceMapViewModel>(relaxed = true)
                 .apply { every { uiState } returns placeMapUiStateFlow }
                 .also { placeMapViewModelRef = it }
@@ -241,6 +257,7 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
     musicPagingData: PagingData<Music> = PagingData.empty(),
     qrPagingData: PagingData<Qr> = PagingData.empty(),
     ddayPagingData: PagingData<DDay> = PagingData.empty(),
+    routinePagingData: PagingData<RoutineSummary> = PagingData.empty(),
     componentVisible: TagDetailScaffoldComponentVisible = TagDetailScaffoldComponentVisible(),
     navigateUp: () -> Unit = {},
     navigateToDetail: (Uuid) -> Unit = {},
@@ -261,6 +278,9 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
     navigateToQrDetail: (Uuid) -> Unit = {},
     navigateToDDayAdd: () -> Unit = {},
     navigateToDDayDetail: (Uuid) -> Unit = {},
+    navigateToRoutineAdd: () -> Unit = {},
+    navigateToRoutineDetail: (Uuid) -> Unit = {},
+    navigateToRoutineFinishedList: () -> Unit = {},
     mapContentOverride: DiaryMapContentOverride = PlatformDiaryMapContentOverride,
 ) {
     prepareTagDetailTabViewModels(
@@ -275,6 +295,7 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
         musicPagingData = musicPagingData,
         qrPagingData = qrPagingData,
         ddayPagingData = ddayPagingData,
+        routinePagingData = routinePagingData,
     )
 
     setContent {
@@ -307,6 +328,9 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
                 navigateToQrDetail = navigateToQrDetail,
                 navigateToDDayAdd = navigateToDDayAdd,
                 navigateToDDayDetail = navigateToDDayDetail,
+                navigateToRoutineAdd = navigateToRoutineAdd,
+                navigateToRoutineDetail = navigateToRoutineDetail,
+                navigateToRoutineFinishedList = navigateToRoutineFinishedList,
             )
         }
     }
@@ -325,6 +349,7 @@ internal fun prepareTagDetailTabViewModels(
     musicPagingData: PagingData<Music> = PagingData.empty(),
     qrPagingData: PagingData<Qr> = PagingData.empty(),
     ddayPagingData: PagingData<DDay> = PagingData.empty(),
+    routinePagingData: PagingData<RoutineSummary> = PagingData.empty(),
     isRefreshing: Boolean = false,
 ) {
     linkUiStateFlow.value = linkUiState
@@ -337,6 +362,7 @@ internal fun prepareTagDetailTabViewModels(
     musicPagingDataFlow.value = musicPagingData
     qrPagingDataFlow.value = qrPagingData
     ddayPagingDataFlow.value = ddayPagingData
+    routinePagingDataFlow.value = routinePagingData
     placeListUiStateFlow.value = TagDetailPlaceListUiState()
     placeMapUiStateFlow.value = TagDetailPlaceUiState.Loading
     syncUiStateFlow.value = if (isRefreshing) SyncRefreshUiState(isRefreshing = true) else memoListUiState
@@ -349,6 +375,7 @@ internal fun prepareTagDetailTabViewModels(
     musicViewModelRef = null
     qrViewModelRef = null
     ddayViewModelRef = null
+    routineViewModelRef = null
     placeMapViewModelRef = null
     syncViewModelRef = null
 }

@@ -46,6 +46,12 @@ import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountQr
 import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountTagQrLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.datasource.AccountRoutineLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.datasource.AccountRoutineSyncLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.datasource.AccountTagRoutineLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.routineCurrentCycleOf
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineSyncTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
@@ -55,6 +61,7 @@ import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -442,6 +449,9 @@ class AccountEntityTagLocalDataSourceImplItemTest :
     }
 
     private companion object {
+        // 같은 목록을 연결 전후에 다시 조회해 비교하므로 오늘과 이번 주기를 고정한다.
+        private val ROUTINE_CURRENT_CYCLE = routineCurrentCycleOf(today = LocalDate(2026, 3, 20))
+
         private val BIRTHDAY: LocalDate = LocalDate(1990, 7, 8)
         private val BIRTHDAY_IN_RANGE: LocalDate = LocalDate(2026, 7, 8)
         private val BIRTHDAY_RANGE = LocalDate(2026, 7, 5)..LocalDate(2026, 7, 11)
@@ -725,6 +735,50 @@ class AccountEntityTagLocalDataSourceImplItemTest :
                         AccountDDayTransactionImpl(database = database).updateDeleted(
                             accountId = accountId,
                             ddayId = entityId,
+                            isDeleted = isDeleted,
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                        )
+                    },
+                ),
+                ItemKind(
+                    kind = EntityTagKindLocalEntity.ROUTINE,
+                    label = "루틴",
+                    tcMap =
+                        mapOf(
+                            ItemTc.CONTENT to listOf("TC-bde6b14d-4fd2-47b9-9ed0-1b870bdbfd06"),
+                            ItemTc.HOME_LIST to listOf("TC-386c0690-1963-40a4-b63f-539363962e88"),
+                            ItemTc.TAG_LINK_NOT_FOLLOWED to listOf("TC-9167766a-5741-4648-813a-d1b68bf6013a"),
+                            ItemTc.NO_OTHER_LINK to listOf("TC-2757a080-f7f6-4d79-adea-0238f290623a"),
+                        ),
+                    insert = { database, accountId, isDeleted ->
+                        val routine = Arb.routineLocalEntity().next().copy(isFinished = false, isDeleted = isDeleted, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+                        AccountRoutineTransactionImpl(database = database).upsert(accountId = accountId, routine = routine, routineTagList = emptyList())
+                        routine.id
+                    },
+                    snapshot = { database, accountId, entityId ->
+                        AccountRoutineLocalDataSourceImpl(database = database).find(accountId = accountId, routineId = entityId).first()
+                    },
+                    homeIdLists = { database, accountId ->
+                        listOf(AccountRoutineLocalDataSourceImpl(database = database).page(accountId = accountId, currentCycle = ROUTINE_CURRENT_CYCLE).pagedIdList { summary -> summary.routine.id })
+                    },
+                    tagTabIdList = { database, accountId, tagId ->
+                        AccountTagRoutineLocalDataSourceImpl(database = database)
+                            .page(accountId = accountId, tagId = tagId, scope = TagScopeLocalEntity.SELF, currentCycle = ROUTINE_CURRENT_CYCLE)
+                            .pagedIdList { summary -> summary.routine.id }
+                    },
+                    pendingEntityIdList = { database, accountId ->
+                        AccountRoutineSyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId).map { routine -> routine.id }
+                    },
+                    clearEntityPending = { database, accountId ->
+                        AccountRoutineSyncTransactionImpl(database = database).clearPending(
+                            accountId = accountId,
+                            routineList = AccountRoutineSyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId),
+                        )
+                    },
+                    updateDeleted = { database, accountId, entityId, isDeleted ->
+                        AccountRoutineTransactionImpl(database = database).updateDeleted(
+                            accountId = accountId,
+                            routineId = entityId,
                             isDeleted = isDeleted,
                             updatedAt = Arb.secondPrecisionInstant().next(),
                         )

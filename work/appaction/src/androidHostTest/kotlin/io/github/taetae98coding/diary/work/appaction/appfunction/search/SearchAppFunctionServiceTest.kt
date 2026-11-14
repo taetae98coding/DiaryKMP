@@ -72,7 +72,7 @@ class SearchAppFunctionServiceTest {
     fun `검색 동작을 모두 제공한다`() =
         runBlocking<Unit> {
             tester.functionNameList().filter { name -> name.startsWith("search") } shouldContainExactlyInAnyOrder
-                listOf("searchMemo", "searchTag", "searchPlace", "searchWeb", "searchDday")
+                listOf("searchMemo", "searchTag", "searchPlace", "searchWeb", "searchDday", "searchRoutine")
         }
 
     @Test

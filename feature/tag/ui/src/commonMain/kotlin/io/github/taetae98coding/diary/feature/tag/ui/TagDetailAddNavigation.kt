@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.feature.dday.api.DDayAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import kotlin.uuid.Uuid
 
@@ -34,6 +35,10 @@ internal fun NavBackStack<ScreenNavKey>.navigateToQrAddFromTagDetail(tagId: Uuid
 
 internal fun NavBackStack<ScreenNavKey>.navigateToDDayAddFromTagDetail(tagId: Uuid) {
     add(DDayAddNavKey(initialTagId = tagId))
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateToRoutineAddFromTagDetail(tagId: Uuid) {
+    add(RoutineAddNavKey(initialTagId = tagId))
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateToPlaceAddFromTagDetail(

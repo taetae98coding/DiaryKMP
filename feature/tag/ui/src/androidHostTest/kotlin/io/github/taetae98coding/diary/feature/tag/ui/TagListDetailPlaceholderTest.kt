@@ -499,6 +499,9 @@ class TagListDetailPlaceholderTest {
             navigateToQrDetail = {},
             navigateToDDayAdd = {},
             navigateToDDayDetail = {},
+            navigateToRoutineAdd = {},
+            navigateToRoutineDetail = {},
+            navigateToRoutineFinishedList = {},
         )
     }
 

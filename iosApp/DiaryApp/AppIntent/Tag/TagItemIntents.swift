@@ -407,6 +407,85 @@ struct TagDDayListIntent: AppIntent {
     }
 }
 
+struct TagRoutineListIntent: AppIntent {
+    static let title = LocalizedStringResource("Get Tag's Routines", table: "AppIntentTag")
+    static let description = IntentDescription(LocalizedStringResource("Gets routines linked to a tag that aren't finished, in progress first, then not started.", table: "AppIntentTag"))
+
+    @Parameter(title: LocalizedStringResource("Tag", table: "AppIntentTag"))
+    var tag: TagEntity
+
+    @Parameter(
+        title: LocalizedStringResource("Tags to Include", table: "AppIntentCore"),
+        description: LocalizedStringResource("If not chosen, this tag only.", table: "AppIntentCore")
+    )
+    var scope: TagScopeAppEnum?
+
+    @Parameter(
+        title: LocalizedStringResource("Page", table: "AppIntentCore"),
+        description: LocalizedStringResource("Page number starting at 1. Leave empty for the first page.", table: "AppIntentCore")
+    )
+    var page: Int?
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Get \(\.$tag)'s Routines", table: "AppIntentTag") {
+            \.$scope
+            \.$page
+        }
+    }
+
+    func perform() async throws -> some IntentResult & ReturnsValue<[RoutineEntity]> & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        let itemPage = try await appAction {
+            try await DiaryTagItemAppAction.shared.routineList(tagId: tag.id, scope: scope?.kotlin, pageNumber: AppIntentPage.number(page))
+        }
+        let dialog = AppIntentResultDialog.list(
+            count: itemPage.items.count,
+            nextPageNumber: itemPage.nextPageNumber,
+            found: { count in LocalizedStringResource("Found \(count) routines.", table: "AppIntentTag") },
+            foundWithNextPage: { count, nextPage in
+                LocalizedStringResource("Found \(count) routines. There's more on page \(nextPage).", table: "AppIntentTag")
+            }
+        )
+        return .result(value: itemPage.items.map(RoutineEntity.init(routine:)), dialog: dialog)
+    }
+}
+
+struct TagRoutineFinishedListIntent: AppIntent {
+    static let title = LocalizedStringResource("Get Tag's Finished Routines", table: "AppIntentTag")
+    static let description = IntentDescription(LocalizedStringResource("Gets finished routines linked to a tag.", table: "AppIntentTag"))
+
+    @Parameter(title: LocalizedStringResource("Tag", table: "AppIntentTag"))
+    var tag: TagEntity
+
+    @Parameter(
+        title: LocalizedStringResource("Page", table: "AppIntentCore"),
+        description: LocalizedStringResource("Page number starting at 1. Leave empty for the first page.", table: "AppIntentCore")
+    )
+    var page: Int?
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Get \(\.$tag)'s Finished Routines", table: "AppIntentTag") {
+            \.$page
+        }
+    }
+
+    func perform() async throws -> some IntentResult & ReturnsValue<[RoutineEntity]> & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        let itemPage = try await appAction {
+            try await DiaryTagItemAppAction.shared.routineFinishedList(tagId: tag.id, pageNumber: AppIntentPage.number(page))
+        }
+        let dialog = AppIntentResultDialog.list(
+            count: itemPage.items.count,
+            nextPageNumber: itemPage.nextPageNumber,
+            found: { count in LocalizedStringResource("Found \(count) routines.", table: "AppIntentTag") },
+            foundWithNextPage: { count, nextPage in
+                LocalizedStringResource("Found \(count) routines. There's more on page \(nextPage).", table: "AppIntentTag")
+            }
+        )
+        return .result(value: itemPage.items.map(RoutineEntity.init(routine:)), dialog: dialog)
+    }
+}
+
 private extension DiaryAppActionTagMemoPage {
     nonisolated var dialog: IntentDialog {
         AppIntentResultDialog.list(

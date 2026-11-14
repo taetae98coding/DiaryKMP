@@ -30,9 +30,13 @@ import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagRoutineFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
@@ -174,6 +178,7 @@ class AppStateDetailDeepLinkTest :
                 DetailCase("qr-detail", more + QrHomeNavKey) { id -> QrDetailNavKey(id = id, isStandalone = true) },
                 DetailCase("music-detail", more + PlaylistHomeNavKey) { id -> MusicDetailNavKey(id = id, isStandalone = true) },
                 DetailCase("dday-detail", more + DDayHomeNavKey) { id -> DDayDetailNavKey(id = id, isStandalone = true) },
+                DetailCase("routine-detail", listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Routine.key)) { id -> RoutineDetailNavKey(id = id, isStandalone = true) },
             )
         }
 
@@ -181,6 +186,7 @@ class AppStateDetailDeepLinkTest :
             val memo = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key)
             val tag = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Tag.key)
             val more = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key)
+            val routine = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Routine.key)
 
             fun id(): Uuid = Arb.kotlinUuid().next()
 
@@ -210,6 +216,12 @@ class AppStateDetailDeepLinkTest :
                 ViewingCase("music-detail", more + PlaylistHomeNavKey + MusicDetailNavKey(id()), isViewingOnDetailPane = true),
                 ViewingCase("dday-detail", more + DDayHomeNavKey),
                 ViewingCase("dday-detail", more + DDayHomeNavKey + DDayDetailNavKey(id()), isViewingOnDetailPane = true),
+                ViewingCase("routine-detail", routine),
+                ViewingCase("routine-detail", routine + RoutineDetailNavKey(id()), isViewingOnDetailPane = true),
+                ViewingCase("routine-detail", routine + RoutineAddNavKey(), isViewingOnDetailPane = true),
+                ViewingCase("routine-detail", routine + RoutineFinishedListNavKey),
+                ViewingCase("routine-detail", routine + RoutineFinishedListNavKey + RoutineDetailNavKey(id()), isViewingOnDetailPane = true),
+                ViewingCase("routine-detail", tag + TagDetailNavKey(id()) + TagRoutineFinishedListNavKey(tagId = id())),
             )
         }
 

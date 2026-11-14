@@ -141,6 +141,18 @@ verify_jwt = true
 [functions.v1-sync-pull-dday]
 verify_jwt = true
 
+[functions.v1-sync-push-routine]
+verify_jwt = true
+
+[functions.v1-sync-pull-routine]
+verify_jwt = true
+
+[functions.v1-sync-push-routine-record]
+verify_jwt = true
+
+[functions.v1-sync-pull-routine-record]
+verify_jwt = true
+
 [functions.v1-sync-push-contact-tag]
 verify_jwt = true
 
@@ -169,6 +181,12 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.v1-sync-pull-dday-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-routine-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-routine-tag]
 verify_jwt = true
 
 [functions.v1-profile-upload]

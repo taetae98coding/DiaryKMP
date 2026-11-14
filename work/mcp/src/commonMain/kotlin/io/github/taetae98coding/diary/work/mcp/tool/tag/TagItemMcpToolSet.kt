@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageTagMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PageTagPlaceUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageTagMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageTagQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedTagRoutineUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageTagRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageTagWebUseCase
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -34,6 +36,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.qr.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.routine.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -84,6 +87,8 @@ internal class TagItemMcpToolSet(
     private val pageTagMusicUseCase: PageTagMusicUseCase,
     private val pageTagQrUseCase: PageTagQrUseCase,
     private val pageTagDDayUseCase: PageTagDDayUseCase,
+    private val pageTagRoutineUseCase: PageTagRoutineUseCase,
+    private val pageFinishedTagRoutineUseCase: PageFinishedTagRoutineUseCase,
     private val clock: Clock,
 ) : McpToolSet {
     override val toolList: List<McpTool> =
@@ -202,6 +207,41 @@ internal class TagItemMcpToolSet(
                     val today = clock.todayIn(TimeZone.currentSystemDefault())
 
                     pageTagDDayUseCase.readPage(parameter = parameter, offset = offset).toJson { dday -> dday.toJson(today = today) }
+                }
+            },
+            McpTool(
+                name = "tag_routine_list",
+                description =
+                    "Lists routines linked to a tag that are not finished and not deleted, in progress first, then not started, by title within each, " +
+                        "with this cycle's total and achievement rate counted from today. A routine linked to several included tags appears once.",
+                parameterList = listOf(tagIdParameter, scopeParameter, mcpPageCursorParameter),
+                kind = McpToolKind.READ,
+            ) { arguments ->
+                val tagId = arguments.uuid(TAG_ID)
+                val scope = arguments.scope()
+
+                pageOfTag(tagId = tagId, arguments = arguments) { offset ->
+                    val today = clock.todayIn(TimeZone.currentSystemDefault())
+                    val parameter = PageTagRoutineUseCase.Parameter(tagId = tagId, scope = scope, today = today)
+
+                    pageTagRoutineUseCase.readPage(parameter = parameter, offset = offset).toJson { summary -> summary.toJson(today = today) }
+                }
+            },
+            McpTool(
+                name = "tag_routine_finished_list",
+                description =
+                    "Lists finished routines linked to a tag that are not deleted, in progress first, then not started, by title within each. " +
+                        "Only routines linked to this tag itself are included.",
+                parameterList = listOf(tagIdParameter, mcpPageCursorParameter),
+                kind = McpToolKind.READ,
+            ) { arguments ->
+                val tagId = arguments.uuid(TAG_ID)
+
+                pageOfTag(tagId = tagId, arguments = arguments) { offset ->
+                    val today = clock.todayIn(TimeZone.currentSystemDefault())
+                    val parameter = PageFinishedTagRoutineUseCase.Parameter(tagId = tagId, today = today)
+
+                    pageFinishedTagRoutineUseCase.readPage(parameter = parameter, offset = offset).toJson { summary -> summary.toJson(today = today) }
                 }
             },
         )

@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.core.testing.routine.routine
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.checklist.usecase.FindChecklistItemUseCase
@@ -19,6 +20,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.FindMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.FindRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -30,6 +32,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.memo.MemoMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.music.MusicMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.place.PlaceMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.qr.QrMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.routine.RoutineMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.StubbedFind
 import io.github.taetae98coding.diary.work.mcp.tool.tag.TagItemMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.TagLinkMcpToolSet
@@ -41,6 +44,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundMemo
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundMusic
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundPlace
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundQr
+import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundRoutine
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundTag
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundWeb
 import io.github.taetae98coding.diary.work.mcp.tool.web.WebMcpToolSet
@@ -230,6 +234,13 @@ private fun ddayTarget(isDeleted: Boolean): Target =
         .copy(isDeleted = true)
         .let { dday -> target<FindDDayUseCase, _>(isDeleted = isDeleted, id = dday.id, deleted = dday) }
 
+private fun routineTarget(isDeleted: Boolean): Target =
+    Arb
+        .routine()
+        .next()
+        .copy(isDeleted = true)
+        .let { routine -> target<FindRoutineUseCase, _>(isDeleted = isDeleted, id = routine.id, deleted = routine) }
+
 private fun changeCaseList(): List<TargetCase> =
     listOf(
         TargetCase(toolName = "memo_update", idName = "memoId", toolSet = { useCaseList -> toolSetOf<MemoMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::memoTarget),
@@ -265,6 +276,10 @@ private fun changeCaseList(): List<TargetCase> =
         TargetCase(toolName = "music_delete", idName = "musicId", toolSet = { useCaseList -> toolSetOf<MusicMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::musicTarget),
         TargetCase(toolName = "dday_update", idName = "ddayId", toolSet = { useCaseList -> toolSetOf<DDayMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::ddayTarget),
         TargetCase(toolName = "dday_delete", idName = "ddayId", toolSet = { useCaseList -> toolSetOf<DDayMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::ddayTarget),
+        TargetCase(toolName = "routine_update", idName = "routineId", toolSet = { useCaseList -> toolSetOf<RoutineMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::routineTarget),
+        TargetCase(toolName = "routine_finish", idName = "routineId", toolSet = { useCaseList -> toolSetOf<RoutineMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::routineTarget),
+        TargetCase(toolName = "routine_restart", idName = "routineId", toolSet = { useCaseList -> toolSetOf<RoutineMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::routineTarget),
+        TargetCase(toolName = "routine_delete", idName = "routineId", toolSet = { useCaseList -> toolSetOf<RoutineMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::routineTarget),
     )
 
 // 항목은 삭제되지 않은 채 저장되어 있고, 그 항목이 속한 체크리스트만 삭제되었거나 없다.
@@ -332,7 +347,8 @@ private fun entityTagLinkCaseList(): List<TargetCase> =
         entityTagLinkCase<ChecklistMcpToolSet>(entity = "checklist", idName = "checklistId", target = ::checklistTarget) { stubFoundChecklist(isDeleted = false) } +
         entityTagLinkCase<QrMcpToolSet>(entity = "qr", idName = "qrId", target = ::qrTarget) { stubFoundQr(isDeleted = false) } +
         entityTagLinkCase<MusicMcpToolSet>(entity = "music", idName = "musicId", target = ::musicTarget) { stubFoundMusic(isDeleted = false) } +
-        entityTagLinkCase<DDayMcpToolSet>(entity = "dday", idName = "ddayId", target = ::ddayTarget) { stubFoundDDay(isDeleted = false) }
+        entityTagLinkCase<DDayMcpToolSet>(entity = "dday", idName = "ddayId", target = ::ddayTarget) { stubFoundDDay(isDeleted = false) } +
+        entityTagLinkCase<RoutineMcpToolSet>(entity = "routine", idName = "routineId", target = ::routineTarget) { stubFoundRoutine(isDeleted = false) }
 
 private inline fun <reified T : McpToolSet> entityTagLinkCase(
     entity: String,
@@ -389,6 +405,9 @@ private fun listCaseList(): List<TargetCase> =
         TargetCase(toolName = "tag_music_list", idName = "tagId", toolSet = { useCaseList -> toolSetOf<TagItemMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::tagTarget),
         TargetCase(toolName = "tag_qr_list", idName = "tagId", toolSet = { useCaseList -> toolSetOf<TagItemMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::tagTarget),
         TargetCase(toolName = "tag_dday_list", idName = "tagId", toolSet = { useCaseList -> toolSetOf<TagItemMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::tagTarget),
+        TargetCase(toolName = "tag_routine_list", idName = "tagId", toolSet = { useCaseList -> toolSetOf<TagItemMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::tagTarget),
+        TargetCase(toolName = "tag_routine_finished_list", idName = "tagId", toolSet = { useCaseList -> toolSetOf<TagItemMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::tagTarget),
+        TargetCase(toolName = "routine_record_list", idName = "routineId", toolSet = { useCaseList -> toolSetOf<RoutineMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::routineTarget),
         TargetCase(toolName = "place_memo_list", idName = "placeId", toolSet = { useCaseList -> toolSetOf<PlaceMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::placeTarget),
         TargetCase(toolName = "place_memo_finished_list", idName = "placeId", toolSet = { useCaseList -> toolSetOf<PlaceMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::placeTarget),
         TargetCase(toolName = "web_memo_list", idName = "webId", toolSet = { useCaseList -> toolSetOf<WebMcpToolSet>(*useCaseList.toTypedArray()) }, target = ::webTarget),

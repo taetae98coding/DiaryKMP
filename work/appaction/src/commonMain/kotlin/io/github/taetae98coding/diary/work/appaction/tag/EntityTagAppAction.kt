@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.core.model.routine.Routine
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.checklist.usecase.FindChecklistUseCase
@@ -14,6 +15,7 @@ import io.github.taetae98coding.diary.domain.dday.usecase.FindDDayUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.FindRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
@@ -39,6 +41,7 @@ public enum class AppActionEntityTagKind(
     QR(kind = EntityTagKind.QR, entityIdName = "qrId"),
     MUSIC(kind = EntityTagKind.MUSIC, entityIdName = "musicId"),
     DDAY(kind = EntityTagKind.DDAY, entityIdName = "ddayId"),
+    ROUTINE(kind = EntityTagKind.ROUTINE, entityIdName = "routineId"),
 }
 
 @Factory
@@ -50,6 +53,7 @@ public class EntityTagAppAction internal constructor(
     private val findQrUseCase: FindQrUseCase,
     private val findMusicUseCase: FindMusicUseCase,
     private val findDDayUseCase: FindDDayUseCase,
+    private val findRoutineUseCase: FindRoutineUseCase,
     private val findTagUseCase: FindTagUseCase,
     private val addEntityTagUseCase: AddEntityTagUseCase,
     private val removeEntityTagUseCase: RemoveEntityTagUseCase,
@@ -101,5 +105,6 @@ public class EntityTagAppAction internal constructor(
             AppActionEntityTagKind.QR -> findQrUseCase.isActive(id = id, isDeleted = Qr::isDeleted)
             AppActionEntityTagKind.MUSIC -> findMusicUseCase.isActive(id = id, isDeleted = Music::isDeleted)
             AppActionEntityTagKind.DDAY -> findDDayUseCase.isActive(id = id, isDeleted = DDay::isDeleted)
+            AppActionEntityTagKind.ROUTINE -> findRoutineUseCase.isActive(id = id, isDeleted = Routine::isDeleted)
         }
 }

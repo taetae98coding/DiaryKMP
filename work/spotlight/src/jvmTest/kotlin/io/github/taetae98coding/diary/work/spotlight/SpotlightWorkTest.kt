@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -53,7 +54,7 @@ class SpotlightWorkTest :
             }
         }
 
-        test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 현재 계정의 아홉 종류 항목을 담고 다른 계정의 항목은 담지 않는다") {
+        test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 현재 계정의 열 종류 항목을 담고 다른 계정의 항목은 담지 않는다") {
             runTest {
                 val account = Arb.accountUser().next()
                 val memo = Arb.memoLocalEntity().next()
@@ -65,6 +66,7 @@ class SpotlightWorkTest :
                 val qr = Arb.qrLocalEntity().next()
                 val music = Arb.musicLocalEntity().next()
                 val dday = Arb.ddayLocalEntity().next()
+                val routine = Arb.routineLocalEntity().next()
                 val otherAccountMemo = Arb.memoLocalEntity().next()
                 val dataSource =
                     spotlightLocalDataSource(
@@ -78,6 +80,7 @@ class SpotlightWorkTest :
                 every { dataSource.getQrList(account.id) } returns flowOf(listOf(qr))
                 every { dataSource.getMusicList(account.id) } returns flowOf(listOf(music))
                 every { dataSource.getDDayList(account.id) } returns flowOf(listOf(dday))
+                every { dataSource.getRoutineList(account.id) } returns flowOf(listOf(routine))
                 val index = SpotlightIndexState()
 
                 startWork(account = MutableStateFlow(Result.success(account)), dataSource = dataSource, index = index)
@@ -93,6 +96,7 @@ class SpotlightWorkTest :
                         qr.toSpotlightItem(),
                         music.toSpotlightItem(),
                         dday.toSpotlightItem(),
+                        routine.toSpotlightItem(),
                     )
             }
         }
@@ -263,6 +267,7 @@ private fun spotlightLocalDataSource(memoListOf: (Uuid) -> Flow<List<MemoLocalEn
         every { getQrList(any()) } returns flowOf(emptyList())
         every { getMusicList(any()) } returns flowOf(emptyList())
         every { getDDayList(any()) } returns flowOf(emptyList())
+        every { getRoutineList(any()) } returns flowOf(emptyList())
     }
 
 private fun TestScope.startWork(

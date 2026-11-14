@@ -193,6 +193,25 @@ public object DiaryTagItemAppAction {
 
         return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
     }
+
+    public suspend fun routineList(
+        tagId: String,
+        scope: DiaryAppActionTagScope?,
+        pageNumber: Int,
+    ): DiaryAppActionRoutinePage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().routineList(tagId = tagId, scope = scope.toScopeValue(), cursor = cursor) }
+
+        return DiaryAppActionRoutinePage(items = page.items.map { routine -> routine.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
+
+    public suspend fun routineFinishedList(
+        tagId: String,
+        pageNumber: Int,
+    ): DiaryAppActionRoutinePage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().routineFinishedList(tagId = tagId, cursor = cursor) }
+
+        return DiaryAppActionRoutinePage(items = page.items.map { routine -> routine.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
 }
 
 private fun tagAppAction(): TagAppAction = diaryAppAction()

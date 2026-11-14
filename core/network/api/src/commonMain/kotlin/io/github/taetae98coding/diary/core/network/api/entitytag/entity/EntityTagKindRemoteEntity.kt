@@ -8,4 +8,5 @@ public enum class EntityTagKindRemoteEntity {
     MUSIC,
     QR,
     DDAY,
+    ROUTINE,
 }

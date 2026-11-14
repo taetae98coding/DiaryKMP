@@ -42,8 +42,14 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.place.PlaceAppF
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQrDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQrPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.QrAppFunction
+import io.github.taetae98coding.diary.work.appaction.appfunction.routine.AppFunctionRoutineDetail
+import io.github.taetae98coding.diary.work.appaction.appfunction.routine.AppFunctionRoutinePage
+import io.github.taetae98coding.diary.work.appaction.appfunction.routine.AppFunctionRoutineRecordPage
+import io.github.taetae98coding.diary.work.appaction.appfunction.routine.RoutineAppFunction
+import io.github.taetae98coding.diary.work.appaction.appfunction.routine.RoutineRecordAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchDDayPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchPlacePage
+import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchRoutinePage
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchTagPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchWebPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.SearchAppFunction
@@ -63,6 +69,7 @@ import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactBir
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactUpdateInput
 import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
 import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayOverflowPolicyValue
+import io.github.taetae98coding.diary.work.appaction.routine.AppActionRoutineCycleValue
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTagScopeValue
 import org.koin.core.component.KoinComponent
@@ -93,6 +100,8 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     private val musicAppFunction: MusicAppFunction by lazy { MusicAppFunction(musicAppAction = get()) }
     private val placeAppFunction: PlaceAppFunction by lazy { PlaceAppFunction(placeAppAction = get()) }
     private val qrAppFunction: QrAppFunction by lazy { QrAppFunction(qrAppAction = get()) }
+    private val routineAppFunction: RoutineAppFunction by lazy { RoutineAppFunction(routineAppAction = get(), routineListAppAction = get()) }
+    private val routineRecordAppFunction: RoutineRecordAppFunction by lazy { RoutineRecordAppFunction(routineRecordAppAction = get()) }
     private val searchAppFunction: SearchAppFunction by lazy { SearchAppFunction(searchAppAction = get()) }
     private val tagAppFunction: TagAppFunction by lazy { TagAppFunction(tagAppAction = get()) }
     private val tagItemAppFunction: TagItemAppFunction by lazy { TagItemAppFunction(tagItemAppAction = get()) }
@@ -687,6 +696,35 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         scope: String? = null,
         cursor: String? = null,
     ): AppFunctionDDayPage = tagItemAppFunction.ddayList(tagId = tagId, scope = scope, cursor = cursor)
+
+    /**
+     * Lists routines linked to a tag that are not finished and not deleted, in progress first, then not started, by title within each, with this cycle's total and achievement rate counted from today. A routine linked to several included tags appears once.
+     *
+     * @param tagId Id of the tag.
+     * @param scope Which tags to include. self: only this tag. child: this tag and the tags it links to directly. descendant: this tag and every tag reachable through its links. Omit it to use self.
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of routines.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun tagRoutineList(
+        tagId: String,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionTagScopeValue.SELF, AppActionTagScopeValue.CHILD, AppActionTagScopeValue.DESCENDANT])
+        scope: String? = null,
+        cursor: String? = null,
+    ): AppFunctionRoutinePage = tagItemAppFunction.routineList(tagId = tagId, scope = scope, cursor = cursor)
+
+    /**
+     * Lists finished routines linked to a tag that are not deleted, in progress first, then not started, by title within each. Only routines linked to this tag itself are included.
+     *
+     * @param tagId Id of the tag.
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of routines.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun tagRoutineFinishedList(
+        tagId: String,
+        cursor: String? = null,
+    ): AppFunctionRoutinePage = tagItemAppFunction.routineFinishedList(tagId = tagId, cursor = cursor)
 
     // endregion
 
@@ -1751,6 +1789,232 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
 
     // endregion
 
+    // region Routine
+
+    /**
+     * Lists the routines shown on the routine home list, which are not finished, in progress first, then not started, by title within each, with this cycle's total and achievement rate counted from today.
+     * The tag filter the user chose in the app is applied. The view scope filter is not, so routines not started and routines not done on today's day of the week are also listed.
+     *
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of routines.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineList(cursor: String? = null): AppFunctionRoutinePage = routineAppFunction.list(cursor = cursor)
+
+    /**
+     * Lists finished routines that are not deleted, in progress first, then not started, by title within each. The filters the user chose in the app are not applied.
+     *
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of routines.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineFinishedList(cursor: String? = null): AppFunctionRoutinePage = routineAppFunction.finishedList(cursor = cursor)
+
+    /**
+     * Gets one routine with its linked tags and this cycle's total and achievement rate counted from today. Returns null when the routine does not exist or is deleted.
+     *
+     * @param routineId Id of the routine.
+     * @return The routine with its tags, or null.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineGet(routineId: String): AppFunctionRoutineDetail? = routineAppFunction.get(routineId = routineId)
+
+    /**
+     * Adds a routine with a random color. The title must not be blank and amounts must be between 1 and 9999999. The routine is added as not finished. Omitted values use what the routine add screen fills in first: today, FREQ=DAILY, no unit, no goal and 1 per record.
+     *
+     * @param title Title of the routine.
+     * @param description Description of the routine.
+     * @param startDate First date records can be added, like 2026-01-31. Today is used when omitted.
+     * @param cycle How often the routine repeats. FREQ=DAILY when omitted. FREQ=DAILY is every day, FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR is every day done on weekdays only,
+     * FREQ=DAILY;BYDAY=SA,SU is every day done on weekends only, FREQ=WEEKLY;WKST=SU is every week from Sunday to Saturday, FREQ=MONTHLY is every month from the 1st to the last day.
+     * @param unit Unit of the amounts. The routine has no unit when omitted. Free text of at most 10 characters without line breaks, such as times, ml or pages. Spaces around it are removed.
+     * @param goalAmount Amount to reach in each cycle, between 1 and 9999999. The routine has no goal when omitted.
+     * @param amountPerRecord Amount of one record when no amount is given, between 1 and 9999999. 1 when omitted.
+     * @param tagIds Ids of tags to link.
+     * @return Id of the added routine.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineAdd(
+        title: String,
+        description: String? = null,
+        startDate: String? = null,
+        @AppFunctionStringValueConstraint(
+            enumValues = [
+                AppActionRoutineCycleValue.DAILY,
+                AppActionRoutineCycleValue.WEEKDAYS,
+                AppActionRoutineCycleValue.WEEKENDS,
+                AppActionRoutineCycleValue.WEEKLY,
+                AppActionRoutineCycleValue.MONTHLY,
+            ],
+        )
+        cycle: String? = null,
+        unit: String? = null,
+        goalAmount: Int? = null,
+        amountPerRecord: Int? = null,
+        tagIds: List<String> = emptyList(),
+    ): AppFunctionId =
+        routineAppFunction.add(
+            title = title,
+            description = description,
+            startDate = startDate,
+            cycle = cycle,
+            unit = unit,
+            goalAmount = goalAmount,
+            amountPerRecord = amountPerRecord,
+            tagIds = tagIds,
+        )
+
+    /**
+     * Updates a routine. Omitted fields keep their current value. A blank title keeps the current title. After the update amounts must be between 1 and 9999999. Tags are changed with routineTagAdd and routineTagRemove, and whether the routine is finished with routineFinish and routineRestart.
+     *
+     * @param routineId Id of the routine.
+     * @param title New title.
+     * @param description New description.
+     * @param color New color. Use a hex color like #4285F4.
+     * @param startDate New start date, like 2026-01-31.
+     * @param cycle New cycle. FREQ=DAILY is every day, FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR is every day done on weekdays only, FREQ=DAILY;BYDAY=SA,SU is every day done on weekends only, FREQ=WEEKLY;WKST=SU is every week from Sunday to Saturday, FREQ=MONTHLY is every month from the 1st to the last day.
+     * @param unit New unit. Amounts already recorded are kept and read in the new unit. An empty string removes the unit. Free text of at most 10 characters without line breaks, such as times, ml or pages. Spaces around it are removed.
+     * @param goalAmount New goal amount, between 1 and 9999999.
+     * @param clearGoalAmount Set true to remove the goal amount. It wins over goalAmount.
+     * @param amountPerRecord New amount of one record when no amount is given, between 1 and 9999999.
+     * @return How many routines were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineUpdate(
+        routineId: String,
+        title: String? = null,
+        description: String? = null,
+        color: String? = null,
+        startDate: String? = null,
+        @AppFunctionStringValueConstraint(
+            enumValues = [
+                AppActionRoutineCycleValue.DAILY,
+                AppActionRoutineCycleValue.WEEKDAYS,
+                AppActionRoutineCycleValue.WEEKENDS,
+                AppActionRoutineCycleValue.WEEKLY,
+                AppActionRoutineCycleValue.MONTHLY,
+            ],
+        )
+        cycle: String? = null,
+        unit: String? = null,
+        goalAmount: Int? = null,
+        clearGoalAmount: Boolean? = null,
+        amountPerRecord: Int? = null,
+    ): AppFunctionChangedCount =
+        routineAppFunction.update(
+            routineId = routineId,
+            title = title,
+            description = description,
+            color = color,
+            startDate = startDate,
+            cycle = cycle,
+            unit = unit,
+            goalAmount = goalAmount,
+            clearGoalAmount = clearGoalAmount,
+            amountPerRecord = amountPerRecord,
+        )
+
+    /**
+     * Marks a routine as finished. Its records are kept and records can still be added and removed.
+     *
+     * @param routineId Id of the routine.
+     * @return How many routines were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineFinish(routineId: String): AppFunctionChangedCount = routineAppFunction.finish(routineId = routineId)
+
+    /**
+     * Marks a finished routine as not finished.
+     *
+     * @param routineId Id of the routine.
+     * @return How many routines were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineRestart(routineId: String): AppFunctionChangedCount = routineAppFunction.restart(routineId = routineId)
+
+    /**
+     * Deletes a routine. Its records are kept. Use routineRestore with the same id to bring it back with its records.
+     *
+     * @param routineId Id of the routine.
+     * @return How many routines were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineDelete(routineId: String): AppFunctionChangedCount = routineAppFunction.delete(routineId = routineId)
+
+    /**
+     * Restores a deleted routine with its records.
+     *
+     * @param routineId Id of the routine.
+     * @return How many routines were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineRestore(routineId: String): AppFunctionChangedCount = routineAppFunction.restore(routineId = routineId)
+
+    /**
+     * Links a tag to a routine. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param routineId Id of the routine.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineTagAdd(
+        routineId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.add(kind = AppActionEntityTagKind.ROUTINE, entityId = routineId, tagId = tagId)
+
+    /**
+     * Unlinks a tag from a routine. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param routineId Id of the routine.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineTagRemove(
+        routineId: String,
+        tagId: String,
+    ): AppFunctionDone = entityTagAppFunction.remove(kind = AppActionEntityTagKind.ROUTINE, entityId = routineId, tagId = tagId)
+
+    /**
+     * Lists the records of a routine that are not removed, latest date first and, within a date, latest added first. Amounts are in the unit of the routine. Returns no records when the routine does not exist or is deleted.
+     *
+     * @param routineId Id of the routine.
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of routine records.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineRecordList(
+        routineId: String,
+        cursor: String? = null,
+    ): AppFunctionRoutineRecordPage = routineRecordAppFunction.list(routineId = routineId, cursor = cursor)
+
+    /**
+     * Adds a record to a routine. The date must be on or after the start date of the routine and the amount must be between 1 and 9999999. Returns changedCount 0 and adds nothing when the routine does not exist or is deleted.
+     *
+     * @param routineId Id of the routine.
+     * @param date Date of the record, like 2026-01-31. Today is used when omitted.
+     * @param amount Amount of the record in the unit of the routine. The routine's amount per record is used when omitted.
+     * @return How many records were added.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineRecordAdd(
+        routineId: String,
+        date: String? = null,
+        amount: Int? = null,
+    ): AppFunctionChangedCount = routineRecordAppFunction.add(routineId = routineId, date = date, amount = amount)
+
+    /**
+     * Removes a record from its routine. This cannot be undone; add it again with routineRecordAdd with the same date and amount if needed.
+     *
+     * @param recordId Id of the routine record.
+     * @return How many records were removed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun routineRecordRemove(recordId: String): AppFunctionChangedCount = routineRecordAppFunction.remove(recordId = recordId)
+
+    // endregion
+
     // region Search
 
     /**
@@ -1832,6 +2096,19 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         sort: String? = null,
         cursor: String? = null,
     ): AppFunctionSearchDDayPage = searchAppFunction.dday(query = query, sort = sort, cursor = cursor)
+
+    /**
+     * Searches saved routines by the query, like the routine results of the search screen, finished routines included, in progress first, then not started, by title within each, with this cycle's total and achievement rate counted from today.
+     *
+     * @param query Search query. A blank query returns no results.
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of found routines.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun searchRoutine(
+        query: String,
+        cursor: String? = null,
+    ): AppFunctionSearchRoutinePage = searchAppFunction.routine(query = query, cursor = cursor)
 
     // endregion
 

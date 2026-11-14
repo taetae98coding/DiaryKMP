@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.core.testing.routine.routineSummary
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageTagChecklistUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageTagContactUseCase
@@ -20,6 +21,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageTagMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PageTagPlaceUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageTagMusicUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageTagQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedTagRoutineUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageTagRoutineUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageTagWebUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -27,6 +30,7 @@ import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.dday.toAppActionDDay
+import io.github.taetae98coding.diary.work.appaction.routine.toAppActionRoutine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -244,6 +248,48 @@ class TagItemAppActionTest :
                 action.ddayList(tagId = tagId.toString(), scope = "child", cursor = null) shouldBe
                     AppActionPage(items = ddayList.map { dday -> dday.toAppActionDDay(today = today) }, nextCursor = null)
                 verify(exactly = 1) { pageTagDDayUseCase(parameter = PageTagDDayUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD)) }
+            }
+        }
+
+        test("태그의 루틴 목록은 오늘을 넘겨 조회하고 오늘로 계산한 값을 함께 담는다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val now = Arb.secondPrecisionInstant().next()
+                val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val summaryList = Arb.list(Arb.routineSummary(), 1..3).next()
+                val pageTagRoutineUseCase = mockk<PageTagRoutineUseCase>()
+                val clock = mockk<Clock>()
+                every { pageTagRoutineUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(summaryList)))
+                every { clock.now() } returns now
+                val action = tagItemAppActionOf(pageTagRoutineUseCase, clock)
+
+                action.routineList(tagId = tagId.toString(), scope = "child", cursor = null) shouldBe
+                    AppActionPage(items = summaryList.map { summary -> summary.toAppActionRoutine(today = today) }, nextCursor = null)
+                verify(exactly = 1) { pageTagRoutineUseCase(parameter = PageTagRoutineUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD, today = today)) }
+            }
+        }
+
+        test("TC-e408a0ff-1873-49ab-8f51-d7ca57065fee 태그의 루틴은 완료되지 않은 목록과 완료된 목록을 따로 받는다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val now = Arb.secondPrecisionInstant().next()
+                val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val unfinished = Arb.routineSummary().next().let { summary -> summary.copy(routine = summary.routine.copy(isFinished = false, isDeleted = false)) }
+                val finished = Arb.routineSummary().next().let { summary -> summary.copy(routine = summary.routine.copy(isFinished = true, isDeleted = false)) }
+                val pageTagRoutineUseCase = mockk<PageTagRoutineUseCase>()
+                val pageFinishedTagRoutineUseCase = mockk<PageFinishedTagRoutineUseCase>()
+                val clock = mockk<Clock>()
+                every { pageTagRoutineUseCase(parameter = PageTagRoutineUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, today = today)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(unfinished))))
+                every { pageFinishedTagRoutineUseCase(parameter = PageFinishedTagRoutineUseCase.Parameter(tagId = tagId, today = today)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(finished))))
+                every { clock.now() } returns now
+                val action = tagItemAppActionOf(pageTagRoutineUseCase, pageFinishedTagRoutineUseCase, clock)
+
+                action.routineList(tagId = tagId.toString(), scope = null, cursor = null) shouldBe
+                    AppActionPage(items = listOf(unfinished.toAppActionRoutine(today = today)), nextCursor = null)
+                action.routineFinishedList(tagId = tagId.toString(), cursor = null) shouldBe
+                    AppActionPage(items = listOf(finished.toAppActionRoutine(today = today)), nextCursor = null)
             }
         }
 

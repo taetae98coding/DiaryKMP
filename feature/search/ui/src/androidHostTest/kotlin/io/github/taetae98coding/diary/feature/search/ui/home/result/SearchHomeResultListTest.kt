@@ -20,10 +20,16 @@ import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
+import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.ROUTINE_PROGRESS_BAR_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.RoutineListEvent
+import io.github.taetae98coding.diary.compose.routine.rememberRoutineListState
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.routine.RoutineCycle
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
@@ -38,8 +44,10 @@ import io.github.taetae98coding.diary.feature.search.ui.home.resultAddress
 import io.github.taetae98coding.diary.feature.search.ui.home.resultDDay
 import io.github.taetae98coding.diary.feature.search.ui.home.resultMemo
 import io.github.taetae98coding.diary.feature.search.ui.home.resultPlace
+import io.github.taetae98coding.diary.feature.search.ui.home.resultRoutine
 import io.github.taetae98coding.diary.feature.search.ui.home.resultTag
 import io.github.taetae98coding.diary.feature.search.ui.home.resultWeb
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineList
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagList
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebList
 import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
@@ -177,6 +185,88 @@ class SearchHomeResultListTest {
     }
 
     @Test
+    @Config(qualifiers = "ko")
+    fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 루틴 결과에 제목과 카드 문구를 표시한다`() {
+        val today = LocalDate(year = 2026, month = 3, day = 20)
+        val routine =
+            resultRoutine().let { value ->
+                value.copy(
+                    routine =
+                        value.routine.copy(
+                            detail =
+                                value.routine.detail.copy(
+                                    startDate = LocalDate(year = 2026, month = 3, day = 1),
+                                    cycle = RoutineCycle.DAILY,
+                                    unit = "ml",
+                                    goalAmount = 2000,
+                                ),
+                        ),
+                    cycleAmount = 1500,
+                )
+            }
+        val routinePagingDataFlow = pagingDataFlowOf(listOf(routine))
+
+        composeRule.setContent {
+            DiaryTheme {
+                SearchHomeRoutineList(
+                    onRoutineListEvent = {},
+                    modifier = Modifier.fillMaxSize(),
+                    routineListState = rememberRoutineListState(initialToday = today),
+                    routinePagingItems = routinePagingDataFlow.collectAsLazyPagingItems(),
+                )
+            }
+        }
+
+        composeRule
+            .onNode(hasTestTag(ROUTINE_CARD_TEST_TAG) and hasText(routine.routine.detail.title))
+            .assertIsDisplayed()
+            .assert(hasText(ROUTINE_CARD_TEXT))
+            .assert(hasText(ROUTINE_RATE_TEXT))
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-a9f5ca92-a6dc-4cdf-acf0-8a3edb907bfa 완료된 루틴 결과의 카드 문구는 완료이고 합계와 달성률을 보여 주지 않는다`() {
+        val today = LocalDate(year = 2026, month = 3, day = 20)
+        val routine =
+            resultRoutine(isFinished = true).let { value ->
+                value.copy(
+                    routine =
+                        value.routine.copy(
+                            detail =
+                                value.routine.detail.copy(
+                                    startDate = LocalDate(year = 2026, month = 3, day = 1),
+                                    cycle = RoutineCycle.DAILY,
+                                    unit = "ml",
+                                    goalAmount = 2000,
+                                ),
+                        ),
+                    cycleAmount = 1500,
+                )
+            }
+        val routinePagingDataFlow = pagingDataFlowOf(listOf(routine))
+
+        composeRule.setContent {
+            DiaryTheme {
+                SearchHomeRoutineList(
+                    onRoutineListEvent = {},
+                    modifier = Modifier.fillMaxSize(),
+                    routineListState = rememberRoutineListState(initialToday = today),
+                    routinePagingItems = routinePagingDataFlow.collectAsLazyPagingItems(),
+                )
+            }
+        }
+
+        composeRule
+            .onNode(hasTestTag(ROUTINE_CARD_TEST_TAG) and hasText(routine.routine.detail.title))
+            .assertIsDisplayed()
+            .assert(hasText(ROUTINE_FINISHED_TEXT))
+            .assert(hasText(ROUTINE_CARD_TEXT).not())
+            .assert(hasText(ROUTINE_RATE_TEXT).not())
+        composeRule.onNodeWithTag(ROUTINE_PROGRESS_BAR_TEST_TAG, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 결과가 없으면 결과 없음을 알린다`() {
         setMemoList(query = QUERY)
 
@@ -225,6 +315,20 @@ class SearchHomeResultListTest {
         setEmptyResultList(type = SearchHomeType.DDAY, query = QUERY)
 
         assertEmptyResultOnly()
+    }
+
+    @Test
+    fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 루틴 결과가 없으면 결과 없음을 알린다`() {
+        setEmptyResultList(type = SearchHomeType.ROUTINE, query = QUERY)
+
+        assertEmptyResultOnly()
+    }
+
+    @Test
+    fun `TC-1aae2f41-1e12-4453-9380-c359e10156b0 질의가 비어 있으면 루틴 결과에도 결과 없음을 알리지 않는다`() {
+        setEmptyResultList(type = SearchHomeType.ROUTINE, query = "")
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
@@ -318,6 +422,27 @@ class SearchHomeResultListTest {
         eventList shouldBe listOf(SearchHomeResultItemEvent.Click(id = dday.id))
     }
 
+    @Test
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 루틴 결과를 선택하면 그 루틴의 식별자를 전달한다`() {
+        val routine = resultRoutine()
+        val routinePagingDataFlow = pagingDataFlowOf(listOf(routine))
+        val eventList = mutableListOf<RoutineListEvent>()
+
+        composeRule.setContent {
+            DiaryTheme {
+                SearchHomeRoutineList(
+                    onRoutineListEvent = eventList::add,
+                    modifier = Modifier.fillMaxSize(),
+                    routinePagingItems = routinePagingDataFlow.collectAsLazyPagingItems(),
+                )
+            }
+        }
+        composeRule.onNodeWithText(routine.routine.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(RoutineListEvent.ClickRoutine(id = routine.routine.id))
+    }
+
     // 결과 없음 안내만 표시되고 로딩 안내(진행 표시)는 표시되지 않는다. 오류 안내는 따로 두는 문구가 없어 결과 없음 문구가 그대로인지로 확인한다.
     private fun assertEmptyResultOnly() {
         composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
@@ -349,7 +474,7 @@ class SearchHomeResultListTest {
         }
     }
 
-    // 태그·장소·웹·디데이 결과 목록을 빈 조회 결과와 테스트 데이터의 질의로 구성한다.
+    // 태그·장소·웹·디데이·루틴 결과 목록을 빈 조회 결과와 테스트 데이터의 질의로 구성한다.
     private fun setEmptyResultList(
         type: SearchHomeType,
         query: String,
@@ -358,6 +483,7 @@ class SearchHomeResultListTest {
         val placePagingDataFlow = pagingDataFlowOf(emptyList<Place>())
         val webPagingDataFlow = pagingDataFlowOf(emptyList<Web>())
         val ddayPagingDataFlow = pagingDataFlowOf(emptyList<DDay>())
+        val routinePagingDataFlow = pagingDataFlowOf(emptyList<RoutineSummary>())
 
         composeRule.setContent {
             DiaryTheme {
@@ -385,6 +511,13 @@ class SearchHomeResultListTest {
                         ddayPagingItems = ddayPagingDataFlow.collectAsLazyPagingItems(),
                         query = query,
                     )
+                } else if (type == SearchHomeType.ROUTINE) {
+                    SearchHomeRoutineList(
+                        onRoutineListEvent = {},
+                        modifier = Modifier.fillMaxSize(),
+                        routinePagingItems = routinePagingDataFlow.collectAsLazyPagingItems(),
+                        query = query,
+                    )
                 } else {
                     SearchHomeWebList(
                         onEvent = {},
@@ -403,5 +536,8 @@ class SearchHomeResultListTest {
         private const val EMPTY_TITLE = "No search results"
         private const val EMPTY_DESCRIPTION = "Try a different search query."
         private const val DDAY_TOMORROW_COUNT_TEXT = "D-1"
+        private const val ROUTINE_CARD_TEXT = "오늘 1500 / 2000ml"
+        private const val ROUTINE_RATE_TEXT = "75%"
+        const val ROUTINE_FINISHED_TEXT = "완료"
     }
 }

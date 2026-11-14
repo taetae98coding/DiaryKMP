@@ -33,6 +33,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DES
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MUSIC_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_QR_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_ROUTINE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_WEB_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffold
@@ -143,6 +144,7 @@ class TagDetailScopeTest {
             DEFAULT_MUSIC_TAB_DESCRIPTION,
             DEFAULT_QR_TAB_DESCRIPTION,
             DEFAULT_DDAY_TAB_DESCRIPTION,
+            DEFAULT_ROUTINE_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             composeRule.onNodeWithContentDescription(tabDescription).performScrollTo().performClick()
             composeRule.waitForIdle()

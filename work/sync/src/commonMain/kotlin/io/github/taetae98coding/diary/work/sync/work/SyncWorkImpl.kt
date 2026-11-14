@@ -33,6 +33,8 @@ internal class SyncWorkImpl(
     private val checklistSyncWork: ChecklistSyncWork,
     private val checklistItemSyncWork: ChecklistItemSyncWork,
     private val ddaySyncWork: DDaySyncWork,
+    private val routineSyncWork: RoutineSyncWork,
+    private val routineRecordSyncWork: RoutineRecordSyncWork,
     private val memoSyncWork: MemoSyncWork,
     private val memoTagSyncWork: MemoTagSyncWork,
     private val memoPlaceSyncWork: MemoPlaceSyncWork,
@@ -91,24 +93,14 @@ internal class SyncWorkImpl(
             val music = async { musicSyncWork.push(accountId = accountId) }
             val qr = async { qrSyncWork.push(accountId = accountId) }
             val checklist = async { checklistSyncWork.push(accountId = accountId) }
-            val checklistItem =
-                async {
-                    checklist.await()
-                    checklistItemSyncWork.push(accountId = accountId)
-                }
+            val checklistItem = pushAfter(prerequisite = checklist) { checklistItemSyncWork.push(accountId = accountId) }
             val dday = async { ddaySyncWork.push(accountId = accountId) }
-            val memo =
-                async {
-                    tag.await()
-                    memoSyncWork.push(accountId = accountId)
-                }
+            val routine = async { routineSyncWork.push(accountId = accountId) }
+            val routineRecord = pushAfter(prerequisite = routine) { routineRecordSyncWork.push(accountId = accountId) }
+            val memo = pushAfter(prerequisite = tag) { memoSyncWork.push(accountId = accountId) }
             val memoLinkList =
                 pushMemoLink(accountId = accountId, tag = tag, memo = memo, place = place, web = web, contact = contact)
-            val tagLink =
-                async {
-                    tag.await()
-                    tagLinkSyncWork.push(accountId = accountId)
-                }
+            val tagLink = pushAfter(prerequisite = tag) { tagLinkSyncWork.push(accountId = accountId) }
             val entityTagList =
                 EntityTagKindLocalEntity.entries.map { kind ->
                     val entity =
@@ -120,6 +112,7 @@ internal class SyncWorkImpl(
                             EntityTagKindLocalEntity.MUSIC -> music
                             EntityTagKindLocalEntity.QR -> qr
                             EntityTagKindLocalEntity.DDAY -> dday
+                            EntityTagKindLocalEntity.ROUTINE -> routine
                         }
 
                     pushEntityTag(accountId = accountId, kind = kind, tag = tag, entity = entity)
@@ -136,12 +129,23 @@ internal class SyncWorkImpl(
                     checklist,
                     checklistItem,
                     dday,
+                    routine,
+                    routineRecord,
                     memo,
                     tagLink,
                 ) + memoLinkList + entityTagList
             ).awaitAllCatching()
         }
     }
+
+    private fun CoroutineScope.pushAfter(
+        prerequisite: Deferred<Unit>,
+        push: suspend () -> Unit,
+    ): Deferred<Unit> =
+        async {
+            prerequisite.await()
+            push()
+        }
 
     @Suppress("LongParameterList")
     private fun CoroutineScope.pushMemoLink(
@@ -204,6 +208,8 @@ internal class SyncWorkImpl(
                 async { checklistSyncWork.pull(accountId = accountId) },
                 async { checklistItemSyncWork.pull(accountId = accountId) },
                 async { ddaySyncWork.pull(accountId = accountId) },
+                async { routineSyncWork.pull(accountId = accountId) },
+                async { routineRecordSyncWork.pull(accountId = accountId) },
                 async { memoSyncWork.pull(accountId = accountId) },
                 async { memoTagSyncWork.pull(accountId = accountId) },
                 async { memoPlaceSyncWork.pull(accountId = accountId) },

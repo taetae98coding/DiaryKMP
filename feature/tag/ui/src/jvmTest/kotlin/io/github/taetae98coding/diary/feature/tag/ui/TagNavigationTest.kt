@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -187,6 +188,20 @@ class TagNavigationTest :
                     TagHomeNavKey,
                     TagDetailNavKey(id = tagId),
                     DDayAddNavKey(initialTagId = tagId),
+                )
+        }
+
+        test("TC-b3666bd3-adb9-4242-b690-6b2c6e9a615f 루틴 탭에서 시작한 루틴 추가는 대상 태그를 초기 태그로 넘긴다") {
+            val tagId = Arb.kotlinUuid().next()
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+
+            backStack.navigateToRoutineAddFromTagDetail(tagId = tagId)
+
+            backStack shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    RoutineAddNavKey(initialTagId = tagId),
                 )
         }
 

@@ -30,6 +30,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -42,6 +43,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTa
 import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.routine.TagDetailRoutineTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebTab
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
@@ -76,6 +78,7 @@ internal const val DEFAULT_CHECKLIST_TAB_DESCRIPTION = "Checklist"
 internal const val DEFAULT_MUSIC_TAB_DESCRIPTION = "Music"
 internal const val DEFAULT_QR_TAB_DESCRIPTION = "QR code"
 internal const val DEFAULT_DDAY_TAB_DESCRIPTION = "D-Day"
+internal const val DEFAULT_ROUTINE_TAB_DESCRIPTION = "Routine"
 internal const val KOREAN_CONTACT_TAB_DESCRIPTION = "연락처"
 internal const val KOREAN_CHECKLIST_TAB_DESCRIPTION = "체크리스트"
 internal const val KOREAN_MUSIC_TAB_DESCRIPTION = "곡"
@@ -174,6 +177,7 @@ internal fun TagDetailTestTabContent(
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
     ddayPagingItems: LazyPagingItems<DDay> = remember { flowOf(PagingData.empty<DDay>()) }.collectAsLazyPagingItems(),
+    routinePagingItems: LazyPagingItems<RoutineSummary> = remember { flowOf(PagingData.empty<RoutineSummary>()) }.collectAsLazyPagingItems(),
 ) {
     when (tab) {
         TagDetailTab.DETAIL ->
@@ -234,7 +238,19 @@ internal fun TagDetailTestTabContent(
                 modifier = Modifier.fillMaxSize(),
                 ddayPagingItems = ddayPagingItems,
             )
+
+        TagDetailTab.ROUTINE -> TagDetailTestRoutineTab(routinePagingItems = routinePagingItems)
     }
+}
+
+@Composable
+private fun TagDetailTestRoutineTab(routinePagingItems: LazyPagingItems<RoutineSummary>) {
+    TagDetailRoutineTab(
+        onEvent = {},
+        onRoutineListEvent = {},
+        modifier = Modifier.fillMaxSize(),
+        routinePagingItems = routinePagingItems,
+    )
 }
 
 @Composable
