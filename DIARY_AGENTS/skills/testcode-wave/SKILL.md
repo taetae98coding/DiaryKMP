@@ -59,6 +59,8 @@ mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK
 
 예외로, [compose.md](../../rules/compose.md)의 `플랫폼별 표현은 Override로 바꿔 끼운다`가 정한 `XxxOverride`는 `@Composable` 멤버를 MockK로 흉내 낼 수 없으므로 테스트가 직접 구현해 `LocalXxxOverride`에 넣는다. 구현은 Scope를 기록하고 테스트가 관찰할 노드를 그리는 데서 그치며 판정 규칙을 담지 않는다. 한 파일에서만 쓰면 그 파일에 `private`으로 두고, 같은 모듈의 여러 파일이 쓰면 그 모듈 테스트 소스셋에 하나만 둔다.
 
+[di.md](../../rules/di.md)의 `XxxFactory`처럼 `@Composable` 멤버를 가진 팩토리도 같은 이유로 테스트가 직접 구현한다. 구현은 협력 객체를 돌려주는 데서 그치며, 돌려주는 협력 객체는 MockK mock이거나 실제 플랫폼 구현이어야 하고 판정 규칙을 담지 않는다. 두는 자리는 `XxxOverride`와 같다.
+
 반환값, 연속 응답, 예외, 호출 기록, 변경 가능한 상태가 필요하면 MockK의 stub, answer, verify와 mock이 반환하는 테스트 데이터 또는 상태 스트림을 쓴다.
 
 플랫폼이나 라이브러리가 `TestLifecycleOwner`, `TestDispatcher`처럼 상태를 제어하는 공식 테스트 유틸리티를 제공하면 직접 구현하거나 MockK로 흉내 내지 않고 그 유틸리티를 먼저 쓴다.
@@ -115,6 +117,7 @@ Compose UI 테스트는 `androidHostTest`에서 Robolectric을 사용해 작성�
 - 스펙이 화면 재생성 후 상태 유지를 요구하고 팩토리가 `rememberSaveable` 또는 저장 가능한 내비게이션 상태를 쓰면 `StateRestorationTester`로 실제 복원을 검증한다. 이 테스트를 생성자 기반 상태 전이 테스트로 대체하지 않는다.
 - `StateRestorationTester.setContent`에서 최신 상태 홀더를 캡처하고, 상태 변경과 검증은 `runOnIdle`에서 수행한다. 복원 후에는 현재 화면뿐 아니라 스펙이 요구하는 뒤로가기 결과처럼 관찰되는 전환 이력도 검증한다.
 - Pager나 Flow의 결과가 이어서 전달되기를 기다리는 Robolectric 화면 테스트는 테스트마다 시작 전에 `AndroidUiDispatcher.Main`의 남은 예약 상태를 비운다. 조회 결과는 앱 전체가 함께 쓰는 이 디스패처로 화면에 전달되는데, Robolectric은 테스트가 끝날 때 메인 스레드 대기열만 비우고 디스패처는 "이미 예약했다"는 표시와 앞선 테스트가 남긴 작업을 그대로 들고 있어 뒤이은 테스트의 작업을 다시 예약하지 않는다. 비우지 않으면 앞선 테스트에 따라 결과가 전달되지 않아 전체 실행에서만 실패한다. 비우는 함수는 모듈의 `androidHostTest` 루트 패키지에 있는 `AndroidUiDispatcherTestReset.kt`의 `resetAndroidUiDispatcher()`를 `@Before`에서 부르고, 그 파일이 없는 모듈에는 같은 파일을 둔다.
+- `FileProvider`로 파일 URI를 만드는 Robolectric 테스트는 테스트마다 시작 전에 `FileProvider`의 정적 경로 캐시(`sCache`)를 비운다. `FileProvider`는 처음 찾은 폴더 경로를 정적으로 기억하는데, Robolectric은 테스트마다 앱 폴더를 새로 만들어 이전 테스트의 경로가 남는다. 비우지 않으면 새 폴더의 파일이 설정한 경로 밖에 있다고 판단해 URI를 만들지 못한다.
 - `KoinApplication` 컴포저블로 모듈을 넘기는 화면 테스트는 `@After`에서 `stopKoin()`으로 전역 Koin을 정리한다. `KoinApplication` 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로, 정리하지 않으면 뒤이은 테스트가 앞선 테스트의 모듈을 쓴다. 같은 실행에서 앞서 돈 다른 테스트 클래스가 남긴 전역 Koin의 영향을 받는 테스트는 `@Before`에서도 정리한다.
 - ViewModel을 얻는 화면은 `setContent` 안에서 `remember`로 만든 새 `ViewModelStoreOwner`를 `LocalViewModelStoreOwner`로 제공한다. 테스트 호스트 Activity의 `ViewModelStore`는 테스트 사이에 유지되므로, 테스트마다 새 소유자를 두지 않으면 이전 테스트의 ViewModel이 재사용된다.
 
