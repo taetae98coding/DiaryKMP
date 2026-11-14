@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CHECKLIST_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
@@ -14,7 +15,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
-import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -65,7 +65,7 @@ class TagDetailChecklistListPositionTest {
 
         fun itemList(): List<ChecklistSummary> {
             val titlePrefix = Arb.alphanumericString(prefix = "TagDetailChecklist").next()
-            return List(ITEM_COUNT) { index -> tagChecklist(title = "${titlePrefix}Index$index") }
+            return List(ITEM_COUNT) { index -> Arb.checklistSummary(title = "${titlePrefix}Index$index").next() }
         }
     }
 }

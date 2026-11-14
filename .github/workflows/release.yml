@@ -24,7 +24,7 @@ on:
         description: macOS 데스크톱 앱을 TestFlight로 배포한다
         required: false
         type: boolean
-        default: false
+        default: true
 
 concurrency:
   group: release

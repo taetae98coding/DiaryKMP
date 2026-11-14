@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagKind
 import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagTable
 import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -25,10 +26,14 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.spyk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
 class AccountEntityTagLocalDataSourceImplTest :
@@ -39,6 +44,7 @@ class AccountEntityTagLocalDataSourceImplTest :
         lateinit var transaction: AccountEntityTagTransactionImpl
         lateinit var syncTransaction: AccountEntityTagSyncTransactionImpl
         lateinit var tagTransaction: AccountTagTransactionImpl
+        lateinit var tagSyncTransaction: AccountTagSyncTransactionImpl
 
         beforeTest {
             database =
@@ -51,6 +57,7 @@ class AccountEntityTagLocalDataSourceImplTest :
             transaction = AccountEntityTagTransactionImpl(database = database)
             syncTransaction = AccountEntityTagSyncTransactionImpl(database = database)
             tagTransaction = AccountTagTransactionImpl(database = database)
+            tagSyncTransaction = AccountTagSyncTransactionImpl(database = database)
         }
 
         afterTest {
@@ -198,11 +205,29 @@ class AccountEntityTagLocalDataSourceImplTest :
                     val entityId = case.insertEntity(database = database, accountId = accountId)
                     case.link(accountId = accountId, entityId = entityId, tagId = tag.id)
 
-                    tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
-                    case.linkedTagIdList(accountId = accountId, entityId = entityId) shouldBe listOf(tag.id)
+                    withClue("미완료·미삭제") {
+                        case.linkedTagIdList(accountId = accountId, entityId = entityId) shouldBe listOf(tag.id)
+                    }
 
-                    tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
-                    case.linkedTagIdList(accountId = accountId, entityId = entityId).shouldBeEmpty()
+                    tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+                    withClue("완료됨") {
+                        case.linkedTagIdList(accountId = accountId, entityId = entityId) shouldBe listOf(tag.id)
+                    }
+
+                    val deletedAt = Arb.secondPrecisionInstant().next()
+                    tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = deletedAt)
+                    withClue("삭제됨") {
+                        case.linkedTagIdList(accountId = accountId, entityId = entityId).shouldBeEmpty()
+                    }
+
+                    tagSyncTransaction.upsert(
+                        accountId = accountId,
+                        tagList = listOf(tag.copy(isDeleted = false, updatedAt = deletedAt + 1.seconds)),
+                        cursor = Arb.long().next(),
+                    )
+                    withClue("삭제 후 다른 기기에서 받은 내용으로 삭제가 풀림") {
+                        case.linkedTagIdList(accountId = accountId, entityId = entityId) shouldBe listOf(tag.id)
+                    }
                 }
 
                 test("${case.tc(EntityTagTc.TITLE_ORDER)}연결된 태그는 제목 오름차순으로 조회된다") {
@@ -230,19 +255,31 @@ class AccountEntityTagLocalDataSourceImplTest :
 
                 test("${case.tc(EntityTagTc.TAG_STATE_KEEPS_LINK)}태그를 완료하거나 삭제해도 연결은 해제되지 않는다") {
                     val accountId = Arb.kotlinUuid().next()
-                    val tag = tag()
-                    insertTag(accountId, tag)
-                    val entityId = case.insertEntity(database = database, accountId = accountId)
-                    case.link(accountId = accountId, entityId = entityId, tagId = tag.id)
+                    val changeMap: Map<String, suspend (Uuid) -> Unit> =
+                        mapOf(
+                            "완료" to { tagId ->
+                                tagTransaction.updateFinished(accountId = accountId, tagId = tagId, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+                            },
+                            "삭제" to { tagId ->
+                                tagTransaction.updateDeleted(accountId = accountId, tagId = tagId, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+                            },
+                        )
 
-                    tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
-                    tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+                    changeMap.forEach { (label, change) ->
+                        val tag = tag()
+                        insertTag(accountId, tag)
+                        val entityId = case.insertEntity(database = database, accountId = accountId)
+                        case.link(accountId = accountId, entityId = entityId, tagId = tag.id)
 
-                    database
-                        .entityTagTable(kind = case.kind)
-                        .findByEntityIdList(listOf(entityId))
-                        .single()
-                        .isDeleted shouldBe false
+                        change(tag.id)
+
+                        withClue(label) {
+                            database
+                                .entityTagTable(kind = case.kind)
+                                .findByEntityIdList(listOf(entityId))
+                                .map { entityTag -> entityTag.tagId to entityTag.isDeleted } shouldBe listOf(tag.id to false)
+                        }
+                    }
                 }
 
                 test("${case.tc(EntityTagTc.ENTITY_DELETE_KEEPS_LINK)}${case.label}을 삭제해도 태그 연결은 해제되지 않는다") {
@@ -386,6 +423,39 @@ class AccountEntityTagLocalDataSourceImplTest :
                         listOf(linkedFinishedTag.id)
                 }
 
+                test("TC-ffbbae91-e3fd-4e4a-96e0-641a0831e4e4 새로 저장된 태그가 연결할 수 있는 태그의 정렬 위치에 나타난다") {
+                    val accountId = Arb.kotlinUuid().next()
+                    val firstTag = tag(title = "a")
+                    val lastTag = tag(title = "e")
+                    val addedTag = tag(title = "b")
+                    val pulledTag = tag(title = "c")
+                    insertTag(accountId, firstTag, lastTag)
+                    val entityId = case.insertEntity(database = database, accountId = accountId)
+
+                    suspend fun assertListRefreshed(
+                        expected: List<Uuid>,
+                        change: suspend () -> Unit,
+                    ) {
+                        val pagingSource = dataSource.pageSelectableTag(accountId = accountId, kind = case.kind, entityId = entityId, query = "")
+                        pagingSource.pagedTagIdList()
+                        val invalidated = CompletableDeferred<Unit>()
+                        pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+
+                        change()
+
+                        withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
+                        case.selectableTagIdList(accountId = accountId, entityId = entityId) shouldBe expected
+                    }
+
+                    case.selectableTagIdList(accountId = accountId, entityId = entityId) shouldBe listOf(firstTag.id, lastTag.id)
+                    assertListRefreshed(expected = listOf(firstTag.id, addedTag.id, lastTag.id)) {
+                        insertTag(accountId, addedTag)
+                    }
+                    assertListRefreshed(expected = listOf(firstTag.id, addedTag.id, pulledTag.id, lastTag.id)) {
+                        tagSyncTransaction.upsert(accountId = accountId, tagList = listOf(pulledTag), cursor = Arb.long().next())
+                    }
+                }
+
                 test("다른 종류의 연결은 이 종류의 연결된 태그로 조회되지 않는다") {
                     val accountId = Arb.kotlinUuid().next()
                     val tag = tag()
@@ -403,6 +473,7 @@ class AccountEntityTagLocalDataSourceImplTest :
     }) {
     companion object {
         private const val SEARCH_ONLY_QUERY: String = "EntityTagSearchOnly"
+        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000L
 
         private suspend fun PagingSource<Int, TagLocalEntity>.pagedTagIdList(loadSize: Int = 100): List<Uuid> =
             load(PagingSource.LoadParams.Refresh(key = null, loadSize = loadSize, placeholdersEnabled = false))

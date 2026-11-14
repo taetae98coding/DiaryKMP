@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -245,7 +246,7 @@ class HolidayCountryApplyUseCaseTest :
 
             When("SettingHoliday에 표시할 공휴일 항목을 구성한다") {
                 Then("그 이름의 항목이 하나만 제공된다") {
-                    useCase(parameter = Unit).first().shouldBeSuccess().map { setting -> setting.name } shouldBe listOf(sharedName)
+                    useCase().first().shouldBeSuccess().map { setting -> setting.name } shouldBe listOf(sharedName)
                 }
             }
         }
@@ -269,7 +270,7 @@ class HolidayCountryApplyUseCaseTest :
                                     countrySettingUseCase(optionSet = countrySet.mapTo(mutableSetOf()) { country -> countryOptionMap.getValue(country) }),
                                 holidayRepository = holidayRepository(holidayMap = holidayMap),
                                 holidaySettingRepository = hiddenKeySettingRepository(hiddenKeySet = emptySet()),
-                            )(parameter = Unit).first().shouldBeSuccess()
+                            )().first().shouldBeSuccess()
 
                         setting.map { holidaySetting -> holidaySetting.name } shouldContainExactlyInAnyOrder
                             countrySet.flatMap { country -> holidayMap.getValue(country) }.map { holiday -> holiday.name }
@@ -296,7 +297,7 @@ class HolidayCountryApplyUseCaseTest :
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository(holidayMap = holidayMap),
                     holidaySettingRepository = repository,
-                )(parameter = Unit).shouldBeSuccess()
+                )().shouldBeSuccess()
 
                 Then("숨김 key 집합이 한국 공휴일 key로 교체된다") {
                     submitted.captured shouldBe setOf(koreaHoliday.name)
@@ -312,7 +313,7 @@ class HolidayCountryApplyUseCaseTest :
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository(holidayMap = holidayMap),
                     holidaySettingRepository = repository,
-                )(parameter = Unit).shouldBeSuccess()
+                )().shouldBeSuccess()
 
                 Then("숨김 key 집합이 한국 공휴일 key로 교체된다") {
                     submitted.captured shouldBe setOf(koreaHoliday.name)
@@ -412,7 +413,6 @@ private fun hiddenKeySettingRepository(hiddenKeySet: Set<String>): HolidaySettin
         every { repository.getHiddenKeySet() } returns flowOf(hiddenKeySet)
     }
 
-// 연도 조회는 요청 연도에 시작하는 공휴일만, 전체 조회는 모든 공휴일을 적용 국가로 걸러 제공한다.
 private fun holidayRepository(holidayMap: Map<HolidayCountry, List<Holiday>>): HolidayRepository =
     mockk<HolidayRepository>().also { repository ->
         every { repository.get(countrySet = any()) } answers {

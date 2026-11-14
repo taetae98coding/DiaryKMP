@@ -8,5 +8,7 @@ public interface AppleCredentialsManager {
     public suspend fun signIn(): AppleSignInResult
 }
 
-@Composable
-public expect fun rememberAppleCredentialsManager(): AppleCredentialsManager
+public interface AppleCredentialsManagerFactory {
+    @Composable
+    public fun rememberAppleCredentialsManager(): AppleCredentialsManager
+}

@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.file.FileDownloadSetting
 import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileDownloadSettingUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.SetFileDownloadDirectoryUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.UnsetFileDownloadDirectoryUseCase
@@ -123,7 +124,7 @@ class SettingFileViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val stored = MutableStateFlow(Result.success(FileDownloadSetting(directory = Arb.fileDownloadDirectory().next())))
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
-                coEvery { unsetUseCase(Unit) } coAnswers {
+                coEvery { unsetUseCase() } coAnswers {
                     stored.value = Result.success(FileDownloadSetting(directory = null))
                     Result.success(Unit)
                 }
@@ -137,7 +138,7 @@ class SettingFileViewModelTest : FunSpec() {
 
                     awaitItem() shouldBe SettingFileUiState.Content(directory = null)
                 }
-                coVerify(exactly = 1) { unsetUseCase(Unit) }
+                coVerify(exactly = 1) { unsetUseCase() }
             }
         }
 
@@ -145,7 +146,7 @@ class SettingFileViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val directory = Arb.fileDownloadDirectory().next()
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
-                coEvery { unsetUseCase(Unit) } returns Result.failure(IllegalStateException("write error"))
+                coEvery { unsetUseCase() } returns Result.failure(IllegalStateException("write error"))
                 val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = directory))), unsetUseCase = unsetUseCase)
 
                 viewModel.effect.test {
@@ -165,7 +166,7 @@ class SettingFileViewModelTest : FunSpec() {
                 val setUseCase = mockk<SetFileDownloadDirectoryUseCase>()
                 coEvery { setUseCase(any()) } coAnswers { pending.await() }
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
-                coEvery { unsetUseCase(Unit) } coAnswers { pending.await() }
+                coEvery { unsetUseCase() } coAnswers { pending.await() }
                 val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = null))), setUseCase = setUseCase, unsetUseCase = unsetUseCase)
 
                 viewModel.unsetDirectory()
@@ -174,7 +175,7 @@ class SettingFileViewModelTest : FunSpec() {
                 viewModel.setDirectory(uri = Arb.string().next())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { unsetUseCase(Unit) }
+                coVerify(exactly = 1) { unsetUseCase() }
                 coVerify(exactly = 0) { setUseCase(any()) }
 
                 pending.complete(Result.success(Unit))
@@ -182,7 +183,7 @@ class SettingFileViewModelTest : FunSpec() {
                 viewModel.unsetDirectory()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { unsetUseCase(Unit) }
+                coVerify(exactly = 2) { unsetUseCase() }
             }
         }
     }
@@ -193,7 +194,7 @@ class SettingFileViewModelTest : FunSpec() {
         unsetUseCase: UnsetFileDownloadDirectoryUseCase = mockk(),
     ): SettingFileViewModel {
         val getUseCase = mockk<GetFileDownloadSettingUseCase>()
-        every { getUseCase(Unit) } returns setting
+        every { getUseCase() } returns setting
 
         return SettingFileViewModel(
             setFileDownloadDirectoryUseCase = setUseCase,

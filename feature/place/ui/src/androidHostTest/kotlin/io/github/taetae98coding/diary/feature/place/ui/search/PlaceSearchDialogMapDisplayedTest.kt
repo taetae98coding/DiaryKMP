@@ -143,7 +143,18 @@ class PlaceSearchDialogMapDisplayedTest {
     }
 
     @Test
-    fun `TC-a6930ab5-2187-480e-bdef-e5ae0ec66ebf 목록과 지도 위 핀은 같은 장소를 같은 컬러로 표시한다`() {
+    fun `TC-a6930ab5-2187-480e-bdef-e5ae0ec66ebf 지도 위 핀은 그 장소의 결과 컬러를 갖는다`() {
+        val placeList = placeList()
+        setPlaceAddScreen(searchViewModel = searchViewModel(resultList = placeList))
+
+        openSearchAndType()
+
+        val pinList = composeRule.runOnIdle { map.lastScope().state.pins }
+        pinList.map { pin -> pin.id to pin.color } shouldBe placeList.map { place -> place.id to place.resultColor }
+    }
+
+    @Test
+    fun `목록의 컬러 표시는 같은 장소의 핀과 같은 색으로 칠해진다`() {
         val placeList = placeList()
         setPlaceAddScreen(searchViewModel = searchViewModel(resultList = placeList))
 

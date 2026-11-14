@@ -183,6 +183,9 @@ class TagHomeDetailShortcutTest {
                             modifier = Modifier.weight(1F).fillMaxHeight(),
                             navigateToDDayAdd = {},
                             navigateToDDayDetail = {},
+                            navigateToRoutineAdd = {},
+                            navigateToRoutineDetail = {},
+                            navigateToRoutineFinishedList = {},
                         )
                     }
                 }

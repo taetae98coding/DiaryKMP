@@ -16,7 +16,10 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoAddFormState
+import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
@@ -37,13 +40,18 @@ class MemoGeminiApplyTest {
     fun `TC-765ebb0c-9c5c-40c2-8688-08385b765be1 제목을 반영하면 제목 입력만 바뀐다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
+        val initialDateTime = DiaryDateTimeInputValue.AllDay(dateRange = Arb.localDateRange().next())
+        composeRule.runOnIdle {
+            state.dateTimeState.select(initialDateTime)
+            state.dateTimeState.hasDateTime = true
+        }
 
         applyField(field = MemoGeminiField.TITLE, viewModel = viewModel, state = state)
 
         composeRule.runOnIdle {
             state.titleState.text.toString() shouldBe DRAFT.title
             state.descriptionState.text.toString() shouldBe INITIAL_DESCRIPTION
-            state.dateTimeState.value shouldBe null
+            state.dateTimeState.value shouldBe initialDateTime
         }
         verify(exactly = 1) { viewModel.markApplied(MemoGeminiField.TITLE) }
     }
@@ -52,13 +60,18 @@ class MemoGeminiApplyTest {
     fun `TC-765ebb0c-9c5c-40c2-8688-08385b765be1 설명을 반영하면 설명 입력만 바뀐다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
+        val initialDateTime = DiaryDateTimeInputValue.AllDay(dateRange = Arb.localDateRange().next())
+        composeRule.runOnIdle {
+            state.dateTimeState.select(initialDateTime)
+            state.dateTimeState.hasDateTime = true
+        }
 
         applyField(field = MemoGeminiField.DESCRIPTION, viewModel = viewModel, state = state)
 
         composeRule.runOnIdle {
             state.descriptionState.text.toString() shouldBe DRAFT.description
             state.titleState.text.toString() shouldBe INITIAL_TITLE
-            state.dateTimeState.value shouldBe null
+            state.dateTimeState.value shouldBe initialDateTime
         }
         verify(exactly = 1) { viewModel.markApplied(MemoGeminiField.DESCRIPTION) }
     }

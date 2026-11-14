@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
@@ -26,7 +27,7 @@ internal class FileHomeUploadViewModel(
     getFileUploadSucceededEventUseCase: GetFileUploadSucceededEventUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<FileHomeUploadUiState> =
-        getFileUploadStateUseCase(parameter = Unit)
+        getFileUploadStateUseCase()
             .map { result -> FileHomeUploadUiState(isUploading = result.getOrNull() is FileUploadState.Uploading) }
             .stateIn(
                 scope = viewModelScope,
@@ -39,8 +40,8 @@ internal class FileHomeUploadViewModel(
     // 성공은 FileHome이 가려진 동안 끝났어도 돌아와서 받아야 하므로 쌓아 두는 성공 결과에서 받고, 실패는 보이는 동안 끝난 것만 받는다.
     val effect: Flow<FileHomeUploadEffect> =
         merge(
-            getFileUploadSucceededEventUseCase(parameter = Unit).mapNotNull { result -> result.getOrNull()?.let { FileHomeUploadEffect.UploadSucceeded } },
-            getFileUploadEventUseCase(parameter = Unit).mapNotNull { result -> result.getOrNull()?.toFailureEffect() },
+            getFileUploadSucceededEventUseCase().mapNotNull { result -> result.getOrNull()?.let { FileHomeUploadEffect.UploadSucceeded } },
+            getFileUploadEventUseCase().mapNotNull { result -> result.getOrNull()?.toFailureEffect() },
             addEffect.receiveAsFlow(),
         )
 

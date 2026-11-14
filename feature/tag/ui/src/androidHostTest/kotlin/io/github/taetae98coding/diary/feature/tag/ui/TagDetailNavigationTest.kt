@@ -205,6 +205,9 @@ class TagDetailNavigationTest {
                                     placeMapViewModel = koinViewModel(),
                                     navigateToDDayAdd = {},
                                     navigateToDDayDetail = {},
+                                    navigateToRoutineAdd = {},
+                                    navigateToRoutineDetail = {},
+                                    navigateToRoutineFinishedList = {},
                                 )
                             }
                             entry<TagMemoFinishedListNavKey> { Text(text = FINISHED_LIST_CONTENT) }

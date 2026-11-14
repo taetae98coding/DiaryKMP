@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.gemini
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.SetGeminiSettingUseCase
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -275,7 +276,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             setGeminiSettingUseCase: SetGeminiSettingUseCase = mockk(),
         ): SettingGeminiViewModel {
             val getGeminiSettingUseCase = mockk<GetGeminiSettingUseCase>()
-            every { getGeminiSettingUseCase(Unit) } returns settingFlow
+            every { getGeminiSettingUseCase() } returns settingFlow
 
             return SettingGeminiViewModel(
                 getGeminiSettingUseCase = getGeminiSettingUseCase,

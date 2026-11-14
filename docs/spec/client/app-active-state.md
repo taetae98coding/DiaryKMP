@@ -20,6 +20,7 @@ Android와 iOS에서는 앱이 화면에 다시 보이게 되는 것이 다시 �
 
 ## 이 문서를 참조하는 문서
 
+- [앱 동작 제공 스펙](./app-action.md): 활성 상태
 - [데이터 동기화 앱 스펙](./data-sync.md): 활성 상태
 - [푸시 알림 수신 등록 스펙](./fcm-token.md): 활성 상태
 - [Play Integrity 판정 기록 스펙](./play-integrity-logging.md): 활성 상태

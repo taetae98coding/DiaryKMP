@@ -158,6 +158,9 @@ class TagDetailScreenTest {
                     navigateToQrDetail = {},
                     navigateToDDayAdd = {},
                     navigateToDDayDetail = {},
+                    navigateToRoutineAdd = {},
+                    navigateToRoutineDetail = {},
+                    navigateToRoutineFinishedList = {},
                 )
             }
         }
@@ -255,6 +258,9 @@ class TagDetailScreenTest {
                     navigateToQrDetail = {},
                     navigateToDDayAdd = {},
                     navigateToDDayDetail = {},
+                    navigateToRoutineAdd = {},
+                    navigateToRoutineDetail = {},
+                    navigateToRoutineFinishedList = {},
                 )
             }
         }
@@ -434,6 +440,9 @@ class TagDetailScreenUpdateTest {
                     navigateToQrDetail = {},
                     navigateToDDayAdd = {},
                     navigateToDDayDetail = {},
+                    navigateToRoutineAdd = {},
+                    navigateToRoutineDetail = {},
+                    navigateToRoutineFinishedList = {},
                 )
             }
         }
@@ -669,6 +678,9 @@ class TagDetailScreenActionTest {
                     navigateToQrDetail = {},
                     navigateToDDayAdd = {},
                     navigateToDDayDetail = {},
+                    navigateToRoutineAdd = {},
+                    navigateToRoutineDetail = {},
+                    navigateToRoutineFinishedList = {},
                 )
             }
         }
@@ -732,6 +744,9 @@ class TagDetailScreenMessageTest {
                     navigateToQrDetail = {},
                     navigateToDDayAdd = {},
                     navigateToDDayDetail = {},
+                    navigateToRoutineAdd = {},
+                    navigateToRoutineDetail = {},
+                    navigateToRoutineFinishedList = {},
                 )
             }
         }
@@ -782,6 +797,9 @@ class TagDetailScreenMessageTest {
                     navigateToQrDetail = {},
                     navigateToDDayAdd = {},
                     navigateToDDayDetail = {},
+                    navigateToRoutineAdd = {},
+                    navigateToRoutineDetail = {},
+                    navigateToRoutineFinishedList = {},
                 )
             }
         }

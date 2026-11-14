@@ -167,16 +167,36 @@ class TagLinkPickerDialogSearchTest {
     @Test
     fun `TC-3c031099-9707-496f-97a3-c884b3c50807 검색 결과가 없어도 태그 추가 항목으로 TagAdd 이동을 요청할 수 있다`() {
         var clickAddCount = 0
-        composeRule.setTagLinkPickerDialog(
+        val dialogState = DialogState(isVisible = true)
+        composeRule.setTagLinkPickerDialogHost(
+            dialogState = dialogState,
             tagList = emptyList(),
-            query = WORK_TAG_QUERY,
             onClickAdd = { clickAddCount += 1 },
         )
+        composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
+        composeRule.awaitTagLinkPickerRow(title = DEFAULT_PICKER_SEARCH_EMPTY_TITLE)
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).performClick()
         composeRule.waitForIdle()
 
         clickAddCount shouldBe 1
+        composeRule.runOnIdle { dialogState.isVisible shouldBe false }
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-2be00434-5031-419b-ad89-ba56ef77d277 공백만 있는 검색어는 목록을 좁히지 않고 결과 없음도 알리지 않는다`() {
+        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        composeRule.setTagLinkPickerDialogHost(tagList = tagList)
+        composeRule.awaitTagLinkPickerRows()
+
+        composeRule.dialogSearchField().performTextInput(BLANK_QUERY)
+        composeRule.waitForIdle()
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -305,5 +325,9 @@ class TagLinkPickerDialogSearchTest {
                 )
             }
         }
+    }
+
+    private companion object {
+        const val BLANK_QUERY: String = "   "
     }
 }

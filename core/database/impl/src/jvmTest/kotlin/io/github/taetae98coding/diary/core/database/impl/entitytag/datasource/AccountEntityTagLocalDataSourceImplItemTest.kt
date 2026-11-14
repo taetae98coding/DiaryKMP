@@ -46,6 +46,12 @@ import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountQr
 import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountTagQrLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.datasource.AccountRoutineLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.datasource.AccountRoutineSyncLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.datasource.AccountTagRoutineLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.routineCurrentCycleOf
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineSyncTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
@@ -55,6 +61,7 @@ import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -442,6 +449,9 @@ class AccountEntityTagLocalDataSourceImplItemTest :
     }
 
     private companion object {
+        // 같은 목록을 연결 전후에 다시 조회해 비교하므로 오늘과 이번 주기를 고정한다.
+        private val ROUTINE_CURRENT_CYCLE = routineCurrentCycleOf(today = LocalDate(2026, 3, 20))
+
         private val BIRTHDAY: LocalDate = LocalDate(1990, 7, 8)
         private val BIRTHDAY_IN_RANGE: LocalDate = LocalDate(2026, 7, 8)
         private val BIRTHDAY_RANGE = LocalDate(2026, 7, 5)..LocalDate(2026, 7, 11)
@@ -457,7 +467,7 @@ class AccountEntityTagLocalDataSourceImplItemTest :
                             ItemTc.DELETED_ENTITY to listOf("TC-eac8f07a-a01b-44a6-9a8e-e4e56ca38330"),
                             ItemTc.ENTITY_NOT_PENDING to listOf("TC-0b3d6f49-609c-475e-9e54-7ee75feacb7f"),
                             ItemTc.TAG_TAB to listOf("TC-3cd0110f-894c-41cb-8197-0f82d1958a05"),
-                            ItemTc.HOME_LIST to listOf("TC-107b6fe9-f49f-4caa-8bd3-e02a73e2f26d", "TC-bfc00515-a530-4502-b102-5aa5dfc7dafd"),
+                            ItemTc.HOME_LIST to listOf("TC-107b6fe9-f49f-4caa-8bd3-e02a73e2f26d"),
                             ItemTc.TAG_LINK_NOT_FOLLOWED to listOf("TC-55e11262-33d0-45d7-a2f0-716d8e425876"),
                             ItemTc.NO_OTHER_LINK to listOf("TC-b2696757-654e-4a6e-b6ff-bed9db94aaf2"),
                             ItemTc.DELETE_UNDO to listOf("TC-bf942faf-8d62-4827-8e3f-891832ee72c2"),
@@ -526,7 +536,7 @@ class AccountEntityTagLocalDataSourceImplItemTest :
                             ItemTc.DELETED_ENTITY to listOf("TC-df7e0a99-b09a-4f7d-bab5-781e3ed738be"),
                             ItemTc.ENTITY_NOT_PENDING to listOf("TC-26607e88-5084-4e42-b386-91100b2ab53b"),
                             ItemTc.TAG_TAB to listOf("TC-2bccedc8-4f4c-4e21-b2c4-6ccae67260ce"),
-                            ItemTc.HOME_LIST to listOf("TC-f76c9b5e-0222-4946-a015-05c7b5108de8", "TC-fc1c5721-5734-4412-a21e-2ccd35826d48"),
+                            ItemTc.HOME_LIST to listOf("TC-f76c9b5e-0222-4946-a015-05c7b5108de8"),
                             ItemTc.TAG_LINK_NOT_FOLLOWED to listOf("TC-189715ec-43b0-46b7-a0f8-78b00299f258"),
                             ItemTc.NO_OTHER_LINK to listOf("TC-8f23d9c8-4dde-4669-bb2d-48235ebdcc26"),
                             ItemTc.DELETE_UNDO to listOf("TC-d023853e-b9cf-4497-8c60-10c4e60d3c4b"),
@@ -596,7 +606,7 @@ class AccountEntityTagLocalDataSourceImplItemTest :
                             ItemTc.DELETED_ENTITY to listOf("TC-0b57fd75-576e-4fe6-b23e-04ea10b3f56c"),
                             ItemTc.ENTITY_NOT_PENDING to listOf("TC-3fd24ff7-0bf8-43a1-8b3c-e6f10f3407ad"),
                             ItemTc.TAG_TAB to listOf("TC-14916f00-37ee-4cce-9621-a0ad1b726eff"),
-                            ItemTc.HOME_LIST to listOf("TC-dff96fb4-d08c-495b-91cb-6c3439fb5f03", "TC-558548b5-8e91-4c33-b2f5-95a7201d6615"),
+                            ItemTc.HOME_LIST to listOf("TC-dff96fb4-d08c-495b-91cb-6c3439fb5f03"),
                             ItemTc.TAG_LINK_NOT_FOLLOWED to listOf("TC-9c0bb54e-449e-496e-a933-d1974f9b238d"),
                             ItemTc.NO_OTHER_LINK to listOf("TC-5248d30d-999c-4c0d-b5b7-e467cd4b9690"),
                             ItemTc.DELETE_UNDO to listOf("TC-bc4abf43-1c51-4527-bd76-dd29b5839df2"),
@@ -647,7 +657,7 @@ class AccountEntityTagLocalDataSourceImplItemTest :
                             ItemTc.DELETED_ENTITY to listOf("TC-f47a7760-7942-4467-8ddb-5d909f4615a2"),
                             ItemTc.ENTITY_NOT_PENDING to listOf("TC-9898df2f-ba32-4479-8b91-bda582abfadc"),
                             ItemTc.TAG_TAB to listOf("TC-910cfe38-da82-4fde-9a60-0fb0bd12162d"),
-                            ItemTc.HOME_LIST to listOf("TC-01994c62-8934-4b82-b522-f16464d9f1d1", "TC-85dcf937-82dc-43e4-ba64-4923b18cfcfe"),
+                            ItemTc.HOME_LIST to listOf("TC-01994c62-8934-4b82-b522-f16464d9f1d1"),
                             ItemTc.TAG_LINK_NOT_FOLLOWED to listOf("TC-6e7a91e3-3424-4f8f-a916-697428bc6f10"),
                             ItemTc.NO_OTHER_LINK to listOf("TC-93f4c632-7cc9-4b58-a812-a3f1ee2beac4"),
                             ItemTc.DELETE_UNDO to listOf("TC-4f47fa46-f8f9-4ed3-ae21-b4f9da5ce523"),
@@ -725,6 +735,50 @@ class AccountEntityTagLocalDataSourceImplItemTest :
                         AccountDDayTransactionImpl(database = database).updateDeleted(
                             accountId = accountId,
                             ddayId = entityId,
+                            isDeleted = isDeleted,
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                        )
+                    },
+                ),
+                ItemKind(
+                    kind = EntityTagKindLocalEntity.ROUTINE,
+                    label = "루틴",
+                    tcMap =
+                        mapOf(
+                            ItemTc.CONTENT to listOf("TC-bde6b14d-4fd2-47b9-9ed0-1b870bdbfd06"),
+                            ItemTc.HOME_LIST to listOf("TC-386c0690-1963-40a4-b63f-539363962e88"),
+                            ItemTc.TAG_LINK_NOT_FOLLOWED to listOf("TC-9167766a-5741-4648-813a-d1b68bf6013a"),
+                            ItemTc.NO_OTHER_LINK to listOf("TC-2757a080-f7f6-4d79-adea-0238f290623a"),
+                        ),
+                    insert = { database, accountId, isDeleted ->
+                        val routine = Arb.routineLocalEntity().next().copy(isFinished = false, isDeleted = isDeleted, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+                        AccountRoutineTransactionImpl(database = database).upsert(accountId = accountId, routine = routine, routineTagList = emptyList())
+                        routine.id
+                    },
+                    snapshot = { database, accountId, entityId ->
+                        AccountRoutineLocalDataSourceImpl(database = database).find(accountId = accountId, routineId = entityId).first()
+                    },
+                    homeIdLists = { database, accountId ->
+                        listOf(AccountRoutineLocalDataSourceImpl(database = database).page(accountId = accountId, currentCycle = ROUTINE_CURRENT_CYCLE).pagedIdList { summary -> summary.routine.id })
+                    },
+                    tagTabIdList = { database, accountId, tagId ->
+                        AccountTagRoutineLocalDataSourceImpl(database = database)
+                            .page(accountId = accountId, tagId = tagId, scope = TagScopeLocalEntity.SELF, currentCycle = ROUTINE_CURRENT_CYCLE)
+                            .pagedIdList { summary -> summary.routine.id }
+                    },
+                    pendingEntityIdList = { database, accountId ->
+                        AccountRoutineSyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId).map { routine -> routine.id }
+                    },
+                    clearEntityPending = { database, accountId ->
+                        AccountRoutineSyncTransactionImpl(database = database).clearPending(
+                            accountId = accountId,
+                            routineList = AccountRoutineSyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId),
+                        )
+                    },
+                    updateDeleted = { database, accountId, entityId, isDeleted ->
+                        AccountRoutineTransactionImpl(database = database).updateDeleted(
+                            accountId = accountId,
+                            routineId = entityId,
                             isDeleted = isDeleted,
                             updatedAt = Arb.secondPrecisionInstant().next(),
                         )

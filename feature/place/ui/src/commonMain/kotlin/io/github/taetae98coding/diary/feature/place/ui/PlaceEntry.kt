@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -33,10 +34,13 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-internal fun EntryProviderScope<ScreenNavKey>.placeEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.placeEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     placeHomeEntry(backStack = backStack)
     placeAddEntry(backStack = backStack)
-    placeDetailEntry(backStack = backStack)
+    placeDetailEntry(backStack = backStack, contentSharerFactory = contentSharerFactory)
     placeMemoFinishedListEntry(backStack = backStack)
 }
 
@@ -61,7 +65,10 @@ private fun EntryProviderScope<ScreenNavKey>.placeHomeEntry(backStack: NavBackSt
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.placeDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.placeDetailEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     entry<PlaceDetailNavKey> { key ->
         val tagAddRequestKey = rememberResultRequestKey()
 
@@ -77,6 +84,7 @@ private fun EntryProviderScope<ScreenNavKey>.placeDetailEntry(backStack: NavBack
             detailViewModel = koinViewModel { parametersOf(key.id) },
             searchViewModel = koinViewModel(),
             tagViewModel = koinViewModel { parametersOf(EntityTagKind.PLACE, key.id) },
+            contentSharerFactory = contentSharerFactory,
         )
     }
 }

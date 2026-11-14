@@ -1,8 +1,8 @@
 # 항목 태그 입력 컴포넌트 스펙
 
-이 문서는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail, DDayAdd, DDayDetail 화면에서 함께 사용하는 태그 입력 가운데 이 입력에만 해당하는 부분을 다룬다. 태그를 고르는 행동과 판정 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)을 따르고, 구체적인 구성과 조작 수단은 [항목 태그 입력 컴포넌트 디자인](../../design/entity-tag-input.md)에서 다룬다.
+이 문서는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail, DDayAdd, DDayDetail, RoutineAdd, RoutineDetail 화면에서 함께 사용하는 태그 입력 가운데 이 입력에만 해당하는 부분을 다룬다. 태그를 고르는 행동과 판정 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)을 따르고, 구체적인 구성과 조작 수단은 [항목 태그 입력 컴포넌트 디자인](../../design/entity-tag-input.md)에서 다룬다.
 
-이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡, QR 또는 디데이 하나를 가리키고, `추가 화면`은 WebAdd, PlaceAdd, ContactAdd, ChecklistAdd, MusicAdd, QrAdd, DDayAdd 화면을, `상세 화면`은 WebDetail, PlaceDetail, ContactDetail, ChecklistDetail, MusicDetail, QrDetail, DDayDetail 화면을 가리킨다. 대상 항목과 태그의 연결 규칙은 [항목 태그 연결 공통 스펙](../common/entity-tag.md)과 [웹 태그 스펙](../common/web-tag.md), [장소 태그 스펙](../common/place-tag.md), [연락처 태그 스펙](../common/contact-tag.md), [체크리스트 태그 스펙](../common/checklist-tag.md), [곡 태그 스펙](../common/music-tag.md), [QR 태그 스펙](../common/qr-tag.md), [디데이 태그 스펙](../common/dday-tag.md)을 따른다. 일곱 연결은 서로 다른 종류지만 이 입력에서의 사용자 행동과 판정 기준은 같다.
+이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡, QR, 디데이 또는 루틴 하나를 가리키고, `추가 화면`은 WebAdd, PlaceAdd, ContactAdd, ChecklistAdd, MusicAdd, QrAdd, DDayAdd, RoutineAdd 화면을, `상세 화면`은 WebDetail, PlaceDetail, ContactDetail, ChecklistDetail, MusicDetail, QrDetail, DDayDetail, RoutineDetail 화면을 가리킨다. 대상 항목과 태그의 연결 규칙은 [항목 태그 연결 공통 스펙](../common/entity-tag.md)과 [웹 태그 스펙](../common/web-tag.md), [장소 태그 스펙](../common/place-tag.md), [연락처 태그 스펙](../common/contact-tag.md), [체크리스트 태그 스펙](../common/checklist-tag.md), [곡 태그 스펙](../common/music-tag.md), [QR 태그 스펙](../common/qr-tag.md), [디데이 태그 스펙](../common/dday-tag.md), [루틴 태그 스펙](../common/routine-tag.md)을 따른다. 여덟 연결은 서로 다른 종류지만 이 입력에서의 사용자 행동과 판정 기준은 같다.
 
 사용자가 반영한 선택이 언제 저장된 연결이 되는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 추가 화면에서는 추가할 항목의 연결 대상으로만 반영되고, 상세 화면에서는 상세 대상 항목의 저장된 연결로 즉시 반영되며, 각 화면 스펙을 따른다.
 
@@ -82,6 +82,8 @@
 - [QrDetail 화면 스펙](./qr-detail.md)
 - [DDayAdd 화면 스펙](./dday-add.md)
 - [DDayDetail 화면 스펙](./dday-detail.md)
+- [RoutineAdd 화면 스펙](./routine-add.md)
+- [RoutineDetail 화면 스펙](./routine-detail.md)
 - [웹 태그 스펙](../common/web-tag.md)
 - [장소 태그 스펙](../common/place-tag.md)
 - [연락처 태그 스펙](../common/contact-tag.md)
@@ -89,4 +91,5 @@
 - [곡 태그 스펙](../common/music-tag.md)
 - [QR 태그 스펙](../common/qr-tag.md)
 - [디데이 태그 스펙](../common/dday-tag.md)
+- [루틴 태그 스펙](../common/routine-tag.md)
 - [TagHome 목록 스펙](./tag-home.md)

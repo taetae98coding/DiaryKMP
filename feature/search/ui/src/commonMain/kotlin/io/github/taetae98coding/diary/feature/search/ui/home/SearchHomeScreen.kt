@@ -14,9 +14,13 @@ import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarE
 import io.github.taetae98coding.diary.compose.dday.DDayListState
 import io.github.taetae98coding.diary.compose.dday.UpdateDDayListTodayEffect
 import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
+import io.github.taetae98coding.diary.compose.routine.RoutineListState
+import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffect
+import io.github.taetae98coding.diary.compose.routine.rememberRoutineListState
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
@@ -27,6 +31,9 @@ import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemo
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceContent
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultScrollEffect
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineContent
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineViewModel
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.UpdateSearchHomeRoutineTodayEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagContent
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebContent
@@ -42,39 +49,47 @@ internal fun SearchHomeScreen(
     navigateToPlaceDetail: (Uuid) -> Unit,
     navigateToWebDetail: (Uuid) -> Unit,
     navigateToDDayDetail: (Uuid) -> Unit,
+    navigateToRoutineDetail: (Uuid) -> Unit,
     initialType: SearchHomeType,
     memoViewModel: SearchHomeMemoViewModel,
     tagViewModel: SearchHomeTagViewModel,
     placeViewModel: SearchHomePlaceViewModel,
     webViewModel: SearchHomeWebViewModel,
     ddayViewModel: SearchHomeDDayViewModel,
+    routineViewModel: SearchHomeRoutineViewModel,
     modifier: Modifier = Modifier,
 ) {
     val state = rememberSearchHomeScaffoldState(initialType = initialType)
     val snackbarHostState = remember { SnackbarHostState() }
     val ddayListState = rememberDDayListState()
+    val routineListState = rememberRoutineListState()
 
     val memoPagingItems = memoViewModel.pagingData.collectAsLazyPagingItems()
     val tagPagingItems = tagViewModel.pagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.pagingData.collectAsLazyPagingItems()
     val webPagingItems = webViewModel.pagingData.collectAsLazyPagingItems()
     val ddayPagingItems = ddayViewModel.pagingData.collectAsLazyPagingItems()
+    val routinePagingItems = routineViewModel.pagingData.collectAsLazyPagingItems()
     val memoListState = rememberSearchHomeResultListState(uiState = memoViewModel.uiState, pagingItems = memoPagingItems)
     val tagListState = rememberSearchHomeResultListState(uiState = tagViewModel.uiState, pagingItems = tagPagingItems)
     val placeListState = rememberSearchHomeResultListState(uiState = placeViewModel.uiState, pagingItems = placePagingItems)
     val webListState = rememberSearchHomeResultListState(uiState = webViewModel.uiState, pagingItems = webPagingItems)
     val ddayResultListState = rememberSearchHomeResultListState(uiState = ddayViewModel.uiState, pagingItems = ddayPagingItems)
+    val routineResultListState = rememberSearchHomeResultListState(uiState = routineViewModel.uiState, pagingItems = routinePagingItems)
 
     SearchHomeScreenEffect(
         state = state,
         snackbarHostState = snackbarHostState,
         ddayListState = ddayListState,
+        routineListState = routineListState,
+        routineViewModel = routineViewModel,
         onQueryChange = { query ->
             memoViewModel.updateQuery(query)
             tagViewModel.updateQuery(query)
             placeViewModel.updateQuery(query)
             webViewModel.updateQuery(query)
             ddayViewModel.updateQuery(query)
+            routineViewModel.updateQuery(query)
         },
     )
 
@@ -96,6 +111,8 @@ internal fun SearchHomeScreen(
             web = SearchHomeTypeResult(viewModel = webViewModel, pagingItems = webPagingItems, listState = webListState, navigateToDetail = navigateToWebDetail),
             dday = SearchHomeTypeResult(viewModel = ddayViewModel, pagingItems = ddayPagingItems, listState = ddayResultListState, navigateToDetail = navigateToDDayDetail),
             ddayListState = ddayListState,
+            routine = SearchHomeTypeResult(viewModel = routineViewModel, pagingItems = routinePagingItems, listState = routineResultListState, navigateToDetail = navigateToRoutineDetail),
+            routineListState = routineListState,
             snackbarHostState = snackbarHostState,
         )
     }
@@ -117,6 +134,8 @@ private fun SearchHomeTypeContent(
     web: SearchHomeTypeResult<Web, SearchHomeWebViewModel>,
     dday: SearchHomeTypeResult<DDay, SearchHomeDDayViewModel>,
     ddayListState: DDayListState,
+    routine: SearchHomeTypeResult<RoutineSummary, SearchHomeRoutineViewModel>,
+    routineListState: RoutineListState,
     snackbarHostState: SnackbarHostState,
 ) {
     when (type) {
@@ -170,6 +189,17 @@ private fun SearchHomeTypeContent(
                 navigateToDetail = dday.navigateToDetail,
                 modifier = Modifier.fillMaxSize(),
             )
+
+        SearchHomeType.ROUTINE ->
+            SearchHomeRoutineContent(
+                viewModel = routine.viewModel,
+                pagingItems = routine.pagingItems,
+                listState = routine.listState,
+                routineListState = routineListState,
+                snackbarHostState = snackbarHostState,
+                navigateToDetail = routine.navigateToDetail,
+                modifier = Modifier.fillMaxSize(),
+            )
     }
 }
 
@@ -178,10 +208,14 @@ private fun SearchHomeScreenEffect(
     state: SearchHomeScaffoldState,
     snackbarHostState: SnackbarHostState,
     ddayListState: DDayListState,
+    routineListState: RoutineListState,
+    routineViewModel: SearchHomeRoutineViewModel,
     onQueryChange: (String) -> Unit,
 ) {
     RequestFocusEffect(focusRequester = state.focusRequester)
     UpdateDDayListTodayEffect(state = ddayListState)
+    UpdateRoutineListTodayEffect(state = routineListState)
+    UpdateSearchHomeRoutineTodayEffect(routineViewModel = routineViewModel, listState = routineListState)
     DismissUndoSnackbarEffect(keyProvider = { state.type }, hostState = snackbarHostState)
     SearchHomeQueryEffect(
         queryState = state.queryState,

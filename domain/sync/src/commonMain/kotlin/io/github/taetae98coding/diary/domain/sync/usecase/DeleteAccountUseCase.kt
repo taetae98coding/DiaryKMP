@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncDataRepository
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
 import kotlinx.coroutines.CancellationException
@@ -29,7 +30,7 @@ public class DeleteAccountUseCase internal constructor(
         accountRepository.delete(appleAuthorization = parameter)
         runIgnoringFailure { accountSyncDataRepository.delete(account = account) }
         runIgnoringFailure { accountSyncTimeRepository.delete(account = account) }
-        signOutUseCase(parameter = Unit)
+        signOutUseCase()
     }
 
     // 서버의 계정은 이미 지워져 되돌릴 수 없으므로, 기기 데이터를 지우지 못해도 나머지 정리와 로그아웃을 이어 간다.

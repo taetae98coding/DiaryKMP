@@ -59,6 +59,9 @@ struct AddContactIntent: AppIntent {
     )
     var phoneNumbers: [String]?
 
+    @Parameter(title: LocalizedStringResource("Tags to Link", table: "AppIntentCore"))
+    var tags: [TagEntity]?
+
     static var parameterSummary: some ParameterSummary {
         Summary("Add contact \(\.$name)", table: "AppIntentContact") {
             \.$contactDescription
@@ -70,6 +73,7 @@ struct AddContactIntent: AppIntent {
             \.$hometown
             \.$howWeMet
             \.$phoneNumbers
+            \.$tags
         }
     }
 
@@ -85,7 +89,8 @@ struct AddContactIntent: AppIntent {
                 birthYear: birthYear.map(Int32.init(clamping:)),
                 hometown: hometown,
                 howWeMet: howWeMet,
-                phoneNumbers: phoneNumbers ?? []
+                phoneNumbers: phoneNumbers ?? [],
+                tagIds: (tags ?? []).map(\.id)
             )
         }
         return .result(
@@ -203,6 +208,7 @@ struct EditContactIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await ContactEntityQuery.require(contactId: contact.id)
         let changedCount = try await appAction {
             try await DiaryContactAppAction.shared.update(
                 contactId: contact.id,

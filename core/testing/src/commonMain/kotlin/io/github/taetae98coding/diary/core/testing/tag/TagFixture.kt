@@ -25,7 +25,17 @@ public fun Arb.Companion.tag(
 public fun Arb.Companion.localTag(
     isFinished: Boolean,
     isDeleted: Boolean,
-): Arb<TagLocalEntity> = Arb.tagLocalEntity().map { tag -> tag.copy(isFinished = isFinished, isDeleted = isDeleted) }
+    title: String? = null,
+): Arb<TagLocalEntity> =
+    arbitrary {
+        val tag = Arb.tagLocalEntity().bind()
+
+        tag.copy(
+            detail = tag.detail.copy(title = title ?: tag.detail.title),
+            isFinished = isFinished,
+            isDeleted = isDeleted,
+        )
+    }
 
 public fun Arb.Companion.remoteTag(
     isFinished: Boolean,

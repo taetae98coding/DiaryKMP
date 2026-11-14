@@ -9,8 +9,13 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBi
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
+import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.contact.localContact
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -70,9 +75,19 @@ class AccountContactTransactionImplTest :
                 ) { statement -> statement.readAll { it.toAccountContact() } }
             }
 
+        suspend fun findMemoContactList(): List<MemoContactLocalEntity> =
+            database.useReaderConnection { transactor ->
+                transactor.usePrepared(
+                    """
+                    SELECT memo_id, contact_id, is_deleted, updated_at, created_at
+                    FROM memo_contact
+                    """,
+                ) { statement -> statement.readAll { it.toMemoContact() } }
+            }
+
         test("TC-7e927777-fb91-4305-91d6-2edf09cea62d 연락처와 현재 계정의 연결을 함께 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact()
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next()
 
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
@@ -91,8 +106,8 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val now = Arb.secondPrecisionInstant().next()
             val contact =
-                contact().copy(
-                    detail = detail().copy(name = "name-${Arb.string().next()}", description = ""),
+                Arb.localContact(isFavorite = false, isDeleted = false).next().copy(
+                    detail = Arb.contactDetailLocalEntity().next().copy(name = "name-${Arb.string().next()}", description = ""),
                     isDeleted = false,
                     updatedAt = now,
                     createdAt = now,
@@ -111,7 +126,7 @@ class AccountContactTransactionImplTest :
                     ContactPhoneNumberLocalEntity(number = "02-987-6543"),
                     ContactPhoneNumberLocalEntity(number = "010-1234-5678"),
                 )
-            val contact = contact().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = phoneNumberList)) }
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = phoneNumberList)) }
 
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
@@ -120,7 +135,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-54d47d79-d19d-4b62-9477-2f87590574a5 전화번호가 없는 연락처는 빈 전화번호 목록으로 저장된다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = emptyList())) }
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = emptyList())) }
 
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
@@ -130,7 +145,7 @@ class AccountContactTransactionImplTest :
         test("TC-d5481b57-845d-420d-900e-ec7f8527757b 생일 없이 저장한 태어난 연도를 그대로 함께 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val contact =
-                contact().let { contact ->
+                Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact ->
                     contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null, birthYear = Arb.kotlinxLocalDate().next().year))
                 }
 
@@ -142,13 +157,13 @@ class AccountContactTransactionImplTest :
         test("TC-d455eef9-c217-4560-8686-15c4fff6eeaf 키, 신발 사이즈, 생일을 저장한 값 그대로 함께 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val contact =
-                contact().let { contact ->
+                Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact ->
                     contact.copy(
                         detail =
                             contact.detail.copy(
                                 heightCentimeter = 175.5,
                                 footSizeMillimeter = 250,
-                                birthday = LocalDate(year = 1998, month = 5, day = 12),
+                                birthday = Arb.kotlinxLocalDate().next(),
                             ),
                     )
                 }
@@ -160,9 +175,9 @@ class AccountContactTransactionImplTest :
 
         test("TC-60665eac-ca6d-4c82-b7a9-2e98d0d3d154 생일의 날짜와 달력 구분을 함께 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val birthday = LocalDate(year = 1998, month = 5, day = 12)
+            val birthday = Arb.kotlinxLocalDate().next()
             val contact =
-                contact().let { contact ->
+                Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact ->
                     contact.copy(
                         detail =
                             contact.detail.copy(
@@ -182,7 +197,7 @@ class AccountContactTransactionImplTest :
         test("TC-e25bcfee-46d1-4d01-a055-c534dfff8889 생일이 없으면 날짜와 달력 구분을 모두 없는 상태로 저장한다") {
             val accountId = Arb.kotlinUuid().next()
             val contact =
-                contact().let { contact ->
+                Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact ->
                     contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null))
                 }
 
@@ -196,7 +211,7 @@ class AccountContactTransactionImplTest :
         test("TC-8df70bbc-e460-4a06-916f-a72e1bfd665d 키, 신발 사이즈, 생일이 없으면 없는 값으로 저장한다") {
             val accountId = Arb.kotlinUuid().next()
             val contact =
-                contact().let { contact ->
+                Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact ->
                     contact.copy(
                         detail =
                             contact.detail.copy(
@@ -219,8 +234,8 @@ class AccountContactTransactionImplTest :
 
         test("같은 식별자의 연락처를 다시 저장하면 덮어쓴다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact()
-            val changedContact = contact.copy(detail = detail())
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next()
+            val changedContact = contact.copy(detail = Arb.contactDetailLocalEntity().next())
 
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             transaction.upsert(accountId = accountId, contactList = listOf(changedContact), contactTagList = emptyList())
@@ -238,7 +253,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 서로 다른 식별자의 연락처는 각각 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val contactList = List(3) { contact() }.sortedBy { contact -> contact.id.toString() }
+            val contactList = List(3) { Arb.localContact(isFavorite = false, isDeleted = false).next() }.sortedBy { contact -> contact.id.toString() }
 
             contactList.forEach { contact ->
                 transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
@@ -247,13 +262,13 @@ class AccountContactTransactionImplTest :
             findContactList() shouldBe contactList
         }
 
-        test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 TC-6dd12398-c5b0-4e7d-b36c-c8a61031b697 연락처 추가·수정·삭제·실행 취소·즐겨찾기 변경은 업로드 대기 상태가 된다") {
+        test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 TC-6dd12398-c5b0-4e7d-b36c-c8a61031b697 TC-46698d03-f59c-4489-9bd6-b8911ff63fa5 연락처 추가·수정·삭제·실행 취소·즐겨찾기 변경은 업로드 대기 상태가 된다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact().copy(isDeleted = false)
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().copy(isDeleted = false)
             val pending = listOf(AccountContactLocalEntity(accountId = accountId, contactId = contact.id, isDirty = true))
             val changeList: List<suspend () -> Unit> =
                 listOf(
-                    { transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = Arb.secondPrecisionInstant().next()) },
+                    { transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = Arb.contactDetailLocalEntity().next(), updatedAt = Arb.secondPrecisionInstant().next()) },
                     { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) },
                     { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next()) },
                     {
@@ -284,7 +299,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val birthYear = Arb.kotlinxLocalDate().next().year
             val contact =
-                contact().let { contact ->
+                Arb.localContact(isFavorite = false, isDeleted = false).next().let { contact ->
                     contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null, birthYear = birthYear))
                 }
             val updatedDetail = contact.detail.copy(birthYear = birthYear + 1)
@@ -298,7 +313,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-f0aabb78-2348-41f2-8203-5ea73829103c 삭제 상태인 연락처도 즐겨찾기를 바꿀 수 있고 삭제 여부는 그대로 남는다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact().copy(isFavorite = false, isDeleted = true)
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().copy(isFavorite = false, isDeleted = true)
             val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
@@ -309,7 +324,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-6ec3f675-b8e4-4edc-8e7f-9af3c7691cfa 수정은 전화번호를 반영한 순서 그대로 대체해 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact()
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next()
             val phoneNumberList =
                 listOf(
                     ContactPhoneNumberLocalEntity(number = "02-333-4444"),
@@ -330,7 +345,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-1c371ce2-5734-4028-b428-301bc197ab5a 전화번호를 모두 지운 수정을 반영하면 전화번호가 남지 않는다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact()
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateDetail(
@@ -345,8 +360,8 @@ class AccountContactTransactionImplTest :
 
         test("TC-b55bd3d9-08dc-4afb-b09e-d24205aca28e 수정은 즐겨찾기 여부와 삭제 여부와 생성 시각과 계정 연결을 바꾸지 않는다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact().copy(isFavorite = true, isDeleted = true)
-            val updatedDetail = detail().copy(name = "updated-${Arb.string().next()}")
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().copy(isFavorite = true, isDeleted = true)
+            val updatedDetail = Arb.contactDetailLocalEntity().next().copy(name = "updated-${Arb.string().next()}")
             val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
@@ -359,7 +374,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-21d1c705-308e-4ddc-bb00-1dcffba5d805 즐겨찾기 변경은 즐겨찾기 여부와 수정 시각만 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact().copy(isFavorite = false)
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().copy(isFavorite = false)
             val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
@@ -370,7 +385,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-9aaa0ba4-69e2-4de4-a225-3e64e1f24b30 삭제는 연락처와 계정 연결과 전화번호를 지우지 않고 삭제 여부와 수정 시각만 바꾼다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact().copy(isFavorite = true, isDeleted = false)
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().copy(isFavorite = true, isDeleted = false)
             val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
@@ -381,29 +396,65 @@ class AccountContactTransactionImplTest :
                 listOf(accountId to contact.id)
         }
 
+        test("TC-af7cf02e-580e-4c87-9057-ea42f22b662d TC-b54d481c-caee-4ae5-8504-947d8cb44768 삭제와 실행 취소는 즐겨찾기 여부와 메모와의 연결을 바꾸지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next().copy(isFavorite = true, isDeleted = false)
+            val memo = Arb.memoLocalEntity().next().copy(primaryTagId = null)
+            val memoContact =
+                MemoContactLocalEntity(
+                    memoId = memo.id,
+                    contactId = contact.id,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
+            val deletedAt = Arb.secondPrecisionInstant().next()
+            val restoredAt = Arb.secondPrecisionInstant().next()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
+            AccountMemoTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+                memoPlaceList = emptyList(),
+                memoWebList = emptyList(),
+                memoContactList = listOf(memoContact),
+            )
+            findMemoContactList() shouldBe listOf(memoContact)
+
+            transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = deletedAt) shouldBe 1
+
+            findContactList() shouldBe listOf(contact.copy(isDeleted = true, updatedAt = deletedAt))
+            findMemoContactList() shouldBe listOf(memoContact)
+
+            transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = false, updatedAt = restoredAt) shouldBe 1
+
+            findContactList() shouldBe listOf(contact.copy(isDeleted = false, updatedAt = restoredAt))
+            findMemoContactList() shouldBe listOf(memoContact)
+        }
+
         test("TC-92a80131-b9a8-457a-93e9-5aef7d57aea0 TC-7ff50880-b5cd-4f40-bde3-44fe777b0439 TC-11b8fded-b993-4a0c-8334-0da88e444e17 현재 계정과 연결되지 않은 연락처는 수정과 삭제와 즐겨찾기 변경이 바꾸지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val contact = contact()
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             val before = findContactList()
 
             transaction.updateDetail(
                 accountId = otherAccountId,
                 contactId = contact.id,
-                detail = detail().copy(name = "updated-${Arb.string().next()}"),
+                detail = Arb.contactDetailLocalEntity().next().copy(name = "updated-${Arb.string().next()}"),
                 updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
             transaction.updateDeleted(accountId = otherAccountId, contactId = contact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
             transaction.updateFavorite(accountId = otherAccountId, contactId = contact.id, isFavorite = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
-            transaction.updateDetail(accountId = accountId, contactId = Arb.kotlinUuid().next(), detail = detail(), updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
+            transaction.updateDetail(accountId = accountId, contactId = Arb.kotlinUuid().next(), detail = Arb.contactDetailLocalEntity().next(), updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             findContactList() shouldBe before
         }
 
         test("TC-1baea3d4-f655-46b8-8d62-64d922ba1d95 TC-e5d727a2-80a2-4f39-bc0f-a1295f84684d 저장에 실패하면 실패를 전달하고 저장된 연락처는 바뀌지 않는다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact()
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next()
             val throwable = IllegalStateException(Arb.string().next())
             transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             val failingDatabase = spyk(database)
@@ -411,7 +462,7 @@ class AccountContactTransactionImplTest :
             val failingTransaction = AccountContactTransactionImpl(database = failingDatabase)
 
             shouldThrow<IllegalStateException> {
-                failingTransaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = Arb.secondPrecisionInstant().next())
+                failingTransaction.updateDetail(accountId = accountId, contactId = contact.id, detail = Arb.contactDetailLocalEntity().next(), updatedAt = Arb.secondPrecisionInstant().next())
             }.message shouldBe throwable.message
             shouldThrow<IllegalStateException> {
                 failingTransaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
@@ -425,7 +476,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-05a1f42a-bfb1-4a3d-b30b-7594415bdedf 저장에 실패하면 연락처와 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = Arb.kotlinUuid().next()
-            val contact = contact()
+            val contact = Arb.localContact(isFavorite = false, isDeleted = false).next()
             val throwable = IllegalStateException(Arb.string().next())
             val failingDatabase = spyk(database)
             every { failingDatabase.accountContactDao() } throws throwable
@@ -440,30 +491,6 @@ class AccountContactTransactionImplTest :
         }
     }) {
     public companion object {
-        private fun contact(): ContactLocalEntity =
-            ContactLocalEntity(
-                id = Arb.kotlinUuid().next(),
-                detail = detail(),
-                isFavorite = false,
-                isDeleted = false,
-                updatedAt = Arb.secondPrecisionInstant().next(),
-                createdAt = Arb.secondPrecisionInstant().next(),
-            )
-
-        private fun detail(): ContactDetailLocalEntity =
-            ContactDetailLocalEntity(
-                name = "name-${Arb.string().next()}",
-                description = "description-${Arb.string().next()}",
-                heightCentimeter = 175.5,
-                footSizeMillimeter = 250,
-                birthday = LocalDate(year = 1998, month = 5, day = 12),
-                birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR,
-                birthYear = 1998,
-                hometown = "hometown-${Arb.string().next()}",
-                howWeMet = "how-we-met-${Arb.string().next()}",
-                phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
-            )
-
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {
                 while (step()) {
@@ -491,6 +518,15 @@ class AccountContactTransactionImplTest :
                 isDeleted = getBoolean(12),
                 updatedAt = Instant.fromEpochMilliseconds(getLong(13)),
                 createdAt = Instant.fromEpochMilliseconds(getLong(14)),
+            )
+
+        private fun SQLiteStatement.toMemoContact(): MemoContactLocalEntity =
+            MemoContactLocalEntity(
+                memoId = Uuid.parse(getText(0)),
+                contactId = Uuid.parse(getText(1)),
+                isDeleted = getBoolean(2),
+                updatedAt = Instant.fromEpochMilliseconds(getLong(3)),
+                createdAt = Instant.fromEpochMilliseconds(getLong(4)),
             )
 
         private fun SQLiteStatement.toAccountContact(): AccountContactLocalEntity =

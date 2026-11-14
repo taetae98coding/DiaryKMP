@@ -166,9 +166,6 @@ internal fun ComposeContentTestRule.ddayDetailClickDelete() {
     waitForIdle()
 }
 
-/**
- * 컬러 입력을 눌러 열린 고르기에서 Hex 코드를 바꿔 확인한다.
- */
 internal fun ComposeContentTestRule.ddayDetailChangeColor(
     fromHex: String,
     toHex: String,

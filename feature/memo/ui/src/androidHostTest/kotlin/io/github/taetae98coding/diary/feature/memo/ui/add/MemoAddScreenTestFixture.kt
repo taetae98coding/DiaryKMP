@@ -110,7 +110,7 @@ internal fun screenTestViewModel(
 }
 
 /**
- * 태그와 장소 선택은 각 ViewModel이 단일 소스로 보관하므로, 선택 조작이 화면에 반영되는 흐름은
+ * 태그, 웹, 연락처, 장소 선택은 각 ViewModel이 단일 소스로 보관하므로, 선택 조작이 화면에 반영되는 흐름은
  * 실제 ViewModel에 조회 결과만 mock으로 전달해 검증한다.
  */
 internal fun screenTestRealViewModel(

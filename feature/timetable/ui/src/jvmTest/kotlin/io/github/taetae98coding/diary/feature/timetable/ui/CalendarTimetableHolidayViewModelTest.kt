@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayU
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
@@ -91,6 +92,26 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { fetchUseCase(parameter = 2026) }
+            }
+        }
+
+        test("TC-ac5533dd-2d62-4bba-9c0c-610d23a77dfd 한 대상 연도의 공휴일 동기화가 진행 중이어도 다른 대상 연도를 요청한다") {
+            runTest(mainDispatcher) {
+                val year = Arb.int(2000..2100).next()
+                val pending = CompletableDeferred<Result<List<Holiday>>>()
+                val fetchUseCase = mockk<FetchHolidayUseCase>()
+                coEvery { fetchUseCase(parameter = year) } coAnswers { pending.await() }
+                coEvery { fetchUseCase(parameter = year + 1) } returns Result.success(emptyList())
+                val viewModel = CalendarTimetableHolidayViewModel(fetchHolidayUseCase = fetchUseCase, getCalendarHolidayUseCase = emptyGetCalendarHolidayUseCase())
+
+                viewModel.fetch(dateRange = day(year = year, month = 12, day = 31))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchUseCase(parameter = year) }
+                coVerify(exactly = 1) { fetchUseCase(parameter = year + 1) }
+
+                pending.complete(Result.success(emptyList()))
+                advanceUntilIdle()
             }
         }
 

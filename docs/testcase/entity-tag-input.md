@@ -4,11 +4,11 @@
 
 이 문서에서 `domain > 추가 항목의 동작 판정`, `domain > 추가한 태그의 자동 선택`, `domain > 태그 검색어`, `domain > 태그 선택 목록의 열림 상태`, `feature > 선택 상태 표시`, `feature > 태그 검색`, `feature > 태그 상세 이동`, `feature > 태그 선택 목록`, `feature > 태그 선택과 해제`, `feature > 태그 추가 이동` 절은 [태그 선택 입력 공통 스펙](../spec/client/tag-select-input.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡 또는 QR 하나를 가리킨다. 이 문서의 케이스는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail 열두 화면에서 같은 결과로 판정된다. 사용자가 반영한 선택이 언제 저장된 연결이 되는지는 각 화면의 테스트 케이스([WebAdd](./web-add.md), [WebDetail](./web-detail.md), [PlaceAdd](./place-add.md), [PlaceDetail](./place-detail.md), [ContactAdd](./contact-add.md), [ContactDetail](./contact-detail.md), [ChecklistAdd](./checklist-add.md), [ChecklistDetail](./checklist-detail.md), [MusicAdd](./music-add.md), [MusicDetail](./music-detail.md), [QrAdd](./qr-add.md), [QrDetail](./qr-detail.md))에서 다룬다.
+이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡, QR, 디데이 또는 루틴 하나를 가리킨다. 이 문서의 케이스는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail, DDayAdd, DDayDetail, RoutineAdd, RoutineDetail 열여섯 화면에서 같은 결과로 판정된다. 사용자가 반영한 선택이 언제 저장된 연결이 되는지는 각 화면의 테스트 케이스([WebAdd](./web-add.md), [WebDetail](./web-detail.md), [PlaceAdd](./place-add.md), [PlaceDetail](./place-detail.md), [ContactAdd](./contact-add.md), [ContactDetail](./contact-detail.md), [ChecklistAdd](./checklist-add.md), [ChecklistDetail](./checklist-detail.md), [MusicAdd](./music-add.md), [MusicDetail](./music-detail.md), [QrAdd](./qr-add.md), [QrDetail](./qr-detail.md), [DDayAdd](./dday-add.md), [DDayDetail](./dday-detail.md), [RoutineAdd](./routine-add.md), [RoutineDetail](./routine-detail.md))에서 다룬다.
 
 검색어의 정규화와 일치 판정, 검색 결과 없음 판정은 [검색어 일치 판정 스펙](../spec/client/search-match.md)에 위임되어 있으며, 태그 선택 목록에서의 결과를 이 문서의 케이스로 덮는다.
 
-완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 각 화면의 케이스는 위 열두 문서에서 다룬다.
+완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 각 화면의 케이스는 위 열여섯 문서에서 다룬다.
 
 ## feature
 
@@ -221,6 +221,13 @@ flowchart TD
 | --- | --- |
 | 다음 태그 조회 | 이미 나타난 태그가 그대로 유지되고 오류 안내나 재시도 동작이 표시되지 않는다 |
 | 첫 조회 | 목록 영역이 비어 있고 오류 안내나 재시도 동작이 표시되지 않는다 |
+
+### TC-c77d6ace-89d5-4b17-8afb-8666391cabb8: 검색어를 바꿔 다시 조회하다 실패하면 이전 태그를 남기지 않는다
+
+- 근거: `feature > 태그 검색`, [페이지 조회 목록의 자리 표시 스펙의 조회 실패](../spec/client/paged-list-placeholder.md#조회-실패)
+- Given: 태그 선택 목록에 태그가 나타나 있고 검색어를 바꾼 뒤의 조회가 실패하도록 제어되어 있다.
+- When: 사용자가 검색어를 바꾼다.
+- Then: 이전에 나타나 있던 태그는 목록에 남지 않는다.
 
 ### TC-d413d37a-c580-40ec-949c-a40bf7b2f9c7: 목록을 닫았다가 다시 열면 앞부분부터 나타난다
 
@@ -452,6 +459,19 @@ flowchart TD
 - Given: 태그 선택 목록이 열려 있고 그 태그가 연결 대상으로 표시되어 있다.
 - When: 저장된 태그의 이모지, 제목 또는 컬러가 바뀐다.
 - Then: 태그 입력과 태그 선택 목록에 바뀐 내용이 함께 반영된다.
+
+### TC-ffbbae91-e3fd-4e4a-96e0-641a0831e4e4: 새로 저장된 태그가 태그 선택 목록의 정렬 위치에 나타난다
+
+- 근거: `data > 태그 목록 조회`
+- Given: 태그 선택 목록이 열려 있고 사용자가 목록의 태그를 확인했다.
+- When: 목록에 나타나는 기준을 만족하는 태그가 테스트 데이터의 경로로 기기에 새로 저장된다.
+- Then: 사용자가 아무것도 하지 않아도 그 태그가 이미 확인한 범위를 포함한 목록의 정렬 순서에 맞는 위치에 나타난다.
+- 테스트 데이터:
+
+| 저장 경로 |
+| --- |
+| 다른 화면에서 태그를 추가함 |
+| 서버에서 내려받은 태그가 기기에 반영됨 |
 
 ### TC-6cddd37e-ef3a-48f0-869d-c33623995b26: 검색어가 있으면 검색어를 만족하는 태그만 불러온다
 

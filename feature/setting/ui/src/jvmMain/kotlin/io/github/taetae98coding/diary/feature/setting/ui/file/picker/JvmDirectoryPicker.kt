@@ -9,8 +9,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
+import org.koin.core.annotation.Single
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
@@ -20,18 +19,22 @@ private const val MAC_DIRECTORY_DIALOG_PROPERTY = "apple.awt.fileDialogForDirect
 private const val OS_NAME_PROPERTY = "os.name"
 private const val MAC_OS_NAME_PREFIX = "Mac"
 
-@Composable
-internal actual fun rememberDirectoryPicker(onPick: (uri: String) -> Unit): DirectoryPicker {
-    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<DirectoryPickerDispatcher>())
-    val coroutineScope = rememberCoroutineScope()
-    val latestOnPick by rememberUpdatedState(onPick)
+@Single(binds = [DirectoryPickerFactory::class])
+internal class JvmDirectoryPickerFactory(
+    @DirectoryPickerDispatcher private val dispatcher: CoroutineDispatcher,
+) : DirectoryPickerFactory {
+    @Composable
+    override fun rememberDirectoryPicker(onPick: (uri: String) -> Unit): DirectoryPicker {
+        val coroutineScope = rememberCoroutineScope()
+        val latestOnPick by rememberUpdatedState(onPick)
 
-    return remember(dispatcher, coroutineScope) {
-        JvmDirectoryPicker(
-            dispatcher = dispatcher,
-            coroutineScope = coroutineScope,
-            onPick = { uri -> latestOnPick(uri) },
-        )
+        return remember(dispatcher, coroutineScope) {
+            JvmDirectoryPicker(
+                dispatcher = dispatcher,
+                coroutineScope = coroutineScope,
+                onPick = { uri -> latestOnPick(uri) },
+            )
+        }
     }
 }
 

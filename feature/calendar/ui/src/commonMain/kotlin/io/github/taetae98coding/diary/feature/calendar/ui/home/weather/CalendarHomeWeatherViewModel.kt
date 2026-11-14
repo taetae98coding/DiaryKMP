@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.weather
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
@@ -29,7 +30,7 @@ internal class CalendarHomeWeatherViewModel(
 
     val uiState: StateFlow<CalendarHomeWeatherUiState> =
         combine(
-            getCurrentCalendarWeatherUseCase(parameter = Unit)
+            getCurrentCalendarWeatherUseCase()
                 .map { result -> result.getOrDefault(CalendarWeatherReport()) },
             isLoading,
         ) { weatherReport, isLoading ->
@@ -49,7 +50,7 @@ internal class CalendarHomeWeatherViewModel(
     fun fetch() {
         if (isLoading.value) return
 
-        load { fetchCurrentWeatherUseCase(parameter = Unit) }
+        load { fetchCurrentWeatherUseCase() }
     }
 
     fun refreshOnLocationPermissionGranted() {
@@ -59,7 +60,7 @@ internal class CalendarHomeWeatherViewModel(
 
         load {
             try {
-                refreshCurrentWeatherUseCase(parameter = Unit)
+                refreshCurrentWeatherUseCase()
             } finally {
                 isRefreshingOnLocationPermissionGranted = false
             }

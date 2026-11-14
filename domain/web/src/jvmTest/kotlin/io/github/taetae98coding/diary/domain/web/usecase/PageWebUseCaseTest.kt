@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -30,7 +31,7 @@ class PageWebUseCaseTest :
             val account = Arb.accountUser().next()
             val webList = List(2) { web() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             every { accountWebRepository.page(account = account, sort = ListSort.TITLE) } returns flowOf(PagingData.from(webList))
             val useCase =
@@ -51,7 +52,7 @@ class PageWebUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
             val useCase =
                 PageWebUseCase(

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.work.mcp.tool.memo
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.CopyMemoUseCase
@@ -22,6 +23,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.changeActive
 import io.github.taetae98coding.diary.work.mcp.tool.json.changedCountResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrNull
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrRandom
@@ -37,6 +39,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParamete
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.readActive
 import io.github.taetae98coding.diary.work.mcp.tool.readFirst
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import io.github.taetae98coding.diary.work.mcp.tool.uuidOrNull
@@ -96,13 +99,13 @@ internal class MemoMcpToolSet(
             },
             McpTool(
                 name = "memo_get",
-                description = "Gets one memo with its linked tags, places, webs and contacts. Returns null when the memo does not exist.",
+                description = "Gets one memo with its linked tags, places, webs and contacts. Returns null when the memo does not exist or is deleted.",
                 parameterList = listOf(memoIdParameter),
                 kind = McpToolKind.READ,
             ) { arguments -> getMemo(arguments) },
             McpTool(
                 name = "memo_add",
-                description = "Adds a memo. The title must not be blank. Linked items must exist and not be deleted.",
+                description = "Adds a memo. The title must not be blank.",
                 parameterList =
                     listOf(
                         McpToolParameter(name = TITLE, type = McpToolParameterType.STRING, description = "Title of the memo.", isRequired = true),
@@ -159,25 +162,30 @@ internal class MemoMcpToolSet(
                 description = "Copies a memo with its links into a new unfinished memo.",
                 parameterList = listOf(memoIdParameter),
                 kind = McpToolKind.WRITE,
-            ) { arguments -> idResult(copyMemoUseCase(parameter = arguments.uuid(MEMO_ID)).getOrThrow()) },
+            ) { arguments ->
+                val memoId = arguments.uuid(MEMO_ID)
+
+                requireNotNull(findMemoUseCase.readActive(id = memoId, isDeleted = Memo::isDeleted))
+                idResult(copyMemoUseCase(parameter = memoId).getOrThrow())
+            },
             McpTool(
                 name = "memo_finish",
                 description = "Marks a memo as finished.",
                 parameterList = listOf(memoIdParameter),
                 kind = McpToolKind.WRITE,
-            ) { arguments -> changedCountResult(finishMemoUseCase(parameter = arguments.uuid(MEMO_ID)).getOrThrow()) },
+            ) { arguments -> findMemoUseCase.changeActive(id = arguments.uuid(MEMO_ID), isDeleted = Memo::isDeleted) { id -> finishMemoUseCase(parameter = id) } },
             McpTool(
                 name = "memo_restart",
                 description = "Marks a finished memo as not finished.",
                 parameterList = listOf(memoIdParameter),
                 kind = McpToolKind.WRITE,
-            ) { arguments -> changedCountResult(restartMemoUseCase(parameter = arguments.uuid(MEMO_ID)).getOrThrow()) },
+            ) { arguments -> findMemoUseCase.changeActive(id = arguments.uuid(MEMO_ID), isDeleted = Memo::isDeleted) { id -> restartMemoUseCase(parameter = id) } },
             McpTool(
                 name = "memo_delete",
                 description = "Deletes a memo. Use memo_restore with the same id to undo.",
                 parameterList = listOf(memoIdParameter),
                 kind = McpToolKind.DESTRUCTIVE,
-            ) { arguments -> changedCountResult(deleteMemoUseCase(parameter = arguments.uuid(MEMO_ID)).getOrThrow()) },
+            ) { arguments -> findMemoUseCase.changeActive(id = arguments.uuid(MEMO_ID), isDeleted = Memo::isDeleted) { id -> deleteMemoUseCase(parameter = id) } },
             McpTool(
                 name = "memo_restore",
                 description = "Restores a deleted memo.",
@@ -189,7 +197,7 @@ internal class MemoMcpToolSet(
     private suspend fun getMemo(arguments: McpToolArguments) =
         run {
             val memoId = arguments.uuid(MEMO_ID)
-            val memo = findMemoUseCase.readFirst(parameter = memoId) ?: return@run JsonNull
+            val memo = findMemoUseCase.readFirst(parameter = memoId)?.takeUnless { memo -> memo.isDeleted } ?: return@run JsonNull
 
             buildJsonObject {
                 put("memo", memo.toJson())
@@ -203,7 +211,7 @@ internal class MemoMcpToolSet(
     private suspend fun updateMemo(arguments: McpToolArguments) =
         run {
             val memoId = arguments.uuid(MEMO_ID)
-            val current = findMemoUseCase.readFirst(parameter = memoId)?.detail ?: return@run changedCountResult(count = 0)
+            val current = findMemoUseCase.readActive(id = memoId, isDeleted = Memo::isDeleted)?.detail ?: return@run changedCountResult(count = 0)
             val detail =
                 MemoDetail(
                     title = arguments.stringOrNull(TITLE) ?: current.title,

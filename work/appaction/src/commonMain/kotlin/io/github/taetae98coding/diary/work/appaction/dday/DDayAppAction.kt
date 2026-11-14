@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.dday
 
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatInputList
@@ -10,16 +11,14 @@ import io.github.taetae98coding.diary.domain.dday.usecase.PageDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.RestoreDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UpdateDDayUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
-import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
-import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
-import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
-import io.github.taetae98coding.diary.work.appaction.core.appActionDone
+import io.github.taetae98coding.diary.work.appaction.core.changeActive
 import io.github.taetae98coding.diary.work.appaction.core.invalidArgument
 import io.github.taetae98coding.diary.work.appaction.core.map
+import io.github.taetae98coding.diary.work.appaction.core.readActive
 import io.github.taetae98coding.diary.work.appaction.core.readFirst
 import io.github.taetae98coding.diary.work.appaction.core.readPage
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
@@ -37,12 +36,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.koin.core.annotation.Factory
 import kotlin.time.Clock
-import kotlin.uuid.Uuid
 
 private const val BASE_DATE = "baseDate"
 private const val DDAY_ID = "ddayId"
 private const val END_DATE = "endDate"
-private const val TAG_ID = "tagId"
 
 @Factory
 public class DDayAppAction internal constructor(
@@ -53,8 +50,6 @@ public class DDayAppAction internal constructor(
     private val updateDDayUseCase: UpdateDDayUseCase,
     private val deleteDDayUseCase: DeleteDDayUseCase,
     private val restoreDDayUseCase: RestoreDDayUseCase,
-    private val addEntityTagUseCase: AddEntityTagUseCase,
-    private val removeEntityTagUseCase: RemoveEntityTagUseCase,
     private val clock: Clock,
 ) {
     public suspend fun list(cursor: String?): AppActionPage<AppActionDDay> =
@@ -66,16 +61,22 @@ public class DDayAppAction internal constructor(
                 .map { dday -> dday.toAppActionDDay(today = today) }
         }
 
-    public suspend fun get(ddayId: String): AppActionDDayDetail? =
-        runAppAction {
-            val id = ddayId.toUuidArgument(name = DDAY_ID)
-            val dday = findDDayUseCase.readFirst(parameter = id) ?: return@runAppAction null
+    public suspend fun get(ddayId: String): AppActionDDayDetail? = runAppAction { detail(ddayId = ddayId, includesDeleted = false) }
 
-            AppActionDDayDetail(
-                dday = dday.toAppActionDDay(today = today()),
-                tags = getEntityTagUseCase.readFirst(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = id)).map { tag -> tag.toAppActionTag() },
-            )
-        }
+    public suspend fun getIncludingDeleted(ddayId: String): AppActionDDayDetail? = runAppAction { detail(ddayId = ddayId, includesDeleted = true) }
+
+    private suspend fun detail(
+        ddayId: String,
+        includesDeleted: Boolean,
+    ): AppActionDDayDetail? {
+        val id = ddayId.toUuidArgument(name = DDAY_ID)
+        val dday = findDDayUseCase.readFirst(parameter = id)?.takeIf { dday -> includesDeleted || !dday.isDeleted } ?: return null
+
+        return AppActionDDayDetail(
+            dday = dday.toAppActionDDay(today = today()),
+            tags = getEntityTagUseCase.readFirst(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = id)).map { tag -> tag.toAppActionTag() },
+        )
+    }
 
     public suspend fun add(
         title: String,
@@ -125,7 +126,7 @@ public class DDayAppAction internal constructor(
             val newColor = color.toColorArgumentOrNull()
             val newRepeatList = repeats?.toDDayRepeatInputListArgument()
             val newOverflowPolicy = overflowPolicy.toDDayOverflowPolicyArgumentOrNull()
-            val current = findDDayUseCase.readFirst(parameter = id)?.detail ?: return@runAppAction 0.toAppActionChangedCount()
+            val current = findDDayUseCase.readActive(id = id, isDeleted = DDay::isDeleted)?.detail ?: return@runAppAction 0.toAppActionChangedCount()
             val input =
                 DDayInput(
                     title = title ?: current.title,
@@ -141,32 +142,17 @@ public class DDayAppAction internal constructor(
             updateDDayUseCase(parameter = UpdateDDayUseCase.Parameter(id = id, input = input)).getOrThrow().toAppActionChangedCount()
         }
 
-    public suspend fun delete(ddayId: String): AppActionChangedCount = runAppAction { deleteDDayUseCase(parameter = ddayId.toUuidArgument(name = DDAY_ID)).getOrThrow().toAppActionChangedCount() }
+    public suspend fun delete(ddayId: String): AppActionChangedCount =
+        runAppAction {
+            val id = ddayId.toUuidArgument(name = DDAY_ID)
+
+            findDDayUseCase.changeActive(id = id, isDeleted = DDay::isDeleted) { deleteDDayUseCase(parameter = id) }
+        }
 
     public suspend fun restore(ddayId: String): AppActionChangedCount = runAppAction { restoreDDayUseCase(parameter = ddayId.toUuidArgument(name = DDAY_ID)).getOrThrow().toAppActionChangedCount() }
 
-    public suspend fun tagAdd(
-        ddayId: String,
-        tagId: String,
-    ): AppActionDone =
-        runAppAction {
-            addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = ddayId.toUuidArgument(name = DDAY_ID), tagId = tagId.toTagIdArgument())).getOrThrow()
-            appActionDone
-        }
-
-    public suspend fun tagRemove(
-        ddayId: String,
-        tagId: String,
-    ): AppActionDone =
-        runAppAction {
-            removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = ddayId.toUuidArgument(name = DDAY_ID), tagId = tagId.toTagIdArgument())).getOrThrow()
-            appActionDone
-        }
-
     private fun today(): LocalDate = clock.todayIn(TimeZone.currentSystemDefault())
 }
-
-private fun String.toTagIdArgument(): Uuid = toUuidArgument(name = TAG_ID)
 
 private fun DDayInput.requireEndDateNotBeforeBaseDate(): DDayInput {
     val endDate = endDate ?: return this

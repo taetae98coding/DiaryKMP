@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
@@ -359,7 +360,7 @@ class TagHomeViewModelTest : FunSpec() {
 
         private fun getTopLevelTagFilterUseCase(flow: Flow<Result<Boolean>>): GetTopLevelTagFilterUseCase {
             val getTopLevelTagFilterUseCase = mockk<GetTopLevelTagFilterUseCase>()
-            every { getTopLevelTagFilterUseCase(parameter = Unit) } returns flow
+            every { getTopLevelTagFilterUseCase() } returns flow
 
             return getTopLevelTagFilterUseCase
         }

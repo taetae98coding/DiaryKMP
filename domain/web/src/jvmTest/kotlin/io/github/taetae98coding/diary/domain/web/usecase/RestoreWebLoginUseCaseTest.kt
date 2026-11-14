@@ -5,8 +5,14 @@ import io.github.taetae98coding.diary.core.model.web.WebLogin
 import io.github.taetae98coding.diary.core.model.web.WebLoginCookie
 import io.github.taetae98coding.diary.core.model.web.WebLoginRestoreState
 import io.github.taetae98coding.diary.core.testing.web.webLoginCookie
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.web.repository.WebLoginRepository
+import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
+import io.github.taetae98coding.diary.logger.core.DiaryLog
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
@@ -18,6 +24,7 @@ import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
+import io.mockk.every
 import io.mockk.just
 import io.mockk.justRun
 import io.mockk.mockk
@@ -35,7 +42,7 @@ class RestoreWebLoginUseCaseTest :
 
             When("앱을 시작해 되돌린다") {
                 Then("TC-8deae54a-4c48-42e5-ae00-37a42552acb5 TC-6054d52b-e3a5-4e4f-beb3-856bf404688b 되돌리는 중이 된 뒤 보관해 둔 세션 쿠키를 웹 표시 수단에 한 번 넣고 끝난다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe WebLoginRestoreState.RESTORING
                         awaitItem().shouldBeSuccess() shouldBe WebLoginRestoreState.DONE
                         awaitComplete()
@@ -59,7 +66,7 @@ class RestoreWebLoginUseCaseTest :
 
             When("앱을 시작해 되돌린다") {
                 Then("TC-44b89df3-9791-4f8f-8de6-048c4714a94a 되돌리는 중을 거치지 않고 웹 표시 수단에 쿠키를 넣지 않는다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe WebLoginRestoreState.DONE
                         awaitComplete()
                     }
@@ -76,16 +83,21 @@ class RestoreWebLoginUseCaseTest :
             justRun { repository.setRestoring() }
             justRun { repository.unsetRestoring() }
             val useCase = RestoreWebLoginUseCase(webLoginRepository = repository)
+            val logList = mutableListOf<ConsoleLog>()
+            val delegate = mockk<DiaryLoggerDelegate>()
+            every { delegate.log(log = any()) } answers { (firstArg<DiaryLog>() as? ConsoleLog)?.let(logList::add) }
+            DiaryLogger.add(delegate = delegate)
 
             When("앱을 시작해 되돌린다") {
                 Then("TC-9ffe581d-39f9-4181-9ad3-b1e6aca53a53 웹 표시 수단에 쿠키를 넣지 않고 실패를 전달한 뒤 끝난다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure().shouldBeSameInstanceAs(throwable)
                         awaitComplete()
                     }
 
                     coVerify(exactly = 0) { repository.upsertWebViewLogin(login = any()) }
                     coVerify(exactly = 1) { repository.unsetRestoring() }
+                    logList.filter { log -> log.throwable === throwable } shouldHaveSize 1
                 }
             }
         }

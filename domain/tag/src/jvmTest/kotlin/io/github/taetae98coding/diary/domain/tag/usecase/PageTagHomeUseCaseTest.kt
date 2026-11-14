@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagFilterRepository
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -34,7 +35,7 @@ class PageTagHomeUseCaseTest :
             val topLevelTagList = List(2) { tag() }
             val tagList = topLevelTagList + tag()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountTagRepository = mockk<AccountTagRepository>()
             every { accountTagRepository.page(account = account, query = "", sort = ListSort.TITLE) } returns flowOf(PagingData.from(tagList))
             every { accountTagRepository.pageTopLevel(account = account, sort = ListSort.TITLE) } returns flowOf(PagingData.from(topLevelTagList))
@@ -97,7 +98,7 @@ class PageTagHomeUseCaseTest :
         Given("계정 조회에 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
             val accountTagFilterRepository = mockk<AccountTagFilterRepository>(relaxed = true)
             val useCase =

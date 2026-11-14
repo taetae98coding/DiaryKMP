@@ -21,7 +21,7 @@ public fun DiaryComposeViewController(
                     topBarRenderer = uiKitTopBarRenderer,
                     floatingActionButtonRenderer = uiKitFloatingActionButtonRenderer,
                 ) {
-                    App()
+                    App(dependencies = DiaryStartupInitializer.dependencies)
                 }
             },
     )

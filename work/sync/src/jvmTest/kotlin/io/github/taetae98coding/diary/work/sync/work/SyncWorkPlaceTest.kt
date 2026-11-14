@@ -358,7 +358,7 @@ class SyncWorkPlaceTest :
             }
         }
 
-        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 장소와 메모·장소 연결은 각각 기록된 순번으로 내려받기를 시작한다") {
+        test("장소와 메모·장소 연결은 각각 기록된 순번으로 내려받기를 시작한다") {
             val context = context()
             coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.PLACE) } returns 9L
             coEvery {

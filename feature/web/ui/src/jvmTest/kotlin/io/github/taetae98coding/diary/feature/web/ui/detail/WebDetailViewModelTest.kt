@@ -123,7 +123,7 @@ class WebDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-f72a8b9d-ec5c-4038-bf4e-d657de3c7e7e 삭제 상태인 웹 항목으로 진입해도 내용 표시 상태가 된다") {
+        test("TC-f72a8b9d-ec5c-4038-bf4e-d657de3c7e7e TC-fa086b84-94ef-4d78-a1b4-2dd04e8a8211 삭제 상태인 웹 항목으로 진입해도 내용 표시 상태가 된다") {
             runTest(mainDispatcher) {
                 val web = web().copy(isDeleted = true)
                 val viewModel = viewModel(id = web.id, webFlow = flowOf(Result.success(web)))

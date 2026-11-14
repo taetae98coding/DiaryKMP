@@ -72,7 +72,11 @@ internal fun ProfileScreen(
                 }
 
                 is ProfileScaffoldEvent.ConfirmDeleteAccount -> {
-                    deleteViewModel.confirmDelete()
+                    if (!deleteViewModel.uiState.value.isInProgress) {
+                        authorizationAttempt.end()
+                        platformSignInState.cancel()
+                        deleteViewModel.confirmDelete()
+                    }
                 }
             }
         },
@@ -83,11 +87,15 @@ internal fun ProfileScreen(
     )
 }
 
-// 새 흐름을 열면 이전 흐름이 취소되며 끝나므로, 가장 최근에 시작한 흐름이 끝났을 때만 탈퇴 대기로 되돌린다.
+// 새 흐름을 열거나 탈퇴를 다시 고르면 이전 흐름이 취소되며 끝나므로, 가장 최근에 시작해 아직 끝내지 않은 흐름만 결과를 반영한다.
 private class ProfileAppleAuthorizationAttempt {
     private var latest = 0
 
     fun start(): Int = ++latest
+
+    fun end() {
+        latest += 1
+    }
 
     fun isLatest(attempt: Int): Boolean = attempt == latest
 }
@@ -109,6 +117,8 @@ private suspend fun requestAppleAuthorization(
     } finally {
         if (appleAuthorization == null && attempt.isLatest(current)) viewModel.endAppleAuthorization()
     }
+
+    if (!attempt.isLatest(current)) return
 
     appleAuthorization?.let { authorization -> viewModel.delete(appleAuthorization = authorization) }
 }

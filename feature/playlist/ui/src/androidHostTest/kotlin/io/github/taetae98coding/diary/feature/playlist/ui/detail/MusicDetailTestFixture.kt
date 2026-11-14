@@ -1,12 +1,17 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.detail
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import io.github.taetae98coding.diary.compose.core.share.ContentSharer
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
+import io.github.taetae98coding.diary.compose.core.share.ShareResult
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -35,6 +40,7 @@ internal const val DEFAULT_DELETE_BUTTON_DESCRIPTION = "Delete music"
 internal const val DEFAULT_UPDATE_BUTTON_DESCRIPTION = "Update music"
 internal const val DEFAULT_FETCH_BUTTON_DESCRIPTION = "Fetch music info from link"
 internal const val DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION = "Thumbnail preview"
+internal const val DEFAULT_SHARE_DESCRIPTION = "Share"
 
 internal fun testMusicDetail(
     title: String = STORED_TITLE,
@@ -78,3 +84,20 @@ internal fun ComposeContentTestRule.clickFetch() {
 }
 
 internal fun ComposeContentTestRule.nodeCount(contentDescription: String): Int = onAllNodesWithContentDescription(contentDescription).fetchSemanticsNodes().size
+
+internal fun testContentSharer(
+    isTextSupported: Boolean = true,
+    result: ShareResult = ShareResult.COMPLETED,
+): ContentSharer {
+    val sharer = mockk<ContentSharer>()
+    every { sharer.isTextSupported } returns isTextSupported
+    coEvery { sharer.share(content = any()) } returns result
+
+    return sharer
+}
+
+internal fun testContentSharerFactory(sharer: ContentSharer = testContentSharer()): ContentSharerFactory =
+    object : ContentSharerFactory {
+        @Composable
+        override fun rememberContentSharer(): ContentSharer = sharer
+    }

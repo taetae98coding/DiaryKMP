@@ -1,12 +1,10 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
-import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 
@@ -16,8 +14,8 @@ class HolidaySettingListTest :
             val name = "대체공휴일(어린이날)"
             val holidayList =
                 listOf(
-                    holiday(name = name, start = LocalDate(year = 2026, month = 5, day = 6)),
-                    holiday(name = name, start = LocalDate(year = 2025, month = 5, day = 6)),
+                    Arb.holiday().next().copy(name = name, dateRange = LocalDate(year = 2026, month = 5, day = 6)..LocalDate(year = 2026, month = 5, day = 6)),
+                    Arb.holiday().next().copy(name = name, dateRange = LocalDate(year = 2025, month = 5, day = 6)..LocalDate(year = 2025, month = 5, day = 6)),
                 )
 
             When("설정 화면에 표시할 공휴일 항목을 구성한다") {
@@ -34,8 +32,8 @@ class HolidaySettingListTest :
             val name = "대체공휴일"
             val holidayList =
                 listOf(
-                    holiday(name = name, isHoliday = false),
-                    holiday(name = name, isHoliday = true),
+                    Arb.holiday().next().copy(name = name, isHoliday = false),
+                    Arb.holiday().next().copy(name = name, isHoliday = true),
                 )
 
             When("설정 화면에 표시할 공휴일 항목을 구성한다") {
@@ -50,10 +48,10 @@ class HolidaySettingListTest :
         Given("TC-a0daa7eb-ce79-4d29-9d65-9d4006f8bd62 표시 이름이 서로 다른 공휴일들이 순서 없이 저장되어 있다") {
             val holidayList =
                 listOf(
-                    holiday(name = "한글날"),
-                    holiday(name = "Alpha"),
-                    holiday(name = "광복절"),
-                    holiday(name = "개천절"),
+                    Arb.holiday().next().copy(name = "한글날"),
+                    Arb.holiday().next().copy(name = "Alpha"),
+                    Arb.holiday().next().copy(name = "광복절"),
+                    Arb.holiday().next().copy(name = "개천절"),
                 )
 
             When("설정 화면에 표시할 공휴일 항목을 구성한다") {
@@ -71,7 +69,7 @@ class HolidaySettingListTest :
             val hiddenKey = "광복절"
             val holidayList =
                 (visibleNameList + hiddenKey).map { name ->
-                    holiday(name = name)
+                    Arb.holiday().next().copy(name = name)
                 }
 
             When("설정 화면에 표시할 공휴일 항목을 구성한다") {
@@ -91,8 +89,8 @@ class HolidaySettingListTest :
         Given("공백만 다른 이름의 공휴일이 저장되어 있다") {
             val holidayList =
                 listOf(
-                    holiday(name = "대체 공휴일"),
-                    holiday(name = "대체공휴일"),
+                    Arb.holiday().next().copy(name = "대체 공휴일"),
+                    Arb.holiday().next().copy(name = "대체공휴일"),
                 )
 
             When("설정 화면에 표시할 공휴일 항목을 구성한다") {
@@ -104,21 +102,3 @@ class HolidaySettingListTest :
             }
         }
     })
-
-private fun holiday(
-    name: String,
-    isHoliday: Boolean = Arb.boolean().next(),
-    start: LocalDate = randomDate(),
-): Holiday =
-    Holiday(
-        name = name,
-        isHoliday = isHoliday,
-        dateRange = start..start,
-    )
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

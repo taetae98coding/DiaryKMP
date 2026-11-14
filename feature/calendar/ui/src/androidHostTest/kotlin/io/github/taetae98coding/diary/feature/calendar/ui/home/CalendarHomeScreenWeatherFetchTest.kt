@@ -4,6 +4,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -14,6 +15,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
@@ -22,9 +24,9 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarH
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -58,13 +60,14 @@ class CalendarHomeScreenWeatherFetchTest {
 
     @Test
     fun `TC-aac88cdb-1fb7-4741-9e2f-6a0b96e28565 날씨 동기화가 실패해도 날씨 없이 표시하고 다른 표시를 막지 않는다`() {
+        val errorMessage = Arb.nonBlankString().next()
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-        coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } returns
-            Result.failure(IllegalStateException(Arb.string().next()))
+        coEvery { fetchCurrentWeatherUseCase() } returns
+            Result.failure(IllegalStateException(errorMessage))
         val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
-        coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } returns Result.success(Unit)
+        coEvery { refreshCurrentWeatherUseCase() } returns Result.success(Unit)
         val getCurrentCalendarWeatherUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
-        every { getCurrentCalendarWeatherUseCase(parameter = Unit) } returns
+        every { getCurrentCalendarWeatherUseCase() } returns
             flowOf(Result.success(CalendarWeatherReport()))
         val weatherViewModel =
             CalendarHomeWeatherViewModel(
@@ -88,6 +91,8 @@ class CalendarHomeScreenWeatherFetchTest {
         composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
         composeRule.onAllNodesWithText(TEMPERATURE_UNIT, substring = true).assertCountEquals(0)
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+        composeRule.onAllNodes(isPopup()).assertCountEquals(0)
+        composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
     }
 
     @Test

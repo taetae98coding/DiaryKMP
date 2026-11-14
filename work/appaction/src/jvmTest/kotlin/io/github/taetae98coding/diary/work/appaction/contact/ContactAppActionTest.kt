@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.contactBirthday
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.contact.usecase.AddContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.FavoriteContactUseCase
@@ -26,15 +27,24 @@ import io.github.taetae98coding.diary.domain.contact.usecase.UnfavoriteContactUs
 import io.github.taetae98coding.diary.domain.contact.usecase.UpdateContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageContactMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedContactMemoUseCase
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDateTime
+import io.github.taetae98coding.diary.work.appaction.memo.memoListAppActionOf
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
+import io.github.taetae98coding.diary.work.appaction.tag.expected
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -95,12 +105,12 @@ class ContactAppActionTest :
             }
         }
 
-        test("연락처 하나를 MCP와 같은 형식의 모든 정보로 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 연락처 하나를 연결된 태그, 모든 정보와 함께 돌려준다") {
             runTest {
                 val heightMm = Arb.int(0..9999).next()
                 val footSizeMm = Arb.int(0..999).next()
                 val contact =
-                    Arb.contact().next().let { contact ->
+                    Arb.contact().next().copy(isDeleted = false).let { contact ->
                         contact.copy(
                             detail =
                                 contact.detail.copy(
@@ -111,11 +121,16 @@ class ContactAppActionTest :
                                 ),
                         )
                     }
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 val findContactUseCase = mockk<FindContactUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findContactUseCase(parameter = contact.id) } returns flowOf(Result.success(contact))
-                val action = contactAppActionOf(findContactUseCase)
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.CONTACT, entityId = contact.id)) } returns flowOf(Result.success(tagList))
+                val action = contactAppActionOf(findContactUseCase, getEntityTagUseCase)
+                val detail = action.get(contactId = contact.id.toString())
 
-                action.get(contactId = contact.id.toString()) shouldBe
+                detail?.tags shouldBe tagList.map { tag -> tag.expected() }
+                detail?.contact shouldBe
                     AppActionContactDetail(
                         id = contact.id.toString(),
                         name = contact.detail.name,
@@ -143,12 +158,19 @@ class ContactAppActionTest :
 
         test("정보가 비어 있는 연락처는 빈 값을 null로 돌려준다") {
             runTest {
-                val contact = Arb.contact().next().let { contact -> contact.copy(detail = contact.detail.copy(height = null, footSize = null, birthday = null, birthYear = null)) }
+                val contact =
+                    Arb
+                        .contact()
+                        .next()
+                        .copy(isDeleted = false)
+                        .let { contact -> contact.copy(detail = contact.detail.copy(height = null, footSize = null, birthday = null, birthYear = null)) }
                 val findContactUseCase = mockk<FindContactUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findContactUseCase(parameter = contact.id) } returns flowOf(Result.success(contact))
-                val action = contactAppActionOf(findContactUseCase)
+                every { getEntityTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
+                val action = contactAppActionOf(findContactUseCase, getEntityTagUseCase)
 
-                val detail = action.get(contactId = contact.id.toString())
+                val detail = action.get(contactId = contact.id.toString())?.contact
 
                 detail?.heightCm shouldBe null
                 detail?.footSizeMm shouldBe null
@@ -178,11 +200,11 @@ class ContactAppActionTest :
                 val pageFinishedContactMemoUseCase = mockk<PageFinishedContactMemoUseCase>()
                 every { pageContactMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
                 every { pageFinishedContactMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
-                val action = contactAppActionOf(pageContactMemoUseCase, pageFinishedContactMemoUseCase)
+                val action = memoListAppActionOf(pageContactMemoUseCase, pageFinishedContactMemoUseCase)
                 val expected = AppActionPage(items = memoList.map { memo -> memo.expected() }, nextCursor = null)
 
-                action.memoList(contactId = contactId.toString(), sort = null, cursor = null) shouldBe expected
-                action.memoFinishedList(contactId = contactId.toString(), sort = "title", cursor = null) shouldBe expected
+                action.contactList(contactId = contactId.toString(), sort = null, cursor = null) shouldBe expected
+                action.contactFinishedList(contactId = contactId.toString(), sort = "title", cursor = null) shouldBe expected
 
                 verify(exactly = 1) { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)) }
                 verify(exactly = 1) { pageFinishedContactMemoUseCase(parameter = PageFinishedContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.TITLE)) }
@@ -192,10 +214,10 @@ class ContactAppActionTest :
         test("연락처의 메모 목록은 메모 목록의 정렬만 받는다") {
             runTest {
                 val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
-                val action = contactAppActionOf(pageContactMemoUseCase)
+                val action = memoListAppActionOf(pageContactMemoUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> {
-                    action.memoList(contactId = Arb.kotlinUuid().next().toString(), sort = "name", cursor = null)
+                    action.contactList(contactId = Arb.kotlinUuid().next().toString(), sort = "name", cursor = null)
                 }.message shouldBe "'sort' must be one of default, title, recently_updated."
                 verify(exactly = 0) { pageContactMemoUseCase(parameter = any()) }
             }
@@ -230,6 +252,7 @@ class ContactAppActionTest :
                         hometown = hometown,
                         howWeMet = howWeMet,
                         phoneNumbers = phoneNumberList,
+                        tagIds = emptyList(),
                     )
 
                 result shouldBe AppActionId(id = addedId.toString())
@@ -272,6 +295,7 @@ class ContactAppActionTest :
                     hometown = null,
                     howWeMet = null,
                     phoneNumbers = emptyList(),
+                    tagIds = emptyList(),
                 )
 
                 parameter.captured.detail shouldBe ContactDetail.EMPTY.copy(name = name, birthday = ContactBirthday(date = birthday, calendar = ContactBirthdayCalendar.SOLAR))
@@ -308,6 +332,7 @@ class ContactAppActionTest :
                             hometown = null,
                             howWeMet = null,
                             phoneNumbers = emptyList(),
+                            tagIds = emptyList(),
                         )
                     }.message shouldBe message
                 }
@@ -317,7 +342,7 @@ class ContactAppActionTest :
 
         test("고칠 값을 담지 않은 항목은 지금 값을 유지하고 고친 수를 돌려준다") {
             runTest {
-                val contact = Arb.contact().next()
+                val contact = Arb.contact().next().copy(isDeleted = false)
                 val name = Arb.nonBlankString().next()
                 val changedCount = Arb.int(0..1).next()
                 val findContactUseCase = mockk<FindContactUseCase>()
@@ -333,7 +358,12 @@ class ContactAppActionTest :
 
         test("지우기를 요청한 값은 지우고, 빈 전화번호 목록은 모든 전화번호를 지운다") {
             runTest {
-                val contact = Arb.contact().next().withBirthday()
+                val contact =
+                    Arb
+                        .contact()
+                        .next()
+                        .copy(isDeleted = false)
+                        .withBirthday()
                 val findContactUseCase = mockk<FindContactUseCase>()
                 val updateContactUseCase = mockk<UpdateContactUseCase>()
                 every { findContactUseCase(parameter = contact.id) } returns flowOf(Result.success(contact))
@@ -365,7 +395,12 @@ class ContactAppActionTest :
 
         test("생일을 지워도 출생 연도를 담으면 그 연도를 남기고, 새 키·발 크기·전화번호는 그 값으로 바꾼다") {
             runTest {
-                val contact = Arb.contact().next().withBirthday()
+                val contact =
+                    Arb
+                        .contact()
+                        .next()
+                        .copy(isDeleted = false)
+                        .withBirthday()
                 val heightCm = Arb.int(0..999).next()
                 val footSizeMm = Arb.int(0..999).next()
                 val birthYear = Arb.int(1900..2100).next()
@@ -409,7 +444,12 @@ class ContactAppActionTest :
 
         test("생일의 날짜만 바꾸면 달력을, 달력만 바꾸면 날짜를 유지한다") {
             runTest {
-                val contact = Arb.contact().next().withBirthday()
+                val contact =
+                    Arb
+                        .contact()
+                        .next()
+                        .copy(isDeleted = false)
+                        .withBirthday()
                 val currentBirthday = contact.detail.birthday!!
                 val date = Arb.kotlinxLocalDate().next()
                 val calendar = if (currentBirthday.calendar == ContactBirthdayCalendar.SOLAR) "lunar" else "solar"
@@ -439,7 +479,12 @@ class ContactAppActionTest :
 
         test("생일이 없는 연락처에 달력만 담으면 앱 기능을 실행하지 않고 실패를 알린다") {
             runTest {
-                val contact = Arb.contact().next().let { contact -> contact.copy(detail = contact.detail.copy(birthday = null)) }
+                val contact =
+                    Arb
+                        .contact()
+                        .next()
+                        .copy(isDeleted = false)
+                        .let { contact -> contact.copy(detail = contact.detail.copy(birthday = null)) }
                 val findContactUseCase = mockk<FindContactUseCase>()
                 val updateContactUseCase = mockk<UpdateContactUseCase>()
                 every { findContactUseCase(parameter = contact.id) } returns flowOf(Result.success(contact))
@@ -495,6 +540,107 @@ class ContactAppActionTest :
                 val action = contactAppActionOf(deleteContactUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.delete(contactId = Arb.kotlinUuid().next().toString()) }.message shouldBe "IllegalStateException: $message"
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 연락처의 상세는 없는 연락처와 같이 null을 돌려준다") {
+            runTest {
+                val contact = Arb.contact().next().copy(isDeleted = true)
+                val findContactUseCase = mockk<FindContactUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findContactUseCase(parameter = contact.id) } returns flowOf(Result.success(contact))
+                val action = contactAppActionOf(findContactUseCase, getEntityTagUseCase)
+
+                action.get(contactId = contact.id.toString()) shouldBe null
+                verify(exactly = 0) { getEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddContactUseCase.Parameter>()
+                val addUseCase = mockk<AddContactUseCase>()
+                coEvery { addUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = contactAppActionOf(addUseCase)
+
+                action.add(
+                    name = Arb.nonBlankString().next(),
+                    description = null,
+                    heightCm = null,
+                    footSizeMm = null,
+                    birthday = null,
+                    birthdayCalendar = null,
+                    birthYear = null,
+                    hometown = null,
+                    howWeMet = null,
+                    phoneNumbers = emptyList(),
+                    tagIds = tagIdSet.map { tagId -> tagId.toString() },
+                ) shouldBe
+                    AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
+        test("추가 요청의 태그 id가 id 형식이 아니면 추가하지 않고 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val addUseCase = mockk<AddContactUseCase>()
+                val action = contactAppActionOf(addUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> {
+                    action.add(name = Arb.nonBlankString().next(), description = null, heightCm = null, footSizeMm = null, birthday = null, birthdayCalendar = null, birthYear = null, hometown = null, howWeMet = null, phoneNumbers = emptyList(), tagIds = listOf("tag"))
+                }.message shouldBe
+                    "'tagIds' must be an id."
+                coVerify(exactly = 0) { addUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결과 해제는 연락처 종류로 요청하고 완료를 돌려준다") {
+            runTest {
+                val contactId = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                action.add(kind = AppActionEntityTagKind.CONTACT, entityId = contactId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.remove(kind = AppActionEntityTagKind.CONTACT, entityId = contactId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+
+                coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.CONTACT, entityId = contactId, tagId = tagId)) }
+                coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.CONTACT, entityId = contactId, tagId = tagId)) }
+            }
+        }
+
+        test("태그 연결의 id가 id 형식이 아니면 연결하지 않고, 연결이 실패하면 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val message = Arb.nonBlankString().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException(message))
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.CONTACT, entityId = "not-id", tagId = Arb.kotlinUuid().next().toString()) }.message shouldBe "'contactId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.CONTACT, entityId = Arb.kotlinUuid().next().toString(), tagId = "tag") }.message shouldBe "'tagId' must be an id."
+                shouldThrow<AppActionException.Failure> {
+                    action.remove(kind = AppActionEntityTagKind.CONTACT, entityId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
+                }.message shouldBe "IllegalStateException: $message"
+                coVerify(exactly = 0) { addEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("삭제된 연락처도 포함하는 조회는 삭제된 연락처를 돌려준다") {
+            runTest {
+                val contact = Arb.contact().next().copy(isDeleted = true)
+                val findContactUseCase = mockk<FindContactUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findContactUseCase(parameter = contact.id) } returns flowOf(Result.success(contact))
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.CONTACT, entityId = contact.id)) } returns flowOf(Result.success(emptyList()))
+                val action = contactAppActionOf(findContactUseCase, getEntityTagUseCase)
+
+                action.getIncludingDeleted(contactId = contact.id.toString())?.contact?.id shouldBe contact.id.toString()
             }
         }
     })

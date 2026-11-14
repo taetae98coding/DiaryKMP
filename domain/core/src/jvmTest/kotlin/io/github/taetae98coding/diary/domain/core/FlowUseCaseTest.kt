@@ -150,6 +150,20 @@ class FlowUseCaseTest :
             }
         }
 
+        Given("입력이 필요 없는 지속 관찰하는 작업이 값을 보내도록 준비되어 있다") {
+            When("입력 없이 관찰한다") {
+                Then("작업이 보낸 값을 성공 결과로 받는다") {
+                    val output = Arb.string().next()
+                    val useCase = UnitParameterFlowUseCase(output = output)
+
+                    useCase().test {
+                        awaitItem().shouldBeSuccess() shouldBe output
+                        awaitComplete()
+                    }
+                }
+            }
+        }
+
         Given("콘솔 기록 수단이 등록되어 있고 지속 관찰하는 작업이 중단을 기다리도록 준비되어 있다") {
             val recording = recordingDelegate()
             DiaryLogger.add(delegate = recording.delegate)
@@ -189,6 +203,12 @@ private class EmitThenFailFlowUseCase(
 
 private class SuccessFlowUseCase : FlowUseCase<String, String>() {
     override fun execute(parameter: String): Flow<Result<String>> = flowOf(Result.success(parameter))
+}
+
+private class UnitParameterFlowUseCase(
+    private val output: String,
+) : FlowUseCase<Unit, String>() {
+    override fun execute(parameter: Unit): Flow<Result<String>> = flowOf(Result.success(output))
 }
 
 private class AwaitCancellationFlowUseCase : FlowUseCase<String, String>() {

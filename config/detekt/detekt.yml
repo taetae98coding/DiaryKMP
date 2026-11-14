@@ -41,10 +41,9 @@ style:
     active: true
   RedundantConstructorKeyword:
     active: true
-#  KMP explictApi() 설정을 못찾는 이슈가 있습니다.
-#  detekt Gradle 플러그인이 explicitApi를 main 컴파일션 태스크에만 배선해서(SharedTasks.kt),
-#  집계 태스크인 detekt는 explicit API 모드를 알지 못하고 public 선언을 전부 오탐합니다.
-#  플러그인이 고쳐지면 활성화합니다.
+#  detekt Gradle 플러그인은 explicitApi를 main 소스셋 태스크에만 전달하므로, main과 test를 함께 분석하는
+#  집계 태스크 detekt는 explicit API 모드를 알지 못하고 public 선언을 전부 오탐합니다.
+#  detekt가 고치지 않기로 했으므로(https://github.com/detekt/detekt/issues/9063) 소스셋별 태스크로 옮기기 전에는 켜지 않습니다.
 #  RedundantVisibilityModifier:
 #    active: true
   SpacingAfterPackageAndImports:

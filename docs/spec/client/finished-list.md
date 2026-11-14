@@ -4,7 +4,7 @@
 
 이 문서를 따르는 화면 스펙은 끝의 `이 문서를 참조하는 문서`에 모았다.
 
-이 문서에서 `짝이 되는 목록`은 같은 대상을 완료되지 않은 상태로 보여 주는 목록을 가리키고, `대상 항목`은 그 목록이 모으는 메모 또는 태그 하나를 가리킨다.
+이 문서에서 `짝이 되는 목록`은 같은 대상을 완료되지 않은 상태로 보여 주는 목록을 가리키고, `대상 항목`은 그 목록이 모으는 메모, 태그 또는 루틴 하나를 가리킨다.
 
 디자인: [완료 목록 공통 디자인](../../design/finished-list.md)
 
@@ -44,7 +44,7 @@
 
 빈 상태에서도 사용자는 목록을 당겨 새로고침하고 뒤로가기로 짝이 되는 목록으로 돌아갈 수 있다.
 
-빈 상태에 쓰는 문구는 화면마다 다르므로 각 화면 스펙에서 정한다.
+화면마다 빈 상태에서 알리는 내용은 [목록 빈 상태 스펙](./list-empty-state.md)의 `빈 상태에서 알리는 내용`을 따른다.
 
 ### 추가 미제공
 
@@ -77,6 +77,8 @@
 ### 정렬 선택
 
 사용자는 목록 위에서 현재 정렬을 확인하고 다른 기준으로 바꿀 수 있다. 고를 수 있는 기준과 정렬 선택·반영·유지의 결과는 [목록 정렬 스펙](./list-sort.md)을 따른다.
+
+짝이 되는 목록에 사용자가 고르는 정렬이 없는 완료 목록은 정렬 선택을 제공하지 않는다. 루틴을 모으는 완료 목록이 여기에 해당하며, 그 기준은 [RoutineFinishedList 화면 스펙](./routine-finished-list.md)의 `정렬 선택 미제공`을 따른다.
 
 ## domain
 
@@ -122,5 +124,7 @@
 - [TagFinishedList 화면 스펙](./tag-finished-list.md)
 - [항목 완료 메모 목록 화면 스펙](./entity-memo-finished-list.md) (TagMemoFinishedList 포함)
 - [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)
+- [RoutineFinishedList 화면 스펙](./routine-finished-list.md)
+- [TagRoutineFinishedList 화면 스펙](./tag-routine-finished-list.md)
 - [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `완료 목록의 배치`
-- [SearchHome 화면 스펙](./search-home.md)의 `안내와 실행 취소`: 검색 결과에서 메모와 태그를 다시 시작할 때의 안내
+- [SearchHome 화면 스펙](./search-home.md)의 `안내와 실행 취소`: 검색 결과에서 메모, 태그와 루틴을 다시 시작할 때의 안내

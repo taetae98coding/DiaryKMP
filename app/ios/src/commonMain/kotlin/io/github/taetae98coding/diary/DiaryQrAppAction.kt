@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
 import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
 import io.github.taetae98coding.diary.work.appaction.qr.AppActionQr
+import io.github.taetae98coding.diary.work.appaction.qr.AppActionQrDetail
 import io.github.taetae98coding.diary.work.appaction.qr.QrAppAction
 import io.github.taetae98coding.diary.work.appaction.qr.filterBySearchQuery
 
@@ -13,6 +14,11 @@ public data class DiaryAppActionQr(
     val value: String,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+)
+
+public data class DiaryAppActionQrDetail(
+    val qr: DiaryAppActionQr,
+    val tags: List<DiaryAppActionTag>,
 )
 
 public data class DiaryAppActionQrPage(
@@ -33,13 +39,16 @@ public object DiaryQrAppAction {
             .filterBySearchQuery(query = query)
             .map { qr -> qr.toDiary() }
 
-    public suspend fun get(qrId: String): DiaryAppActionQr? = qrAppAction().get(qrId = qrId)?.toDiary()
+    public suspend fun get(qrId: String): DiaryAppActionQrDetail? = qrAppAction().get(qrId = qrId)?.toDiary()
+
+    public suspend fun getIncludingDeleted(qrId: String): DiaryAppActionQrDetail? = qrAppAction().getIncludingDeleted(qrId = qrId)?.toDiary()
 
     public suspend fun add(
         title: String,
         qrDescription: String?,
         value: String,
-    ): String = qrAppAction().add(title = title, description = qrDescription, value = value).id
+        tagIds: List<String>,
+    ): String = qrAppAction().add(title = title, description = qrDescription, value = value, tagIds = tagIds).id
 
     public suspend fun update(
         qrId: String,
@@ -55,7 +64,9 @@ public object DiaryQrAppAction {
 
 private fun qrAppAction(): QrAppAction = diaryAppAction()
 
-private fun AppActionQr.toDiary(): DiaryAppActionQr =
+private fun AppActionQrDetail.toDiary(): DiaryAppActionQrDetail = DiaryAppActionQrDetail(qr = qr.toDiary(), tags = tags.map { tag -> tag.toDiary() })
+
+internal fun AppActionQr.toDiary(): DiaryAppActionQr =
     DiaryAppActionQr(
         id = id,
         title = title,

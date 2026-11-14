@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name" translatable="false">Diary</string>
+    <string name="share_too_long">The shared content is too long</string>
 </resources>

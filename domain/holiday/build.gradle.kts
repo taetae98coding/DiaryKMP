@@ -10,6 +10,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(projects.logger.crashlytics.api)

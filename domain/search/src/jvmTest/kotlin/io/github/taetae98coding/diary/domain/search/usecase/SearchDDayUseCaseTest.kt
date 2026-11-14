@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.search.repository.AccountSearchDDayRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -31,7 +32,7 @@ class SearchDDayUseCaseTest :
             val ddayList = List(2) { Arb.dday(isDeleted = false).next() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchDDayRepository = mockk<AccountSearchDDayRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every {
                 accountSearchDDayRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(ddayList))
@@ -60,7 +61,7 @@ class SearchDDayUseCaseTest :
             val ddayList = List(2) { Arb.dday(isDeleted = false).next() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchDDayRepository = mockk<AccountSearchDDayRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             every {
                 accountSearchDDayRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(ddayList))
@@ -105,7 +106,7 @@ class SearchDDayUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchDDayRepository = mockk<AccountSearchDDayRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchDDayUseCase(
                     getAccountUseCase = getAccountUseCase,

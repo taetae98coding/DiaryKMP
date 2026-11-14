@@ -149,7 +149,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `TC-750dee5b-b148-4ca1-89ab-0846a22ac5da 상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
+    fun `TC-750dee5b-b148-4ca1-89ab-0846a22ac5da 상세 영역에 태그 추가 화면이 표시되면 추가 버튼이 없고 Cmd A 단축키로도 태그 추가를 다시 열지 않는다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -157,6 +157,7 @@ class TagHomeScreenTest {
             componentVisible = TagHomeScaffoldComponentVisible(isAddButtonVisible = false),
         )
 
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onRoot().performKeyInput {
             keyDown(Key.MetaLeft)
             keyDown(Key.A)

@@ -4,9 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.map.google.GoogleMap
-import io.github.taetae98coding.diary.compose.map.naver.NaverMap
-import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import kotlin.uuid.Uuid
 
 public interface DiaryMapContentOverride {
@@ -40,26 +37,12 @@ public class DiaryMapContentOverrideScope internal constructor(
     }
 }
 
-public object PlatformDiaryMapContentOverride : DiaryMapContentOverride {
+public expect val PlatformDiaryMapContentOverride: DiaryMapContentOverride
+
+internal object UnprovidedDiaryMapContentOverride : DiaryMapContentOverride {
     @Composable
     override fun DiaryMapContentOverrideScope.MapContent() {
-        when (state.provider) {
-            DiaryMapProvider.NAVER ->
-                NaverMap(
-                    state = state,
-                    modifier = modifier,
-                    onSpotClick = onSpotClick,
-                    onPinClick = onPinClick,
-                )
-
-            DiaryMapProvider.GOOGLE ->
-                GoogleMap(
-                    state = state,
-                    modifier = modifier,
-                    onSpotClick = onSpotClick,
-                    onPinClick = onPinClick,
-                )
-        }
+        error("LocalDiaryMapContentOverride에 플랫폼 지도 구현을 제공해야 한다.")
     }
 }
 

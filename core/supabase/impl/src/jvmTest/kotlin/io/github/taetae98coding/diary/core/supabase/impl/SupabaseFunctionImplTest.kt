@@ -8,8 +8,10 @@ import io.github.jan.supabase.auth.minimalConfig
 import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
+import io.github.taetae98coding.diary.core.network.api.fcm.entity.FcmTokenRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
 import io.github.taetae98coding.diary.core.supabase.impl.di.SupabaseHttpClientEngine
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
@@ -126,7 +128,7 @@ class SupabaseFunctionImplTest :
             }
         }
 
-        test("로그인했으면 세션의 접근 정보로 인증하고 본문을 JSON으로 보낸다") {
+        test("TC-151a7384-b1d2-4272-a502-e16304ba0087 로그인했으면 세션의 접근 정보로 인증하고 본문을 JSON으로 보낸다") {
             var request: HttpRequestData? = null
             val client =
                 createSupabaseClient(
@@ -159,6 +161,35 @@ class SupabaseFunctionImplTest :
 
             request?.headers?.get(HttpHeaders.Authorization) shouldBe "Bearer access-token"
             (request?.body as? TextContent)?.text shouldBe """{"token":"token-a"}"""
+            client.close()
+        }
+
+        test("TC-151a7384-b1d2-4272-a502-e16304ba0087 TC-3822e4ff-6e13-4ed0-8859-8ee236fd553d 수신 등록 본문은 비어 있는 시간대와 언어를 담지 않는다") {
+            val bodyList = mutableListOf<String?>()
+            val client =
+                createSupabaseClient(
+                    MockEngine { data ->
+                        bodyList += (data.body as? TextContent)?.text
+                        respondOk()
+                    },
+                )
+            val function = SupabaseFunctionImpl(client = client)
+            val installationId = Arb.alphanumericString(prefix = "fid").next()
+            val timeZone = Arb.alphanumericString(prefix = "timeZone").next()
+            val language = Arb.alphanumericString(prefix = "language").next()
+
+            listOf(
+                FcmTokenRemoteEntity(installationId = installationId, timeZone = timeZone, language = language),
+                FcmTokenRemoteEntity(installationId = installationId),
+            ).forEach { body ->
+                function(function = functionName(), body = body, typeInfo = typeInfo<FcmTokenRemoteEntity>())
+            }
+
+            bodyList shouldBe
+                listOf(
+                    """{"installationId":"$installationId","timeZone":"$timeZone","language":"$language"}""",
+                    """{"installationId":"$installationId"}""",
+                )
             client.close()
         }
 

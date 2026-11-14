@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
@@ -42,7 +43,7 @@ internal class FileAddViewModel(
     val uiState: StateFlow<FileAddUiState> =
         combine(
             selectedFile,
-            getFileUploadStateUseCase(parameter = Unit).map { result -> result.getOrNull() is FileUploadState.Uploading },
+            getFileUploadStateUseCase().map { result -> result.getOrNull() is FileUploadState.Uploading },
             isRequesting,
         ) { selectedFile, isUploading, isRequesting ->
             FileAddUiState(selectedFile = selectedFile, isUploading = isUploading || isRequesting)
@@ -57,7 +58,7 @@ internal class FileAddViewModel(
     val effect: Flow<FileAddEffect> =
         merge(
             _effect.receiveAsFlow(),
-            getFileUploadEventUseCase(parameter = Unit).mapNotNull { result -> result.getOrNull()?.toEffect() },
+            getFileUploadEventUseCase().mapNotNull { result -> result.getOrNull()?.toEffect() },
         )
 
     private val inProgressSelectUriSet = mutableSetOf<FileUri>()

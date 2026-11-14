@@ -7,7 +7,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -17,6 +22,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
@@ -35,13 +42,13 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.localDateRange
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,10 +64,10 @@ class MemoGeminiScreenTest {
 
     @Test
     fun `TC-26885e8c-431a-4b1a-a6b5-1dd7f4dbd92e 반영은 태그, 대표 태그, 웹, 장소, 연락처 선택을 바꾸지 않는다`() {
-        val tag = testTag(title = "태그 ${Arb.string().next()}")
-        val web = testWeb(title = "웹 ${Arb.string().next()}")
-        val contact = testContact(name = "연락처 ${Arb.string().next()}")
-        val place = testPlace(title = "장소 ${Arb.string().next()}")
+        val tag = testTag(title = "태그 ${Arb.nonBlankString().next()}")
+        val web = testWeb(title = "웹 ${Arb.nonBlankString().next()}")
+        val contact = testContact(name = "연락처 ${Arb.nonBlankString().next()}")
+        val place = testPlace(title = "장소 ${Arb.nonBlankString().next()}")
         val viewModels =
             screenTestRealViewModel(
                 initialPrimaryTagId = tag.id,
@@ -118,11 +125,34 @@ class MemoGeminiScreenTest {
     }
 
     @Test
+    fun `TC-b3f1024f-8715-4737-8392-c8d2c2b4dedb 도우미가 열려 있는 동안 단축키는 메모를 추가하지 않는다`() {
+        val viewModels = screenTestViewModel()
+        val geminiUiState = MutableStateFlow(MemoGeminiUiState())
+        val geminiViewModel = screenTestGeminiViewModel(uiState = geminiUiState)
+        setMemoAddScreen(viewModels = viewModels, geminiViewModel = geminiViewModel)
+        writePrompt(geminiUiState = geminiUiState, memoText = memoText(), prompt = promptText())
+
+        composeRule.onNode(promptInput).performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.Enter)
+            keyUp(Key.Enter)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { viewModels.viewModel.add(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
     fun `TC-9bd9cf15-aeb8-4f21-ad73-2e0b0bd4614c 취소하면 적었던 프롬프트가 남고 결과와 메모 입력은 바뀌지 않는다`() {
         val memoText = memoText()
+        val memoDescription = memoText()
         val prompt = promptText()
         val geminiUiState = MutableStateFlow(MemoGeminiUiState())
         setMemoAddScreen(viewModels = screenTestViewModel(), geminiViewModel = screenTestGeminiViewModel(uiState = geminiUiState))
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(memoInput)[1].performTextInput(memoDescription)
+        composeRule.onNode(memoDateTimeSwitch).performScrollTo().performClick()
         writePrompt(geminiUiState = geminiUiState, memoText = memoText, prompt = prompt)
 
         geminiUiState.value = MemoGeminiUiState(step = MemoGeminiStep.GENERATING)
@@ -133,6 +163,8 @@ class MemoGeminiScreenTest {
         composeRule.onNode(promptInput).assert(hasText(prompt))
         composeRule.onNodeWithContentDescription(APPLY_TITLE_DESCRIPTION).assertDoesNotExist()
         composeRule.onAllNodes(memoInput)[0].assert(hasText(memoText))
+        composeRule.onAllNodes(memoInput)[1].assert(hasText(memoDescription))
+        composeRule.onNode(memoDateTimeSwitch).assertIsOn()
     }
 
     @Test
@@ -383,6 +415,8 @@ class MemoGeminiScreenTest {
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
                 navigateToGeminiSetting = {},
+                initialTitle = "",
+                initialDescription = "",
                 initialDateTime = null,
                 componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                 isStandalone = true,
@@ -392,9 +426,9 @@ class MemoGeminiScreenTest {
 
     private fun createDraft(): MemoDraft =
         MemoDraft(
-            title = "제목 ${Arb.string().next()}",
-            description = "설명 ${Arb.string().next()}",
-            dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 9, 21)..LocalDate(2026, 9, 22)),
+            title = "제목 ${Arb.nonBlankString().next()}",
+            description = "설명 ${Arb.nonBlankString().next()}",
+            dateTime = MemoDateTime.AllDay(dateRange = Arb.localDateRange().next()),
         )
 
     private companion object {
@@ -408,6 +442,7 @@ class MemoGeminiScreenTest {
 
         private val promptInput = hasSetTextAction() and hasAnyAncestor(isDialog())
         private val memoInput = hasSetTextAction() and !hasAnyAncestor(isDialog())
+        private val memoDateTimeSwitch = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch) and !hasAnyAncestor(isDialog())
 
         private fun memoText(): String = "메모 ${Arb.kotlinUuid().next()}"
 

@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -30,7 +31,7 @@ class GetSelectedPlaceUseCaseTest :
             val placeList = List(2) { place() }
             val placeIdSet = placeList.mapTo(mutableSetOf()) { place -> place.id }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             every { accountPlaceRepository.get(account = account, placeIdSet = placeIdSet) } returns flowOf(placeList)
             val useCase =
@@ -67,7 +68,7 @@ class GetSelectedPlaceUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
             val useCase =
                 GetSelectedPlaceUseCase(

@@ -37,4 +37,9 @@ internal class SearchAppFunction(
         sort: String?,
         cursor: String?,
     ): AppFunctionSearchDDayPage = appFunctionCall { searchAppAction.dday(query = query, sort = sort, cursor = cursor).toAppFunctionSearchDDayPage() }
+
+    suspend fun routine(
+        query: String,
+        cursor: String?,
+    ): AppFunctionSearchRoutinePage = appFunctionCall { searchAppAction.routine(query = query, cursor = cursor).toAppFunctionSearchRoutinePage() }
 }

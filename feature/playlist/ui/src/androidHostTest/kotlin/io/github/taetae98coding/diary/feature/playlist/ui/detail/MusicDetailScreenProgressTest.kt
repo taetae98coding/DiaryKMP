@@ -103,6 +103,26 @@ class MusicDetailScreenProgressTest {
     }
 
     @Test
+    fun `TC-0de5a3ea-5a17-4ad0-b04b-b0ea03a9d9d7 다시 불러오기를 처리하는 동안 불러오기 버튼이 진행 표시로 바뀐다`() {
+        val uiState = contentUiState()
+        setMusicDetailScreen(uiState = uiState)
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_FETCH_BUTTON_LABEL).assertExists()
+
+        composeRule.runOnIdle { uiState.value = uiState.content().copy(isLinkFetchInProgress = true) }
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithText(DEFAULT_FETCH_BUTTON_LABEL).assertDoesNotExist()
+
+        composeRule.runOnIdle { uiState.value = uiState.content().copy(isLinkFetchInProgress = false) }
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_FETCH_BUTTON_LABEL).assertExists()
+    }
+
+    @Test
     fun `TC-5821617e-dd84-4d81-a046-c09757c3cee6 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀌고 다른 동작은 실행할 수 있다`() {
         val uiState = contentUiState()
         val viewModel = setMusicDetailScreen(uiState = uiState)
@@ -172,6 +192,7 @@ class MusicDetailScreenProgressTest {
                     navigateToTagDetail = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }
@@ -182,5 +203,6 @@ class MusicDetailScreenProgressTest {
 
     private companion object {
         private const val DEFAULT_UPDATE_SUCCEEDED_MESSAGE = "Music updated."
+        private const val DEFAULT_FETCH_BUTTON_LABEL = "Fetch"
     }
 }

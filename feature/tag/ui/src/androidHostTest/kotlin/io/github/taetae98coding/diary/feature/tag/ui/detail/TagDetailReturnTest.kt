@@ -31,12 +31,14 @@ import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.qr.QrListEffect
+import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WebListEffect
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
 import io.github.taetae98coding.diary.feature.tag.ui.tagContact
 import io.github.taetae98coding.diary.feature.tag.ui.tagDDay
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
@@ -45,8 +47,11 @@ import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMusic
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tagQr
+import io.github.taetae98coding.diary.feature.tag.ui.tagRoutine
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -71,10 +76,11 @@ class TagDetailReturnTest {
     private val web = tagWeb(title = WEB_TITLE)
     private val place = tagPlace(title = PLACE_TITLE)
     private val contact = tagContact(name = CONTACT_TITLE)
-    private val checklist = tagChecklist(title = CHECKLIST_TITLE)
+    private val checklist = Arb.checklistSummary(title = CHECKLIST_TITLE).next()
     private val music = tagMusic(title = MUSIC_TITLE)
     private val qr = tagQr(title = QR_TITLE)
     private val dday = tagDDay(title = DDAY_TITLE)
+    private val routine = tagRoutine(title = ROUTINE_TITLE)
 
     @Before
     fun resetUiDispatcher() {
@@ -522,6 +528,97 @@ class TagDetailReturnTest {
         verify(exactly = 0) { requireNotNull(ddayViewModelRef).restore(id = any()) }
     }
 
+    @Test
+    fun `TC-cf571500-f119-4c15-8af2-eeb6e026aea7 루틴 추가에서 뒤로가면 루틴 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(ROUTINE_ADD)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+    }
+
+    // 루틴 상세는 삭제에 성공하면 뒤로가기와 같은 닫기를 부르므로, TagDetail에서 본 두 경우의 결과는 위에 놓인 상세가 닫히는 것으로 같다.
+    @Test
+    fun `TC-cf571500-f119-4c15-8af2-eeb6e026aea7 루틴 상세가 닫히면 루틴 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+        waitForText(ROUTINE_TITLE)
+
+        composeRule.onNodeWithText(ROUTINE_TITLE).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(ROUTINE_DETAIL)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).assertIsSelected()
+        waitForText(ROUTINE_TITLE)
+        composeRule.onNodeWithText(ROUTINE_TITLE).assertExists()
+    }
+
+    // 상세에서 완료한 루틴은 루틴 탭의 조회 결과에서 빠진다.
+    @Test
+    fun `TC-3d414b3d-83ed-48bd-8374-ea96a5353030 루틴 상세에서 완료한 루틴이 조회 결과에서 빠지면 돌아온 루틴 탭 목록에 표시되지 않는다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+        waitForText(ROUTINE_TITLE)
+
+        composeRule.onNodeWithText(ROUTINE_TITLE).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(ROUTINE_DETAIL)
+        composeRule.runOnIdle { routinePagingDataFlow.value = tagEntityPagingData(itemList = emptyList()) }
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(ROUTINE_TITLE).fetchSemanticsNodes().isEmpty()
+        }
+    }
+
+    // 완료된 루틴 목록의 뒤로가기가 그 목록과 상세를 함께 닫는 이력은 TagRoutineFinishedListNavigationTest가 확인한다.
+    @Test
+    fun `TC-ec07790d-e535-491c-9bf1-2cd0a6651514 TC-d1d859f0-ded0-4a98-9b1e-72de4ac09d74 완료된 루틴 목록이 닫히면 루틴 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+        waitForText(ROUTINE_TITLE)
+
+        composeRule.onNodeWithText(DEFAULT_ROUTINE_FINISHED_LIST_LABEL).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(ROUTINE_FINISHED_LIST)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ROUTINE_TAB_DESCRIPTION).assertIsSelected()
+        waitForText(ROUTINE_TITLE)
+        composeRule.onNodeWithText(ROUTINE_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-08251779-86e8-457f-b586-8e168b730047 루틴 탭의 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_ROUTINE_TAB_DESCRIPTION)
+        waitForText(ROUTINE_TITLE)
+
+        composeRule.onNode(hasTestTag(ROUTINE_CARD_TEST_TAG) and hasText(ROUTINE_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        routinePagingDataFlow.value = tagEntityPagingData(itemList = emptyList())
+        routineEffectFlow.tryEmit(RoutineListEffect.Deleted(id = routine.routine.id))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_ROUTINE_DELETED_MESSAGE).assertIsDisplayed()
+
+        leaveAndReturn()
+
+        composeRule.onNodeWithText(DEFAULT_ROUTINE_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { requireNotNull(routineViewModelRef).restore(id = any()) }
+    }
+
     private fun waitForText(text: String) {
         composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
@@ -562,6 +659,7 @@ class TagDetailReturnTest {
             musicPagingData = tagEntityPagingData(itemList = listOf(music)),
             qrPagingData = tagEntityPagingData(itemList = listOf(qr)),
             ddayPagingData = tagEntityPagingData(itemList = listOf(dday)),
+            routinePagingData = tagEntityPagingData(itemList = listOf(routine)),
         )
 
         composeRule.setContent {
@@ -596,6 +694,9 @@ class TagDetailReturnTest {
                             navigateToQrDetail = { leaveTo(QR_DETAIL) },
                             navigateToDDayAdd = { leaveTo(DDAY_ADD) },
                             navigateToDDayDetail = { leaveTo(DDAY_DETAIL) },
+                            navigateToRoutineAdd = { leaveTo(ROUTINE_ADD) },
+                            navigateToRoutineDetail = { leaveTo(ROUTINE_DETAIL) },
+                            navigateToRoutineFinishedList = { leaveTo(ROUTINE_FINISHED_LIST) },
                         )
                     }
                 } else {
@@ -652,6 +753,13 @@ class TagDetailReturnTest {
         const val DDAY_TITLE = "TagDetailReturnDDay"
         const val DEFAULT_DDAY_ADD_DESCRIPTION = "Add D-Day"
         const val DEFAULT_DDAY_DELETED_MESSAGE = "D-Day deleted."
+        const val ROUTINE_ADD = "RoutineAdd"
+        const val ROUTINE_DETAIL = "RoutineDetail"
+        const val ROUTINE_FINISHED_LIST = "TagRoutineFinishedList"
+        const val DEFAULT_ROUTINE_FINISHED_LIST_LABEL = "Finished routines"
+        const val ROUTINE_TITLE = "TagDetailReturnRoutine"
+        const val DEFAULT_ROUTINE_ADD_DESCRIPTION = "Add routine"
+        const val DEFAULT_ROUTINE_DELETED_MESSAGE = "Routine deleted."
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
     }
 }

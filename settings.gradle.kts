@@ -33,7 +33,7 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("ktorLibs") {
-            from("io.ktor:ktor-version-catalog:3.6.0") // https://github.com/ktorio/ktor/releases
+            from("io.ktor:ktor-version-catalog:3.6.1") // https://github.com/ktorio/ktor/releases
         }
     }
 }
@@ -66,6 +66,7 @@ include(":compose:music")
 include(":compose:permission")
 include(":compose:place")
 include(":compose:qr")
+include(":compose:routine")
 include(":compose:tag")
 include(":compose:timetable")
 include(":compose:web")
@@ -123,6 +124,7 @@ include(":data:memo")
 include(":data:place")
 include(":data:playlist")
 include(":data:qr")
+include(":data:routine")
 include(":data:search")
 include(":data:setting")
 include(":data:sync")
@@ -144,8 +146,10 @@ include(":domain:memo")
 include(":domain:place")
 include(":domain:playlist")
 include(":domain:qr")
+include(":domain:routine")
 include(":domain:search")
 include(":domain:setting")
+include(":domain:share")
 include(":domain:sync")
 include(":domain:tag")
 include(":domain:weather")

@@ -15,16 +15,15 @@ import org.koin.core.annotation.Single
 @Single(binds = [DeepLinkNavigation::class])
 internal class QrDetailDeepLinkNavigation :
     DeepLinkNavigation by UriDeepLinkMatcher(DeepLinkUri(ScreenDeepLink.QR_DETAIL), QrDetailNavKey.serializer())
-        .toDeepLinkNavigation({ result, isLaunch -> openQrDetail(detailKey = result.key, isLaunch = isLaunch, listBackStack = topLevelBackStackOf(MoreHomeNavKey) + QrHomeNavKey) })
+        .toDeepLinkNavigation({ result, isLaunch -> openQrDetail(detailKey = result.key.copy(isStandalone = true), isLaunch = isLaunch, listBackStack = topLevelBackStackOf(MoreHomeNavKey) + QrHomeNavKey) })
 
-// 앱 밖에서 상세를 열 때, 앱을 새로 시작했으면 목록 위에 상세를 쌓고 보던 화면이 있으면 그 위에 쌓는다. 보던 화면이 같은 상세면 쌓지 않는다.
 private fun ScreenNavigator.openQrDetail(
-    detailKey: ScreenNavKey,
+    detailKey: QrDetailNavKey,
     listBackStack: List<ScreenNavKey>,
     isLaunch: Boolean,
 ) {
     when {
-        backStack.lastOrNull() == detailKey -> Unit
+        (backStack.lastOrNull() as? QrDetailNavKey)?.id == detailKey.id -> Unit
 
         isLaunch -> {
             backStack.clear()

@@ -15,6 +15,7 @@ struct DeleteWebIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await WebEntityQuery.require(webId: web.id)
         let changedCount = try await appAction { try await DiaryWebAppAction.shared.delete(webId: web.id) }
         return .result(
             value: Int(changedCount),
@@ -58,7 +59,9 @@ struct LinkTagToWebIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        _ = try await appAction { try await DiaryWebAppAction.shared.tagAdd(webId: web.id, tagId: tag.id) }
+        _ = try await WebEntityQuery.require(webId: web.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.add(kind: .WEB, entityId: web.id, tagId: tag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
 }
@@ -78,7 +81,9 @@ struct UnlinkTagFromWebIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        _ = try await appAction { try await DiaryWebAppAction.shared.tagRemove(webId: web.id, tagId: tag.id) }
+        _ = try await WebEntityQuery.require(webId: web.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryEntityTagAppAction.shared.remove(kind: .WEB, entityId: web.id, tagId: tag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }
 }

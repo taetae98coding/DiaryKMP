@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -71,6 +72,8 @@ internal fun ComposeContentTestRule.setMemoAddScreenForTagAdd(
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
                 navigateToGeminiSetting = {},
+                initialTitle = "",
+                initialDescription = "",
                 initialDateTime = null,
                 componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                 isStandalone = true,
@@ -238,6 +241,7 @@ class MemoAddScreenTagAddedResultTest {
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
+        composeRule.onNode(hasPrimaryTagState() and hasText(WORK_TAG_TITLE)).assertExists()
     }
 
     @Test

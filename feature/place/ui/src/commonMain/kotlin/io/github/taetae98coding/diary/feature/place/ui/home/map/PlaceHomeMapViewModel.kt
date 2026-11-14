@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.place.ui.home.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeUiState
@@ -24,7 +25,7 @@ internal class PlaceHomeMapViewModel(
 
     val uiState: StateFlow<PlaceHomeUiState> =
         combine(
-            getDefaultMapProviderUseCase(parameter = Unit),
+            getDefaultMapProviderUseCase(),
             currentLocationState,
         ) { providerResult, currentLocationState ->
             val provider = providerResult.getOrNull()
@@ -49,7 +50,7 @@ internal class PlaceHomeMapViewModel(
         currentLocationState.value = CurrentLocationState.InProgress
 
         viewModelScope.launch {
-            val coordinate = fetchCurrentLocationUseCase(parameter = Unit).getOrNull()
+            val coordinate = fetchCurrentLocationUseCase().getOrNull()
 
             currentLocationState.value = CurrentLocationState.Finished(coordinate = coordinate)
         }

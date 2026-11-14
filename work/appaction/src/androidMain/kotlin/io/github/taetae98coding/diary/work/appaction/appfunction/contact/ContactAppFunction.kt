@@ -5,8 +5,6 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctio
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.appFunctionCall
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionChangedCount
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionId
-import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoPage
-import io.github.taetae98coding.diary.work.appaction.appfunction.memo.toAppFunctionMemoPage
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactUpdateInput
 import io.github.taetae98coding.diary.work.appaction.contact.ContactAppAction
 
@@ -18,19 +16,7 @@ internal class ContactAppFunction(
         cursor: String?,
     ): AppFunctionContactPage = appFunctionCall { contactAppAction.list(sort = sort, cursor = cursor).toAppFunctionContactPage() }
 
-    suspend fun get(contactId: String): AppFunctionContactDetail? = appFunctionCall { contactAppAction.get(contactId = contactId)?.toAppFunctionContactDetail() }
-
-    suspend fun memoList(
-        contactId: String,
-        sort: String?,
-        cursor: String?,
-    ): AppFunctionMemoPage = appFunctionCall { contactAppAction.memoList(contactId = contactId, sort = sort, cursor = cursor).toAppFunctionMemoPage() }
-
-    suspend fun memoFinishedList(
-        contactId: String,
-        sort: String?,
-        cursor: String?,
-    ): AppFunctionMemoPage = appFunctionCall { contactAppAction.memoFinishedList(contactId = contactId, sort = sort, cursor = cursor).toAppFunctionMemoPage() }
+    suspend fun get(contactId: String): AppFunctionContactDetailWithTags? = appFunctionCall { contactAppAction.get(contactId = contactId)?.toAppFunctionContactDetailWithTags() }
 
     suspend fun add(
         name: String,
@@ -43,6 +29,7 @@ internal class ContactAppFunction(
         hometown: String?,
         howWeMet: String?,
         phoneNumbers: List<String>,
+        tagIds: List<String>,
     ): AppFunctionId =
         appFunctionCall {
             contactAppAction
@@ -57,6 +44,7 @@ internal class ContactAppFunction(
                     hometown = hometown,
                     howWeMet = howWeMet,
                     phoneNumbers = phoneNumbers,
+                    tagIds = tagIds,
                 ).toAppFunctionId()
         }
 

@@ -23,6 +23,8 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
@@ -542,6 +544,15 @@ class AppStateTest :
                             TagHomeFilterNavKey,
                         ),
                 ),
+                DetailDestinationCase(
+                    topLevelNavigation = TopLevelNavigation.Routine,
+                    backStack =
+                        listOf(
+                            TopLevelNavigation.DEFAULT.key,
+                            TopLevelNavigation.Routine.key,
+                            RoutineHomeFilterNavKey,
+                        ),
+                ),
             )
 
         private fun listDetailStandaloneCases(): List<DetailDestinationCase> =
@@ -636,6 +647,14 @@ class AppStateTest :
                     topLevelNavigation = TopLevelNavigation.Tag,
                     backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Tag.key, TagDetailNavKey(Arb.kotlinUuid().next())),
                 ),
+                DetailDestinationCase(
+                    topLevelNavigation = TopLevelNavigation.Routine,
+                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Routine.key, RoutineAddNavKey()),
+                ),
+                DetailDestinationCase(
+                    topLevelNavigation = TopLevelNavigation.Routine,
+                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Routine.key, RoutineDetailNavKey(Arb.kotlinUuid().next())),
+                ),
             )
 
         private fun leftDestinationCases(): List<DetailDestinationCase> =
@@ -648,7 +667,9 @@ class AppStateTest :
                 TopLevelNavigation.Tag to TagHomeFilterNavKey,
                 TopLevelNavigation.Calendar to MemoDetailNavKey(Arb.kotlinUuid().next()),
                 TopLevelNavigation.Calendar to CalendarHomeFilterNavKey,
-                TopLevelNavigation.Routine to RoutineAddNavKey,
+                TopLevelNavigation.Routine to RoutineAddNavKey(),
+                TopLevelNavigation.Routine to RoutineDetailNavKey(Arb.kotlinUuid().next()),
+                TopLevelNavigation.Routine to RoutineHomeFilterNavKey,
                 TopLevelNavigation.More to LoginHomeNavKey,
                 TopLevelNavigation.More to SettingHomeNavKey,
             ).map { (topLevelNavigation, openedKey) ->

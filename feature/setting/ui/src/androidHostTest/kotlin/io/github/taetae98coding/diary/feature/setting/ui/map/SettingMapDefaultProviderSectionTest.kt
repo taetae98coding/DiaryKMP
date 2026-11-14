@@ -90,6 +90,17 @@ class SettingMapDefaultProviderSectionTest {
         selectedProviders shouldBe listOf(MapProvider.GOOGLE)
     }
 
+    @Test
+    fun `TC-5675f575-9e4c-44ce-9b35-6a1ff32ac7aa Google이 저장된 상태에서 네이버 줄을 선택하면 네이버를 요청한다`() {
+        val selectedProviders = mutableListOf<MapProvider>()
+        setSettingMapDefaultProviderSection(defaultProviderProvider = { MapProvider.GOOGLE }, onSelect = { provider -> selectedProviders.add(provider) })
+
+        composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        selectedProviders shouldBe listOf(MapProvider.NAVER)
+    }
+
     private fun setSettingMapDefaultProviderSection(
         defaultProviderProvider: () -> MapProvider = { MapProvider.NAVER },
         onSelect: (MapProvider) -> Unit = {},

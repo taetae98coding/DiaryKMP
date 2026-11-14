@@ -88,6 +88,20 @@ class MemoNavigationTest :
             backStack shouldContainExactly listOf(MemoHomeNavKey)
         }
 
+        test("TC-821d565f-c0bb-436a-9eb6-a1487ef1779f 단독으로 연 메모 상세에서 복사하면 복사한 메모 상세도 단독으로 놓는다") {
+            val copiedId = Arb.kotlinUuid().next()
+            val backStack =
+                NavBackStack<ScreenNavKey>(
+                    MemoHomeNavKey,
+                    MemoDetailNavKey(id = Arb.kotlinUuid().next(), isStandalone = true),
+                )
+
+            backStack.navigateToCopiedMemo(copiedId)
+
+            backStack shouldContainExactly listOf(MemoHomeNavKey, MemoDetailNavKey(id = copiedId, isStandalone = true))
+            backStack.memoDetailPaneSceneKey(backStack.last()).shouldBeNull()
+        }
+
         test("TC-762386df-655e-4d63-a1bb-8fd0fca5f3c8 완료된 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {
             val tagId = Arb.kotlinUuid().next()
             val copiedId = Arb.kotlinUuid().next()
@@ -198,6 +212,31 @@ class MemoNavigationTest :
                 backStack.add(MemoFinishedListNavKey)
                 backStack.navigateToMemoDetail(Arb.kotlinUuid().next())
                 backStack.navigateUpFromMemoFinishedList()
+
+                backStack shouldContainExactly listOf(MemoHomeNavKey) + homeDetailList
+                backStack.memoDetailPaneSceneKey(backStack.last()) shouldBe MemoHomeNavKey
+
+                backStack.removeLastOrNull()
+
+                backStack shouldContainExactly listOf(MemoHomeNavKey) + expectedAfterBack
+            }
+        }
+
+        test("TC-4e6f850c-a948-4ea4-88d7-24d1166ad321 검색에 다녀와도 상세 영역과 뒤로가기 기록이 그대로다") {
+            val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+            val addKey = MemoAddNavKey()
+            val cases: List<Pair<List<ScreenNavKey>, List<ScreenNavKey>>> =
+                listOf(
+                    listOf(homeDetailKey) to emptyList(),
+                    listOf(homeDetailKey, addKey) to listOf(homeDetailKey),
+                )
+
+            cases.forEach { (homeDetailList, expectedAfterBack) ->
+                val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, *homeDetailList.toTypedArray())
+
+                backStack.navigateToSearchFromMemoHome()
+                backStack.memoDetailPaneSceneKey(backStack.last()).shouldBeNull()
+                backStack.removeLastOrNull()
 
                 backStack shouldContainExactly listOf(MemoHomeNavKey) + homeDetailList
                 backStack.memoDetailPaneSceneKey(backStack.last()) shouldBe MemoHomeNavKey

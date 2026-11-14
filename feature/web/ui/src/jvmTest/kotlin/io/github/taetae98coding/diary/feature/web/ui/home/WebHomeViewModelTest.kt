@@ -92,7 +92,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-80de79be-57d0-40e4-a072-5d794bca3459 처음 정렬은 제목순이다") {
+        test("처음 정렬은 제목순이다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))))
 

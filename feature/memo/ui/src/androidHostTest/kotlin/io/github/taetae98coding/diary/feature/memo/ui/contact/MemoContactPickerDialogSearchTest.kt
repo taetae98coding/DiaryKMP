@@ -1,13 +1,19 @@
 package io.github.taetae98coding.diary.feature.memo.ui.contact
 
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -134,12 +140,44 @@ class MemoContactPickerDialogSearchTest {
 
     @Test
     fun `TC-819d8dfb-323e-406a-b0db-e49ba4de0796 검색어에 맞는 연락처가 없으면 결과 없음을 알린다`() {
-        composeRule.setMemoContactPickerDialogHost(contactList = emptyList())
+        setSearchableContactPickerDialogHost(contactList = listOf(testContact(name = FIRST_CONTACT_NAME), testContact(name = SECOND_CONTACT_NAME)))
+        composeRule.awaitContactPickerRows()
+        composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+
         composeRule.contactDialogSearchField().performTextInput(WIKI_CONTACT_QUERY)
-        composeRule.waitForIdle()
+        awaitSearchEmptyNotice()
 
         composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_SEARCH_EMPTY_TITLE).assertExists()
         composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_SEARCH_EMPTY_DESCRIPTION).assertExists()
+        composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).assertDoesNotExist()
+        composeRule.contactDialogNodeWithText(SECOND_CONTACT_NAME).assertDoesNotExist()
+    }
+
+    // 검색어에 맞는 연락처를 고르는 조회 자체는 저장소 테스트가 검증하므로, 여기서는 검색어가 전달되면 그 조건의 결과가 이어서 도착하게 한다.
+    private fun setSearchableContactPickerDialogHost(
+        contactList: List<ContactListItem>,
+        onContactAdd: () -> Unit = {},
+    ) {
+        val contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(contactList))
+        composeRule.setMemoContactPickerDialogHost(
+            contactPagingDataFlow = contactPagingDataFlow,
+            onQueryChange = { query ->
+                contactPagingDataFlow.value =
+                    contactPagingDataOf(
+                        contactList.filter { item ->
+                            item.contact.detail.name
+                                .contains(query, ignoreCase = true)
+                        },
+                    )
+            },
+            onContactAdd = onContactAdd,
+        )
+    }
+
+    private fun awaitSearchEmptyNotice() {
+        composeRule.waitUntil(timeoutMillis = SEARCH_TIMEOUT_MILLIS) {
+            composeRule.onAllNodes(hasText(DEFAULT_CONTACT_PICKER_SEARCH_EMPTY_TITLE) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     @Test
@@ -164,14 +202,19 @@ class MemoContactPickerDialogSearchTest {
     @Test
     fun `TC-6954e851-afe3-4a3e-9c02-a2f822b00fd6 검색 결과가 없어도 연락처 추가 항목으로 이동을 전달한다`() {
         var contactAddCount = 0
-        composeRule.setMemoContactPickerDialogHost(contactList = emptyList(), onContactAdd = { contactAddCount += 1 })
+        setSearchableContactPickerDialogHost(
+            contactList = listOf(testContact(name = FIRST_CONTACT_NAME), testContact(name = SECOND_CONTACT_NAME)),
+            onContactAdd = { contactAddCount += 1 },
+        )
+        composeRule.awaitContactPickerRows()
         composeRule.contactDialogSearchField().performTextInput(WIKI_CONTACT_QUERY)
-        composeRule.waitForIdle()
+        awaitSearchEmptyNotice()
 
         composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_ADD_LABEL).performClick()
         composeRule.waitForIdle()
 
         contactAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -196,5 +239,6 @@ class MemoContactPickerDialogSearchTest {
 
     public companion object {
         private const val WIKI_CONTACT_QUERY = "Wiki"
+        private const val SEARCH_TIMEOUT_MILLIS = 5_000L
     }
 }

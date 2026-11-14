@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
@@ -288,7 +289,7 @@ class QrDetailViewModelTest : FunSpec() {
             val findQrUseCase = mockk<FindQrUseCase>()
             every { findQrUseCase(parameter = qr.id) } returns findResult
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(parameter = Unit) } returns flowOf(if (provider == null) Result.failure(IllegalStateException()) else Result.success(provider))
+            every { getDefaultMapProviderUseCase() } returns flowOf(if (provider == null) Result.failure(IllegalStateException()) else Result.success(provider))
 
             return QrDetailViewModel(
                 id = qr.id,

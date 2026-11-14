@@ -14,5 +14,11 @@ kotlin {
                 implementation(projects.library.locale)
             }
         }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
     }
 }

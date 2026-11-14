@@ -17,6 +17,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.core)
+                implementation(projects.compose.map)
                 implementation(projects.compose.permission)
                 implementation(projects.compose.web)
                 implementation(projects.core.calendarDatabase.impl)
@@ -50,6 +51,7 @@ kotlin {
                 implementation(projects.data.place)
                 implementation(projects.data.playlist)
                 implementation(projects.data.qr)
+                implementation(projects.data.routine)
                 implementation(projects.data.search)
                 implementation(projects.data.setting)
                 implementation(projects.data.sync)
@@ -70,8 +72,10 @@ kotlin {
                 implementation(projects.domain.place)
                 implementation(projects.domain.playlist)
                 implementation(projects.domain.qr)
+                implementation(projects.domain.routine)
                 implementation(projects.domain.search)
                 implementation(projects.domain.setting)
+                api(projects.domain.share)
                 implementation(projects.domain.sync)
                 implementation(projects.domain.tag)
                 implementation(projects.domain.weather)
@@ -117,6 +121,7 @@ kotlin {
                 implementation(projects.feature.web.api)
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)
+                implementation(projects.library.kotlin)
                 implementation(projects.work.appaction)
                 implementation(projects.work.fileUpload)
                 implementation(projects.work.mcp)
@@ -151,6 +156,8 @@ kotlin {
 
         androidHostTest {
             dependencies {
+                implementation(projects.compose.routine)
+
                 implementation(libs.androidx.lifecycle.runtime.testing)
             }
         }
@@ -158,14 +165,12 @@ kotlin {
         iosMain {
             dependencies {
                 implementation(libs.coil.network.ktor3)
-                implementation(projects.compose.map)
                 implementation(projects.work.spotlight)
             }
         }
 
         jvmMain {
             dependencies {
-                implementation(projects.compose.map)
                 runtimeOnly(libs.kotlinx.coroutines.swing)
             }
         }

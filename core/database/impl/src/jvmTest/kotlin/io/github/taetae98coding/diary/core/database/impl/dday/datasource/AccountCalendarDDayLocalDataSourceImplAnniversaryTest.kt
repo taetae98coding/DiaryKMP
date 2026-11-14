@@ -65,7 +65,6 @@ class AccountCalendarDDayLocalDataSourceImplAnniversaryTest :
                 .first()
                 .map { calendarDDay -> calendarDDay.toOccurrence() }
 
-        // 기준일 당일을 빼고 기념일만 본다.
         suspend fun anniversaryList(
             dday: DDayLocalEntity,
             endInclusive: LocalDate,

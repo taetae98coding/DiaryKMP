@@ -88,7 +88,7 @@ class QrNavigationTest :
         }
     })
 
-// QR 목록으로 진입하는 `더보기` 화면을 대신한다. `더보기` 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// QR 목록으로 진입하는 `더보기` 화면을 대신한다. `더보기` 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object MoreHomeStubNavKey : ScreenNavKey {
     override val screenName: String
         get() = "MoreHomeStub"

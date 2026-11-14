@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -10,8 +12,6 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.every
@@ -20,12 +20,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.datetime.LocalDate
 
 class GetSettingHolidayUseCaseTest :
     BehaviorSpec({
         Given("저장된 전체 공휴일과 숨김 key가 있다") {
-            val holidayList = listOf(holiday())
+            val holidayList = listOf(Arb.holiday().next())
             val hiddenKeySet = setOf(holidayList.single().name)
             val useCase =
                 getSettingHolidayUseCase(
@@ -35,7 +34,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("전체 공휴일과 숨김 key를 결합한 결과를 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe
                             holidayList.toHolidaySettingList(hiddenKeySet = hiddenKeySet)
                         awaitComplete()
@@ -45,11 +44,11 @@ class GetSettingHolidayUseCaseTest :
         }
 
         Given("설정 화면용 공휴일을 계속 조회하고 있다") {
-            val initialHolidayList = listOf(holiday(name = uniqueName(suffix = "initial")))
+            val initialHolidayList = listOf(Arb.holiday().next().copy(name = uniqueName(suffix = "initial")))
             val changedHolidayList =
                 listOf(
-                    holiday(name = uniqueName(suffix = "changed-first")),
-                    holiday(name = uniqueName(suffix = "changed-second")),
+                    Arb.holiday().next().copy(name = uniqueName(suffix = "changed-first")),
+                    Arb.holiday().next().copy(name = uniqueName(suffix = "changed-second")),
                 )
             val holidayFlow = MutableStateFlow(initialHolidayList)
             val useCase =
@@ -60,7 +59,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("저장된 전체 공휴일이 바뀐다") {
                 Then("바뀐 공휴일로 구성한 결과를 이어서 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe
                             initialHolidayList.toHolidaySettingList(hiddenKeySet = emptySet())
 
@@ -74,7 +73,7 @@ class GetSettingHolidayUseCaseTest :
         }
 
         Given("숨기지 않은 공휴일을 설정 화면용으로 계속 조회하고 있다") {
-            val holidayList = listOf(holiday())
+            val holidayList = listOf(Arb.holiday().next())
             val hiddenKeySetFlow = MutableStateFlow<Set<String>>(emptySet())
             val useCase =
                 getSettingHolidayUseCase(
@@ -84,7 +83,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("숨김 key가 바뀐다") {
                 Then("바뀐 숨김 상태를 적용한 결과를 이어서 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe
                             holidayList.toHolidaySettingList(hiddenKeySet = emptySet())
 
@@ -107,7 +106,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("빈 목록을 성공 결과로 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe emptyList()
                         awaitComplete()
                     }
@@ -125,7 +124,7 @@ class GetSettingHolidayUseCaseTest :
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("전체 공휴일을 읽지 못한 원인을 그대로 실패로 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure().shouldHaveRootCause(failure)
                         awaitComplete()
                     }
@@ -137,13 +136,13 @@ class GetSettingHolidayUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val useCase =
                 getSettingHolidayUseCase(
-                    holidayFlow = flowOf(listOf(holiday())),
+                    holidayFlow = flowOf(listOf(Arb.holiday().next())),
                     hiddenKeySetFlow = flow { throw failure },
                 )
 
             When("설정 화면용 공휴일을 조회한다") {
                 Then("숨김 key를 읽지 못한 원인을 그대로 실패로 제공한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure().shouldHaveRootCause(failure)
                         awaitComplete()
                     }
@@ -168,26 +167,9 @@ private fun getSettingHolidayUseCase(
             },
     )
 
-private fun holiday(name: String = Arb.string().next()): Holiday {
-    val start = randomDate()
-
-    return Holiday(
-        name = name,
-        isHoliday = Arb.boolean().next(),
-        dateRange = start..start,
-    )
-}
-
 private fun uniqueName(suffix: String): String = "${Arb.string().next()}-$suffix"
 
 private fun Throwable.shouldHaveRootCause(expected: Throwable) {
     generateSequence(this) { throwable -> throwable.cause }
         .last() shouldBeSameInstanceAs expected
 }
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

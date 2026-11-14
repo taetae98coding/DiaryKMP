@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -30,6 +31,7 @@ class WebAddScreenRetentionTest {
             WebAddScreenTestTheme {
                 WebAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = WebDetail.EMPTY,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},
@@ -64,6 +66,7 @@ class WebAddScreenRetentionTest {
                 WebAddScreenTestTheme {
                     WebAddScreen(
                         addedResultRequestKey = null,
+                        initialDetail = WebDetail.EMPTY,
                         navigateToTagAdd = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         navigateUp = {},

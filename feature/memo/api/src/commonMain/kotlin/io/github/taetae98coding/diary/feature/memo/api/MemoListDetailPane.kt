@@ -16,4 +16,4 @@ public fun List<ScreenNavKey>.findMemoDetailPaneListKey(
         ?.takeIf(isListKey)
 }
 
-private fun ScreenNavKey.isMemoDetailPaneKey(): Boolean = this is MemoAddNavKey || this is MemoDetailNavKey
+private fun ScreenNavKey.isMemoDetailPaneKey(): Boolean = (this is MemoAddNavKey && !isStandalone) || (this is MemoDetailNavKey && !isStandalone)

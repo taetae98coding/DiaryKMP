@@ -70,7 +70,7 @@ class TagAddScaffoldTest {
     }
 
     @Test
-    fun `TC-517526f6-8822-45ae-83e9-f4838625f001 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setTagAddScaffold(uiStateProvider = { TagAddUiState(isInProgress = true) })
 
         composeRule

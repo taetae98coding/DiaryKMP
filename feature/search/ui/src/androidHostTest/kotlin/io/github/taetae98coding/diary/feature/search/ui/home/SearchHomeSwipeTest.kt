@@ -23,11 +23,14 @@ import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoEffect
@@ -129,6 +132,46 @@ class SearchHomeSwipeTest {
     }
 
     @Test
+    fun `TC-22096372-89f3-41d5-993e-972ad9b5a566 루틴 카드를 시작 방향으로 밀면 완료 여부에 맞는 동작을 요청하고 기본 안내를 표시한다`() {
+        val unfinished = resultRoutine()
+        val finished = resultRoutine(isFinished = true)
+        composeRule.setSearchHomeScreen(routineList = listOf(unfinished, finished))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = unfinished.routine.detail.title, isRight = true)
+
+        verify(exactly = 1) { routineViewModel().finish(id = unfinished.routine.id) }
+        composeRule.onNodeWithText(DEFAULT_ROUTINE_FINISHED).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_UNDO).assertIsDisplayed()
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = finished.routine.detail.title, isRight = true)
+
+        verify(exactly = 1) { routineViewModel().restart(id = finished.routine.id) }
+        verify(exactly = 0) { routineViewModel().finish(id = finished.routine.id) }
+        composeRule.onNodeWithText(DEFAULT_ROUTINE_RESTARTED).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_UNDO).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-22096372-89f3-41d5-993e-972ad9b5a566 한국어 환경에서 루틴 완료와 다시 시작 안내를 표시한다`() {
+        val unfinished = resultRoutine()
+        val finished = resultRoutine(isFinished = true)
+        composeRule.setSearchHomeScreen(routineList = listOf(unfinished, finished))
+        composeRule.selectSearchHomeTab(KOREAN_ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = unfinished.routine.detail.title, isRight = true)
+
+        composeRule.onNodeWithText(KOREAN_ROUTINE_FINISHED).assertIsDisplayed()
+        composeRule.onNodeWithText(KOREAN_UNDO).assertIsDisplayed()
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = finished.routine.detail.title, isRight = true)
+
+        composeRule.onNodeWithText(KOREAN_ROUTINE_RESTARTED).assertIsDisplayed()
+        composeRule.onNodeWithText(KOREAN_UNDO).assertIsDisplayed()
+    }
+
+    @Test
     fun `TC-52108144-1cad-4c1b-85da-0bca00128799 네 유형의 결과 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내를 표시한다`() {
         val memo = resultMemo()
         val tag = resultTag()
@@ -198,6 +241,19 @@ class SearchHomeSwipeTest {
     }
 
     @Test
+    fun `TC-52108144-1cad-4c1b-85da-0bca00128799 루틴 결과 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내를 표시한다`() {
+        val routine = resultRoutine()
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = false)
+
+        verify(exactly = 1) { routineViewModel().delete(id = routine.routine.id) }
+        composeRule.onNodeWithText(DEFAULT_ROUTINE_DELETED).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_UNDO).assertIsDisplayed()
+    }
+
+    @Test
     @Config(qualifiers = "ko")
     fun `TC-52108144-1cad-4c1b-85da-0bca00128799 한국어 환경에서 디데이 삭제 안내를 표시한다`() {
         val dday = resultDDay()
@@ -207,6 +263,19 @@ class SearchHomeSwipeTest {
         swipeCard(testTag = DDAY_CARD_TEST_TAG, title = dday.detail.title, isRight = false)
 
         composeRule.onNodeWithText(KOREAN_DDAY_DELETED).assertIsDisplayed()
+        composeRule.onNodeWithText(KOREAN_UNDO).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-52108144-1cad-4c1b-85da-0bca00128799 한국어 환경에서 루틴 삭제 안내를 표시한다`() {
+        val routine = resultRoutine()
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(KOREAN_ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = false)
+
+        composeRule.onNodeWithText(KOREAN_ROUTINE_DELETED).assertIsDisplayed()
         composeRule.onNodeWithText(KOREAN_UNDO).assertIsDisplayed()
     }
 
@@ -306,6 +375,44 @@ class SearchHomeSwipeTest {
         clickUndo()
 
         verify(exactly = 1) { ddayViewModel().restore(id = dday.id) }
+    }
+
+    @Test
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 루틴 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
+        val routine = resultRoutine()
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = false)
+        clickUndo()
+
+        verify(exactly = 1) { routineViewModel().undo(effect = RoutineListEffect.Deleted(id = routine.routine.id)) }
+    }
+
+    @Test
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 루틴 완료를 실행 취소하면 그 완료를 되돌리는 요청을 보낸다`() {
+        val routine = resultRoutine()
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+        clickUndo()
+
+        verify(exactly = 1) { routineViewModel().undo(effect = RoutineListEffect.Finished(id = routine.routine.id)) }
+        composeRule.onNodeWithText(DEFAULT_UNDO).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 루틴 다시 시작을 실행 취소하면 그 다시 시작을 되돌리는 요청을 보낸다`() {
+        val routine = resultRoutine(isFinished = true)
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+        clickUndo()
+
+        verify(exactly = 1) { routineViewModel().undo(effect = RoutineListEffect.Restarted(id = routine.routine.id)) }
+        composeRule.onNodeWithText(DEFAULT_UNDO).assertDoesNotExist()
     }
 
     @Test
@@ -595,6 +702,64 @@ class SearchHomeSwipeTest {
         verify(exactly = 0) { tagViewModel().restart(id = tag.id) }
     }
 
+    @Test
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 완료한 루틴이 결과에 남으면 그 카드는 다시 시작을 요청한다`() {
+        val routine = resultRoutine()
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+        verify(exactly = 1) { routineViewModel().finish(id = routine.routine.id) }
+        updateRoutineResultAndAssertCardShown(routine.withFinished(isFinished = true))
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+
+        verify(exactly = 1) { routineViewModel().restart(id = routine.routine.id) }
+        verify(exactly = 1) { routineViewModel().finish(id = routine.routine.id) }
+    }
+
+    @Test
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 다시 시작한 루틴이 결과에 남으면 그 카드는 완료를 요청한다`() {
+        val routine = resultRoutine(isFinished = true)
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+        verify(exactly = 1) { routineViewModel().restart(id = routine.routine.id) }
+        updateRoutineResultAndAssertCardShown(routine.withFinished(isFinished = false))
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+
+        verify(exactly = 1) { routineViewModel().finish(id = routine.routine.id) }
+        verify(exactly = 1) { routineViewModel().restart(id = routine.routine.id) }
+    }
+
+    @Test
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 완료를 실행 취소한 루틴이 결과에 남으면 그 카드는 다시 완료를 요청한다`() {
+        val routine = resultRoutine()
+        composeRule.setSearchHomeScreen(routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+        updateRoutineResultAndAssertCardShown(routine.withFinished(isFinished = true))
+        clickUndo()
+        verify(exactly = 1) { routineViewModel().undo(effect = RoutineListEffect.Finished(id = routine.routine.id)) }
+        updateRoutineResultAndAssertCardShown(routine.withFinished(isFinished = false))
+
+        swipeCard(testTag = ROUTINE_CARD_TEST_TAG, title = routine.routine.detail.title, isRight = true)
+
+        verify(exactly = 2) { routineViewModel().finish(id = routine.routine.id) }
+        verify(exactly = 0) { routineViewModel().restart(id = routine.routine.id) }
+    }
+
+    private fun RoutineSummary.withFinished(isFinished: Boolean): RoutineSummary = copy(routine = routine.copy(isFinished = isFinished))
+
+    private fun updateRoutineResultAndAssertCardShown(routine: RoutineSummary) {
+        updateSearchRoutineResult(listOf(routine))
+        composeRule.waitForIdle()
+        composeRule.onNode(hasTestTag(ROUTINE_CARD_TEST_TAG) and hasText(routine.routine.detail.title)).assertIsDisplayed()
+    }
+
     private fun updateMemoResultAndAssertCardShown(memo: Memo) {
         updateSearchMemoResult(listOf(memo))
         composeRule.waitForIdle()
@@ -633,6 +798,8 @@ class SearchHomeSwipeTest {
 
     private fun ddayViewModel() = requireNotNull(searchDDayViewModelRef)
 
+    private fun routineViewModel() = requireNotNull(searchRoutineViewModelRef)
+
     private companion object {
         const val QUERY = "여행"
         const val DEFAULT_UNDO = "Undo"
@@ -656,6 +823,13 @@ class SearchHomeSwipeTest {
         const val DEFAULT_DDAY_DELETED = "D-Day deleted."
         const val KOREAN_DDAY_DELETED = "디데이가 삭제되었습니다."
         const val KOREAN_DDAY_TAB_LABEL = "디데이"
+        const val DEFAULT_ROUTINE_FINISHED = "Routine finished."
+        const val DEFAULT_ROUTINE_RESTARTED = "Routine restarted."
+        const val DEFAULT_ROUTINE_DELETED = "Routine deleted."
+        const val KOREAN_ROUTINE_FINISHED = "루틴이 완료되었습니다."
+        const val KOREAN_ROUTINE_RESTARTED = "루틴을 다시 시작했습니다."
+        const val KOREAN_ROUTINE_DELETED = "루틴이 삭제되었습니다."
+        const val KOREAN_ROUTINE_TAB_LABEL = "루틴"
         const val KOREAN_TAG_TAB_LABEL = "태그"
         const val KOREAN_PLACE_TAB_LABEL = "장소"
         const val KOREAN_WEB_TAB_LABEL = "웹"

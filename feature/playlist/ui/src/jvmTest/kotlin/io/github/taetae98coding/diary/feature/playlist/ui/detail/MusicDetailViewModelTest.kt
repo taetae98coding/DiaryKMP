@@ -387,6 +387,41 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-0de5a3ea-5a17-4ad0-b04b-b0ea03a9d9d7 다시 불러오기를 처리하는 동안 진행 상태를 유지하고 끝나면 해제한다") {
+            runTest(mainDispatcher) {
+                val music = music()
+                val completion = CompletableDeferred<Result<YoutubeVideo>>()
+                val useCase = mockk<FetchYoutubeVideoUseCase>()
+                coEvery { useCase(any()) } coAnswers { completion.await() }
+                val viewModel = viewModel(id = music.id, music = music, fetchYoutubeVideoUseCase = useCase)
+
+                viewModel.uiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    awaitItem()
+                        .shouldBeInstanceOf<MusicDetailUiState.Content>()
+                        .isLinkFetchInProgress
+                        .shouldBeFalse()
+
+                    viewModel.fetchLink(YOUTUBE_LINK)
+                    runCurrent()
+
+                    awaitItem()
+                        .shouldBeInstanceOf<MusicDetailUiState.Content>()
+                        .isLinkFetchInProgress
+                        .shouldBeTrue()
+
+                    completion.complete(Result.success(Arb.youtubeVideo().next()))
+                    advanceUntilIdle()
+
+                    awaitItem()
+                        .shouldBeInstanceOf<MusicDetailUiState.Content>()
+                        .isLinkFetchInProgress
+                        .shouldBeFalse()
+                }
+            }
+        }
+
         test("TC-d0f4ecb8-0869-4067-8fe9-0244d8e4b1b5 불러오기 처리 중 전달된 불러오기 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<YoutubeVideo>>()

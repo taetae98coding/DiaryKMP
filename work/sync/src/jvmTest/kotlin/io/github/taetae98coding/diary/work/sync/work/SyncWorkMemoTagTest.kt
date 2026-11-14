@@ -106,7 +106,7 @@ class SyncWorkMemoTagTest :
             coVerify(exactly = 0) { context.memoTagRemoteDataSource.pull(any()) }
         }
 
-        test("메모 태그 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-3d79bf70-8d60-4e57-bbfa-5b2a3d54d5ef 메모 태그 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = memoTagPulls(usnList = listOf(4L, 6L))
             val secondPullList = memoTagPulls(usnList = listOf(9L))

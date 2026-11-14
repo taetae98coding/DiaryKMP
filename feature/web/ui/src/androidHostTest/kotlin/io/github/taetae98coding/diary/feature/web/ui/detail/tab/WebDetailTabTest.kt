@@ -48,6 +48,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.prepareWebDetailTabV
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectViewMode
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.setWebDetailMemoScreen
+import io.github.taetae98coding.diary.feature.web.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.testWebDetail
 import io.github.taetae98coding.diary.feature.web.ui.detail.titleInput
@@ -261,6 +262,7 @@ class WebDetailTabTest {
                         webViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))),
                         pageViewModel = memoScreenPageViewModel(),
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }
@@ -304,6 +306,7 @@ class WebDetailTabTest {
                         webViewModel = launchedWebViewModelList[launchCount],
                         pageViewModel = launchedPageViewModelList[launchCount],
                         tagViewModel = launchedTagViewModelList[launchCount],
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }

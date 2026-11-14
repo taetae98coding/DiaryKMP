@@ -222,3 +222,40 @@ struct SearchDDayIntent: AppIntent {
         )
     }
 }
+
+struct SearchRoutineIntent: AppIntent {
+    static let title = LocalizedStringResource("Search Routines", table: "AppIntentSearch")
+    static let description = IntentDescription(LocalizedStringResource("Searches routines saved in the app, including finished ones, with this period's total and progress.", table: "AppIntentSearch"))
+
+    @Parameter(
+        title: LocalizedStringResource("Search Term", table: "AppIntentCore")
+    )
+    var query: String
+
+    @Parameter(
+        title: LocalizedStringResource("Page", table: "AppIntentCore"),
+        description: LocalizedStringResource("Page number starting at 1. Leave empty for the first page.", table: "AppIntentCore")
+    )
+    var page: Int?
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Search Routines for \(\.$query)", table: "AppIntentSearch") {
+            \.$page
+        }
+    }
+
+    func perform() async throws -> some IntentResult & ReturnsValue<[RoutineEntity]> & ProvidesDialog {
+        let searchPage = try await appAction {
+            try await DiarySearchAppAction.shared.routine(query: query, pageNumber: AppIntentPage.number(page))
+        }
+        return .result(
+            value: searchPage.items.map(RoutineEntity.init(routine:)),
+            dialog: AppIntentResultDialog.list(
+                count: searchPage.items.count,
+                nextPageNumber: searchPage.nextPageNumber,
+                found: { count in LocalizedStringResource("Found \(count) routines.", table: "AppIntentSearch") },
+                foundWithNextPage: { count, nextPageNumber in LocalizedStringResource("Found \(count) routines. There's more on page \(nextPageNumber).", table: "AppIntentSearch") }
+            )
+        )
+    }
+}

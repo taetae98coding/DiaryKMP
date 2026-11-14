@@ -7,8 +7,11 @@ import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieSameSiteEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewSessionCookieEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewVisitedUrlRegistry
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -21,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 // 쿠키의 이름과 사이트가 판정 대상이고, 직접 연 주소 목록은 앱 전체에 하나라 테스트마다 다른 사이트를 쓴다.
 @RunWith(RobolectricTestRunner::class)
@@ -128,7 +130,7 @@ class AndroidWebViewCookieDataSourceTest {
         result?.siteUrlSet shouldBe setOf(firstUrl, secondUrl)
     }
 
-    private fun uniqueHost(): String = "${Uuid.random().toHexString()}.example.com"
+    private fun uniqueHost(): String = "${Arb.kotlinUuid().next().toHexString()}.example.com"
 
     private fun uniqueUrl(): String = url(host = uniqueHost(), path = "/page")
 

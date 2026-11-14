@@ -158,6 +158,20 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
+    fun `TC-970b49fd-805e-4068-96d4-009765bb586c 공백만 입력하면 대상 전체가 그대로 나타나고 결과 없음을 알리지 않는다`() {
+        val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
+        composeRule.setMemoWebPickerDialogHost(webList = webList)
+        composeRule.awaitWebPickerRows()
+
+        composeRule.webDialogSearchField().performTextInput(BLANK_WEB_QUERY)
+        composeRule.waitForIdle()
+
+        composeRule.webDialogNodeWithText(WIKI_WEB_TITLE).assertExists()
+        composeRule.webDialogNodeWithText(DOCS_WEB_TITLE).assertExists()
+        composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-25aecc3e-a2b4-4d61-a00d-7659dc8f2277 검색어에 맞는 웹 항목이 없어도 웹 추가 항목을 표시한다`() {
         composeRule.setMemoWebPickerDialogHost(webList = emptyList())
         composeRule.webDialogSearchField().performTextInput(WIKI_WEB_QUERY)
@@ -202,5 +216,6 @@ class MemoWebPickerDialogSearchTest {
 
     public companion object {
         private const val WIKI_WEB_QUERY = "Wiki"
+        private const val BLANK_WEB_QUERY = "   "
     }
 }

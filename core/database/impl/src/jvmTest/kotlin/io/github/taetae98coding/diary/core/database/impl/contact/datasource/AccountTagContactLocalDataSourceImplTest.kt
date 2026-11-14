@@ -28,7 +28,7 @@ private object ContactTagTabCase : TagTabCase {
     override val tc =
         TagTabTc(
             exposure = "TC-abaecd8e-df2a-4d8f-aa27-07fbf75f288e TC-e8ba66c1-2a33-41b6-843f-3d1021b92467",
-            order = "TC-2410a5de-600f-4b03-acea-5a08ebced30b",
+            order = "",
             paging = "TC-5981abb2-3342-41bd-b031-b78c35dd92c4",
             change = "TC-a11a616d-5381-4360-8329-5e50b462f77a",
             tagState = "TC-e3c0fa4d-9b53-4d26-a37f-4fbdf8304577",
@@ -78,7 +78,7 @@ internal class AccountTagContactLocalDataSourceImplTest :
     FunSpec({
         include(
             tagEntityTabLocalDataSourceTests(case = ContactTagTabCase) { context ->
-                test("TC-2410a5de-600f-4b03-acea-5a08ebced30b TC-8544fcb0-883c-48ea-9d50-9643ddad53b8 즐겨찾기인 연락처를 먼저 놓고 묶음 안에서 고른 정렬을 적용한다") {
+                test("즐겨찾기인 연락처를 먼저 놓고 묶음 안에서 고른 정렬을 적용한다") {
                     val accountId = Arb.kotlinUuid().next()
                     val targetTag = context.tag()
                     val favoriteOld = TagTabItem(title = "b-favorite", isFavorite = true, updatedAt = Instant.fromEpochMilliseconds(1_000))

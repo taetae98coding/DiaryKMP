@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.search.repository.AccountSearchTagRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -33,7 +34,7 @@ class SearchTagUseCaseTest :
             val tagList = List(2) { tag() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchTagRepository = mockk<AccountSearchTagRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every {
                 accountSearchTagRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(tagList))
@@ -62,7 +63,7 @@ class SearchTagUseCaseTest :
             val tagList = List(2) { tag() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchTagRepository = mockk<AccountSearchTagRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             every {
                 accountSearchTagRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(tagList))
@@ -107,7 +108,7 @@ class SearchTagUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchTagRepository = mockk<AccountSearchTagRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchTagUseCase(
                     getAccountUseCase = getAccountUseCase,

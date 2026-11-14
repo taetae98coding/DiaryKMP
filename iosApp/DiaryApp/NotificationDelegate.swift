@@ -8,7 +8,6 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         super.init()
     }
 
-    // 앱이 앞에 있는 동안 도착한 알림도 배너와 알림 센터에 표시한다. 소리와 배지는 쓰지 않는다.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
@@ -16,7 +15,6 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         [.banner, .list]
     }
 
-    // 알림에 앱 화면 주소가 담겨 있으면 그 화면을 연다. 주소가 없는 알림은 앱만 연다.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse

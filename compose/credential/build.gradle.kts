@@ -12,7 +12,7 @@ kotlin {
 
         swiftPackage(
             url = url("https://github.com/google/GoogleSignIn-iOS.git"),
-            version = exact("10.0.0"),
+            version = exact(libs.versions.googleIdIos.get()),
             products = listOf(product("GoogleSignIn")),
         )
     }
@@ -22,8 +22,6 @@ kotlin {
             dependencies {
                 api(projects.core.model)
                 implementation(libs.jetbrains.compose.ui)
-                implementation(libs.koin.annotations)
-                implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlincrypto.hash.sha2)
             }
         }

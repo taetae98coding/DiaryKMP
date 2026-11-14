@@ -47,7 +47,8 @@ import io.github.taetae98coding.diary.feature.account.ui.profile_image_edit_unre
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.exp
 
-// 틀은 최대 400dp이고 5배까지 키우므로, 미리보기는 이 크기까지만 읽어도 흐려지지 않는다.
+// Coil이 읽는 크기는 픽셀이다. 틀은 최대 400dp이고 5배까지 키우므로 밀도 1인 화면에서는 이 크기로 읽어도 흐려지지 않지만,
+// 밀도가 더 높은 화면에서는 크게 키웠을 때 미리보기가 흐려질 수 있다.
 private const val PREVIEW_MAX_PIXEL_SIZE = 2048
 
 @Composable

@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
@@ -50,7 +51,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
                 viewModel.fetch()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase() }
             }
         }
 
@@ -58,7 +59,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } coAnswers { completion.await() }
+                coEvery { useCase() } coAnswers { completion.await() }
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
 
                 viewModel.fetch()
@@ -67,7 +68,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
                 completion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase() }
             }
         }
 
@@ -81,14 +82,14 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
                 viewModel.fetch()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { useCase(parameter = Unit) }
+                coVerify(exactly = 2) { useCase() }
             }
         }
 
         test("동기화가 실패해도 다음 계기의 동기화를 다시 요청한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                coEvery { useCase() } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
 
                 viewModel.fetch()
@@ -96,7 +97,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
                 viewModel.fetch()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { useCase(parameter = Unit) }
+                coVerify(exactly = 2) { useCase() }
             }
         }
 
@@ -115,7 +116,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
                         locationName = Arb.nonBlankString().next(),
                     )
                 val getUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
-                every { getUseCase(parameter = Unit) } returns flowOf(Result.success(report))
+                every { getUseCase() } returns flowOf(Result.success(report))
                 val viewModel = weatherViewModel(getCurrentCalendarWeatherUseCase = getUseCase)
 
                 viewModel.uiState.test {
@@ -128,7 +129,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
         test("TC-67e702c6-49f8-44c2-8e6a-c5add506e4f0 날짜별 날씨 조회가 실패하면 날씨 없이 제공한다") {
             runTest(mainDispatcher) {
                 val getUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
-                every { getUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
+                every { getUseCase() } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel = weatherViewModel(getCurrentCalendarWeatherUseCase = getUseCase)
 
                 viewModel.uiState.test {
@@ -143,7 +144,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
         fetchCurrentWeatherUseCase: FetchCurrentWeatherUseCase = successfulFetchCurrentWeatherUseCase(),
         getCurrentCalendarWeatherUseCase: GetCurrentCalendarWeatherUseCase =
             mockk<GetCurrentCalendarWeatherUseCase>().also { useCase ->
-                every { useCase(parameter = Unit) } returns flowOf(Result.success(CalendarWeatherReport()))
+                every { useCase() } returns flowOf(Result.success(CalendarWeatherReport()))
             },
     ): CalendarTimetableWeatherViewModel =
         CalendarTimetableWeatherViewModel(
@@ -153,6 +154,6 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
 
     private fun successfulFetchCurrentWeatherUseCase(): FetchCurrentWeatherUseCase =
         mockk<FetchCurrentWeatherUseCase>().also { useCase ->
-            coEvery { useCase(parameter = Unit) } returns Result.success(Unit)
+            coEvery { useCase() } returns Result.success(Unit)
         }
 }

@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.domain.qr.content
 
+import io.github.taetae98coding.diary.library.kotlin.text.StructuredLines
+import io.github.taetae98coding.diary.library.kotlin.text.iCalendarTimeZoneOrNull
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -29,9 +31,8 @@ internal fun readEventSchedule(
 
         is QrEventPeriod.DateTime -> {
             val lines = StructuredLines.parse(raw)
-            val range = lines.eventRange()
-            val start = range?.let { lines.find("DTSTART", it) }?.property
-            val end = range?.let { lines.find("DTEND", it) }?.property ?: start
+            val start = lines.findEventEntry("DTSTART")?.property
+            val end = lines.findEventEntry("DTEND")?.property ?: start
             QrEventSchedule.DateTime(
                 start = period.start.toInstant(start.timeZoneOr(deviceTimeZone)),
                 end = period.endInclusive.toInstant(end.timeZoneOr(deviceTimeZone)),
@@ -39,19 +40,4 @@ internal fun readEventSchedule(
         }
     }
 
-private fun StructuredLines.Property?.timeZoneOr(deviceTimeZone: TimeZone): TimeZone =
-    when {
-        this == null -> deviceTimeZone
-        value.trim().endsWith(UTC_DESIGNATOR, ignoreCase = true) -> TimeZone.UTC
-        else -> zoneId()?.let { zoneId -> runCatching { TimeZone.of(zoneId) }.getOrNull() } ?: deviceTimeZone
-    }
-
-private fun StructuredLines.Property.zoneId(): String? =
-    parameters
-        .split(';')
-        .firstOrNull { parameter -> parameter.startsWith(TZID_PARAMETER, ignoreCase = true) }
-        ?.drop(TZID_PARAMETER.length)
-        ?.trim('"')
-
-private const val UTC_DESIGNATOR = "Z"
-private const val TZID_PARAMETER = "TZID="
+private fun StructuredLines.Property?.timeZoneOr(deviceTimeZone: TimeZone): TimeZone = this?.iCalendarTimeZoneOrNull() ?: deviceTimeZone

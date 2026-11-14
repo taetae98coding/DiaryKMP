@@ -65,6 +65,38 @@ class SchedulePeriodicSyncEffectTest {
     }
 
     @Test
+    fun `TC-4384637b-88a0-4c93-90a8-efa17a419b89 앱이 화면에서 보이지 않는 동안에는 계정이 바뀌어도 주기 동기화 예약을 정하지 않는다`() {
+        val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Loading)
+        val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
+        setSchedulePeriodicSyncEffect(uiStateFlow, schedulePeriodicSync, initialState = Lifecycle.State.CREATED)
+
+        composeRule.runOnIdle { uiStateFlow.value = AppPeriodicSyncUiState.Confirmed(account = Arb.accountUser().next()) }
+        composeRule.runOnIdle { uiStateFlow.value = AppPeriodicSyncUiState.Confirmed(account = Account.Guest) }
+
+        composeRule.runOnIdle {
+            verify(exactly = 0) { schedulePeriodicSync() }
+        }
+    }
+
+    @Test
+    fun `TC-cd306e56-2485-4018-ba11-fd3e3f96c19a 보이지 않는 동안 바뀐 계정은 다시 보이게 될 때 주기 동기화 예약을 한 번 정한다`() {
+        val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Loading)
+        val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
+        val lifecycleOwner = setSchedulePeriodicSyncEffect(uiStateFlow, schedulePeriodicSync, initialState = Lifecycle.State.CREATED)
+
+        composeRule.runOnIdle { uiStateFlow.value = AppPeriodicSyncUiState.Confirmed(account = Arb.accountUser().next()) }
+        composeRule.runOnIdle { uiStateFlow.value = AppPeriodicSyncUiState.Confirmed(account = Account.Guest) }
+        composeRule.runOnIdle {
+            verify(exactly = 0) { schedulePeriodicSync() }
+            lifecycleOwner.currentState = Lifecycle.State.STARTED
+        }
+
+        composeRule.runOnIdle {
+            verify(exactly = 1) { schedulePeriodicSync() }
+        }
+    }
+
+    @Test
     fun `앱이 화면에 보이더라도 계정이 확인되기 전에는 주기 동기화를 예약하지 않는다`() {
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Loading)
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)

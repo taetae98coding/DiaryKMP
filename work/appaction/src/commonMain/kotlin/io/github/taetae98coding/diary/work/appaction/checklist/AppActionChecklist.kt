@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.checklist.Checklist
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.work.appaction.core.filterBySearchQuery
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 import kotlin.jvm.JvmName
 
 public data class AppActionChecklist(
@@ -35,6 +36,7 @@ public data class AppActionChecklistItem(
 public data class AppActionChecklistDetail(
     val checklist: AppActionChecklist,
     val items: List<AppActionChecklistItem>,
+    val tags: List<AppActionTag>,
 )
 
 internal fun Checklist.toAppActionChecklist(): AppActionChecklist =

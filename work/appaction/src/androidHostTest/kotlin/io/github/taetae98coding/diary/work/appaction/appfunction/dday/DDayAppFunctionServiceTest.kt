@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctio
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueListAs
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchDDayPage
@@ -32,6 +33,9 @@ import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayDetail
 import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayOverflowPolicyValue
 import io.github.taetae98coding.diary.work.appaction.dday.DDayAppAction
 import io.github.taetae98coding.diary.work.appaction.search.SearchAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.EntityTagAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -66,6 +70,7 @@ class DDayAppFunctionServiceTest {
     val appFunctionTestRule = AppFunctionTestRule(context)
 
     private val ddayAppAction = mockk<DDayAppAction>()
+    private val entityTagAppAction = mockk<EntityTagAppAction>()
     private val searchAppAction = mockk<SearchAppAction>()
     private val calendarAppAction = mockk<CalendarAppAction>()
 
@@ -77,6 +82,7 @@ class DDayAppFunctionServiceTest {
             modules(
                 module {
                     single { ddayAppAction }
+                    single { entityTagAppAction }
                     single { searchAppAction }
                     single { calendarAppAction }
                 },
@@ -94,7 +100,7 @@ class DDayAppFunctionServiceTest {
     fun `디데이 동작을 모두 제공한다`() =
         runBlocking<Unit> {
             tester.functionNameList().filter { name -> name.startsWith("dday") } shouldContainExactlyInAnyOrder
-                listOf("ddayList", "ddayGet", "ddayAdd", "ddayUpdate", "ddayDelete", "ddayRestore", "ddayTagAdd", "ddayTagRemove")
+                listOf("ddayList", DDAY_GET, DDAY_ADD, "ddayUpdate", "ddayDelete", "ddayRestore", DDAY_TAG_ADD, DDAY_TAG_REMOVE)
             tester.functionNameList() shouldContainAll listOf("searchDday", "calendarDdayList")
         }
 
@@ -117,9 +123,63 @@ class DDayAppFunctionServiceTest {
             val dday = appActionDDay(count = AppActionDDayCount(status = "today", remainingDays = null, passedDays = null, years = null, months = null))
             coEvery { ddayAppAction.get(ddayId = dday.id) } returns AppActionDDayDetail(dday = dday, tags = emptyList())
 
-            val response = tester.execute(name = "ddayGet") { setString(DDAY_ID, dday.id) }
+            val response = tester.execute(name = DDAY_GET) { setString(DDAY_ID, dday.id) }
 
             response.returnValueAs<AppFunctionDDayDetail>() shouldBe AppFunctionDDayDetail(dday = dday.expected(), tags = emptyList())
+        }
+
+    @Test
+    fun `TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 디데이 상세는 연결된 태그와 함께 돌려준다`() =
+        runBlocking<Unit> {
+            val dday = appActionDDay(count = AppActionDDayCount(status = "upcoming", remainingDays = Arb.int(1..1000).next(), passedDays = null, years = 0, months = Arb.int(0..11).next()))
+            val tag = Arb.appActionTag().next()
+            coEvery { ddayAppAction.get(ddayId = dday.id) } returns AppActionDDayDetail(dday = dday, tags = listOf(tag))
+
+            val response = tester.execute(name = DDAY_GET) { setString(DDAY_ID, dday.id) }
+
+            response.returnValueAs<AppFunctionDDayDetail>() shouldBe AppFunctionDDayDetail(dday = dday.expected(), tags = listOf(tag.expectedTag()))
+        }
+
+    @Test
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 디데이 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
+        runBlocking<Unit> {
+            val title = Arb.nonBlankString().next()
+            val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
+            val addedId = Arb.kotlinUuid().next().toString()
+            coEvery {
+                ddayAppAction.add(
+                    title = any(),
+                    description = any(),
+                    color = any(),
+                    baseDate = any(),
+                    countsBaseDay = any(),
+                    repeats = any(),
+                    endDate = any(),
+                    overflowPolicy = any(),
+                    tagIds = any(),
+                )
+            } returns AppActionId(id = addedId)
+
+            val response =
+                tester.execute(name = DDAY_ADD) {
+                    setString("title", title)
+                    setStringList("tagIds", tagIdList)
+                }
+
+            response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
+            coVerify(exactly = 1) {
+                ddayAppAction.add(
+                    title = title,
+                    description = null,
+                    color = null,
+                    baseDate = null,
+                    countsBaseDay = null,
+                    repeats = emptyList(),
+                    endDate = null,
+                    overflowPolicy = null,
+                    tagIds = tagIdList,
+                )
+            }
         }
 
     @Test
@@ -142,7 +202,7 @@ class DDayAppFunctionServiceTest {
             } returns AppActionId(id = addedId)
 
             val response =
-                tester.execute(name = "ddayAdd") {
+                tester.execute(name = DDAY_ADD) {
                     setString("title", title)
                     setStringList("repeats", requestedRepeatList)
                     setString("overflowPolicy", AppActionDDayOverflowPolicyValue.SKIP)
@@ -208,20 +268,38 @@ class DDayAppFunctionServiceTest {
         }
 
     @Test
-    fun `삭제는 바뀐 수를, 태그 연결은 완료를 돌려준다`() =
+    fun `삭제는 바뀐 수를 돌려준다`() =
+        runBlocking<Unit> {
+            val ddayId = Arb.kotlinUuid().next().toString()
+            val changedCount = Arb.int(0..1).next()
+            coEvery { ddayAppAction.delete(ddayId = ddayId) } returns AppActionChangedCount(changedCount = changedCount)
+
+            tester.execute(name = "ddayDelete") { setString(DDAY_ID, ddayId) }.returnValueAs<AppFunctionChangedCount>() shouldBe AppFunctionChangedCount(changedCount = changedCount)
+        }
+
+    @Test
+    fun `TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 디데이 태그 연결과 해제는 완료를 돌려준다`() =
         runBlocking<Unit> {
             val ddayId = Arb.kotlinUuid().next().toString()
             val tagId = Arb.kotlinUuid().next().toString()
-            val changedCount = Arb.int(0..1).next()
-            coEvery { ddayAppAction.delete(ddayId = ddayId) } returns AppActionChangedCount(changedCount = changedCount)
-            coEvery { ddayAppAction.tagAdd(ddayId = ddayId, tagId = tagId) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.add(kind = AppActionEntityTagKind.DDAY, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.remove(kind = AppActionEntityTagKind.DDAY, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
 
-            tester.execute(name = "ddayDelete") { setString(DDAY_ID, ddayId) }.returnValueAs<AppFunctionChangedCount>() shouldBe AppFunctionChangedCount(changedCount = changedCount)
-            tester
-                .execute(name = "ddayTagAdd") {
+            val addResponse =
+                tester.execute(name = DDAY_TAG_ADD) {
                     setString(DDAY_ID, ddayId)
-                    setString("tagId", tagId)
-                }.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+                    setString(TAG_ID, tagId)
+                }
+            val removeResponse =
+                tester.execute(name = DDAY_TAG_REMOVE) {
+                    setString(DDAY_ID, ddayId)
+                    setString(TAG_ID, tagId)
+                }
+
+            addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { entityTagAppAction.add(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId) }
+            coVerify(exactly = 1) { entityTagAppAction.remove(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId) }
         }
 
     @Test
@@ -271,14 +349,14 @@ class DDayAppFunctionServiceTest {
             val invalidMessage = Arb.nonBlankString().next()
             val failureMessage = Arb.nonBlankString().next()
             coEvery { ddayAppAction.restore(ddayId = any()) } throws AppActionException.InvalidArgument(message = invalidMessage)
-            coEvery { ddayAppAction.tagRemove(ddayId = any(), tagId = any()) } throws AppActionException.Failure(message = failureMessage)
+            coEvery { entityTagAppAction.remove(kind = AppActionEntityTagKind.DDAY, entityId = any(), tagId = any()) } throws AppActionException.Failure(message = failureMessage)
 
             val invalidError = tester.execute(name = "ddayRestore") { setString(DDAY_ID, "not-id") }.shouldBeInstanceOf<ExecuteAppFunctionResponse.Error>().error
             val failureError =
                 tester
-                    .execute(name = "ddayTagRemove") {
+                    .execute(name = DDAY_TAG_REMOVE) {
                         setString(DDAY_ID, Arb.kotlinUuid().next().toString())
-                        setString("tagId", Arb.kotlinUuid().next().toString())
+                        setString(TAG_ID, Arb.kotlinUuid().next().toString())
                     }.shouldBeInstanceOf<ExecuteAppFunctionResponse.Error>()
                     .error
 
@@ -293,6 +371,11 @@ private const val DDAY_ID = "ddayId"
 private const val RANGE_START = "2026-01-01"
 private const val RANGE_END = "2026-12-31"
 private const val HUNDREDTH_DAY = "2026-04-10"
+private const val TAG_ID = "tagId"
+private const val DDAY_GET = "ddayGet"
+private const val DDAY_ADD = "ddayAdd"
+private const val DDAY_TAG_ADD = "ddayTagAdd"
+private const val DDAY_TAG_REMOVE = "ddayTagRemove"
 
 private val requestedRepeatList: List<String> = listOf("P100D", "P1Y")
 

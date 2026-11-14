@@ -8,6 +8,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.github.taetae98coding.diary.compose.core.textfield.keepInsertionWhile
 import io.github.taetae98coding.diary.domain.dday.repeat.DDayRepeatInput
 import io.github.taetae98coding.diary.domain.dday.repeat.DDayRepeatUnit
 
@@ -39,14 +40,10 @@ internal val ddayRepeatUnitList: List<DDayRepeatUnit> = listOf(DDayRepeatUnit.DA
 
 internal object DDayRepeatNumberInputTransformation : InputTransformation {
     override fun TextFieldBuffer.transformInput() {
-        val text = asCharSequence()
-        if (text.length > MAX_DIGIT_COUNT || text.any { char -> char !in DIGIT_RANGE }) {
-            revertAllChanges()
-        }
+        keepInsertionWhile { text -> text.length <= MAX_DIGIT_COUNT && text.all { char -> char in DIGIT_RANGE } }
     }
 }
 
 private const val MAX_DIGIT_COUNT = 5
 
-// Char.isDigit은 전각 숫자 같은 유니코드 숫자도 받지만 toIntOrNull은 0~9만 읽으므로 범위로 거른다.
 private val DIGIT_RANGE = '0'..'9'

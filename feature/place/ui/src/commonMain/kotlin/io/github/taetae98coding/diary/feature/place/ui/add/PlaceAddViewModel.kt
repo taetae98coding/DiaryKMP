@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.place.ui.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInvalidException
 import io.github.taetae98coding.diary.domain.place.exception.PlaceTitleBlankException
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
@@ -30,7 +31,7 @@ internal class PlaceAddViewModel(
     val uiState: StateFlow<PlaceAddUiState> =
         combine(
             isInProgress,
-            getDefaultMapProviderUseCase(parameter = Unit),
+            getDefaultMapProviderUseCase(),
         ) { isInProgress, providerResult ->
             PlaceAddUiState(
                 isInProgress = isInProgress,

@@ -18,6 +18,8 @@
 | [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 |
 | [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 |
 | [TagDetail 디데이 탭](./tag-detail-dday.md) | 태그별 디데이 목록 |
+| [TagDetail 루틴 탭](./tag-detail-routine.md) | 태그별 루틴 목록 |
+| [TagRoutineFinishedList 화면](./tag-routine-finished-list.md) | 태그별 완료된 루틴 목록 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 |
@@ -25,7 +27,8 @@
 | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 연락처별·장소별·웹 항목별 완료된 메모 목록 |
 | [MemoHome 목록](./memo-home.md) | 메모 목록 |
 | [MemoFinishedList 화면](./memo-finished-list.md) | 완료된 메모 목록 |
-| [RoutineHome 화면](./routine-home.md) | 루틴 목록 |
+| [RoutineHome 화면](./routine-home.md) | 목록 보기의 루틴 목록 |
+| [RoutineFinishedList 화면](./routine-finished-list.md) | 완료된 루틴 목록 |
 | [PlaceHome 화면](./place-home.md) | 지도 모드의 장소 목록, 목록 모드의 장소 목록 |
 | [WebHome 화면](./web-home.md) | 웹 목록 |
 | [ContactHome 화면](./contact-home.md) | 연락처 목록 |
@@ -33,7 +36,7 @@
 | [QrHome 화면](./qr-home.md) | QR 목록 |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 목록 |
 | [DDayHome 화면](./dday-home.md) | 디데이 목록 |
-| [SearchHome 화면](./search-home.md) | 메모 검색 결과 목록, 태그 검색 결과 목록, 장소 검색 결과 목록, 웹 검색 결과 목록, 디데이 검색 결과 목록 |
+| [SearchHome 화면](./search-home.md) | 메모 검색 결과 목록, 태그 검색 결과 목록, 장소 검색 결과 목록, 웹 검색 결과 목록, 디데이 검색 결과 목록, 루틴 검색 결과 목록 |
 
 SearchHome의 결과 목록은 질의가 비어 있는 동안 빈 상태를 표시하지 않는다. 이 조건은 [SearchHome 화면 스펙](./search-home.md)의 `결과 없음 판정`이 소유하며, 그 조건을 만족한 뒤의 표시와 행동만 이 문서를 따른다.
 
@@ -42,6 +45,10 @@ SearchHome의 결과 목록은 질의가 비어 있는 동안 빈 상태를 표�
 다만 네 선택 목록에서 사용자가 검색어를 입력해 결과가 비는 경우는 예외이며, 그때 알리는 내용은 각 문서의 `태그 검색`과 `장소 검색`이 소유한다. 검색어로 비는 것은 목록을 열기 전에 알려 줄 수 없기 때문이다. 장소 선택 목록의 지도 보기에서 보이는 영역 안에 장소가 없는 경우도 같은 이유의 예외이며, 그때 알리는 내용은 [메모 장소 카드 컴포넌트 스펙](./memo-place-card.md)의 `장소 선택 목록의 지도 보기`가 소유한다.
 
 [ChecklistDetail 화면 스펙](./checklist-detail.md)의 체크 항목 목록에도 적용하지 않는다. 체크 항목 목록은 화면 본문을 차지하지 않고 제목·설명 입력, 항목 입력과 함께 한 본문 안에 놓이며 나누어 불러오지 않고 한 번에 모두 조회하므로, 비어 있을 때의 안내와 표시 조건은 그 화면 스펙의 `체크 항목 목록`이 소유한다.
+
+[RoutineDetail 화면 스펙](./routine-detail.md)의 기록 내역에도 적용하지 않는다. 기록 내역은 화면 본문을 차지하지 않고 루틴의 입력, 기록 넣기와 함께 한 본문 안에 놓이므로, 기록이 없을 때의 안내와 표시 조건은 그 화면 스펙의 `기록 내역`이 소유한다.
+
+[RoutineHome 화면 스펙](./routine-home.md)의 달력 보기에도 적용하지 않는다. 달력 보기는 목록이 아니며 표시할 루틴 기록이 없어도 빈 상태 안내를 두지 않는다.
 
 [태그 필터 스펙](./tag-filter.md)의 태그 목록에도 적용하지 않는다. 태그 필터는 빈 상태 안내를 두지 않고 그 문서의 `태그 추가`에 따라 태그 추가 동작을 항상 제공한다.
 
@@ -102,9 +109,10 @@ SearchHome의 결과 목록은 질의가 비어 있는 동안 빈 상태를 표�
 | TagHome 태그 목록 | 최상위 태그 필터 | 구분한다 |
 | ContactHome 연락처 목록 | 유무 필터 | 구분한다 |
 | DDayHome 디데이 목록 | 태그 필터 | 구분한다 |
+| RoutineHome 목록 보기의 루틴 목록 | 태그 필터, 보기 범위 | 구분한다 |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 지도의 보이는 영역 | 구분하지 않고 언제나 영역 기준으로 알린다 |
 | PlaceHome 지도 모드의 장소 목록 | 지도의 보이는 영역 | 구분하지 않고 언제나 영역 기준으로 알린다 |
-| SearchHome 다섯 유형의 검색 결과 목록 | 질의 | 구분하지 않고 언제나 질의 기준으로 알린다 |
+| SearchHome 여섯 유형의 검색 결과 목록 | 질의 | 구분하지 않고 언제나 질의 기준으로 알린다 |
 | 그 밖의 적용 대상 목록 | 없음 | 구분하지 않는다 |
 
 MemoHome의 메모 목록은 [목록 필터 반영 스펙](./list-filter.md)의 `필터 적용 상태`에서 필터가 적용되지 않은 상태를 좁히지 않은 상태로, 적용된 상태를 좁힌 상태로 본다. 선택할 수 없게 되어 판정에서 무시되는 태그 선택은 좁힌 상태로 세지 않는다. 각 필터의 기준은 [MemoHome 목록 스펙](./memo-home.md)의 `유무 필터 기준`과 `태그 필터 기준`을 따른다.
@@ -112,6 +120,8 @@ MemoHome의 메모 목록은 [목록 필터 반영 스펙](./list-filter.md)의 
 ContactHome의 연락처 목록은 [목록 필터 반영 스펙](./list-filter.md)의 `필터 적용 상태`에서 필터가 적용되지 않은 상태를 좁히지 않은 상태로, 적용된 상태를 좁힌 상태로 본다. 각 축의 기준은 [ContactHome 화면 스펙](./contact-home.md)의 `유무 필터 기준`을 따른다.
 
 DDayHome의 디데이 목록은 [목록 필터 반영 스펙](./list-filter.md)의 `필터 적용 상태`에서 필터가 적용되지 않은 상태를 좁히지 않은 상태로, 적용된 상태를 좁힌 상태로 본다. 선택할 수 없게 되어 판정에서 무시되는 태그 선택은 좁힌 상태로 세지 않는다. 필터의 기준은 [DDayHome 화면 스펙](./dday-home.md)의 `태그 필터 기준`을 따른다.
+
+RoutineHome 목록 보기의 루틴 목록은 [목록 필터 반영 스펙](./list-filter.md)의 `필터 적용 상태`에서 필터가 적용되지 않은 상태를 좁히지 않은 상태로, 적용된 상태를 좁힌 상태로 본다. 선택할 수 없게 되어 판정에서 무시되는 태그 선택은 좁힌 상태로 세지 않는다. 필터의 기준은 [RoutineHome 화면 스펙](./routine-home.md)의 `태그 필터 기준`을 따른다. 보기 범위는 좁힌 상태를 정하는 데 쓰지 않지만, 좁히지 않은 상태에서 완료되지 않은 루틴이 있는데도 보기 범위가 `오늘 할 루틴`이어서 목록이 빈 경우를 루틴이 아직 없는 경우와 구분해 알린다. 이 구분은 아래 다이어그램에 더해 [RoutineHome 화면 스펙](./routine-home.md)의 `빈 이유의 구분`이 소유한다.
 
 TagHome의 태그 목록은 최상위 태그 필터가 꺼져 있을 때를 좁히지 않은 상태로 보고, 켜져 있으면 좁힌 상태로 본다. 필터의 기준은 [TagHome 목록 스펙](./tag-home.md)의 `최상위 태그 판정 기준`을 따른다.
 
@@ -148,6 +158,8 @@ flowchart TD
 | TagDetail 곡 탭의 태그별 곡 목록 | 이 태그에 연결된 곡이 아직 없으며 새로 추가할 수 있다 |
 | TagDetail QR 탭의 태그별 QR 목록 | 이 태그에 연결된 QR이 아직 없으며 새로 추가할 수 있다 |
 | TagDetail 디데이 탭의 태그별 디데이 목록 | 이 태그에 연결된 디데이가 아직 없으며 새로 추가할 수 있다 |
+| TagDetail 루틴 탭의 태그별 루틴 목록 | 이 태그에 연결된 루틴이 아직 없으며 새로 추가할 수 있다 |
+| TagRoutineFinishedList 태그별 완료된 루틴 목록 | 이 태그에서 완료한 루틴이 아직 없다 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 이 태그에서 완료한 메모가 아직 없다 |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 이 연락처에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 이 장소에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
@@ -158,7 +170,10 @@ flowchart TD
 | MemoHome 메모 목록, 좁히지 않은 상태 | 아직 메모가 없으며 새로 추가할 수 있다 |
 | MemoHome 메모 목록, 좁힌 상태 | 고른 조건에 맞는 메모가 없으며 필터를 바꾸면 다른 메모를 볼 수 있다 |
 | MemoFinishedList 완료된 메모 목록 | 완료한 메모가 아직 없다 |
-| RoutineHome 루틴 목록 | 아직 루틴이 없으며 새로 추가할 수 있다 |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태이고 완료되지 않은 루틴이 없음 | 아직 루틴이 없으며 새로 추가할 수 있다 |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태이고 완료되지 않은 루틴은 있으나 오늘 할 루틴이 없음 | 오늘 할 루틴이 없으며 필터에서 모든 루틴을 볼 수 있다 |
+| RoutineHome 목록 보기의 루틴 목록, 좁힌 상태 | 고른 태그에 맞는 루틴이 없으며 필터를 바꾸면 다른 루틴을 볼 수 있다 |
+| RoutineFinishedList 완료된 루틴 목록 | 완료한 루틴이 아직 없다 |
 | PlaceHome 지도 모드의 장소 목록 | 지금 보고 있는 지도 영역 안에 장소가 없다 |
 | PlaceHome 목록 모드의 장소 목록 | 아직 장소가 없으며 새로 추가할 수 있다 |
 | WebHome 웹 목록 | 아직 웹 항목이 없으며 새로 추가할 수 있다 |
@@ -174,8 +189,9 @@ flowchart TD
 | SearchHome 장소 검색 결과 목록 | 질의에 맞는 장소가 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 웹 검색 결과 목록 | 질의에 맞는 웹 항목이 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 디데이 검색 결과 목록 | 질의에 맞는 디데이가 없으며 다른 질의로 다시 찾을 수 있다 |
+| SearchHome 루틴 검색 결과 목록 | 질의에 맞는 루틴이 없으며 다른 질의로 다시 찾을 수 있다 |
 
-빈 상태 안내는 사용자가 지금 할 수 있는 일을 벗어난 내용을 담지 않는다. 예를 들어 TagFinishedList, MemoFinishedList, TagMemoFinishedList와 세 항목 완료 메모 목록은 그 화면에서 항목을 새로 만들 수 없으므로 추가를 권하지 않는다. SearchHome에서는 항목을 새로 만들 수 없으므로 추가를 권하지 않고 질의를 고치는 것만 권한다.
+빈 상태 안내는 사용자가 지금 할 수 있는 일을 벗어난 내용을 담지 않는다. 예를 들어 TagFinishedList, MemoFinishedList, TagMemoFinishedList, RoutineFinishedList, TagRoutineFinishedList와 세 항목 완료 메모 목록은 그 화면에서 항목을 새로 만들 수 없으므로 추가를 권하지 않는다. SearchHome에서는 항목을 새로 만들 수 없으므로 추가를 권하지 않고 질의를 고치는 것만 권한다.
 
 ### 실행 경계
 

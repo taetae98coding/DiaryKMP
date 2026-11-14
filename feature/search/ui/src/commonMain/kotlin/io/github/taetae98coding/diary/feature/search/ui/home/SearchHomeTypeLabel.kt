@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.feature.search.ui.Res
 import io.github.taetae98coding.diary.feature.search.ui.search_home_dday_tab_label
 import io.github.taetae98coding.diary.feature.search.ui.search_home_memo_tab_label
 import io.github.taetae98coding.diary.feature.search.ui.search_home_place_tab_label
+import io.github.taetae98coding.diary.feature.search.ui.search_home_routine_tab_label
 import io.github.taetae98coding.diary.feature.search.ui.search_home_tag_tab_label
 import io.github.taetae98coding.diary.feature.search.ui.search_home_web_tab_label
 import org.jetbrains.compose.resources.StringResource
@@ -17,4 +18,5 @@ internal val SearchHomeType.labelResource: StringResource
             SearchHomeType.PLACE -> Res.string.search_home_place_tab_label
             SearchHomeType.WEB -> Res.string.search_home_web_tab_label
             SearchHomeType.DDAY -> Res.string.search_home_dday_tab_label
+            SearchHomeType.ROUTINE -> Res.string.search_home_routine_tab_label
         }

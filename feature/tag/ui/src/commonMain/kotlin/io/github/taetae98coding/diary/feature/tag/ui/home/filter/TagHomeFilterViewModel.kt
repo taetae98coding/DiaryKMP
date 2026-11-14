@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.home.filter
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.usecase.DisableTopLevelTagFilterUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.EnableTopLevelTagFilterUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
@@ -20,7 +21,7 @@ internal class TagHomeFilterViewModel(
     private val disableTopLevelTagFilterUseCase: DisableTopLevelTagFilterUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<TagHomeFilterUiState> =
-        getTopLevelTagFilterUseCase(parameter = Unit)
+        getTopLevelTagFilterUseCase()
             .map { result -> TagHomeFilterUiState(isTopLevelOnly = result.getOrDefault(false)) }
             .stateIn(
                 scope = viewModelScope,
@@ -37,7 +38,7 @@ internal class TagHomeFilterViewModel(
 
         viewModelScope.launch {
             try {
-                enableTopLevelTagFilterUseCase(parameter = Unit)
+                enableTopLevelTagFilterUseCase()
             } finally {
                 isEnableTopLevelOnlyInProgress = false
             }
@@ -50,7 +51,7 @@ internal class TagHomeFilterViewModel(
 
         viewModelScope.launch {
             try {
-                disableTopLevelTagFilterUseCase(parameter = Unit)
+                disableTopLevelTagFilterUseCase()
             } finally {
                 isDisableTopLevelOnlyInProgress = false
             }

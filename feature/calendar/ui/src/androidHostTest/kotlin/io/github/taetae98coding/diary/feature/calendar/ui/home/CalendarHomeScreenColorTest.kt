@@ -23,10 +23,10 @@ import io.github.taetae98coding.diary.compose.permission.rememberPermissionManag
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.property.Arb
@@ -48,7 +48,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -281,25 +280,13 @@ class CalendarHomeScreenColorTest {
         color: Long,
         start: LocalDate,
         endInclusive: LocalDate,
-    ): CalendarMemo =
-        CalendarMemo(
-            id = Arb.kotlinUuid().next(),
-            title = title,
-            color = color,
-            dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
-        )
+    ): CalendarMemo = Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive), title = title).next().copy(color = color)
 
     private fun singleDayMemo(
         title: String,
         color: Long,
         date: LocalDate,
-    ): CalendarMemo =
-        CalendarMemo(
-            id = Arb.kotlinUuid().next(),
-            title = title,
-            color = color,
-            dateTime = singleDayDateTime(date = date),
-        )
+    ): CalendarMemo = Arb.calendarMemo(dateTime = singleDayDateTime(date = date), title = title).next().copy(color = color)
 
     private fun singleDayDateTime(date: LocalDate): MemoDateTime =
         MemoDateTime.DateTime(

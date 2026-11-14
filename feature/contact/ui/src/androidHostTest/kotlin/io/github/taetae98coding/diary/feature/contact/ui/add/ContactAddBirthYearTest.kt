@@ -11,6 +11,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextInputSelection
+import androidx.compose.ui.text.TextRange
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -60,6 +62,33 @@ class ContactAddBirthYearTest {
             composeRule.birthYearInput().performTextClearance()
             composeRule.waitForIdle()
         }
+    }
+
+    @Test
+    fun `TC-3fde9f5b-bf34-4f66-bd5a-e21d07bda8c9 네 자리를 채운 태어난 연도의 중간에 숫자를 넣어도 값이 바뀌지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(0, 1).forEach { cursor ->
+            composeRule.birthYearInput().performTextClearance()
+            composeRule.birthYearInput().performTextInput(TYPED_BIRTH_YEAR)
+            composeRule.birthYearInput().performTextInputSelection(TextRange(cursor))
+            composeRule.birthYearInput().performTextInput("5")
+            composeRule.waitForIdle()
+
+            composeRule.birthYearInput().assert(hasText(TYPED_BIRTH_YEAR))
+        }
+    }
+
+    @Test
+    fun `TC-8f785273-3513-4e19-853d-d05e6aab4916 태어난 연도의 선택한 부분 위에 입력한 문자가 반영되지 않으면 값이 바뀌지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        composeRule.birthYearInput().performTextInput("1990")
+        composeRule.birthYearInput().performTextInputSelection(TextRange(1, 4))
+        composeRule.birthYearInput().performTextInput("a")
+        composeRule.waitForIdle()
+
+        composeRule.birthYearInput().assert(hasText("1990"))
     }
 
     @Test

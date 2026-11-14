@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -191,7 +192,7 @@ class ContactFavoriteUseCaseTest :
     public companion object {
         private fun getAccountUseCase(account: Account): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
-            every { useCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { useCase() } returns flowOf(Result.success(account))
 
             return useCase
         }

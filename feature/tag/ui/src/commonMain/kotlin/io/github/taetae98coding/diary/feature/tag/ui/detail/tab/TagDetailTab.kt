@@ -10,4 +10,5 @@ internal enum class TagDetailTab {
     MUSIC,
     QR,
     DDAY,
+    ROUTINE,
 }

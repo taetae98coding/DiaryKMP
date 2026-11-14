@@ -51,6 +51,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 import io.github.taetae98coding.diary.feature.setting.api.settingNavKeys
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileUiState
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
+import io.github.taetae98coding.diary.feature.setting.ui.file.picker.AndroidDirectoryPickerFactory
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiUiState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
@@ -92,7 +93,6 @@ class SettingListDetailNavigationTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestMoreNavKey, SettingHomeNavKey)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -373,14 +373,13 @@ class SettingListDetailNavigationTest {
             entryProvider =
                 entryProvider {
                     entry<NavigationTestMoreNavKey> { Text(text = MORE_CONTENT) }
-                    settingEntry(backStack = backStack)
+                    settingEntry(backStack = backStack, directoryPickerFactory = AndroidDirectoryPickerFactory())
                 },
         )
     }
 
     @Composable
     private fun SettingNavigationTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {

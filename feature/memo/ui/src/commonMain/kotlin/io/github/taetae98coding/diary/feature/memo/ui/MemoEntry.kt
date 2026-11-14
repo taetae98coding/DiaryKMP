@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrateg
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
@@ -52,6 +53,7 @@ import org.koin.core.parameter.parametersOf
 internal fun EntryProviderScope<ScreenNavKey>.memoEntry(
     backStack: NavBackStack<ScreenNavKey>,
     homeReselectEvent: Flow<Unit>,
+    contentSharerFactory: ContentSharerFactory,
 ) {
     memoHomeEntry(
         backStack = backStack,
@@ -60,7 +62,7 @@ internal fun EntryProviderScope<ScreenNavKey>.memoEntry(
     memoHomeFilterEntry(backStack = backStack)
     memoFinishedListEntry(backStack = backStack)
     memoAddEntry(backStack = backStack)
-    memoDetailEntry(backStack = backStack)
+    memoDetailEntry(backStack = backStack, contentSharerFactory = contentSharerFactory)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
@@ -149,6 +151,8 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
+            initialTitle = key.initialTitle,
+            initialDescription = key.initialDescription,
             initialDateTime = key.initialDateTime(),
             addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
@@ -165,7 +169,10 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     entry<MemoDetailNavKey>(
         metadata = { key -> backStack.memoListDetailPaneMetadata(key) },
     ) { key ->
@@ -203,6 +210,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
             placeMapViewModel = koinViewModel(),
             placePickerMapViewModel = koinViewModel(),
             geminiViewModel = koinViewModel(),
+            contentSharerFactory = contentSharerFactory,
         )
     }
 }
@@ -260,6 +268,8 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         },
         navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
         navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
+        initialTitle = "",
+        initialDescription = "",
         initialDateTime = null,
         addRequestKey = addRequestKey,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },

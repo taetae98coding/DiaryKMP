@@ -55,6 +55,7 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
                 placeMapViewModel = screenTestPlaceMapViewModel(),
                 placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
+                contentSharerFactory = screenTestContentSharerFactory(),
                 navigateUp = {},
                 navigateToCopiedMemo = {},
                 navigateToTagAdd = navigateToTagAdd,

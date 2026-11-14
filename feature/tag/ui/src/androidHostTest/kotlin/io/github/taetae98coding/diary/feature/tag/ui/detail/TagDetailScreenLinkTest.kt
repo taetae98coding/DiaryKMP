@@ -166,13 +166,15 @@ class TagDetailScreenLinkTest {
     @Test
     fun `TC-88e17216-d82b-4fba-bc3c-3d682a799802 태그 연결 칩을 누르면 태그 선택 목록이 열린다`() {
         val tag = testTag(title = EXERCISE_TAG_TITLE)
-        setTagDetailScreen(selectableTagList = listOf(tag))
+        var tagAddCount = 0
+        setTagDetailScreen(selectableTagList = listOf(tag), navigateToTagAdd = { tagAddCount += 1 })
 
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
         composeRule.awaitTagLinkPickerRows()
 
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        tagAddCount shouldBe 0
     }
 
     @Test

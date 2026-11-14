@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
@@ -98,9 +99,9 @@ internal class FileAddMocks {
 
     fun viewModel(): FileAddViewModel {
         val getStateUseCase = mockk<GetFileUploadStateUseCase>()
-        every { getStateUseCase(parameter = Unit) } returns state.map { value -> Result.success(value) }
+        every { getStateUseCase() } returns state.map { value -> Result.success(value) }
         val getEventUseCase = mockk<GetFileUploadEventUseCase>()
-        every { getEventUseCase(parameter = Unit) } returns eventFlow.map { event -> Result.success(event) }
+        every { getEventUseCase() } returns eventFlow.map { event -> Result.success(event) }
 
         return FileAddViewModel(
             readFileUploadSourceUseCase = readUseCase,
@@ -112,7 +113,7 @@ internal class FileAddMocks {
 
     fun accountViewModel(): FileAddAccountViewModel {
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
 
         return FileAddAccountViewModel(getAccountUseCase = getAccountUseCase)
     }

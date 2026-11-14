@@ -33,6 +33,8 @@
 
 [CalendarHome 스펙](./calendar-home.md)의 날짜별 메모와 [HolidayHome 화면 스펙](./holiday-home.md)의 공휴일 목록에도 적용하지 않는다. 두 목록은 날짜가 순서를 정하므로 사용자가 고를 정렬이 없다.
 
+루틴을 보여 주는 목록에도 적용하지 않는다. [RoutineHome 화면 스펙](./routine-home.md)의 루틴 목록, [RoutineFinishedList 화면 스펙](./routine-finished-list.md)의 완료된 루틴 목록, [TagDetail 루틴 탭 스펙](./tag-detail-routine.md)의 태그별 루틴 목록, [TagRoutineFinishedList 화면 스펙](./tag-routine-finished-list.md)의 태그별 완료된 루틴 목록과 [SearchHome 화면 스펙](./search-home.md)의 루틴 검색 결과 목록은 [루틴 앱 스펙](./routine.md)의 `목록 순서`가 순서를 정하므로 사용자가 고를 정렬이 없다.
+
 ## feature
 
 ### 정렬 선택

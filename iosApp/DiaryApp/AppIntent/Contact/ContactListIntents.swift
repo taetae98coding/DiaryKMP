@@ -46,7 +46,7 @@ struct ContactListIntent: AppIntent {
 
 struct ContactDetailIntent: AppIntent {
     static let title = LocalizedStringResource("Get Contact Details", table: "AppIntentContact")
-    static let description = IntentDescription(LocalizedStringResource("Gets all details of a contact.", table: "AppIntentContact"))
+    static let description = IntentDescription(LocalizedStringResource("Gets all details of a contact with its linked tags.", table: "AppIntentContact"))
 
     @Parameter(title: LocalizedStringResource("Contact", table: "AppIntentContact"))
     var contact: ContactEntity
@@ -89,8 +89,9 @@ struct ContactMemoListIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
+        _ = try await ContactEntityQuery.require(contactId: contact.id)
         let memoPage = try await appAction {
-            try await DiaryContactAppAction.shared.memoList(contactId: contact.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.contactList(contactId: contact.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: memoPage.dialog)
     }
@@ -123,8 +124,9 @@ struct ContactMemoFinishedListIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
+        _ = try await ContactEntityQuery.require(contactId: contact.id)
         let memoPage = try await appAction {
-            try await DiaryContactAppAction.shared.memoFinishedList(contactId: contact.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.contactFinishedList(contactId: contact.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: memoPage.dialog)
     }

@@ -13,6 +13,7 @@ struct FinishTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
         let changedCount = try await appAction { try await DiaryTagAppAction.shared.finish(tagId: tag.id) }
         return .result(
             value: Int(changedCount),
@@ -33,6 +34,7 @@ struct RestartTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
         let changedCount = try await appAction { try await DiaryTagAppAction.shared.restart(tagId: tag.id) }
         return .result(
             value: Int(changedCount),
@@ -55,6 +57,7 @@ struct DeleteTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
         let changedCount = try await appAction { try await DiaryTagAppAction.shared.delete(tagId: tag.id) }
         return .result(
             value: Int(changedCount),

@@ -4,7 +4,10 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
@@ -93,6 +96,25 @@ class PlaceDetailMemoListPositionTest {
         composeRule.runOnIdle { isDetailDisplayed = false }
         composeRule.waitForIdle()
         composeRule.runOnIdle { isDetailDisplayed = true }
+        waitUntilMemoIsDisplayed(title = titleList.first())
+
+        composeRule.onNodeWithText(titleList.first()).assertIsDisplayed()
+        composeRule.onNodeWithText(titleList.last()).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun `TC-871261ad-4598-436c-b5d2-046a450c85a6 앱을 다시 실행해 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
+        val titleList = positionMemoTitleList()
+        var launchCount by mutableIntStateOf(0)
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 목록도 새로 조회하므로, 새 키로 저장 상태 없이 다시 구성하고 조회 결과를 새로 전달한다.
+        composeRule.setContent {
+            key(launchCount) {
+                MemoTab(pagingDataFlow = remember { pagingDataFlowOf(titleList) })
+            }
+        }
+        scrollToLast(titleList)
+
+        composeRule.runOnIdle { launchCount += 1 }
         waitUntilMemoIsDisplayed(title = titleList.first())
 
         composeRule.onNodeWithText(titleList.first()).assertIsDisplayed()

@@ -19,6 +19,7 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import io.github.taetae98coding.diary.compose.qr.QrCodeValueKey
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.kotest.property.Arb
@@ -135,7 +136,7 @@ internal fun ComposeTestRule.write(action: () -> Unit) {
 // 지도 제공자의 실제 표시 요소는 만들 수 없으므로, 지도를 쓰지 않는 화면 테스트는 기본 지도를 읽지 못한 상태로 둔다.
 internal fun qrAddViewModel(addQrUseCase: AddQrUseCase): QrAddViewModel {
     val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-    every { getDefaultMapProviderUseCase(Unit) } returns flowOf(Result.failure(IllegalStateException("기본 지도를 읽지 못함")))
+    every { getDefaultMapProviderUseCase() } returns flowOf(Result.failure(IllegalStateException("기본 지도를 읽지 못함")))
     return QrAddViewModel(addQrUseCase = addQrUseCase, getDefaultMapProviderUseCase = getDefaultMapProviderUseCase)
 }
 

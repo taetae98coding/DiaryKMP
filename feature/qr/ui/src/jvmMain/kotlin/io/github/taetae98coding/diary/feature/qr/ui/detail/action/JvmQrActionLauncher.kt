@@ -5,8 +5,7 @@ import androidx.compose.runtime.remember
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
+import org.koin.core.annotation.Single
 import java.awt.Desktop
 import java.io.IOException
 import java.net.URI
@@ -17,11 +16,12 @@ private const val CONTACT_FILE_SUFFIX = ".vcf"
 private const val EVENT_FILE_SUFFIX = ".ics"
 private const val FILE_PREFIX = "qr"
 
-@Composable
-internal actual fun rememberQrActionLauncher(): QrActionLauncher {
-    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<QrActionDispatcher>())
-
-    return remember(dispatcher) { JvmQrActionLauncher(dispatcher = dispatcher) }
+@Single(binds = [QrActionLauncherFactory::class])
+internal class JvmQrActionLauncherFactory(
+    @QrActionDispatcher private val dispatcher: CoroutineDispatcher,
+) : QrActionLauncherFactory {
+    @Composable
+    override fun rememberQrActionLauncher(): QrActionLauncher = remember(dispatcher) { JvmQrActionLauncher(dispatcher = dispatcher) }
 }
 
 internal class JvmQrActionLauncher(

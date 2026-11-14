@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.usecase.AddMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
@@ -12,12 +13,20 @@ import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RestoreMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.UpdateMusicUseCase
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
+import io.github.taetae98coding.diary.work.appaction.tag.expected
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -29,6 +38,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -88,16 +98,19 @@ class MusicAppActionTest :
             }
         }
 
-        test("곡 하나를 MCP와 같은 항목으로 돌려주고, 없으면 null을 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 곡 하나를 연결된 태그와 함께 돌려주고, 없으면 null을 돌려준다") {
             runTest {
-                val music = Arb.music().next()
+                val music = Arb.music().next().copy(isDeleted = false)
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 val missingId = Arb.kotlinUuid().next()
                 val findMusicUseCase = mockk<FindMusicUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findMusicUseCase(parameter = music.id) } returns flowOf(Result.success(music))
                 every { findMusicUseCase(parameter = missingId) } returns flowOf(Result.success(null))
-                val action = musicAppActionOf(findMusicUseCase)
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.MUSIC, entityId = music.id)) } returns flowOf(Result.success(tagList))
+                val action = musicAppActionOf(findMusicUseCase, getEntityTagUseCase)
 
-                action.get(musicId = music.id.toString()) shouldBe music.expected()
+                action.get(musicId = music.id.toString()) shouldBe AppActionMusicDetail(music = music.expected(), tags = tagList.map { tag -> tag.expected() })
                 action.get(musicId = missingId.toString()) shouldBe null
             }
         }
@@ -130,7 +143,7 @@ class MusicAppActionTest :
                 coEvery { addMusicUseCase(parameter = any()) } returns Result.success(addedId)
                 val action = musicAppActionOf(addMusicUseCase)
 
-                action.add(title = detail.title, artist = detail.artist, link = detail.link) shouldBe AppActionId(id = addedId.toString())
+                action.add(title = detail.title, artist = detail.artist, link = detail.link, tagIds = emptyList()) shouldBe AppActionId(id = addedId.toString())
                 coVerify(exactly = 1) { addMusicUseCase(parameter = AddMusicUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
         }
@@ -142,7 +155,7 @@ class MusicAppActionTest :
                 coEvery { addMusicUseCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
                 val action = musicAppActionOf(addMusicUseCase)
 
-                action.add(title = detail.title, artist = null, link = null)
+                action.add(title = detail.title, artist = null, link = null, tagIds = emptyList())
 
                 coVerify(exactly = 1) { addMusicUseCase(parameter = AddMusicUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
@@ -154,14 +167,14 @@ class MusicAppActionTest :
                 coEvery { addMusicUseCase(parameter = any()) } returns Result.failure(MusicLinkNotYoutubeException())
                 val action = musicAppActionOf(addMusicUseCase)
 
-                shouldThrow<AppActionException.Failure> { action.add(title = Arb.nonBlankString().next(), artist = null, link = "https://example.com") }.message shouldBe
+                shouldThrow<AppActionException.Failure> { action.add(title = Arb.nonBlankString().next(), artist = null, link = "https://example.com", tagIds = emptyList()) }.message shouldBe
                     "MusicLinkNotYoutubeException"
             }
         }
 
         test("고칠 값을 담지 않은 항목은 지금 값을 유지하고 고친 수를 돌려준다") {
             runTest {
-                val music = Arb.music().next()
+                val music = Arb.music().next().copy(isDeleted = false)
                 val artist = Arb.nonBlankString().next()
                 val changedCount = Arb.int(0..1).next()
                 val findMusicUseCase = mockk<FindMusicUseCase>()
@@ -177,7 +190,7 @@ class MusicAppActionTest :
 
         test("빈 링크를 담으면 링크를 지운다") {
             runTest {
-                val music = Arb.music().next()
+                val music = Arb.music().next().copy(isDeleted = false)
                 val findMusicUseCase = mockk<FindMusicUseCase>()
                 val updateMusicUseCase = mockk<UpdateMusicUseCase>()
                 every { findMusicUseCase(parameter = music.id) } returns flowOf(Result.success(music))
@@ -226,6 +239,91 @@ class MusicAppActionTest :
                 val action = musicAppActionOf(deleteMusicUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.delete(musicId = Arb.kotlinUuid().next().toString()) }.message shouldBe "IllegalStateException: $message"
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 곡의 상세는 없는 곡과 같이 null을 돌려준다") {
+            runTest {
+                val music = Arb.music().next().copy(isDeleted = true)
+                val findMusicUseCase = mockk<FindMusicUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findMusicUseCase(parameter = music.id) } returns flowOf(Result.success(music))
+                val action = musicAppActionOf(findMusicUseCase, getEntityTagUseCase)
+
+                action.get(musicId = music.id.toString()) shouldBe null
+                verify(exactly = 0) { getEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddMusicUseCase.Parameter>()
+                val addUseCase = mockk<AddMusicUseCase>()
+                coEvery { addUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = musicAppActionOf(addUseCase)
+
+                action.add(title = Arb.nonBlankString().next(), artist = null, link = null, tagIds = tagIdSet.map { tagId -> tagId.toString() }) shouldBe AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
+        test("추가 요청의 태그 id가 id 형식이 아니면 추가하지 않고 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val addUseCase = mockk<AddMusicUseCase>()
+                val action = musicAppActionOf(addUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> { action.add(title = Arb.nonBlankString().next(), artist = null, link = null, tagIds = listOf("tag")) }.message shouldBe "'tagIds' must be an id."
+                coVerify(exactly = 0) { addUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결과 해제는 곡 종류로 요청하고 완료를 돌려준다") {
+            runTest {
+                val musicId = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                action.add(kind = AppActionEntityTagKind.MUSIC, entityId = musicId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.remove(kind = AppActionEntityTagKind.MUSIC, entityId = musicId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+
+                coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.MUSIC, entityId = musicId, tagId = tagId)) }
+                coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.MUSIC, entityId = musicId, tagId = tagId)) }
+            }
+        }
+
+        test("태그 연결의 id가 id 형식이 아니면 연결하지 않고, 연결이 실패하면 MCP와 같은 메시지로 실패한다") {
+            runTest {
+                val message = Arb.nonBlankString().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException(message))
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.MUSIC, entityId = "not-id", tagId = Arb.kotlinUuid().next().toString()) }.message shouldBe "'musicId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.add(kind = AppActionEntityTagKind.MUSIC, entityId = Arb.kotlinUuid().next().toString(), tagId = "tag") }.message shouldBe "'tagId' must be an id."
+                shouldThrow<AppActionException.Failure> {
+                    action.remove(kind = AppActionEntityTagKind.MUSIC, entityId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
+                }.message shouldBe "IllegalStateException: $message"
+                coVerify(exactly = 0) { addEntityTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("삭제된 곡도 포함하는 조회는 삭제된 곡를 돌려준다") {
+            runTest {
+                val music = Arb.music().next().copy(isDeleted = true)
+                val findMusicUseCase = mockk<FindMusicUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findMusicUseCase(parameter = music.id) } returns flowOf(Result.success(music))
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.MUSIC, entityId = music.id)) } returns flowOf(Result.success(emptyList()))
+                val action = musicAppActionOf(findMusicUseCase, getEntityTagUseCase)
+
+                action.getIncludingDeleted(musicId = music.id.toString())?.music?.id shouldBe music.id.toString()
             }
         }
     })

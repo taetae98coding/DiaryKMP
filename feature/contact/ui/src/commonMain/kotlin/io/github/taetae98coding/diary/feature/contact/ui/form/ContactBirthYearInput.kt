@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.textfield.ClearTextField
+import io.github.taetae98coding.diary.compose.core.textfield.keepInsertionWhile
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
@@ -62,21 +63,12 @@ internal fun ContactBirthYearInput(
 
 internal object ContactBirthYearInputTransformation : InputTransformation {
     override fun TextFieldBuffer.transformInput() {
-        val originalLength = length
-        val sanitized =
-            asCharSequence()
-                .filter { char -> char in DIGIT_RANGE }
-                .take(MAX_DIGIT_COUNT)
-                .toString()
-        if (sanitized.contentEquals(asCharSequence())) return
-
-        replace(0, originalLength, sanitized)
+        keepInsertionWhile { text -> text.length <= MAX_DIGIT_COUNT && text.all { char -> char in DIGIT_RANGE } }
     }
 }
 
 private const val MAX_DIGIT_COUNT = 4
 
-// Char.isDigit은 전각 숫자 같은 유니코드 숫자도 받지만 toIntOrNull은 0~9만 읽으므로 범위로 거른다.
 private val DIGIT_RANGE = '0'..'9'
 
 @ComponentPreview

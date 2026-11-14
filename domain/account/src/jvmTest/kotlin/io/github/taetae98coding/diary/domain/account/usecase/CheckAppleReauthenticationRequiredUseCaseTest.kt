@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.authentication.LoginProvider
 import io.github.taetae98coding.diary.core.testing.account.userData
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
@@ -40,7 +41,7 @@ class CheckAppleReauthenticationRequiredUseCaseTest :
                     )
 
                 When("Apple 재인증이 필요한지 판정한다") {
-                    val result = useCase(parameter = Unit)
+                    val result = useCase()
 
                     Then("TC-1423165f-ffc3-4281-b7a0-13e4561f09ce 재인증 필요 여부가 $expected 다") {
                         result.shouldBeSuccess(expected)
@@ -61,7 +62,7 @@ class CheckAppleReauthenticationRequiredUseCaseTest :
                 )
 
             When("Apple 재인증이 필요한지 판정한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-0ad36304-87ed-4c7b-bf3c-34c2ff1b125e 실패를 돌려준다") {
                     result.shouldBeFailure()
@@ -77,7 +78,7 @@ class CheckAppleReauthenticationRequiredUseCaseTest :
             val reportList = recordCrashlyticsLog()
 
             When("Apple 재인증이 필요한지 판정한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-0ad36304-87ed-4c7b-bf3c-34c2ff1b125e TC-364abafa-b866-4902-b128-c8a3799b563f 실패를 돌려주고 오류 보고는 남기지 않는다") {
                     result.shouldBeFailure()

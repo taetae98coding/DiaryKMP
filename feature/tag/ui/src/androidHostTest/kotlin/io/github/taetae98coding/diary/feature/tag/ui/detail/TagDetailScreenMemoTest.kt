@@ -1,10 +1,13 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
@@ -12,6 +15,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -27,7 +31,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -35,6 +42,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListState
 import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffect
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.TagScope
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
@@ -42,6 +50,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.property.Arb
@@ -50,7 +59,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.todayIn
 import org.junit.Rule
 import org.junit.Test
@@ -341,6 +356,71 @@ class TagDetailScreenMemoTest {
         }
     }
 
+    // 기기 날짜를 바꿀 수 없으므로, 화면이 시작될 때마다 오늘을 다시 정하는 Effect와 메모 탭을 날짜를 정할 수 있는 시계로 구성한다.
+    @Test
+    fun `TC-6b421e29-b8bf-450c-94a0-c32fb130e7cc 복귀하면 새 오늘의 날짜 그룹만 오늘로 표시한다`() {
+        val clock = mockk<Clock>()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val previousToday = Arb.kotlinxLocalDate().next()
+        val newToday = previousToday.plus(1, DateTimeUnit.DAY)
+        val memoListState = MemoListState(initialToday = previousToday, clock = clock)
+        val pagingDataFlow =
+            MutableStateFlow(
+                tagMemoPagingData(
+                    itemList =
+                        listOf(
+                            MemoListItem.DateHeader(date = newToday),
+                            MemoListItem.Content(memo = tagMemo(title = NEW_TODAY_MEMO_TITLE, dateTime = allDayMemoDateTime(newToday))),
+                            MemoListItem.DateHeader(date = previousToday),
+                            MemoListItem.Content(memo = tagMemo(title = TODAY_MEMO_TITLE, dateTime = allDayMemoDateTime(previousToday))),
+                        ),
+                ),
+            )
+        every { clock.now() } returns LocalDateTime(date = previousToday, time = NOON).toInstant(TimeZone.currentSystemDefault())
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme {
+                    UpdateMemoListTodayEffect(state = memoListState)
+                    EntityDetailMemoTab(
+                        onEvent = {},
+                        onMemoListEvent = {},
+                        emptyTitle = "",
+                        emptyDescription = "",
+                        modifier = Modifier.fillMaxSize(),
+                        state = memoListState,
+                        memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(todayHeader(DEFAULT_TODAY_HEADER)).assertCountEquals(1)
+        (todayHeaderTop() > memoTop(title = NEW_TODAY_MEMO_TITLE)) shouldBe true
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        every { clock.now() } returns LocalDateTime(date = newToday, time = NOON).toInstant(TimeZone.currentSystemDefault())
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodes(todayHeader(DEFAULT_TODAY_HEADER)).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(MEMO_DATE_HEADER_TEST_TAG).assertCountEquals(2)
+        (todayHeaderTop() < memoTop(title = NEW_TODAY_MEMO_TITLE)) shouldBe true
+    }
+
+    private fun todayHeaderTop(): Float =
+        composeRule
+            .onNode(todayHeader(DEFAULT_TODAY_HEADER))
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .top
+
+    private fun memoTop(title: String): Float =
+        composeRule
+            .onNodeWithText(title)
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .top
+
     @Test
     fun `TC-5c5b0403-8a85-454d-b486-04ff8a8c2c23 메모 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 메모가 삭제된다`() {
         val memo = swipeMemo()
@@ -533,6 +613,8 @@ class TagDetailScreenMemoTest {
         const val DEFAULT_TODAY_HEADER = "Today"
         const val SCREEN_MEMO_TITLE = "TagDetailScreenMemo"
         const val TODAY_MEMO_TITLE = "TodayMemo"
+        const val NEW_TODAY_MEMO_TITLE = "NewTodayMemo"
+        val NOON = LocalTime(hour = 12, minute = 0)
         const val FIRST_TIME_ZONE = "Pacific/Kiritimati"
         const val SECOND_TIME_ZONE = "Etc/GMT+12"
     }

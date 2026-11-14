@@ -23,6 +23,7 @@ import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListIt
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItemDefaults
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.account.ui.Res
 import io.github.taetae98coding.diary.feature.account.ui.profile_change_profile_image
@@ -75,11 +76,13 @@ private fun ProfileActionList(
 ) {
     val isEnabled = !isInProgressProvider()
     val errorColor = DiaryTheme.colorScheme.error
+    val scrollState = rememberScrollState()
 
     Column(
         modifier =
             modifier
-                .verticalScroll(rememberScrollState())
+                .systemScroll(scrollState) { scrollState.animateScrollTo(0) }
+                .verticalScroll(scrollState)
                 .padding(DiaryTheme.dimens.screenPaddingValues),
         verticalArrangement = Arrangement.spacedBy(DiarySegmentedListItemDefaults.Gap),
     ) {

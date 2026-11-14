@@ -4,9 +4,10 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.account.UserData
 import io.github.taetae98coding.diary.core.model.authentication.Session
+import io.github.taetae98coding.diary.core.testing.account.userData
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlin.uuid.Uuid
 
 class GetAccountUseCaseTest :
     BehaviorSpec({
@@ -37,7 +37,7 @@ class GetAccountUseCaseTest :
 
                 When("현재 계정 상태를 확인한다") {
                     Then("TC-47890aca-a023-40f5-ac90-fde8f2871ea1 $session 계정이 게스트로 확정된다") {
-                        useCase(Unit).test {
+                        useCase().test {
                             awaitItem().shouldBeSuccess() shouldBe Account.Guest
                             awaitComplete()
                         }
@@ -50,7 +50,7 @@ class GetAccountUseCaseTest :
             Given("이메일과 $profileImageCase 상태의 사용자 정보가 저장되어 있다") {
                 val email = Arb.string().next()
                 val profileImage = if (profileImageCase == "프로필 이미지가 있음") Arb.string().next() else null
-                val userData = UserData(id = Arb.kotlinUuid().next(), email = email, profileImage = profileImage, loginProviderSet = emptySet())
+                val userData = Arb.userData().next().copy(email = email, profileImage = profileImage)
                 val sessionRepository = mockk<SessionRepository>()
                 every { sessionRepository.get() } returns flowOf(Session.Authenticated)
                 val userDataRepository = mockk<UserDataRepository>()
@@ -59,7 +59,7 @@ class GetAccountUseCaseTest :
 
                 When("현재 계정 상태를 확인한다") {
                     Then("TC-98390335-9771-4d0f-b630-f34cdb12e60d $profileImageCase 계정이 사용자로 확정되고 이메일과 프로필 이미지를 그대로 가진다") {
-                        useCase(Unit).test {
+                        useCase().test {
                             val user = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                             user.email shouldBe email
                             user.profileImage shouldBe profileImage
@@ -75,7 +75,7 @@ class GetAccountUseCaseTest :
             Session.NotAuthenticated to false,
         ).forEach { (session, isSessionValid) ->
             Given("사용자 정보가 저장되어 있고 로그인 세션이 $session 이다") {
-                val userData = UserData(id = Arb.kotlinUuid().next(), email = Arb.string().next(), profileImage = Arb.string().next(), loginProviderSet = emptySet())
+                val userData = Arb.userData().next()
                 val sessionRepository = mockk<SessionRepository>()
                 every { sessionRepository.get() } returns flowOf(session)
                 val userDataRepository = mockk<UserDataRepository>()
@@ -84,7 +84,7 @@ class GetAccountUseCaseTest :
 
                 When("현재 계정 상태를 확인한다") {
                     Then("TC-cef82430-f475-48cc-8367-b283ab4e5cae $session 세션 갱신 여부가 $isSessionValid 이다") {
-                        useCase(Unit).test {
+                        useCase().test {
                             val user = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                             user.isSessionValid shouldBe isSessionValid
                             awaitComplete()
@@ -103,7 +103,7 @@ class GetAccountUseCaseTest :
 
             When("현재 계정 상태를 확인한다") {
                 Then("TC-e654cf8f-76fd-40ee-a15d-b302c00c40bd 세션만 확인되면 계정 상태를 확정하지 않는다") {
-                    useCase(Unit).test {
+                    useCase().test {
                         expectNoEvents()
                     }
                 }
@@ -111,7 +111,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("저장된 사용자 정보만 첫 값을 확인하고 로그인 세션은 아직 확인되지 않았다") {
-            val userData = UserData(id = Arb.kotlinUuid().next(), email = Arb.string().next(), profileImage = Arb.string().next(), loginProviderSet = emptySet())
+            val userData = Arb.userData().next()
             val sessionRepository = mockk<SessionRepository>()
             every { sessionRepository.get() } returns MutableSharedFlow<Session>()
             val userDataRepository = mockk<UserDataRepository>()
@@ -120,7 +120,7 @@ class GetAccountUseCaseTest :
 
             When("현재 계정 상태를 확인한다") {
                 Then("TC-e654cf8f-76fd-40ee-a15d-b302c00c40bd 사용자 정보만 확인되면 계정 상태를 확정하지 않는다") {
-                    useCase(Unit).test {
+                    useCase().test {
                         expectNoEvents()
                     }
                 }
@@ -128,7 +128,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("저장된 사용자 정보가 없어 계정이 게스트로 확정되어 있다") {
-            val userData = UserData(id = Arb.kotlinUuid().next(), email = Arb.string().next(), profileImage = Arb.string().next(), loginProviderSet = emptySet())
+            val userData = Arb.userData().next()
             val sessionFlow = MutableStateFlow<Session>(Session.Authenticated)
             val userDataFlow = MutableStateFlow<UserData?>(null)
             val sessionRepository = mockk<SessionRepository>()
@@ -139,7 +139,7 @@ class GetAccountUseCaseTest :
 
             When("사용자 정보가 새로 저장된다") {
                 Then("TC-51b9d3aa-2192-4b41-b964-53f2702f8345 계정 상태가 사용자로 바뀐다") {
-                    useCase(Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess() shouldBe Account.Guest
                         userDataFlow.value = userData
                         awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
@@ -149,7 +149,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("사용자 정보가 저장되어 계정이 사용자로 확정되어 있다") {
-            val userData = UserData(id = Arb.kotlinUuid().next(), email = Arb.string().next(), profileImage = Arb.string().next(), loginProviderSet = emptySet())
+            val userData = Arb.userData().next()
             val sessionFlow = MutableStateFlow<Session>(Session.Authenticated)
             val userDataFlow = MutableStateFlow<UserData?>(userData)
             val sessionRepository = mockk<SessionRepository>()
@@ -160,7 +160,7 @@ class GetAccountUseCaseTest :
 
             When("저장된 사용자 정보가 사라진다") {
                 Then("TC-24c701bc-78e8-4770-860e-bbb38d80bd88 계정 상태가 게스트로 바뀐다") {
-                    useCase(Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                         userDataFlow.value = null
                         awaitItem().shouldBeSuccess() shouldBe Account.Guest
@@ -170,7 +170,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("사용자 정보가 저장되어 있고 로그인 세션이 인증되지 않아 세션 갱신되지 않은 사용자로 확정되어 있다") {
-            val userData = UserData(id = Arb.kotlinUuid().next(), email = Arb.string().next(), profileImage = Arb.string().next(), loginProviderSet = emptySet())
+            val userData = Arb.userData().next()
             val sessionFlow = MutableStateFlow<Session>(Session.NotAuthenticated)
             val userDataFlow = MutableStateFlow<UserData?>(userData)
             val sessionRepository = mockk<SessionRepository>()
@@ -181,7 +181,7 @@ class GetAccountUseCaseTest :
 
             When("사용자 정보는 그대로인 채 로그인 세션이 인증된 상태로 바뀐다") {
                 Then("TC-b41b885c-da4d-40bb-ac5c-d4a8ac83383a 계정이 사용자로 유지되고 세션 갱신 여부만 갱신됨으로 바뀐다") {
-                    useCase(Unit).test {
+                    useCase().test {
                         val before = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                         before.isSessionValid.shouldBeFalse()
                         sessionFlow.value = Session.Authenticated
@@ -204,7 +204,7 @@ class GetAccountUseCaseTest :
 
             When("현재 계정 상태를 확인한다") {
                 Then("TC-3d4f88a7-bce4-49d2-9de4-2f00e4a4341c 세션 오류가 조회 실패로 전달된다") {
-                    useCase(Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure()
                         awaitComplete()
                     }
@@ -221,7 +221,7 @@ class GetAccountUseCaseTest :
 
             When("현재 계정 상태를 확인한다") {
                 Then("TC-3d4f88a7-bce4-49d2-9de4-2f00e4a4341c 사용자 정보 오류가 조회 실패로 전달된다") {
-                    useCase(Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure()
                         awaitComplete()
                     }

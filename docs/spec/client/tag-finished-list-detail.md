@@ -18,7 +18,7 @@ TagHome에서 사용하는 목록·상세 배치는 [Tag 목록·상세 배치 �
 
 상세 영역의 태그 상세에서 연결 입력으로 연 태그 추가와 연결한 태그의 상세는 상세 영역에 놓인다. 이 중 이전 상세로 돌아가는 동작을 제공하는 화면은 [TagDetail 화면 스펙](./tag-detail.md)의 `뒤로가기`가 정하며, 그 결과는 [Tag 목록·상세 배치 스펙](./tag-list-detail.md)에서 태그 상세가 상세 영역에 놓였을 때와 같다.
 
-상세 영역의 태그 상세에서 목록 탭으로 연 화면과 완료된 메모 목록은 이 배치에 참여하지 않는다. 그 화면을 어떻게 표시하는지는 [TagDetail 화면 스펙](./tag-detail.md)의 `목록 탭 공통`과 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따르며, [Tag 목록·상세 배치 스펙](./tag-list-detail.md)에서 태그 상세가 상세 영역에 놓였을 때와 같다. 그 화면에서 돌아온 결과는 [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `배치에 참여하는 화면`을 따른다.
+상세 영역의 태그 상세에서 목록 탭으로 연 화면과 완료된 메모 목록, 완료된 루틴 목록은 이 배치에 참여하지 않는다. 그 화면을 어떻게 표시하는지는 [TagDetail 화면 스펙](./tag-detail.md)의 `목록 탭 공통`과 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md), [TagRoutineFinishedList 목록·상세 배치 스펙](./tag-routine-finished-list-detail.md)을 따르며, [Tag 목록·상세 배치 스펙](./tag-list-detail.md)에서 태그 상세가 상세 영역에 놓였을 때와 같다. 그 화면에서 돌아온 결과는 [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `배치에 참여하는 화면`을 따른다.
 
 ### 뒤로가기
 

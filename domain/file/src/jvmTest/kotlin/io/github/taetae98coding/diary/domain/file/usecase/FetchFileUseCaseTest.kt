@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.repository.FileDetailRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
@@ -50,4 +51,4 @@ class FetchFileUseCaseTest :
         }
     })
 
-private fun getAccountUseCase(result: Result<Account>): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns flowOf(result) }
+private fun getAccountUseCase(result: Result<Account>): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase() } returns flowOf(result) }

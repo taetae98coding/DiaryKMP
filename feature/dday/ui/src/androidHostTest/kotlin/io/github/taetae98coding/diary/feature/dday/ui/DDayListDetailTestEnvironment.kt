@@ -288,7 +288,7 @@ internal class DDayListDetailTestEnvironment(
         }
 }
 
-// 디데이 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 디데이 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 internal data object DDayListDetailMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

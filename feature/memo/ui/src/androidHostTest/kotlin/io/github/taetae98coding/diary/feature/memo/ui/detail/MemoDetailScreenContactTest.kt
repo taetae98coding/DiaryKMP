@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -34,6 +38,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePicke
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -80,8 +85,11 @@ class MemoDetailScreenContactTest {
     @Test
     fun `TC-86a4fec2-b516-48d7-968e-a5258c9d377f 연락처를 선택하면 즉시 연결 변경을 요청하고 성공 안내는 표시하지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
-        val contactViewModel = memoDetailContactViewModel(contactList = listOf(contact))
+        val uiState = MutableStateFlow(MemoContactInputUiState())
+        val contactViewModel = memoDetailContactViewModel(contactList = listOf(contact), uiState = uiState)
+        every { contactViewModel.selectContact(contactId = contact.contact.id) } answers { uiState.value = MemoContactInputUiState(selectedContactList = listOf(contact)) }
         composeRule.setMemoDetailScreenWithContact(contactViewModel = contactViewModel)
+        composeRule.onAllNodes(contactInputNode(FIRST_CONTACT_NAME)).assertCountEquals(0)
 
         composeRule.openMemoDetailContactPicker()
         composeRule.awaitContactPickerRows()
@@ -90,13 +98,17 @@ class MemoDetailScreenContactTest {
 
         verify(exactly = 1) { contactViewModel.selectContact(contactId = contact.contact.id) }
         composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.onNode(contactInputNode(FIRST_CONTACT_NAME)).assertExists()
     }
 
     @Test
     fun `TC-86a4fec2-b516-48d7-968e-a5258c9d377f 연락처 선택을 해제하면 즉시 연결 해제를 요청한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
-        val contactViewModel = memoDetailContactViewModel(contactList = listOf(contact), selectedContactList = listOf(contact))
+        val uiState = MutableStateFlow(MemoContactInputUiState(selectedContactList = listOf(contact)))
+        val contactViewModel = memoDetailContactViewModel(contactList = listOf(contact), uiState = uiState)
+        every { contactViewModel.unselectContact(contactId = contact.contact.id) } answers { uiState.value = MemoContactInputUiState() }
         composeRule.setMemoDetailScreenWithContact(contactViewModel = contactViewModel)
+        composeRule.onNode(contactInputNode(FIRST_CONTACT_NAME)).assertExists()
 
         composeRule.openMemoDetailContactPicker()
         composeRule.awaitContactPickerRows()
@@ -104,6 +116,8 @@ class MemoDetailScreenContactTest {
         composeRule.waitForIdle()
 
         verify(exactly = 1) { contactViewModel.unselectContact(contactId = contact.contact.id) }
+        composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.onAllNodes(contactInputNode(FIRST_CONTACT_NAME)).assertCountEquals(0)
     }
 
     @Test
@@ -270,6 +284,7 @@ class MemoDetailScreenContactTest {
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
+                    contentSharerFactory = screenTestContentSharerFactory(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -313,6 +328,7 @@ class MemoDetailScreenContactTest {
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
+                    contentSharerFactory = screenTestContentSharerFactory(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -339,11 +355,14 @@ class MemoDetailScreenContactTest {
     private fun memoDetailContactViewModel(
         contactList: List<ContactListItem>,
         selectedContactList: List<ContactListItem> = emptyList(),
+        uiState: MutableStateFlow<MemoContactInputUiState> = MutableStateFlow(MemoContactInputUiState(selectedContactList = selectedContactList)),
     ): MemoContactViewModel =
         screenTestContactViewModel(
-            uiState = MutableStateFlow(MemoContactInputUiState(selectedContactList = selectedContactList)),
+            uiState = uiState,
             contactPagingDataFlow = MutableStateFlow<PagingData<ContactListItem>>(contactPagingDataOf(contactList)),
         )
+
+    private fun contactInputNode(name: String) = hasText(name) and !hasAnyAncestor(isDialog())
 
     private companion object {
         val SECOND_CONTACT_MEMO_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000031")

@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.repository.AccountCalendarDDayRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -34,7 +35,7 @@ class GetCalendarDDayUseCaseTest :
             val otherDDayList = listOf(Arb.calendarDDay().next())
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val repository = mockk<AccountCalendarDDayRepository>()
             every { repository.get(account = account, dateRange = dateRange) } returns flowOf(ddayList)
             every { repository.get(account = otherAccount, dateRange = dateRange) } returns flowOf(otherDDayList)
@@ -58,7 +59,7 @@ class GetCalendarDDayUseCaseTest :
             val dateRange = dateRange()
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = mockk<AccountCalendarDDayRepository>()
             every { repository.get(account = account, dateRange = dateRange) } returns flowOf(emptyList())
             val useCase = GetCalendarDDayUseCase(getAccountUseCase = getAccountUseCase, accountCalendarDDayRepository = repository)
@@ -75,7 +76,7 @@ class GetCalendarDDayUseCaseTest :
             val account = Arb.accountUser().next()
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = mockk<AccountCalendarDDayRepository>()
             every { repository.get(account = account, dateRange = dateRange) } returns flow { throw failure }
             val useCase = GetCalendarDDayUseCase(getAccountUseCase = getAccountUseCase, accountCalendarDDayRepository = repository)
@@ -94,7 +95,7 @@ class GetCalendarDDayUseCaseTest :
         Given("현재 사용자 계정 확인이 실패하도록 준비되어 있다") {
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val repository = mockk<AccountCalendarDDayRepository>(relaxed = true)
             val useCase = GetCalendarDDayUseCase(getAccountUseCase = getAccountUseCase, accountCalendarDDayRepository = repository)
 

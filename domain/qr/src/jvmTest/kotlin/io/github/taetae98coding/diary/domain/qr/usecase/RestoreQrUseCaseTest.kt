@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.qr.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.repository.AccountQrRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -35,7 +36,7 @@ class RestoreQrUseCaseTest :
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery {
                 accountQrRepository.updateDeleted(
@@ -77,7 +78,7 @@ class RestoreQrUseCaseTest :
             val account = Arb.accountUser().next()
             val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery {
                 accountQrRepository.updateDeleted(account = account, qrId = id, isDeleted = any(), updatedAt = any())
@@ -103,7 +104,7 @@ class RestoreQrUseCaseTest :
         Given("현재 계정과 연결된 QR이 없도록 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery {
                 accountQrRepository.updateDeleted(account = account, qrId = any(), isDeleted = any(), updatedAt = any())
@@ -127,7 +128,7 @@ class RestoreQrUseCaseTest :
             val account = Arb.constant(Account.Guest).next()
             val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery {
                 accountQrRepository.updateDeleted(account = account, qrId = id, isDeleted = any(), updatedAt = any())
@@ -154,7 +155,7 @@ class RestoreQrUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountQrRepository = mockk<AccountQrRepository>(relaxed = true)
             val useCase =
                 RestoreQrUseCase(
@@ -181,7 +182,7 @@ class RestoreQrUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery {
                 accountQrRepository.updateDeleted(account = account, qrId = any(), isDeleted = any(), updatedAt = any())

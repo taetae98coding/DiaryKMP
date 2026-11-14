@@ -22,7 +22,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
 
-// 일곱 종류의 항목과 태그의 연결을 같은 방식으로 검증하도록 종류마다 항목의 요청과 문서의 케이스를 묶는다.
+// 여덟 종류의 항목과 태그의 연결을 같은 방식으로 검증하도록 종류마다 항목의 요청과 문서의 케이스를 묶는다.
 private class EntityTagCase(
     val label: String,
     val kind: EntityTagKindLocalEntity,
@@ -114,6 +114,17 @@ private val entityTagCaseList: List<EntityTagCase> =
             entityPush = { context -> context.ddayRemoteDataSource.push(any()) },
             entityPull = { context, usn -> context.ddayRemoteDataSource.pull(usn = usn) },
         ),
+        EntityTagCase(
+            label = "루틴",
+            kind = EntityTagKindLocalEntity.ROUTINE,
+            remoteKind = EntityTagKindRemoteEntity.ROUTINE,
+            separateUploadTcId = "TC-ed75f3dc-6b86-4679-8f6e-82ae9fe34b20",
+            deletedUploadTcId = "TC-8a1cf22f-fe8b-48c2-b48b-33754b15754e",
+            pullTcId = "TC-b47ae447-c72a-4d42-a319-d644676cf2c9",
+            entityFailureTcId = "TC-159f47b4-d880-4ef7-bf64-b0f4a7a4465d",
+            entityPush = { context -> context.routineRemoteDataSource.push(any()) },
+            entityPull = { context, usn -> context.routineRemoteDataSource.pull(usn = usn) },
+        ),
     )
 
 private fun EntityTagCase.context(
@@ -136,6 +147,7 @@ private fun EntityTagCase.context(
         musicList = musics(size = count(EntityTagKindLocalEntity.MUSIC)),
         qrList = qrs(size = count(EntityTagKindLocalEntity.QR)),
         ddayList = ddays(size = count(EntityTagKindLocalEntity.DDAY)),
+        routineList = routines(size = count(EntityTagKindLocalEntity.ROUTINE)),
         memoList = memos(size = memoCount),
         memoTagList = memoTags(size = memoTagCount),
         entityTagMap = mapOf(kind to entityTagList),
@@ -407,10 +419,11 @@ class SyncWorkEntityTagTest :
                 }
             }
 
-            test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 $label 만 조회한다") {
+            test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 $label 만 업로드한다") {
                 val accountId = Arb.kotlinUuid().next()
                 val otherAccountId = Arb.kotlinUuid().next()
-                val context = case.context(accountId = accountId)
+                val entityTagList = entityTags(size = 1)
+                val context = case.context(accountId = accountId, entityTagList = entityTagList)
                 coEvery {
                     context.entityTagSyncLocalDataSource.readPendingList(accountId = otherAccountId, kind = case.kind)
                 } returns entityTags(size = 1)
@@ -418,12 +431,15 @@ class SyncWorkEntityTagTest :
                 context.subject.doWork()
 
                 coVerify(exactly = 1) {
-                    context.entityTagSyncLocalDataSource.readPendingList(accountId = accountId, kind = case.kind)
+                    context.entityTagRemoteDataSource.push(
+                        kind = case.remoteKind,
+                        entityTagList = entityTagList.map { entityTag -> entityTag.toRemote() },
+                    )
                 }
+                coVerify(exactly = 1) { context.entityTagRemoteDataSource.push(any(), any()) }
                 coVerify(exactly = 0) {
                     context.entityTagSyncLocalDataSource.readPendingList(accountId = otherAccountId, kind = any())
                 }
-                coVerify(exactly = 0) { context.entityTagRemoteDataSource.push(any(), any()) }
             }
         }
     })

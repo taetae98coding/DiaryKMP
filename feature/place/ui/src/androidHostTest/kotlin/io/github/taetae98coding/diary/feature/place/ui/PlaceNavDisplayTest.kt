@@ -48,6 +48,7 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.FIRST_PLACE_ID
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailUiState
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
+import io.github.taetae98coding.diary.feature.place.ui.detail.contentSharerFactoryOf
 import io.github.taetae98coding.diary.feature.place.ui.detail.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemo
@@ -57,7 +58,10 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.searchScreenTestVi
 import io.github.taetae98coding.diary.feature.place.ui.detail.selectPlaceDetailTab
 import io.github.taetae98coding.diary.feature.place.ui.memo.finished.PlaceMemoFinishedListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,6 +78,7 @@ import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 // PlaceDetail 화면의 메모 탭에서 이어 가는 화면과의 전환을 제품 entry로 구성한 NavDisplay 위에서 검증한다.
 @RunWith(RobolectricTestRunner::class)
@@ -84,8 +89,8 @@ class PlaceNavDisplayTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(PlaceNavDisplayPreviousNavKey, PlaceDetailNavKey(id = FIRST_PLACE_ID))
     private val memo: Memo = placeMemo(title = MEMO_TITLE)
+    private val otherPlaceMemo: Memo = placeMemo(title = OTHER_PLACE_MEMO_TITLE)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -136,6 +141,24 @@ class PlaceNavDisplayTest {
         assertReturnedToMemoTab()
     }
 
+    @Test
+    fun `TC-53573661-7474-4f93-ad23-b9194032b27d 상세 대상이 다른 장소로 바뀌면 메모 탭 목록이 새 장소의 메모로 바뀐다`() {
+        val otherPlaceId = Arb.kotlinUuid().next()
+        openMemoTab()
+        composeRule.onNodeWithText(OTHER_PLACE_MEMO_TITLE).assertDoesNotExist()
+
+        // 장소 목록에서 다른 장소를 고르면 상세 영역의 대상이 그 장소로 바뀐다.
+        composeRule.runOnIdle { backStack[backStack.lastIndex] = PlaceDetailNavKey(id = otherPlaceId) }
+        composeRule.waitForIdle()
+        composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(OTHER_PLACE_MEMO_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithText(OTHER_PLACE_MEMO_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
+    }
+
     private fun openMemoTab() {
         setPlaceNavDisplay()
         composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -156,7 +179,6 @@ class PlaceNavDisplayTest {
 
     private fun setPlaceNavDisplay() {
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {
@@ -185,7 +207,7 @@ class PlaceNavDisplayTest {
                                 entryProvider =
                                     entryProvider {
                                         entry<PlaceNavDisplayPreviousNavKey> { Text(text = PREVIOUS_CONTENT) }
-                                        placeEntry(backStack = backStack)
+                                        placeEntry(backStack = backStack, contentSharerFactory = contentSharerFactoryOf())
                                         entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                                         entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
                                     },
@@ -201,12 +223,14 @@ class PlaceNavDisplayTest {
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun navDisplayViewModelModule() =
         module {
-            factory<PlaceDetailViewModel> { screenTestViewModel(uiState = MutableStateFlow<PlaceDetailUiState>(content(id = FIRST_PLACE_ID))) }
+            factory<PlaceDetailViewModel> { parameters -> screenTestViewModel(uiState = MutableStateFlow<PlaceDetailUiState>(content(id = parameters.get<Uuid>()))) }
             factory<PlaceSearchViewModel> { searchScreenTestViewModel() }
             factory<EntityDetailTagViewModel> { detailTagScreenTestViewModel() }
-            factory {
+            factory { parameters ->
+                val placeMemo = if (parameters.get<Uuid>() == FIRST_PLACE_ID) memo else otherPlaceMemo
+
                 mockk<PlaceDetailMemoViewModel>(relaxed = true).apply {
-                    every { memoPagingData } returns flowOf(placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))))
+                    every { memoPagingData } returns flowOf(placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo))))
                     every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns emptyFlow()
                 }
@@ -228,6 +252,7 @@ class PlaceNavDisplayTest {
 
     private companion object {
         const val MEMO_TITLE = "PlaceNavDisplayMemo"
+        const val OTHER_PLACE_MEMO_TITLE = "PlaceNavDisplayOtherPlaceMemo"
         const val PREVIOUS_CONTENT = "PreviousContent"
         const val ROUTE_CONTENT = "RouteContent"
         const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"

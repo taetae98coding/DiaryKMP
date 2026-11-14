@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -38,6 +39,9 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.writeStringUtf8
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
@@ -193,6 +197,13 @@ class GeminiContentRemoteDataSourceImplTest :
             createDataSource(createEngine(body = body)).stream(request = request()) shouldContainExactly listOf("조각")
         }
 
+        test("CR 단독 줄바꿈도 줄 끝으로 읽는다") {
+            val text = "조각${Arb.kotlinUuid().next()}"
+            val body = "data: ${chunk(text = text)}" + CR + CR
+
+            createDataSource(createEngine(body = body)).stream(request = request()) shouldContainExactly listOf(text)
+        }
+
         test("TC-cafafa06-f52a-4988-ab6e-164c6d4fd04b: Gemini의 실패 응답을 실패 이유로 나누어 알린다") {
             listOf<Pair<HttpClientEngine, (Throwable) -> Unit>>(
                 errorEngine(HttpStatusCode.TooManyRequests, status = "RESOURCE_EXHAUSTED") to { it.shouldBeInstanceOf<GeminiException.QuotaExceeded>() },
@@ -295,6 +306,29 @@ class GeminiContentRemoteDataSourceImplTest :
             report.message shouldContain "JsonDecodingException"
         }
 
+        test("TC-ad9b9bbf-b6c9-4611-b438-bed0b7576447 대기 초과, 통신 오류, 도중에 끊긴 연결은 오류 보고를 남기지 않는다") {
+            val firstChunk = sse(chunk(text = """{"title":"제"""))
+
+            listOf<Pair<HttpClientEngine, (Throwable) -> Unit>>(
+                MockEngine { throw SocketTimeoutException("socket timeout") } to { it.shouldBeInstanceOf<GeminiException.Timeout>() },
+                MockEngine { throw IOException("connection reset") } to { it.shouldBeInstanceOf<GeminiException.Network>() },
+                MockEngine {
+                    val channel = ByteChannel(autoFlush = true)
+                    channel.writeStringUtf8(firstChunk)
+                    channel.close(IOException("connection reset"))
+
+                    respond(content = channel, status = HttpStatusCode.OK, headers = SSE_HEADERS)
+                } to { it.shouldBeInstanceOf<GeminiException.Network>() },
+            ).forEach { (engine, assertFailure) ->
+                val reportList = recordCrashlyticsLog()
+
+                val actual = shouldThrow<GeminiException> { createDataSource(engine).stream(request = request()) }
+
+                assertFailure(actual)
+                reportList.shouldBeEmpty()
+            }
+        }
+
         test("TC-78cd381e-2737-42c3-b920-1a6b404d2d69: 오류 보고에 생성된 내용과 보낸 내용을 담지 않는다") {
             val request = request()
             val generated = "생성된 문장 ${Arb.kotlinUuid().next()}"
@@ -316,6 +350,8 @@ class GeminiContentRemoteDataSourceImplTest :
     }) {
     private companion object {
         private val json = Json
+
+        private const val CR = "\r"
 
         private const val CRLF = "\r\n"
 

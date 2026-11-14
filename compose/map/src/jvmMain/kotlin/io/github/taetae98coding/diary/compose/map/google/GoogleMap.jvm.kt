@@ -4,17 +4,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
+import io.github.taetae98coding.diary.compose.map.web.MapHttpServer
 import io.github.taetae98coding.diary.compose.map.web.WebMap
 import kotlin.uuid.Uuid
 
 @Composable
-internal actual fun GoogleMap(
-    modifier: Modifier,
-    state: DiaryMapState,
-    onSpotClick: ((DiaryMapCoordinate) -> Unit)?,
-    onPinClick: ((Uuid) -> Unit)?,
+internal fun GoogleMap(
+    httpServer: MapHttpServer,
+    modifier: Modifier = Modifier,
+    state: DiaryMapState = rememberDiaryMapState(),
+    onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
+    onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     WebMap(
+        httpServer = httpServer,
         createHtml = { camera, spot, isSpotSelectable, pins, isPinSelectable ->
             createGoogleMapHtml(
                 camera = camera,

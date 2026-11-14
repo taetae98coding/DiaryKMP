@@ -4,10 +4,10 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.UserData
+import io.github.taetae98coding.diary.core.model.authentication.LoginProvider
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.model.image.ImageFormat
 import io.github.taetae98coding.diary.core.network.api.profile.datasource.ProfileImageRemoteDataSource
-import io.github.taetae98coding.diary.core.network.api.profile.entity.ProfileImageRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseUser
 import io.github.taetae98coding.diary.core.testing.image.imageCropRegion
@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
 import kotlinx.io.readByteArray
-import kotlin.uuid.Uuid
 
 class UserDataRepositoryImplTest :
     FunSpec({
@@ -53,7 +52,7 @@ class UserDataRepositoryImplTest :
                 val id = Arb.kotlinUuid().next()
                 val email = Arb.string().next()
                 val profileImage = if (profileImageCase == "프로필 이미지가 있음") Arb.string().next() else null
-                val supabaseUser = SupabaseUser(id = id, email = email, profileImage = profileImage, providerSet = emptySet())
+                val supabaseUser = Arb.supabaseUser().next().copy(id = id, email = email, profileImage = profileImage, providerSet = emptySet())
                 val supabaseAuth = mockk<SupabaseAuth>()
                 every { supabaseAuth.getUserFlow() } returns flowOf(supabaseUser)
                 val repository = repository(supabaseAuth = supabaseAuth)
@@ -62,6 +61,18 @@ class UserDataRepositoryImplTest :
                     awaitItem() shouldBe UserData(id = id, email = email, profileImage = profileImage, loginProviderSet = emptySet())
                     awaitComplete()
                 }
+            }
+        }
+
+        test("TC-003fad1b-1e0e-4222-baf8-2a7b77821e5d 연결된 로그인 수단 중 Google 로그인과 Apple 로그인만 저장된 사용자 정보에 담는다") {
+            val supabaseUser = Arb.supabaseUser().next().copy(providerSet = setOf("google", "apple", "email"))
+            val supabaseAuth = mockk<SupabaseAuth>()
+            every { supabaseAuth.getUserFlow() } returns flowOf(supabaseUser)
+            val repository = repository(supabaseAuth = supabaseAuth)
+
+            repository.get().test {
+                awaitItem()?.loginProviderSet shouldBe setOf(LoginProvider.GOOGLE, LoginProvider.APPLE)
+                awaitComplete()
             }
         }
 
@@ -110,12 +121,7 @@ class UserDataRepositoryImplTest :
         test("TC-b30a3679-9bec-4f64-9a6a-edea7a7044d5 반영에 실패하면 프로필 이미지가 직전 주소를 유지한다") {
             val uri = fileUri()
             val previousUser =
-                SupabaseUser(
-                    id = Arb.kotlinUuid().next(),
-                    email = Arb.string().next(),
-                    profileImage = "previous-${Arb.string().next()}",
-                    providerSet = emptySet(),
-                )
+                Arb.supabaseUser().next().copy(profileImage = "previous-${Arb.string().next()}", providerSet = emptySet())
             val supabaseAuth = mockk<SupabaseAuth>()
             every { supabaseAuth.getUserFlow() } returns MutableStateFlow(previousUser)
             val repository =

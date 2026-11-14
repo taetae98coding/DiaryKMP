@@ -18,7 +18,9 @@ import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.domain.dday.usecase.GetCalendarDDayUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -166,7 +168,7 @@ class CalendarHomeScreenDDayTest {
             ddayViewModel = CalendarHomeDDayViewModel(getCalendarDDayUseCase = getCalendarDDayUseCase),
             holidayList = listOf(Holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, dateRange = july(day = 17)..july(day = 17))),
             memoList = listOf(memo(title = APPOINTMENT_TITLE, date = july(day = 10))),
-            birthdayList = listOf(CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8))),
+            birthdayList = listOf(Arb.calendarContactBirthday().next().copy(name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8))),
         )
         composeRule.waitForIdle()
 
@@ -219,7 +221,6 @@ class CalendarHomeScreenDDayTest {
         composeRule.waitForIdle()
     }
 
-    // 디데이 아이템이 그 날짜 칸과 같은 가로 자리에 놓였는지 확인한다.
     private fun assertUnderDate(
         text: String,
         dateDescription: String,
@@ -253,13 +254,7 @@ class CalendarHomeScreenDDayTest {
     private fun memo(
         title: String,
         date: LocalDate,
-    ): CalendarMemo =
-        CalendarMemo(
-            id = Arb.kotlinUuid().next(),
-            title = title,
-            color = MEMO_COLOR,
-            dateTime = MemoDateTime.AllDay(dateRange = date..date),
-        )
+    ): CalendarMemo = Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = date..date), title = title).next()
 
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 
@@ -280,6 +275,5 @@ class CalendarHomeScreenDDayTest {
         const val CONSTITUTION_DAY_NAME = "제헌절"
         const val BIRTHDAY_NAME = "홍길동"
         const val BIRTHDAY_TEXT = "🎂 홍길동"
-        const val MEMO_COLOR = 0xFF3A7BD5
     }
 }

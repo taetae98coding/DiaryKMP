@@ -14,6 +14,11 @@ public interface AccountChecklistItemRepository {
         sort: ChecklistItemSort,
     ): Flow<List<ChecklistItem>>
 
+    public fun find(
+        account: Account,
+        itemId: Uuid,
+    ): Flow<ChecklistItem?>
+
     public suspend fun upsert(
         account: Account,
         item: ChecklistItem,

@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -35,7 +36,7 @@ class FindTagUseCaseTest :
             val account = Arb.accountUser().next()
             val tag = tag()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountTagRepository = mockk<AccountTagRepository>()
             every { accountTagRepository.find(account = account, tagId = tag.id) } returns flowOf(tag)
             val useCase =
@@ -59,7 +60,7 @@ class FindTagUseCaseTest :
         Given("조회할 태그가 없다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountTagRepository = mockk<AccountTagRepository>()
             every { accountTagRepository.find(account = account, tagId = any()) } returns flowOf(null)
             val useCase =
@@ -80,7 +81,7 @@ class FindTagUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
             val useCase =
                 FindTagUseCase(
@@ -105,7 +106,7 @@ class FindTagUseCaseTest :
             val tag = tag()
             val changedTag = tag.copy(detail = Arb.tagDetail().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val tagFlow = MutableStateFlow<Tag?>(tag)
             val accountTagRepository = mockk<AccountTagRepository>()
             every { accountTagRepository.find(account = account, tagId = tag.id) } returns tagFlow

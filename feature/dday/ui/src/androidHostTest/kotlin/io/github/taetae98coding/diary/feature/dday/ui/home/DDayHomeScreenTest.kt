@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.dday.DDay
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.PageDDayUseCase
@@ -167,11 +168,11 @@ class DDayHomeScreenTest {
     @Test
     fun `TC-3c1ca627-98c7-4412-b8f9-f4232bbab368 목록을 조회하지 못하면 오류 안내 없이 빈 상태로 표시한다`() {
         val pageDDayUseCase = mockk<PageDDayUseCase>()
-        every { pageDDayUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
+        every { pageDDayUseCase() } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
         val getDDayFilterUseCase = mockk<GetDDayFilterUseCase>()
-        every { getDDayFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        every { getDDayFilterUseCase() } returns flowOf(Result.success(emptyList()))
         val getDDayFilterTagIdUseCase = mockk<GetDDayFilterTagIdUseCase>()
-        every { getDDayFilterTagIdUseCase(parameter = Unit) } returns flowOf(Result.success(emptySet()))
+        every { getDDayFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val viewModel =
             DDayHomeViewModel(
                 getDDayFilterUseCase = getDDayFilterUseCase,

@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
@@ -19,6 +20,8 @@ import io.github.taetae98coding.diary.feature.checklist.ui.ChecklistTagTestTheme
 import io.github.taetae98coding.diary.feature.checklist.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.checklist.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.checklist.ui.clickEntityTagInput
+import io.github.taetae98coding.diary.feature.checklist.ui.detail.descriptionInput
+import io.github.taetae98coding.diary.feature.checklist.ui.detail.itemInput
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.checklist.ui.sendTagAddedResult
@@ -165,6 +168,12 @@ class ChecklistAddTagInputTest {
         }
         composeRule.waitForIdle()
         composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.itemInput().performTextInput(ADDED_ITEM)
+        composeRule.itemInput().performImeAction()
+        composeRule.waitForIdle()
+        composeRule.itemInput().assert(hasText(""))
+        composeRule.onNodeWithText(ADDED_ITEM).assertExists()
         composeRule.runOnIdle { tagViewModelList.last().add(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
@@ -174,6 +183,8 @@ class ChecklistAddTagInputTest {
 
         tagViewModelList.size shouldBe 2
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
+        composeRule.onNodeWithText(ADDED_ITEM).assertExists()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertDoesNotExist()
         expectedTitleListAfterRestore.forEach { title -> composeRule.onNodeWithText(title).assertExists() }
         composeRule.runOnIdle {
@@ -247,6 +258,8 @@ class ChecklistAddTagInputTest {
     private companion object {
         const val DEFAULT_ADD = "Add checklist"
         const val TYPED_TITLE = "ChecklistAddTagTypedTitle"
+        const val TYPED_DESCRIPTION = "ChecklistAddTagTypedDescription"
+        const val ADDED_ITEM = "ChecklistAddTagAddedItem"
         const val SELECTED_TAG_TITLE = "ChecklistAddSelectedTag"
         const val INITIAL_TAG_TITLE = "ChecklistAddRestoreInitialTag"
         const val OTHER_TAG_TITLE = "ChecklistAddRestoreOtherTag"

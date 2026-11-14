@@ -22,7 +22,7 @@ internal fun main() {
     // SwingPanel은 기본적으로 Compose 위에 그려져 지도 자리의 패널이 다이얼로그를 가린다.
     // 블렌딩을 켜야 지도 웹뷰를 감춘 동안 그 자리 위에 Compose 레이어가 보인다.
     System.setProperty("compose.interop.blending", "true")
-    StartupInitializer.initialize(isDebug = true)
+    val dependencies = StartupInitializer.initialize(isDebug = true)
 
     singleWindowApplication(
         state = WindowState(size = DpSize(width = WIDTH.dp, height = HEIGHT.dp)),
@@ -31,7 +31,7 @@ internal fun main() {
     ) {
         window.minimumSize = Dimension(MIN_WIDTH, MIN_HEIGHT)
 
-        App()
+        App(dependencies = dependencies)
     }
 
     saveWebLoginOnExit()

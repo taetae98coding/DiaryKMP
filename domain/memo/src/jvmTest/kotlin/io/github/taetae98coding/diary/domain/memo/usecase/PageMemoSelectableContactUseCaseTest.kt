@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -32,7 +33,7 @@ class PageMemoSelectableContactUseCaseTest :
             val account = Arb.accountUser().next()
             val contactList = List(2) { contact().toListItem(nameQualifier = Arb.string().next()) }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
             every {
                 accountMemoContactRepository.pageSelectableContact(account = account, query = any())
@@ -73,7 +74,7 @@ class PageMemoSelectableContactUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountMemoContactRepository = mockk<AccountMemoContactRepository>(relaxed = true)
             val useCase =
                 PageMemoSelectableContactUseCase(

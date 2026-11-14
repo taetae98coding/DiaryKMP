@@ -73,16 +73,22 @@ class ChecklistAddTagViewModelTest : FunSpec() {
                 val secondTag = tag()
                 val viewModel = viewModel(initialTagId = null, selectedTagList = listOf(firstTag, secondTag))
 
-                viewModel.add(tagId = firstTag.id)
-                viewModel.add(tagId = secondTag.id)
-                advanceUntilIdle()
+                // 이 ViewModel은 태그를 조회하는 UseCase만 받으므로 고르는 것만으로 연결을 저장할 경로가 없다.
+                viewModel.uiState.test {
+                    viewModel.add(tagId = firstTag.id)
+                    viewModel.add(tagId = secondTag.id)
+                    advanceUntilIdle()
 
-                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(firstTag.id, secondTag.id)
+                    viewModel.selectionUiState.value.tagIdSet shouldBe setOf(firstTag.id, secondTag.id)
+                    expectMostRecentItem().tagList shouldBe listOf(firstTag, secondTag)
 
-                viewModel.remove(tagId = firstTag.id)
-                advanceUntilIdle()
+                    viewModel.remove(tagId = firstTag.id)
+                    advanceUntilIdle()
 
-                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
+                    viewModel.selectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
+                    expectMostRecentItem().tagList shouldBe listOf(secondTag)
+                    cancelAndIgnoreRemainingEvents()
+                }
             }
         }
 

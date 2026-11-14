@@ -155,6 +155,7 @@ internal fun ComposeContentTestRule.memoPlaceCardHeight(): Dp = onNodeWithTag(ME
 internal fun ComposeContentTestRule.setMemoPlacePickerDialog(
     placeList: List<Place> = emptyList(),
     uiState: MemoPlaceInputUiState = MemoPlaceInputUiState(isSelectedPlaceLoaded = true),
+    uiStateProvider: () -> MemoPlaceInputUiState = { uiState },
     placePagingData: Flow<PagingData<Place>> = placePagingData(placeList),
     query: String = "",
     onDismissRequest: () -> Unit = {},
@@ -166,7 +167,7 @@ internal fun ComposeContentTestRule.setMemoPlacePickerDialog(
         DiaryTheme {
             MemoPlacePickerDialog(
                 searchFieldState = rememberDiaryPickerSearchFieldState(initialText = query),
-                uiStateProvider = { uiState },
+                uiStateProvider = uiStateProvider,
                 placePagingItems = remember(placePagingData) { placePagingData }.collectAsLazyPagingItems(),
                 onDismissRequest = onDismissRequest,
                 onEvent = { event ->

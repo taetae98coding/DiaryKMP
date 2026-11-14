@@ -3,22 +3,31 @@ package io.github.taetae98coding.diary.core.database.impl.tag.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -40,6 +49,21 @@ class AccountTagLocalDataSourceImplTest :
 
         afterTest {
             database.close()
+        }
+
+        // 열어 둔 선택 목록이 스스로 다시 조회되는지는 목록 조회가 무효화되는지로 확인한다.
+        suspend fun awaitTagPageInvalidated(
+            accountId: Uuid,
+            change: suspend () -> Unit,
+        ) {
+            val pagingSource = dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT)
+            pagingSource.load(PagingSource.LoadParams.Refresh(key = null, loadSize = PAGE_SIZE, placeholdersEnabled = false))
+            val invalidated = CompletableDeferred<Unit>()
+            pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+
+            change()
+
+            withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
         }
 
         test("TC-be0e29f8-7742-4e50-8d0e-a4de57cd8c6d 태그 목록은 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회된다") {
@@ -106,7 +130,7 @@ class AccountTagLocalDataSourceImplTest :
             dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(selectableTag)
         }
 
-        test("TC-15e61e6f-8dc1-47f3-96fe-04dcdfd33502 선택한 식별자의 선택할 수 있는 태그만 제목 오름차순으로 조회한다") {
+        test("TC-15e61e6f-8dc1-47f3-96fe-04dcdfd33502 TC-d4f72f37-9bfa-4fc3-ad02-c0c6ccbf1e46 선택한 식별자의 선택할 수 있는 태그만 제목 오름차순으로 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val selectedLastTag = selectableTag().withTitle("Zebra")
             val selectedFirstTag = selectableTag().withTitle("Alpha")
@@ -186,24 +210,95 @@ class AccountTagLocalDataSourceImplTest :
             dataSource.pagedTagList(accountId = accountId) shouldBe listOf(changedTag)
         }
 
-        test("TC-a79a3e06-9752-4c82-8ff3-8e9b880c87ec 태그가 추가되거나 상태가 바뀌면 태그 목록 조회 결과가 갱신된다") {
+        test("TC-a79a3e06-9752-4c82-8ff3-8e9b880c87ec 태그가 추가되거나 이모지·제목이 바뀌면 선택한 태그 조회와 열어 둔 선택 목록이 스스로 갱신된다") {
             val accountId = Arb.kotlinUuid().next()
-            val tag = selectableTag()
-
-            dataSource.pagedTagList(accountId = accountId).shouldBeEmpty()
-
+            val tag = selectableTag().withTitle("Bravo")
+            val addedTag = selectableTag().withTitle("Charlie")
             transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
-            dataSource.pagedTagList(accountId = accountId) shouldBe listOf(tag)
 
-            transaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
-            dataSource.pagedTagList(accountId = accountId).shouldBeEmpty()
+            dataSource.get(accountId = accountId, tagIdSet = setOf(tag.id, addedTag.id)).distinctUntilChanged().test {
+                awaitItem() shouldBe listOf(tag)
+
+                awaitTagPageInvalidated(accountId = accountId) {
+                    transaction.upsert(accountId = accountId, tagList = listOf(addedTag), tagLinkList = emptyList())
+                }
+
+                awaitItem() shouldBe listOf(tag, addedTag)
+                dataSource.pagedTagList(accountId = accountId) shouldBe listOf(tag, addedTag)
+
+                val changedDetail = tag.detail.copy(emoji = "🧪", title = "Delta")
+                val updatedAt = Arb.secondPrecisionInstant().next()
+                awaitTagPageInvalidated(accountId = accountId) {
+                    transaction.updateDetail(accountId = accountId, tagId = tag.id, detail = changedDetail, updatedAt = updatedAt)
+                }
+
+                val changedTag = tag.copy(detail = changedDetail, updatedAt = updatedAt)
+                awaitItem() shouldBe listOf(addedTag, changedTag)
+                dataSource.pagedTagList(accountId = accountId) shouldBe listOf(addedTag, changedTag)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        test("새로 저장된 태그가 열어 둔 선택 목록의 정렬 위치에 나타난다") {
+            val accountId = Arb.kotlinUuid().next()
+            val firstTag = selectableTag().withTitle("Alpha")
+            val lastTag = selectableTag().withTitle("Echo")
+            val addedTag = selectableTag().withTitle("Bravo")
+            val pulledTag = selectableTag().withTitle("Charlie")
+            transaction.upsert(accountId = accountId, tagList = listOf(firstTag, lastTag), tagLinkList = emptyList())
+            dataSource.pagedTagList(accountId = accountId) shouldBe listOf(firstTag, lastTag)
+
+            awaitTagPageInvalidated(accountId = accountId) {
+                transaction.upsert(accountId = accountId, tagList = listOf(addedTag), tagLinkList = emptyList())
+            }
+            dataSource.pagedTagList(accountId = accountId) shouldBe listOf(firstTag, addedTag, lastTag)
+
+            awaitTagPageInvalidated(accountId = accountId) {
+                AccountTagSyncTransactionImpl(database = database).upsert(accountId = accountId, tagList = listOf(pulledTag), cursor = Arb.long().next())
+            }
+            dataSource.pagedTagList(accountId = accountId) shouldBe listOf(firstTag, addedTag, pulledTag, lastTag)
+        }
+
+        test("TC-6104ae0a-c9a0-423f-bfe1-fb75276db910 최근 수정순에서는 제목이 바뀌지 않는 수정에도 태그가 목록의 앞으로 옮겨진다") {
+            val accountId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
+            val olderTag = selectableTag().copy(updatedAt = updatedAt)
+            val newerTag = selectableTag().copy(updatedAt = updatedAt + 1.seconds)
+            transaction.upsert(accountId = accountId, tagList = listOf(olderTag, newerTag), tagLinkList = emptyList())
+            dataSource.pagedTagList(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(newerTag, olderTag)
+
+            val changedTag = olderTag.copy(detail = olderTag.detail.copy(description = Arb.nonBlankString().next()), updatedAt = updatedAt + 2.seconds)
+            transaction.updateDetail(accountId = accountId, tagId = changedTag.id, detail = changedTag.detail, updatedAt = changedTag.updatedAt)
+
+            dataSource.pagedTagList(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(changedTag, newerTag)
+        }
+
+        test("TC-ff2c4657-771f-4c5b-90e7-973294e5a60b 제목순에서는 제목이 바뀌지 않는 수정에 태그의 순서가 바뀌지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
+            val tagList =
+                listOf(
+                    selectableTag().withTitle(Arb.alphanumericString(prefix = "First").next()).copy(updatedAt = updatedAt),
+                    selectableTag().withTitle(Arb.alphanumericString(prefix = "Second").next()).copy(updatedAt = updatedAt + 1.seconds),
+                )
+            transaction.upsert(accountId = accountId, tagList = tagList, tagLinkList = emptyList())
+            val (firstTag, lastTag) = dataSource.pagedTagList(accountId = accountId, sort = ListSortLocalEntity.TITLE)
+
+            val changedTag = lastTag.copy(detail = lastTag.detail.copy(description = Arb.nonBlankString().next()), updatedAt = updatedAt + 2.seconds)
+            transaction.updateDetail(accountId = accountId, tagId = changedTag.id, detail = changedTag.detail, updatedAt = changedTag.updatedAt)
+
+            dataSource.pagedTagList(accountId = accountId, sort = ListSortLocalEntity.TITLE) shouldBe listOf(firstTag, changedTag)
         }
     }) {
     public companion object {
         private const val TAG_COUNT: Int = 25
         private const val PAGE_SIZE: Int = 10
+        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000L
 
-        private suspend fun AccountTagLocalDataSourceImpl.pagedTagList(accountId: Uuid): List<TagLocalEntity> = page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data
+        private suspend fun AccountTagLocalDataSourceImpl.pagedTagList(
+            accountId: Uuid,
+            sort: ListSortLocalEntity = ListSortLocalEntity.DEFAULT,
+        ): List<TagLocalEntity> = page(accountId = accountId, query = "", sort = sort).loadPage().data
 
         private suspend fun PagingSource<Int, TagLocalEntity>.loadPage(
             key: Int? = null,

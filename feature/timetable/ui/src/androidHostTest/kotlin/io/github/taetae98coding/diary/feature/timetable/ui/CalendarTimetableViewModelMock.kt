@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.timetable.ui
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.mockk.coEvery
@@ -24,19 +25,19 @@ internal fun timetableWeatherViewModel(
 
 internal fun calendarTimetableWeatherViewModel(
     fetchResult: Result<Unit> = Result.success(Unit),
-    getCurrentCalendarWeatherUseCase: GetCurrentCalendarWeatherUseCase = getCurrentCalendarWeatherUseCase(),
+    getCurrentCalendarWeatherUseCase: GetCurrentCalendarWeatherUseCase = stubGetCurrentCalendarWeatherUseCase(),
 ): CalendarTimetableWeatherViewModel =
     CalendarTimetableWeatherViewModel(
         fetchCurrentWeatherUseCase =
             mockk<FetchCurrentWeatherUseCase>().also { useCase ->
-                coEvery { useCase(parameter = Unit) } returns fetchResult
+                coEvery { useCase() } returns fetchResult
             },
         getCurrentCalendarWeatherUseCase = getCurrentCalendarWeatherUseCase,
     )
 
-internal fun getCurrentCalendarWeatherUseCase(flow: Flow<Result<CalendarWeatherReport>> = flowOf(Result.success(CalendarWeatherReport()))): GetCurrentCalendarWeatherUseCase =
+internal fun stubGetCurrentCalendarWeatherUseCase(flow: Flow<Result<CalendarWeatherReport>> = flowOf(Result.success(CalendarWeatherReport()))): GetCurrentCalendarWeatherUseCase =
     mockk<GetCurrentCalendarWeatherUseCase>().also { useCase ->
-        every { useCase(parameter = Unit) } returns flow
+        every { useCase() } returns flow
     }
 
 internal fun timetableDDayViewModel(

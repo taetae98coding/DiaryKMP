@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.location.coordinate
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
@@ -65,7 +66,7 @@ class PlaceHomeExecutionBoundaryTest {
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        coVerify(exactly = 1) { fetch(parameter = Unit) }
+        coVerify(exactly = 1) { fetch() }
     }
 
     @Test
@@ -77,7 +78,7 @@ class PlaceHomeExecutionBoundaryTest {
 
         goToBackgroundAndReturn()
 
-        coVerify(exactly = 1) { fetch(parameter = Unit) }
+        coVerify(exactly = 1) { fetch() }
     }
 
     @Test
@@ -153,13 +154,13 @@ class PlaceHomeExecutionBoundaryTest {
         var mapViewModel = mapViewModel(beforeFetch)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
         composeRule.waitForIdle()
-        coVerify(exactly = 1) { beforeFetch(parameter = Unit) }
+        coVerify(exactly = 1) { beforeFetch() }
 
         mapViewModel = mapViewModel(afterFetch)
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        coVerify(exactly = 1) { afterFetch(parameter = Unit) }
+        coVerify(exactly = 1) { afterFetch() }
     }
 
     @Test
@@ -170,19 +171,19 @@ class PlaceHomeExecutionBoundaryTest {
         var mapViewModel = mapViewModel(beforeFetch)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
         selectListMode()
-        coVerify(exactly = 1) { beforeFetch(parameter = Unit) }
+        coVerify(exactly = 1) { beforeFetch() }
 
         mapViewModel = mapViewModel(afterFetch)
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_VIEW_MODE_DESCRIPTION).assertExists()
-        coVerify(exactly = 1) { afterFetch(parameter = Unit) }
+        coVerify(exactly = 1) { afterFetch() }
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_VIEW_MODE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        coVerify(exactly = 1) { afterFetch(parameter = Unit) }
+        coVerify(exactly = 1) { afterFetch() }
     }
 
     @Test
@@ -261,7 +262,7 @@ class PlaceHomeExecutionBoundaryTest {
 
         private fun fetchCurrentLocationUseCase(coordinate: Coordinate): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { useCase(parameter = Unit) } returns Result.success(coordinate)
+            coEvery { useCase() } returns Result.success(coordinate)
 
             return useCase
         }
@@ -269,7 +270,7 @@ class PlaceHomeExecutionBoundaryTest {
         private fun mapViewModel(fetchCurrentLocationUseCase: FetchCurrentLocationUseCase): PlaceHomeMapViewModel {
             // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
+            every { getDefaultMapProviderUseCase() } returns emptyFlow()
 
             return PlaceHomeMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

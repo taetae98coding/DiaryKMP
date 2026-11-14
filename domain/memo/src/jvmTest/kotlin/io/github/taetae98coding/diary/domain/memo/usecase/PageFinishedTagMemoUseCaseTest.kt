@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountTagMemoRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -36,7 +37,7 @@ class PageFinishedTagMemoUseCaseTest :
             val pagingData = PagingData.from(listOf(memo()))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagMemoRepository = mockk<AccountTagMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagMemoRepository.pageFinished(account = account, tagId = tagId, sort = ListSort.DEFAULT) } returns flowOf(pagingData)
             val useCase =
                 PageFinishedTagMemoUseCase(
@@ -83,7 +84,7 @@ class PageFinishedTagMemoUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagMemoRepository = mockk<AccountTagMemoRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase =
                 PageFinishedTagMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -114,7 +115,7 @@ class PageFinishedTagMemoUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagMemoRepository = mockk<AccountTagMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagMemoRepository.pageFinished(account = account, tagId = tagId, sort = ListSort.DEFAULT) } returns flow { throw failure }
             val useCase =
                 PageFinishedTagMemoUseCase(
@@ -148,7 +149,7 @@ class PageFinishedTagMemoUseCaseTest :
             val otherAccountPagingFlow = MutableStateFlow(otherAccountPagingData)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagMemoRepository = mockk<AccountTagMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             every { accountTagMemoRepository.pageFinished(account = account, tagId = tagId, sort = ListSort.DEFAULT) } returns accountPagingFlow
             every { accountTagMemoRepository.pageFinished(account = otherAccount, tagId = tagId, sort = ListSort.DEFAULT) } returns otherAccountPagingFlow
             val useCase =

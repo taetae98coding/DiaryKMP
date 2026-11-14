@@ -1,7 +1,12 @@
 package io.github.taetae98coding.diary.app.shared
 
-import io.github.taetae98coding.diary.compose.credential.CredentialsDispatcher
-import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsClientId
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsConfig
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManagerFactory
+import io.github.taetae98coding.diary.compose.credential.apple.JvmAppleCredentialsManagerFactory
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsManagerFactory
+import io.github.taetae98coding.diary.compose.credential.google.JvmGoogleCredentialsManagerFactory
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
+import io.github.taetae98coding.diary.compose.map.JvmDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.web.MapHttpServer
 import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseDirectory
 import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirectory
@@ -36,13 +41,19 @@ internal class JvmAppModule {
     @DiarySettingDirectory
     fun providesDiarySettingDirectory(): String = BuildKonfig.APP_DIRECTORY
 
-    @Factory
-    @GoogleCredentialsClientId
-    fun providesGoogleCredentialsClientId(): String = BuildKonfig.GOOGLE_CREDENTIALS_CLIENT_ID
+    @Single
+    fun providesGoogleCredentialsManagerFactory(): GoogleCredentialsManagerFactory =
+        JvmGoogleCredentialsManagerFactory(
+            clientId = BuildKonfig.GOOGLE_CREDENTIALS_CLIENT_ID,
+            coroutineDispatcher = Dispatchers.IO,
+        )
 
-    @Factory
-    @CredentialsDispatcher
-    fun providesCredentialsDispatcher(): CoroutineDispatcher = Dispatchers.IO
+    @Single
+    fun providesAppleCredentialsManagerFactory(config: AppleCredentialsConfig): AppleCredentialsManagerFactory =
+        JvmAppleCredentialsManagerFactory(
+            config = config,
+            coroutineDispatcher = Dispatchers.IO,
+        )
 
     @Factory
     @McpServerPort
@@ -50,6 +61,9 @@ internal class JvmAppModule {
 
     @Single
     fun providesMapHttpServer(): MapHttpServer = MapHttpServer()
+
+    @Single
+    fun providesDiaryMapContentOverride(mapHttpServer: MapHttpServer): DiaryMapContentOverride = JvmDiaryMapContentOverride(httpServer = mapHttpServer)
 
     @Factory
     @QrScanCameraDispatcher

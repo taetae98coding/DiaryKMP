@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
@@ -29,10 +30,13 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-internal fun EntryProviderScope<ScreenNavKey>.playlistEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.playlistEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     playlistHomeEntry(backStack = backStack)
     musicAddEntry(backStack = backStack)
-    musicDetailEntry(backStack = backStack)
+    musicDetailEntry(backStack = backStack, contentSharerFactory = contentSharerFactory)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -94,7 +98,10 @@ private fun EntryProviderScope<ScreenNavKey>.musicAddEntry(backStack: NavBackSta
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.musicDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.musicDetailEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     entry<MusicDetailNavKey>(
         metadata = { key -> backStack.playlistListDetailPaneMetadata(key) },
     ) { key ->
@@ -109,6 +116,7 @@ private fun EntryProviderScope<ScreenNavKey>.musicDetailEntry(backStack: NavBack
             componentVisibleProvider = { MusicDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             musicViewModel = koinViewModel { parametersOf(key.id) },
             tagViewModel = koinViewModel { parametersOf(EntityTagKind.MUSIC, key.id) },
+            contentSharerFactory = contentSharerFactory,
         )
     }
 }

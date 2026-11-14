@@ -11,9 +11,14 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -31,20 +36,25 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.dday.SEARCH_HOME_DDAY_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SEARCH_HOME_PLACE_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.SEARCH_HOME_ROUTINE_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SEARCH_HOME_TAG_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SEARCH_HOME_WEB_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.verify
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,8 +68,13 @@ class SearchHomeScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
+
     @Test
-    fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 질의가 비어 있고 다섯 유형의 결과에 카드가 하나도 없다`() {
+    fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 질의가 비어 있고 여섯 유형의 결과에 카드가 하나도 없다`() {
         composeRule.setSearchHomeScreen()
 
         queryInputText() shouldBe ""
@@ -70,6 +85,7 @@ class SearchHomeScreenTest {
             PLACE_TAB_LABEL to PLACE_CARD_TEST_TAG,
             WEB_TAB_LABEL to WEB_CARD_TEST_TAG,
             DDAY_TAB_LABEL to DDAY_CARD_TEST_TAG,
+            ROUTINE_TAB_LABEL to ROUTINE_CARD_TEST_TAG,
         ).forEach { (label, cardTestTag) ->
             composeRule.selectSearchHomeTab(label)
 
@@ -176,6 +192,28 @@ class SearchHomeScreenTest {
     }
 
     @Test
+    fun `TC-81dbea76-4318-43e8-a5b1-c48cd824b574 시작 유형이 아니어도 루틴 결과를 채운다`() {
+        val memo = resultMemo()
+        val routine = resultRoutine()
+
+        composeRule.setSearchHomeScreen(
+            memoList = listOf(memo),
+            tagList = listOf(resultTag()),
+            placeList = listOf(resultPlace()),
+            webList = listOf(resultWeb()),
+            routineList = listOf(routine),
+            initialType = SearchHomeType.WEB,
+        )
+        inputQuery()
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        searchRoutineViewModelRef
+            .shouldNotBeNull()
+            .uiState.value.appliedQuery shouldBe QUERY
+        composeRule.onNodeWithText(routine.routine.detail.title).assertIsDisplayed()
+    }
+
+    @Test
     fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 디데이 유형으로 바꾸면 디데이 결과를 본다`() {
         val memo = resultMemo()
         val dday = resultDDay()
@@ -184,6 +222,18 @@ class SearchHomeScreenTest {
         composeRule.selectSearchHomeTab(DDAY_TAB_LABEL)
 
         composeRule.onNodeWithText(dday.detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(memo.detail.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 루틴 유형으로 바꾸면 루틴 결과를 본다`() {
+        val memo = resultMemo()
+        val routine = resultRoutine()
+
+        composeRule.setSearchHomeScreen(memoList = listOf(memo), routineList = listOf(routine))
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        composeRule.onNodeWithText(routine.routine.detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(memo.detail.title).assertDoesNotExist()
     }
 
@@ -327,6 +377,22 @@ class SearchHomeScreenTest {
         composeRule.waitForIdle()
 
         idList shouldBe listOf(dday.id)
+    }
+
+    @Test
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 루틴 결과를 선택하면 그 루틴의 상세로 이동한다`() {
+        val routine = resultRoutine()
+        val idList = mutableListOf<Uuid>()
+
+        composeRule.setSearchHomeScreen(
+            routineList = listOf(routine),
+            initialType = SearchHomeType.ROUTINE,
+            navigateToRoutineDetail = idList::add,
+        )
+        composeRule.onNodeWithText(routine.routine.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        idList shouldBe listOf(routine.routine.id)
     }
 
     @Test
@@ -632,6 +698,8 @@ class SearchHomeScreenTest {
             tagList = List(RESULT_COUNT) { resultTag() },
             placeList = List(RESULT_COUNT) { resultPlace() },
             webList = List(RESULT_COUNT) { resultWeb() },
+            ddayList = List(RESULT_COUNT) { resultDDay() },
+            routineList = List(RESULT_COUNT) { resultRoutine() },
         )
         inputQuery()
 
@@ -640,6 +708,8 @@ class SearchHomeScreenTest {
             TAG_TAB_LABEL to SEARCH_HOME_TAG_LIST_TEST_TAG,
             PLACE_TAB_LABEL to SEARCH_HOME_PLACE_LIST_TEST_TAG,
             WEB_TAB_LABEL to SEARCH_HOME_WEB_LIST_TEST_TAG,
+            DDAY_TAB_LABEL to SEARCH_HOME_DDAY_LIST_TEST_TAG,
+            ROUTINE_TAB_LABEL to SEARCH_HOME_ROUTINE_LIST_TEST_TAG,
         ).forEach { (label, listTestTag) ->
             composeRule.selectSearchHomeTab(label)
 
@@ -651,6 +721,44 @@ class SearchHomeScreenTest {
                 .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), useUnmergedTree = true)
                 .assertCountEquals(0)
         }
+    }
+
+    @Test
+    fun `TC-f563afd3-6139-4269-816b-b7d76e4049ee 루틴 결과에는 빠른 기록이 없고 선택해 상세로 이동할 수 있다`() {
+        val routine = resultRoutine()
+        val idList = mutableListOf<Uuid>()
+        composeRule.setSearchHomeScreen(
+            routineList = listOf(routine),
+            initialType = SearchHomeType.ROUTINE,
+            navigateToRoutineDetail = idList::add,
+        )
+        inputQuery()
+
+        // 카드 안에는 카드 자신 말고 누를 수 있는 것이 없다.
+        composeRule.onAllNodes(hasClickAction() and hasAnyAncestor(hasTestTag(ROUTINE_CARD_TEST_TAG)), useUnmergedTree = true).assertCountEquals(0)
+        composeRule.onNodeWithTag(ROUTINE_CARD_TEST_TAG).performTouchInput { longClick() }
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+
+        composeRule.onNodeWithTag(ROUTINE_CARD_TEST_TAG).performClick()
+        composeRule.waitForIdle()
+
+        idList.distinct() shouldBe listOf(routine.routine.id)
+    }
+
+    @Test
+    fun `TC-547ef2c2-752a-4753-8fb7-97bb06cb5073 루틴 유형에서는 정렬을 고를 수 없다`() {
+        composeRule.setSearchHomeScreen(
+            memoList = listOf(resultMemo()),
+            routineList = listOf(resultRoutine()),
+        )
+        inputQuery()
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertExists()
+
+        composeRule.selectSearchHomeTab(ROUTINE_TAB_LABEL)
+
+        assertResultCardCount(testTag = ROUTINE_CARD_TEST_TAG, count = 1)
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun assertResultCardCount(
@@ -687,6 +795,7 @@ class SearchHomeScreenTest {
         private const val TITLE_SORT_LABEL = "Title"
         private const val RECENTLY_UPDATED_SORT_LABEL = "Recently updated"
         private const val EMPTY_TITLE = "No search results"
+        private const val DEFAULT_SORT_DESCRIPTION = "List sort"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
     }
 }

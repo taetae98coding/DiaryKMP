@@ -348,6 +348,23 @@
         }
       }
     },
+    "Couldn't find the checklist item.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't find the checklist item."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목을 찾을 수 없어요."
+          }
+        }
+      }
+    },
     "Couldn't find the checklist.": {
       "extractionState": "manual",
       "localizations": {
@@ -615,19 +632,19 @@
         }
       }
     },
-    "Gets a checklist with all its items.": {
+    "Gets a checklist with all its items and linked tags.": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gets a checklist with all its items."
-          }
-        },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "체크리스트 하나를 모든 항목과 함께 가져옵니다."
+            "value": "체크리스트 하나를 모든 항목, 연결된 태그와 함께 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets a checklist with all its items and linked tags."
           }
         }
       }
@@ -645,6 +662,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "체크리스트를 제목순으로, 체크한 항목 수와 함께 가져옵니다."
+          }
+        }
+      }
+    },
+    "Link ${tag} to ${checklist}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${checklist}에 ${tag} 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${tag} to ${checklist}"
+          }
+        }
+      }
+    },
+    "Link Tag to Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트에 태그 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Tag to Checklist"
+          }
+        }
+      }
+    },
+    "Links a tag to a checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트에 태그를 연결합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a tag to a checklist."
           }
         }
       }
@@ -764,6 +832,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "삭제한 체크리스트를 되돌립니다."
+          }
+        }
+      }
+    },
+    "Tag to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Link"
+          }
+        }
+      }
+    },
+    "Tag to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Unlink"
           }
         }
       }
@@ -895,6 +997,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "체크리스트의 모든 체크를 한 번에 해제합니다. 항목은 그대로 남습니다."
+          }
+        }
+      }
+    },
+    "Unlink ${tag} from ${checklist}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${checklist}에서 ${tag} 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${tag} from ${checklist}"
+          }
+        }
+      }
+    },
+    "Unlink Tag from Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트에서 태그 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Tag from Checklist"
+          }
+        }
+      }
+    },
+    "Unlinks a tag from a checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트에서 태그 연결을 해제합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a tag from a checklist."
           }
         }
       }

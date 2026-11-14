@@ -61,7 +61,6 @@ internal class JvmFileDownloadLocalDataSource(
 
     override suspend fun releaseDirectory(directory: FileDownloadDirectory): Unit = Unit
 
-    // 북마크 없이 저장한 폴더는 경로만으로 연다.
     private suspend fun <T> FileDownloadDirectory.accessScoped(block: suspend () -> T): T {
         if (bookmark.isEmpty()) return block()
 

@@ -17,4 +17,4 @@ public fun List<ScreenNavKey>.isChecklistAddOnDetailPane(): Boolean {
 }
 
 // 초기 태그가 있는 ChecklistAdd는 TagDetail 체크리스트 탭에서 진입한 것이다.
-private fun ScreenNavKey.isChecklistDetailPaneKey(): Boolean = (this is ChecklistAddNavKey && initialTagId == null) || this is ChecklistDetailNavKey
+private fun ScreenNavKey.isChecklistDetailPaneKey(): Boolean = (this is ChecklistAddNavKey && initialTagId == null) || (this is ChecklistDetailNavKey && !isStandalone)

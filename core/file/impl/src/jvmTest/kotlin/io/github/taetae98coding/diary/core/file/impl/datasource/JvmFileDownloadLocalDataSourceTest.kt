@@ -72,6 +72,26 @@ class JvmFileDownloadLocalDataSourceTest :
             }
         }
 
+        test("TC-f9cd7730-015c-4120-aa0a-dda6e46df8b0 같은 이름의 폴더가 있으면 폴더를 그대로 두고 번호를 붙인 이름으로 저장한다") {
+            runTest {
+                val directory = Files.createTempDirectory("collision").toFile()
+                val existing = directory.resolve("report.pdf").also(File::mkdir)
+                val candidateList = listOf("report.pdf", "report (1).pdf", "report (2).pdf")
+
+                val name =
+                    dataSource()
+                        .save(
+                            directory = FileDownloadDirectory(uri = directory.absolutePath, name = directory.name),
+                            nameCandidate = candidateList::get,
+                            write = { sink -> sink.writeBytes(byteArrayOf(1)) },
+                        ).savedName()
+
+                name shouldBe "report (1).pdf"
+                existing.isDirectory shouldBe true
+                directory.resolve("report (1).pdf").readBytes().toList() shouldBe listOf<Byte>(1)
+            }
+        }
+
         test("TC-fc37bb69-7a4c-4aac-821c-bfd475e902b5 고른 폴더에 쓸 수 없으면 기본 위치에 대신 저장하지 않고 저장 위치 실패로 끝난다") {
             runTest {
                 val defaultDirectory = Files.createTempDirectory("default").toFile()

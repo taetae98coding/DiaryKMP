@@ -31,6 +31,16 @@ internal class AccountChecklistItemRepositoryImpl(
                 sort = sort.toLocal(),
             ).map { localList -> localList.map { local -> local.toDomain() } }
 
+    override fun find(
+        account: Account,
+        itemId: Uuid,
+    ): Flow<ChecklistItem?> =
+        accountChecklistItemLocalDataSource
+            .find(
+                accountId = account.id,
+                itemId = itemId,
+            ).map { local -> local?.toDomain() }
+
     override suspend fun upsert(
         account: Account,
         item: ChecklistItem,

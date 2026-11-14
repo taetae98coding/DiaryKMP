@@ -12,6 +12,8 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
@@ -42,6 +44,22 @@ internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): Entity
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     return viewModel
+}
+
+// 태그 선택은 ViewModel이 들고 있으므로, 선택의 유지와 초기화를 확인하는 테스트는 mock 대신 실제 ViewModel을 쓴다.
+internal fun addTagViewModel(
+    initialTagId: Uuid?,
+    allTagList: List<Tag>,
+): EntityAddTagViewModel {
+    val pageTagUseCase = mockk<PageTagUseCase>()
+    every { pageTagUseCase(parameter = any()) } returns MutableStateFlow(Result.success(PagingData.from(allTagList)))
+    val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+    every { getSelectedTagUseCase(parameter = any()) } answers {
+        val idSet = firstArg<Set<Uuid>>()
+        MutableStateFlow(Result.success(allTagList.filter { tag -> tag.id in idSet }))
+    }
+
+    return EntityAddTagViewModel(initialTagId = initialTagId, pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
 }
 
 internal fun detailTagScreenTestViewModel(

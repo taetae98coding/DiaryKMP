@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.repository.AccountQrRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -30,7 +31,7 @@ class PageQrUseCaseTest :
             val account = Arb.accountUser().next()
             val qrList = List(2) { Arb.qr(isDeleted = false).next() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             every { accountQrRepository.page(account = account) } returns flowOf(PagingData.from(qrList))
             val useCase =
@@ -41,7 +42,7 @@ class PageQrUseCaseTest :
 
             When("QR 목록을 페이지로 조회한다") {
                 Then("TC-58922c74-a4b9-435e-8f72-35840001e716 TC-7dd1be57-2cd6-4d1b-9763-d9f703a9023f 현재 계정의 QR을 페이지로 전달한다") {
-                    val pagingData = useCase(parameter = Unit).first().shouldBeSuccess()
+                    val pagingData = useCase().first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe qrList
                 }
@@ -55,7 +56,7 @@ class PageQrUseCaseTest :
             val secondQrList = List(2) { Arb.qr(isDeleted = false).next() }
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(firstAccount))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val accountQrRepository = mockk<AccountQrRepository>()
             every { accountQrRepository.page(account = firstAccount) } returns flowOf(PagingData.from(firstQrList))
             every { accountQrRepository.page(account = secondAccount) } returns flowOf(PagingData.from(secondQrList))
@@ -67,7 +68,7 @@ class PageQrUseCaseTest :
 
             When("QR 목록을 조회하는 동안 현재 계정이 바뀐다") {
                 Then("바뀐 계정의 QR을 이어서 전달한다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe firstQrList
 
                         accountFlow.value = Result.success(secondAccount)
@@ -81,7 +82,7 @@ class PageQrUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountQrRepository = mockk<AccountQrRepository>(relaxed = true)
             val useCase =
                 PageQrUseCase(
@@ -91,7 +92,7 @@ class PageQrUseCaseTest :
 
             When("QR 목록을 페이지로 조회한다") {
                 Then("TC-62bac0d9-980d-4a47-ba97-1997254869a2 노출할 QR을 전달하지 않고 계정 조회 실패를 그대로 전달한다") {
-                    useCase(parameter = Unit)
+                    useCase()
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

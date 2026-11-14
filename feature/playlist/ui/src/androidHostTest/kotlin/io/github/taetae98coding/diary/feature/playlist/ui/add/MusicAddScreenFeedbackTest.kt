@@ -5,9 +5,11 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
+import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
 import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,6 +30,21 @@ class MusicAddScreenFeedbackTest {
         composeRule.clickAdd()
 
         composeRule.onNodeWithText(DEFAULT_ADD_SUCCEEDED_MESSAGE).assertExists()
+    }
+
+    @Test
+    fun `TC-98531eb1-f6cd-4691-a115-f61ad55c3b3d 가수가 비어 있어도 추가를 실행해 성공 안내를 표시한다`() {
+        assertAddSucceeded(artist = "", link = TYPED_LINK)
+    }
+
+    @Test
+    fun `TC-98531eb1-f6cd-4691-a115-f61ad55c3b3d 링크가 비어 있어도 추가를 실행해 성공 안내를 표시한다`() {
+        assertAddSucceeded(artist = TYPED_ARTIST, link = "")
+    }
+
+    @Test
+    fun `TC-98531eb1-f6cd-4691-a115-f61ad55c3b3d 가수와 링크가 비어 있어도 추가를 실행해 성공 안내를 표시한다`() {
+        assertAddSucceeded(artist = "", link = "")
     }
 
     @Test
@@ -85,6 +102,23 @@ class MusicAddScreenFeedbackTest {
         composeRule.clickFetch()
 
         composeRule.onNodeWithText(DEFAULT_LINK_FETCH_FAILED_MESSAGE).assertExists()
+    }
+
+    private fun assertAddSucceeded(
+        artist: String,
+        link: String,
+    ) {
+        val viewModel = effectViewModel(effect = MusicAddEffect.AddSucceeded)
+        setMusicAddScreen(viewModel = viewModel)
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        if (artist.isNotEmpty()) composeRule.artistInput().performTextInput(artist)
+        if (link.isNotEmpty()) composeRule.linkInput().performTextInput(link)
+        composeRule.waitForIdle()
+
+        composeRule.clickAdd()
+
+        verify(exactly = 1) { viewModel.add(detail = MusicDetail(title = TYPED_TITLE, artist = artist, link = link), tagIdSet = emptySet()) }
+        composeRule.onNodeWithText(DEFAULT_ADD_SUCCEEDED_MESSAGE).assertExists()
     }
 
     private fun setMusicAddScreen(viewModel: MusicAddViewModel) {

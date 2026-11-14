@@ -122,6 +122,7 @@ struct EditPlaceIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
         let changedCount = try await appAction {
             try await DiaryPlaceAppAction.shared.update(
                 placeId: place.id,

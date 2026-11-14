@@ -131,7 +131,6 @@ class ListDetailPlaceholderStateHolderTest {
 
     @Composable
     private fun PlaceholderNavDisplay() {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner = remember { testViewModelStoreOwner() }
 
         CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {

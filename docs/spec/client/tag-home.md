@@ -110,7 +110,7 @@ TagDetail 화면에서 완료한 태그도 노출 기준에 따라 목록에서 
 
 태그를 이름으로 보여 주는 모든 곳에서는 저장된 이모지를 제목 앞에 함께 표시한다. 이모지가 비어 있으면 제목만 표시한다.
 
-이 규칙은 태그 목록, [메모 태그 입력 컴포넌트 스펙](./memo-tag-input.md)의 선택 상태와 선택 목록, [MemoHome 목록 스펙](./memo-home.md)과 [CalendarHome 스펙](./calendar-home.md)의 태그 필터, [TagDetail 화면 스펙](./tag-detail.md)과 [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)의 화면 제목에 함께 적용한다.
+이 규칙은 태그 목록과 [TagFinishedList 화면 스펙](./tag-finished-list.md)의 목록, [태그 선택 입력 공통 스펙](./tag-select-input.md)을 따르는 메모 태그 입력, 항목 태그 입력, 태그 연결 입력의 선택 상태와 선택 목록, [태그 필터 스펙](./tag-filter.md)을 쓰는 MemoHome 목록, CalendarHome 화면, DDayHome 화면, RoutineHome 화면의 태그 필터, [TagDetail 화면 스펙](./tag-detail.md), [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)과 [TagRoutineFinishedList 화면 스펙](./tag-routine-finished-list.md)의 화면 제목에 함께 적용한다.
 
 이모지는 태그를 알아보기 위한 표시이며 태그 목록의 정렬과 [태그 필터 스펙](./tag-filter.md)의 선택 기준이 되지 않는다. 검색에서 질의와 맞추는 값에는 이모지도 포함하며, 그 기준은 [검색어 일치 판정 스펙](./search-match.md)의 `일치 판정`을 따른다.
 
@@ -169,7 +169,7 @@ flowchart TD
 
 완료, 삭제와 실행 취소는 모두 태그의 수정 시각을 동작 시점으로 갱신한다. 따라서 최근 수정순에서는 실행 취소로 돌아온 태그가 앞쪽에 놓인다.
 
-완료, 삭제와 실행 취소는 태그의 이모지, 제목, 설명과 컬러를 바꾸지 않고, 태그 사이의 연결과 메모·웹 항목·장소·연락처·체크리스트·곡·QR과의 연결도 해제하지 않는다. 따라서 실행 취소한 태그는 삭제 전의 연결을 그대로 가진 채 돌아온다. 그 기준은 [항목 연결 공통 스펙](../common/entity-link.md)의 `항목의 상태 변화와 연결`을 따른다.
+완료, 삭제와 실행 취소는 태그의 이모지, 제목, 설명과 컬러를 바꾸지 않고, 태그 사이의 연결과 메모·웹 항목·장소·연락처·체크리스트·곡·QR·디데이·루틴과의 연결도 해제하지 않는다. 따라서 실행 취소한 태그는 삭제 전의 연결을 그대로 가진 채 돌아온다. 그 기준은 [항목 연결 공통 스펙](../common/entity-link.md)의 `항목의 상태 변화와 연결`을 따른다.
 
 목록에서 실행하는 완료, 삭제와 실행 취소는 현재 사용자 계정과 연결된 태그에만 적용한다.
 

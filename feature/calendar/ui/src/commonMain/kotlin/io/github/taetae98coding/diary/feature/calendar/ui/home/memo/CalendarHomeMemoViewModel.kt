@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.memo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
@@ -36,7 +37,7 @@ internal class CalendarHomeMemoViewModel(
     private val movingIdSet = mutableSetOf<Uuid>()
 
     val filterUiState: StateFlow<CalendarHomeScaffoldFilterUiState> =
-        getCalendarFilterUseCase(parameter = Unit)
+        getCalendarFilterUseCase()
             .map { result ->
                 CalendarHomeScaffoldFilterUiState(
                     isApplied = result.getOrDefault(emptyList()).isNotEmpty(),

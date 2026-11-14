@@ -7,6 +7,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.core.share.ShareAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.feature.qr.ui.Res
@@ -33,6 +34,7 @@ internal fun QrDetailTopBar(
     componentVisibleProvider: () -> QrDetailScaffoldComponentVisible = { QrDetailScaffoldComponentVisible() },
 ) {
     val uiState = uiStateProvider()
+    val componentVisible = componentVisibleProvider()
     val navigateUpContentDescription = stringResource(Res.string.qr_navigate_up_button_content_description)
     val undoContentDescription = stringResource(Res.string.qr_undo_button_content_description)
     val scanContentDescription = stringResource(Res.string.qr_scan_button_content_description)
@@ -48,7 +50,7 @@ internal fun QrDetailTopBar(
         },
         modifier = modifier,
         navigationIcon = {
-            if (componentVisibleProvider().isNavigateUpButtonVisible) {
+            if (componentVisible.isNavigateUpButtonVisible) {
                 NavigateUp(
                     onClick = { onEvent(QrDetailScaffoldEvent.ClickNavigateUp) },
                     contentDescription = navigateUpContentDescription,
@@ -57,6 +59,9 @@ internal fun QrDetailTopBar(
         },
         actions = {
             if (uiState is QrDetailUiState.Content) {
+                if (componentVisible.isShareButtonVisible) {
+                    ShareAction(onClick = { onEvent(QrDetailScaffoldEvent.ClickShare) })
+                }
                 if (action != null && actionContentDescription != null) {
                     IconAction(
                         icon = action.topBarIcon,
@@ -100,6 +105,7 @@ private fun QrDetailTopBarPreview(
             onEvent = {},
             uiStateProvider = { QrDetailUiState.Content(id = Uuid.NIL, detail = previewQr(title = "회사 출입").detail) },
             actionProvider = { action },
+            componentVisibleProvider = { QrDetailScaffoldComponentVisible(isShareButtonVisible = true) },
         )
     }
 }

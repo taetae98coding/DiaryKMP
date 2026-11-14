@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.sync.work
 
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -25,7 +26,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
 
-// 스물두 종류를 같은 방식으로 다루도록 종류마다 대기 항목, 서버 요청, 기기 저장을 묶는다.
+// 스물다섯 종류를 같은 방식으로 다루도록 종류마다 대기 항목, 서버 요청, 기기 저장을 묶는다.
 private class SyncKindCase(
     val label: String,
     val push: suspend MockKMatcherScope.(TestContext) -> Unit,
@@ -48,6 +49,8 @@ private const val QR = "QR"
 private const val CHECKLIST = "체크리스트"
 private const val CHECKLIST_ITEM = "체크 항목"
 private const val DDAY = "디데이"
+private const val ROUTINE = "루틴"
+private const val ROUTINE_RECORD = "루틴 기록"
 private const val MEMO = "메모"
 private const val MEMO_TAG = "메모와 태그의 연결"
 private const val MEMO_PLACE = "메모와 장소의 연결"
@@ -61,6 +64,7 @@ private const val CHECKLIST_TAG = "체크리스트와 태그의 연결"
 private const val MUSIC_TAG = "곡과 태그의 연결"
 private const val QR_TAG = "QR과 태그의 연결"
 private const val DDAY_TAG = "디데이와 태그의 연결"
+private const val ROUTINE_TAG = "루틴과 태그의 연결"
 
 private val entityTagLabelMap: Map<String, EntityTagKindLocalEntity> =
     mapOf(
@@ -71,6 +75,7 @@ private val entityTagLabelMap: Map<String, EntityTagKindLocalEntity> =
         MUSIC_TAG to EntityTagKindLocalEntity.MUSIC,
         QR_TAG to EntityTagKindLocalEntity.QR,
         DDAY_TAG to EntityTagKindLocalEntity.DDAY,
+        ROUTINE_TAG to EntityTagKindLocalEntity.ROUTINE,
     )
 
 private fun entityTagKindCase(
@@ -176,6 +181,22 @@ private val kindCaseList: List<SyncKindCase> =
             pulls = { usnList -> ddayPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.dday.toLocal() } } },
         ),
         SyncKindCase(
+            label = ROUTINE,
+            push = { context -> context.routineRemoteDataSource.push(any()) },
+            pull = { context, usn -> context.routineRemoteDataSource.pull(usn = usn) },
+            clearPending = { context -> context.accountRoutineSyncTransaction.clearPending(any(), any()) },
+            upsert = { context -> context.accountRoutineSyncTransaction.upsert(any(), any(), any()) },
+            pulls = { usnList -> routinePulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.routine.toLocal() } } },
+        ),
+        SyncKindCase(
+            label = ROUTINE_RECORD,
+            push = { context -> context.routineRecordRemoteDataSource.push(any()) },
+            pull = { context, usn -> context.routineRecordRemoteDataSource.pull(usn = usn) },
+            clearPending = { context -> context.accountRoutineRecordSyncTransaction.clearPending(any(), any()) },
+            upsert = { context -> context.accountRoutineRecordSyncTransaction.upsert(any(), any(), any()) },
+            pulls = { usnList -> routineRecordPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.routineRecord.toLocal() } } },
+        ),
+        SyncKindCase(
             label = MEMO,
             push = { context -> context.memoRemoteDataSource.push(any()) },
             pull = { context, usn -> context.memoRemoteDataSource.pull(usn = usn) },
@@ -244,6 +265,8 @@ private fun kindContext(pendingCountMap: Map<String, Int>): TestContext {
         checklistList = checklists(size = count(CHECKLIST)),
         checklistItemList = checklistItems(size = count(CHECKLIST_ITEM)),
         ddayList = ddays(size = count(DDAY)),
+        routineList = routines(size = count(ROUTINE)),
+        routineRecordList = routineRecords(size = count(ROUTINE_RECORD)),
         memoList = memos(size = count(MEMO)),
         memoTagList = memoTags(size = count(MEMO_TAG)),
         memoPlaceList = memoPlaces(size = count(MEMO_PLACE)),
@@ -285,7 +308,7 @@ private fun TestContext.verifyNoPull() {
 class SyncWorkKindTest :
     FunSpec({
         kindCaseList.forEach { kindCase ->
-            test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 스물한 종류는 요청하지 않는다") {
+            test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 스물네 종류는 요청하지 않는다") {
                 val context = kindContext(pendingCountMap = mapOf(kindCase.label to 1))
 
                 context.subject.doWork()
@@ -296,7 +319,7 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 대기 항목이 없으면 스물두 종류 모두 요청하지 않는다") {
+        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 대기 항목이 없으면 스물다섯 종류 모두 요청하지 않는다") {
             val context = kindContext(pendingCountMap = emptyMap())
 
             context.subject.doWork()
@@ -304,7 +327,7 @@ class SyncWorkKindTest :
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 0) }
         }
 
-        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 스물두 종류 모두 대기하면 스물두 종류 모두 요청한다") {
+        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 스물다섯 종류 모두 대기하면 스물다섯 종류 모두 요청한다") {
             val context = kindContext(pendingCountMap = kindCaseList.associate { kindCase -> kindCase.label to 1 })
 
             context.subject.doWork()
@@ -312,9 +335,9 @@ class SyncWorkKindTest :
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 1) }
         }
 
-        val independentLabelList = listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST, DDAY)
+        val independentLabelList = listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST, DDAY, ROUTINE)
         independentLabelList.forEach { delayedLabel ->
-            test("TC-d02e1fe4-3710-497f-b721-5bd09e834ad1 $delayedLabel 업로드가 지연되어도 나머지 일곱 종류의 첫 요청이 먼저 시작된다") {
+            test("TC-d02e1fe4-3710-497f-b721-5bd09e834ad1 $delayedLabel 업로드가 지연되어도 나머지 여덟 종류의 첫 요청이 먼저 시작된다") {
                 runTest {
                     val context = kindContext(pendingCountMap = independentLabelList.associateWith { 1 })
                     val eventList = mutableListOf<String>()
@@ -336,11 +359,11 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 묶음이 실패하면 이후 태그와 메모, 열두 종류의 연결을 모두 시도하지 않는다") {
+        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 묶음이 실패하면 이후 태그와 메모, 열세 종류의 연결을 모두 시도하지 않는다") {
             val linkLabelList = listOf(MEMO_TAG, MEMO_PLACE, MEMO_WEB, MEMO_CONTACT, TAG_LINK) + entityTagLabelMap.keys
             val context =
                 kindContext(
-                    pendingCountMap = mapOf(TAG to 201, PLACE to 1, WEB to 1, CONTACT to 1, MUSIC to 1, QR to 1, CHECKLIST to 1, DDAY to 1, MEMO to 1) + linkLabelList.associateWith { 1 },
+                    pendingCountMap = mapOf(TAG to 201, PLACE to 1, WEB to 1, CONTACT to 1, MUSIC to 1, QR to 1, CHECKLIST to 1, DDAY to 1, ROUTINE to 1, MEMO to 1) + linkLabelList.associateWith { 1 },
                 )
             val failure = TestException(Arb.string().next())
             val tagRequestSizeList = context.recordPush(kindCase = kindCase(label = TAG), failingRequestNumber = 2, failure = failure)
@@ -431,6 +454,7 @@ class SyncWorkKindTest :
             MUSIC to listOf(MUSIC_TAG),
             QR to listOf(QR_TAG),
             DDAY to listOf(DDAY_TAG),
+            ROUTINE to listOf(ROUTINE_TAG, ROUTINE_RECORD),
         ).forEach { (failingLabel, waitingLabelList) ->
             test("TC-bbb82d9b-1756-4aac-8be5-71f1e3903825 $failingLabel 묶음이 실패하면 $failingLabel 과 태그의 연결을 시도하지 않고 태그와 연락처는 업로드한다") {
                 val context =
@@ -453,11 +477,18 @@ class SyncWorkKindTest :
         }
 
         listOf(
+            PLACE to listOf(TAG),
+            TAG to listOf(DDAY),
+            TAG to listOf(ROUTINE, ROUTINE_RECORD),
+            ROUTINE to listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST, CHECKLIST_ITEM, DDAY),
+            ROUTINE_RECORD to listOf(ROUTINE_TAG),
+            ROUTINE_TAG to listOf(ROUTINE_RECORD),
+            DDAY to listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST, CHECKLIST_ITEM),
             MUSIC to listOf(TAG, PLACE, WEB, CONTACT),
             MEMO_PLACE to listOf(MEMO_TAG),
             MEMO_WEB to listOf(MEMO_TAG, MEMO_PLACE),
             MEMO_CONTACT to listOf(MEMO_TAG, MEMO_PLACE, MEMO_WEB),
-            MEMO to listOf(WEB_TAG, PLACE_TAG, CONTACT_TAG, CHECKLIST_TAG, MUSIC_TAG, QR_TAG, DDAY_TAG),
+            MEMO to listOf(WEB_TAG, PLACE_TAG, CONTACT_TAG, CHECKLIST_TAG, MUSIC_TAG, QR_TAG, DDAY_TAG, ROUTINE_TAG),
             MEMO_CONTACT to listOf(CONTACT_TAG),
             CONTACT_TAG to listOf(MEMO_CONTACT),
             CHECKLIST_ITEM to listOf(CHECKLIST_TAG),
@@ -469,9 +500,10 @@ class SyncWorkKindTest :
             MUSIC_TAG to listOf(PLACE_TAG),
             QR_TAG to listOf(PLACE_TAG),
             DDAY_TAG to listOf(PLACE_TAG),
+            ROUTINE_TAG to listOf(PLACE_TAG),
         ).forEach { (failingLabel, continuingLabelList) ->
             test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 $failingLabel 묶음이 실패해도 ${continuingLabelList.joinToString()} 은 끝까지 업로드한다") {
-                val prerequisiteCountMap = mapOf(TAG to 1, PLACE to 1, WEB to 1, CONTACT to 1, MUSIC to 1, QR to 1, CHECKLIST to 1, DDAY to 1, MEMO to 1)
+                val prerequisiteCountMap = mapOf(TAG to 1, PLACE to 1, WEB to 1, CONTACT to 1, MUSIC to 1, QR to 1, CHECKLIST to 1, DDAY to 1, ROUTINE to 1, MEMO to 1)
                 val context =
                     kindContext(
                         pendingCountMap = prerequisiteCountMap + continuingLabelList.associateWith { 201 } + (failingLabel to 201),
@@ -591,7 +623,7 @@ class SyncWorkKindTest :
                 savedList shouldContainExactly listOf(localList to 9L)
             }
 
-            test("TC-d6ad6c31-e1e9-435a-ab90-64a6c654d457 ${kindCase.label} 내려받기가 지연되어도 업로드가 끝난 뒤 나머지 스물한 종류의 첫 내려받기를 먼저 시작한다") {
+            test("TC-d6ad6c31-e1e9-435a-ab90-64a6c654d457 ${kindCase.label} 내려받기가 지연되어도 업로드가 끝난 뒤 나머지 스물네 종류의 첫 내려받기를 먼저 시작한다") {
                 runTest {
                     val context = kindContext(pendingCountMap = kindCaseList.associate { other -> other.label to 1 })
                     val eventList = mutableListOf<String>()
@@ -617,7 +649,7 @@ class SyncWorkKindTest :
                 }
             }
 
-            test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b ${kindCase.label} 내려받기가 실패해도 나머지 스물한 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
+            test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b ${kindCase.label} 내려받기가 실패해도 나머지 스물네 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
                 val context = kindContext(pendingCountMap = emptyMap())
                 val failure = TestException(Arb.string().next())
                 val otherKindCaseList = kindCaseList.filterNot { other -> other.label == kindCase.label }
@@ -661,6 +693,6 @@ class SyncWorkKindTest :
 
 private fun accountFailureUseCase(failure: Throwable): GetAccountUseCase {
     val useCase = mockk<GetAccountUseCase>()
-    every { useCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+    every { useCase() } returns flowOf(Result.failure(failure))
     return useCase
 }

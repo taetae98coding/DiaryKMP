@@ -77,20 +77,10 @@ description: Diary KMP 프로젝트에서 사용자가 Markdown 디자인 문서
 
 사용자가 화면에서 보고 조작하는 표현을 현재형으로 쓴다. 구현 클래스, Compose API, 상태 보관 방식, 이벤트 처리 구조는 설명하지 않는다.
 
-권장:
-
 ```text
 화면 상단에는 제목과 뒤로가기 버튼을 배치한다.
 저장 중에는 저장 아이콘을 진행 표시로 바꾼다.
 창 너비가 좁으면 목록과 상세 화면을 한 번에 하나만 표시한다.
-```
-
-비권장:
-
-```text
-Scaffold의 topBar 슬롯에 TopAppBar를 전달한다.
-ViewModel의 isLoading이 true이면 CircularProgressIndicator를 렌더링한다.
-BoxWithConstraints에서 maxWidth를 읽어 분기한다.
 ```
 
 크기와 간격처럼 결과가 고정 수치에 의존하는 결정은 단위와 함께 쓴다. 공통 컴포넌트나 플랫폼의 기본값을 쓸 수 있으면 숫자를 만들지 말고 그 기본값을 따른다고 쓴다. 고정 수치가 필요하지만 값이 확정되지 않았으면 사용자 확인이 필요한 디자인 결정으로 다룬다.

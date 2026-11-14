@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
@@ -23,6 +24,7 @@ public fun DiaryInputColumn(
     Column(
         modifier =
             modifier
+                .systemScroll(scrollState) { scrollState.animateScrollTo(0) }
                 .verticalScroll(scrollState)
                 .padding(DiaryTheme.dimens.screenPaddingValues),
         verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.componentSpacing),

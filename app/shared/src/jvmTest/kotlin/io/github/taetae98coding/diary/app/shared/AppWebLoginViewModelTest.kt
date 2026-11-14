@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.app.shared
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebLoginRestoreState
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebLoginUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.SaveWebLoginUseCase
 import io.kotest.core.spec.style.FunSpec
@@ -87,7 +88,7 @@ class AppWebLoginViewModelTest : FunSpec() {
                 val restoreEnd = CompletableDeferred<Unit>()
                 val saveUseCase = mockk<SaveWebLoginUseCase>()
                 // 되돌리기가 끝날 때까지 기다리는 것은 보관 기능이 맡으므로, 그동안 끝나지 않는 보관으로 둔다.
-                coEvery { saveUseCase(Unit) } coAnswers {
+                coEvery { saveUseCase() } coAnswers {
                     restoreEnd.await()
                     Result.success(Unit)
                 }
@@ -100,13 +101,13 @@ class AppWebLoginViewModelTest : FunSpec() {
                 restoreEnd.complete(Unit)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { saveUseCase(Unit) }
+                coVerify(exactly = 1) { saveUseCase() }
             }
         }
 
         test("TC-e6141c76-3fcc-4ccb-a23b-84439d5f9f35 보관이 끝난 뒤 다시 벗어나면 다시 보관한다") {
             runTest(mainDispatcher) {
-                val saveUseCase = saveUseCase()
+                val saveUseCase = stubSaveUseCase()
                 val viewModel = viewModel(restoreFlow = flowOf(Result.success(WebLoginRestoreState.DONE)), saveUseCase = saveUseCase)
                 advanceUntilIdle()
 
@@ -115,27 +116,27 @@ class AppWebLoginViewModelTest : FunSpec() {
                 viewModel.save()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { saveUseCase(Unit) }
+                coVerify(exactly = 2) { saveUseCase() }
             }
         }
 
         test("되돌리기를 여러 번 요청해도 한 번만 되돌린다") {
             runTest(mainDispatcher) {
                 val restoreUseCase = mockk<RestoreWebLoginUseCase>()
-                every { restoreUseCase(Unit) } returns flowOf(Result.success(WebLoginRestoreState.DONE))
-                val viewModel = AppWebLoginViewModel(restoreWebLoginUseCase = restoreUseCase, saveWebLoginUseCase = saveUseCase())
+                every { restoreUseCase() } returns flowOf(Result.success(WebLoginRestoreState.DONE))
+                val viewModel = AppWebLoginViewModel(restoreWebLoginUseCase = restoreUseCase, saveWebLoginUseCase = stubSaveUseCase())
 
                 viewModel.restore()
                 viewModel.restore()
                 advanceUntilIdle()
 
-                verify(exactly = 1) { restoreUseCase(Unit) }
+                verify(exactly = 1) { restoreUseCase() }
             }
         }
 
         test("되돌리기를 요청하기 전에는 되돌리는 중으로 둔다") {
             runTest(mainDispatcher) {
-                val viewModel = AppWebLoginViewModel(restoreWebLoginUseCase = mockk(), saveWebLoginUseCase = saveUseCase())
+                val viewModel = AppWebLoginViewModel(restoreWebLoginUseCase = mockk(), saveWebLoginUseCase = stubSaveUseCase())
                 advanceUntilIdle()
 
                 viewModel.session.value shouldBe DiaryWebSession(isRestoring = true)
@@ -143,19 +144,19 @@ class AppWebLoginViewModelTest : FunSpec() {
         }
     }
 
-    private fun saveUseCase(): SaveWebLoginUseCase {
+    private fun stubSaveUseCase(): SaveWebLoginUseCase {
         val saveUseCase = mockk<SaveWebLoginUseCase>()
-        coEvery { saveUseCase(Unit) } returns Result.success(Unit)
+        coEvery { saveUseCase() } returns Result.success(Unit)
 
         return saveUseCase
     }
 
     private fun viewModel(
         restoreFlow: Flow<Result<WebLoginRestoreState>>,
-        saveUseCase: SaveWebLoginUseCase = saveUseCase(),
+        saveUseCase: SaveWebLoginUseCase = stubSaveUseCase(),
     ): AppWebLoginViewModel {
         val restoreUseCase = mockk<RestoreWebLoginUseCase>()
-        every { restoreUseCase(Unit) } returns restoreFlow
+        every { restoreUseCase() } returns restoreFlow
 
         return AppWebLoginViewModel(restoreWebLoginUseCase = restoreUseCase, saveWebLoginUseCase = saveUseCase).apply { restore() }
     }

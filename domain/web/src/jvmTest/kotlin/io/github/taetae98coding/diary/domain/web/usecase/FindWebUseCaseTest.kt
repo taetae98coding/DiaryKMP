@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -30,7 +31,7 @@ class FindWebUseCaseTest :
             val account = Arb.accountUser().next()
             val web = web()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             every { accountWebRepository.find(account = account, webId = web.id) } returns flowOf(web)
             val useCase =
@@ -50,7 +51,7 @@ class FindWebUseCaseTest :
             val account = Arb.accountUser().next()
             val webId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             every { accountWebRepository.find(account = account, webId = webId) } returns flowOf(null)
             val useCase =
@@ -69,7 +70,7 @@ class FindWebUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
             val useCase =
                 FindWebUseCase(

@@ -13,8 +13,17 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.pressKey
+import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.domain.web.exception.WebHeaderNameBlankException
+import io.github.taetae98coding.diary.domain.web.exception.WebTitleBlankException
+import io.github.taetae98coding.diary.domain.web.exception.WebUrlBlankException
+import io.github.taetae98coding.diary.domain.web.usecase.AddWebUseCase
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -129,17 +138,17 @@ class WebAddScreenTest {
 
     @Test
     fun `TC-a098780b-a0b9-430e-8a0f-dbd7a48042d3 제목이 공백이면 작성 내용은 유지된다`() {
-        assertInvalidInputRetainsInput(effect = WebAddEffect.TitleBlank)
+        assertInvalidInputRetainsInput(throwable = WebTitleBlankException(), title = BLANK_INPUT)
     }
 
     @Test
     fun `TC-a098780b-a0b9-430e-8a0f-dbd7a48042d3 URL이 공백이면 작성 내용은 유지된다`() {
-        assertInvalidInputRetainsInput(effect = WebAddEffect.UrlBlank)
+        assertInvalidInputRetainsInput(throwable = WebUrlBlankException(), url = BLANK_INPUT)
     }
 
     @Test
     fun `TC-a098780b-a0b9-430e-8a0f-dbd7a48042d3 헤더 이름이 공백이면 작성 내용은 유지된다`() {
-        assertInvalidInputRetainsInput(effect = WebAddEffect.HeaderNameBlank)
+        assertInvalidInputRetainsInput(throwable = WebHeaderNameBlankException(), firstHeaderName = BLANK_INPUT)
     }
 
     @Test
@@ -156,17 +165,45 @@ class WebAddScreenTest {
         navigateUpCount shouldBe 1
     }
 
-    private fun assertInvalidInputRetainsInput(effect: WebAddEffect) {
-        setWebAddScreen(viewModel = effectViewModel(effect = effect))
-        composeRule.fillAllInput()
+    private fun assertInvalidInputRetainsInput(
+        throwable: Throwable,
+        title: String = TYPED_TITLE,
+        url: String = TYPED_URL,
+        firstHeaderName: String = TYPED_FIRST_HEADER_NAME,
+    ) {
+        val useCase = mockk<AddWebUseCase>()
+        coEvery { useCase(any()) } returns Result.failure(throwable)
+        setWebAddScreen(viewModel = WebAddViewModel(addWebUseCase = useCase))
+        composeRule.titleInput().performTextInput(title)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.urlInput().performTextInput(url)
+        composeRule.addHeaderRow()
+        composeRule.headerNameInput().performTextInput(firstHeaderName)
+        composeRule.headerValueInput().performTextInput(TYPED_FIRST_HEADER_VALUE)
+        composeRule.addHeaderRow()
+        composeRule.headerNameInput(row = 1).performTextInput(TYPED_SECOND_HEADER_NAME)
+        composeRule.headerValueInput(row = 1).performTextInput(TYPED_SECOND_HEADER_VALUE)
+        composeRule.waitForIdle()
 
         composeRule.clickAdd()
 
+        val expected =
+            WebDetail(
+                title = title,
+                description = TYPED_DESCRIPTION,
+                url = url,
+                headerList =
+                    listOf(
+                        WebHeader(name = firstHeaderName, value = TYPED_FIRST_HEADER_VALUE),
+                        WebHeader(name = TYPED_SECOND_HEADER_NAME, value = TYPED_SECOND_HEADER_VALUE),
+                    ),
+            )
+        coVerify(exactly = 1) { useCase(AddWebUseCase.Parameter(detail = expected, tagIdSet = emptySet())) }
         composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_HEADER + INPUT_COUNT_PER_HEADER * 2
-        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.titleInput().assert(hasText(title))
         composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
-        composeRule.urlInput().assert(hasText(TYPED_URL))
-        composeRule.headerNameInput().assert(hasText(TYPED_FIRST_HEADER_NAME))
+        composeRule.urlInput().assert(hasText(url))
+        composeRule.headerNameInput().assert(hasText(firstHeaderName))
         composeRule.headerValueInput().assert(hasText(TYPED_FIRST_HEADER_VALUE))
         composeRule.headerNameInput(row = 1).assert(hasText(TYPED_SECOND_HEADER_NAME))
         composeRule.headerValueInput(row = 1).assert(hasText(TYPED_SECOND_HEADER_VALUE))
@@ -201,6 +238,7 @@ class WebAddScreenTest {
             WebAddScreenTestTheme {
                 WebAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = WebDetail.EMPTY,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = navigateUp,
@@ -212,5 +250,9 @@ class WebAddScreenTest {
             }
         }
         composeRule.waitForIdle()
+    }
+
+    private companion object {
+        const val BLANK_INPUT = "   "
     }
 }

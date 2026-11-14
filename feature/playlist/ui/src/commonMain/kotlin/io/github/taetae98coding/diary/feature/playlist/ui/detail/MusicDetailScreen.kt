@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.core.uri.tryOpenUri
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
@@ -31,6 +32,7 @@ internal fun MusicDetailScreen(
     componentVisibleProvider: () -> MusicDetailScaffoldComponentVisible,
     musicViewModel: MusicDetailViewModel,
     tagViewModel: EntityDetailTagViewModel,
+    contentSharerFactory: ContentSharerFactory,
     modifier: Modifier = Modifier,
 ) {
     val uiState by musicViewModel.uiState.collectAsStateWithLifecycle()
@@ -41,6 +43,7 @@ internal fun MusicDetailScreen(
     val uriHandler = LocalUriHandler.current
     val coroutineScope = rememberCoroutineScope()
     val openFailedMessage = stringResource(Res.string.music_detail_open_failed_message)
+    val shareAction = rememberMusicDetailShareAction(contentSharerFactory = contentSharerFactory)
 
     EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
 
@@ -62,13 +65,20 @@ internal fun MusicDetailScreen(
 
                     is MusicDetailScaffoldEvent.ClickFetchLink -> musicViewModel.fetchLink(link = state.link)
 
+                    is MusicDetailScaffoldEvent.ClickShare -> content?.let { value -> coroutineScope.launch { shareAction.share(state = state, storedTitle = value.detail.title) } }
+
                     is MusicDetailScaffoldEvent.ClickOpenInNew ->
                         content
                             ?.detail
                             ?.link
                             ?.takeIf(String::isNotBlank)
-                            ?.takeUnless(uriHandler::tryOpenUri)
-                            ?.let { coroutineScope.launch { state.snackbarHostState.showImmediate(message = openFailedMessage) } }
+                            ?.let { link ->
+                                coroutineScope.launch {
+                                    if (!uriHandler.tryOpenUri(link)) {
+                                        state.snackbarHostState.showImmediate(message = openFailedMessage)
+                                    }
+                                }
+                            }
 
                     is MusicDetailScaffoldEvent.ClickDelete -> musicViewModel.delete()
                 }
@@ -89,6 +99,7 @@ internal fun MusicDetailScreen(
             uiStateProvider = { uiState },
             tagUiStateProvider = { tagUiState },
             componentVisibleProvider = componentVisibleProvider,
+            isShareSupported = shareAction.isSupported,
         )
     }
 }

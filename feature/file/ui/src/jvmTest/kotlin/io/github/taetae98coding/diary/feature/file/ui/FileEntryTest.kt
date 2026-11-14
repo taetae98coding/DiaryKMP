@@ -16,6 +16,7 @@ import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.mockk
 import kotlin.uuid.Uuid
 
 class FileEntryTest :
@@ -66,14 +67,14 @@ class FileEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { fileEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { fileEntry(backStack = NavBackStack(*backStack.toTypedArray()), filePickerFactory = mockk()) }
 
             return provider(key).metadata
         }
     }
 }
 
-// 파일 목록이 아닌 진입 화면을 대신한다. `더보기` 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 파일 목록이 아닌 진입 화면을 대신한다. `더보기` 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object OtherNavKey : ScreenNavKey {
     override val screenName: String
         get() = "Other"

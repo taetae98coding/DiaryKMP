@@ -1,11 +1,14 @@
 package io.github.taetae98coding.diary.work.mcp.tool.web
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedWebMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageWebMemoUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.AddWebUseCase
@@ -20,22 +23,27 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.changeActive
+import io.github.taetae98coding.diary.work.mcp.tool.isActive
 import io.github.taetae98coding.diary.work.mcp.tool.json.changedCountResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.doneResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.idResult
+import io.github.taetae98coding.diary.work.mcp.tool.json.notDoneResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.sort
 import io.github.taetae98coding.diary.work.mcp.tool.json.sortParameter
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJsonArray
 import io.github.taetae98coding.diary.work.mcp.tool.memo.memoSortList
+import io.github.taetae98coding.diary.work.mcp.tool.pageActive
 import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParameter
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.readActive
 import io.github.taetae98coding.diary.work.mcp.tool.readFirst
+import io.github.taetae98coding.diary.work.mcp.tool.tag.NOT_DONE_DESCRIPTION
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import io.github.taetae98coding.diary.work.mcp.tool.uuidSet
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -62,6 +70,7 @@ internal class WebMcpToolSet(
     private val updateWebUseCase: UpdateWebUseCase,
     private val deleteWebUseCase: DeleteWebUseCase,
     private val restoreWebUseCase: RestoreWebUseCase,
+    private val findTagUseCase: FindTagUseCase,
     private val addEntityTagUseCase: AddEntityTagUseCase,
     private val removeEntityTagUseCase: RemoveEntityTagUseCase,
 ) : McpToolSet {
@@ -79,7 +88,7 @@ internal class WebMcpToolSet(
             },
             McpTool(
                 name = "web_get",
-                description = "Gets one web with its request headers and linked tags. Returns null when the web does not exist.",
+                description = "Gets one web with its request headers and linked tags. Returns null when the web does not exist or is deleted.",
                 parameterList = listOf(webIdParameter),
                 kind = McpToolKind.READ,
             ) { arguments -> getWeb(arguments) },
@@ -89,11 +98,12 @@ internal class WebMcpToolSet(
                 parameterList = listOf(webIdParameter, sortParameter(memoSortList), mcpPageCursorParameter),
                 kind = McpToolKind.READ,
             ) { arguments ->
-                pageWebMemoUseCase
-                    .readPage(
-                        parameter = PageWebMemoUseCase.Parameter(webId = arguments.uuid(WEB_ID), sort = arguments.sort(memoSortList)),
-                        offset = arguments.pageOffset(),
-                    ).toJson { memo -> memo.toJson() }
+                val parameter = PageWebMemoUseCase.Parameter(webId = arguments.uuid(WEB_ID), sort = arguments.sort(memoSortList))
+                val offset = arguments.pageOffset()
+
+                findWebUseCase.pageActive(id = parameter.webId, isDeleted = Web::isDeleted) {
+                    pageWebMemoUseCase.readPage(parameter = parameter, offset = offset).toJson { memo -> memo.toJson() }
+                }
             },
             McpTool(
                 name = "web_memo_finished_list",
@@ -101,11 +111,12 @@ internal class WebMcpToolSet(
                 parameterList = listOf(webIdParameter, sortParameter(memoSortList), mcpPageCursorParameter),
                 kind = McpToolKind.READ,
             ) { arguments ->
-                pageFinishedWebMemoUseCase
-                    .readPage(
-                        parameter = PageFinishedWebMemoUseCase.Parameter(webId = arguments.uuid(WEB_ID), sort = arguments.sort(memoSortList)),
-                        offset = arguments.pageOffset(),
-                    ).toJson { memo -> memo.toJson() }
+                val parameter = PageFinishedWebMemoUseCase.Parameter(webId = arguments.uuid(WEB_ID), sort = arguments.sort(memoSortList))
+                val offset = arguments.pageOffset()
+
+                findWebUseCase.pageActive(id = parameter.webId, isDeleted = Web::isDeleted) {
+                    pageFinishedWebMemoUseCase.readPage(parameter = parameter, offset = offset).toJson { memo -> memo.toJson() }
+                }
             },
             McpTool(
                 name = "web_add",
@@ -159,7 +170,7 @@ internal class WebMcpToolSet(
                 description = "Deletes a web. Links to memos are kept. Use web_restore with the same id to undo.",
                 parameterList = listOf(webIdParameter),
                 kind = McpToolKind.DESTRUCTIVE,
-            ) { arguments -> changedCountResult(deleteWebUseCase(parameter = arguments.uuid(WEB_ID)).getOrThrow()) },
+            ) { arguments -> findWebUseCase.changeActive(id = arguments.uuid(WEB_ID), isDeleted = Web::isDeleted) { id -> deleteWebUseCase(parameter = id) } },
             McpTool(
                 name = "web_restore",
                 description = "Restores a deleted web.",
@@ -177,7 +188,7 @@ internal class WebMcpToolSet(
     private suspend fun getWeb(arguments: McpToolArguments) =
         run {
             val webId = arguments.uuid(WEB_ID)
-            val web = findWebUseCase.readFirst(parameter = webId) ?: return@run JsonNull
+            val web = findWebUseCase.readFirst(parameter = webId)?.takeUnless { web -> web.isDeleted } ?: return@run JsonNull
 
             buildJsonObject {
                 put("web", web.toDetailJson())
@@ -188,7 +199,7 @@ internal class WebMcpToolSet(
     private suspend fun updateWeb(arguments: McpToolArguments) =
         run {
             val webId = arguments.uuid(WEB_ID)
-            val current = findWebUseCase.readFirst(parameter = webId)?.detail ?: return@run changedCountResult(count = 0)
+            val current = findWebUseCase.readActive(id = webId, isDeleted = Web::isDeleted)?.detail ?: return@run changedCountResult(count = 0)
             val detail =
                 WebDetail(
                     title = arguments.stringOrNull(TITLE) ?: current.title,
@@ -207,7 +218,7 @@ internal class WebMcpToolSet(
     ): McpTool =
         McpTool(
             name = name,
-            description = description,
+            description = "$description $NOT_DONE_DESCRIPTION",
             parameterList =
                 listOf(
                     webIdParameter,
@@ -215,7 +226,15 @@ internal class WebMcpToolSet(
                 ),
             kind = McpToolKind.WRITE,
         ) { arguments: McpToolArguments ->
-            link(arguments.uuid(WEB_ID), arguments.uuid("tagId"))
-            doneResult as JsonElement
+            val entityId = arguments.uuid(WEB_ID)
+            val tagId = arguments.uuid("tagId")
+            val isLinkable = findWebUseCase.isActive(id = entityId, isDeleted = Web::isDeleted) && findTagUseCase.isActive(id = tagId, isDeleted = Tag::isDeleted)
+
+            if (isLinkable) {
+                link(entityId, tagId)
+                doneResult
+            } else {
+                notDoneResult
+            }
         }
 }

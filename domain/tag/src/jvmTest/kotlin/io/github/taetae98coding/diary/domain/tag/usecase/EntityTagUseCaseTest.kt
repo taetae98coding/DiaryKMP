@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -89,6 +90,13 @@ private val kindCaseList: List<EntityTagKindCase> =
             syncTestCase = "TC-8b4de27f-343a-4b1e-8769-01f6f69f5dd7 TC-d0c1cf97-a302-4533-b78a-69b6e9c435fb",
             getTestCase = "TC-4e517486-9779-4a15-be00-efdc434b5462",
         ),
+        EntityTagKindCase(
+            kind = EntityTagKind.ROUTINE,
+            addTestCase = "TC-820f5a37-ea3c-4805-8346-b402d4d65ad1",
+            removeTestCase = "TC-747f59be-c69c-4272-9157-15f6d7164c9c",
+            syncTestCase = "TC-2955e0d7-e70a-42b2-b2aa-e07e805c7f51 TC-e1d6f861-e699-426e-baa1-7c46db0be660",
+            getTestCase = "TC-a66971a3-f8ff-47fe-b0d4-15115e62938d",
+        ),
     )
 
 private const val SYNC_PROGRESS_TEST_CASE = "TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c"
@@ -108,7 +116,7 @@ class EntityTagUseCaseTest :
             val account = Arb.accountUser().next()
             val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val clock = mockk<Clock>()
             every { clock.now() } returns now
 
@@ -247,7 +255,7 @@ class EntityTagUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val clock = mockk<Clock>(relaxed = true)
 
             When("연결을 만든다") {

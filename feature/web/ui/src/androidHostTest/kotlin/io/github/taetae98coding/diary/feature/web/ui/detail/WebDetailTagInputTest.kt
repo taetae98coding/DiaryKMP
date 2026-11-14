@@ -116,6 +116,29 @@ class WebDetailTagInputTest {
     }
 
     @Test
+    fun `TC-be36a7a4-1f17-455f-b5bf-edbbb2ccb0ba 수정과 삭제를 처리하는 중에도 태그 연결과 해제를 모두 요청한다`() {
+        val linkedTag = webTestTag(title = LINKED_TAG_TITLE)
+        val selectableTag = webTestTag(title = SELECTABLE_TAG_TITLE)
+        val tagViewModel = detailTagScreenTestViewModel(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag, selectableTag))
+        setWebDetailScreen(
+            uiState = testContentUiState().copy(isUpdateInProgress = true, isDeleteInProgress = true),
+            tagViewModel = tagViewModel,
+        )
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+        awaitPickerRow(title = SELECTABLE_TAG_TITLE)
+        composeRule.onNodeWithText(SELECTABLE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+        // 연결된 태그는 연결 대상 표시와 선택 목록에 모두 나타나므로, 선택 목록의 마지막 노드를 눌러 해제한다.
+        composeRule.onAllNodesWithText(LINKED_TAG_TITLE).onLast().performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { tagViewModel.add(tagId = selectableTag.id) }
+        verify(exactly = 1) { tagViewModel.remove(tagId = linkedTag.id) }
+    }
+
+    @Test
     fun `TC-2220edc3-28ff-4d31-bc61-15f7e4ae6242 연결한 태그를 누르면 그 태그의 상세 이동을 한 번 요청한다`() {
         val linkedTag = webTestTag(title = LINKED_TAG_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
@@ -280,6 +303,7 @@ class WebDetailTagInputTest {
                     pageViewModel = pageViewModel,
                     navigateToTagDetail = navigateToTagDetail,
                     tagViewModel = tagViewModel,
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }

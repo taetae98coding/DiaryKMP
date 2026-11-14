@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.compose.qr.QrListEffect
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.RestoreQrUseCase
@@ -24,7 +25,7 @@ internal class QrHomeViewModel(
     private val restoreQrUseCase: RestoreQrUseCase,
 ) : ViewModel() {
     val qrPagingData: Flow<PagingData<Qr>> =
-        pageQrUseCase(parameter = Unit)
+        pageQrUseCase()
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 

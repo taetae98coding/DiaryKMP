@@ -1,10 +1,16 @@
 package io.github.taetae98coding.diary.feature.dday.ui.detail
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
@@ -106,7 +112,6 @@ class DDayDetailNavDisplayTest {
     // 디데이와 태그의 저장된 연결이다. 연결과 해제는 바로 저장되어, 새로 만든 태그 입력도 같은 연결을 보여 준다.
     private val storedTagUiState = MutableStateFlow(EntityTagInputUiState())
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -135,7 +140,15 @@ class DDayDetailNavDisplayTest {
 
     @Test
     fun `TC-be5db26f-c4e4-4296-b736-96ad9ef9f704 TagDetail 디데이 탭에서 진입해 삭제하면 그 TagDetail로 돌아간다`() {
-        assertDeleteReturns(route = TagDetailNavKey(id = tagA.id))
+        enterFromTagDetailDDayTab()
+
+        composeRule.onNodeWithContentDescription(DDAY_DETAIL_DEFAULT_DELETE).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+        detailViewModelList.forEach { viewModel -> verify(exactly = 1) { viewModel.delete() } }
+        backStack.toList() shouldBe listOf(TagDetailNavKey(id = tagA.id))
+        composeRule.onNodeWithText("$TAG_DETAIL_SELECTED_TAB_PREFIX$TAG_DETAIL_DDAY_TAB").assertIsDisplayed()
     }
 
     @Test
@@ -172,7 +185,26 @@ class DDayDetailNavDisplayTest {
 
     @Test
     fun `TC-6685f6a8-7faf-4e91-bb4a-ff401443c7b8 TagDetail 디데이 탭에서 진입해 뒤로가면 그 TagDetail로 돌아가고 수정하지 않는다`() {
-        assertBackReturns(route = TagDetailNavKey(id = tagA.id))
+        enterFromTagDetailDDayTab()
+        composeRule.ddayTitleInput().performTextReplacement(DDAY_DETAIL_ANNIVERSARY)
+        composeRule.ddayInputRepeatNumber(position = 1, number = "200")
+
+        composeRule.onNodeWithContentDescription(DDAY_FORM_DEFAULT_NAVIGATE_UP).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(TagDetailNavKey(id = tagA.id))
+        composeRule.onNodeWithText("$TAG_DETAIL_SELECTED_TAB_PREFIX$TAG_DETAIL_DDAY_TAB").assertIsDisplayed()
+        detailViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.update(input = any()) } }
+    }
+
+    // TagDetail의 디데이 탭을 고른 뒤 그 탭의 디데이로 DDayDetail에 진입한다.
+    private fun enterFromTagDetailDDayTab() {
+        backStack.add(TagDetailNavKey(id = tagA.id))
+        setNavDisplay()
+        composeRule.onNodeWithText(TAG_DETAIL_DDAY_TAB).performClick()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { backStack.add(DDayDetailNavKey(id = dday.id)) }
+        composeRule.waitForIdle()
     }
 
     @Test
@@ -319,7 +351,7 @@ class DDayDetailNavDisplayTest {
                             entry<CalendarHomeStandInNavKey> { Text(text = CALENDAR_CONTENT) }
                             entry<TimetableStandInNavKey> { Text(text = TIMETABLE_CONTENT) }
                             entry<SearchHomeStandInNavKey> { Text(text = SEARCH_CONTENT) }
-                            entry<TagDetailNavKey> { Text(text = TAG_DETAIL_CONTENT) }
+                            entry<TagDetailNavKey> { TagDetailStandIn() }
                             dDayEntry(backStack = backStack)
                         },
                 )
@@ -328,9 +360,20 @@ class DDayDetailNavDisplayTest {
         composeRule.waitForIdle()
     }
 
+    // TagDetail 화면을 대신한다. 탭 선택은 그 화면이 저장하는 상태이므로 같은 방식으로 저장해 돌아왔을 때의 탭을 드러낸다.
+    @Composable
+    private fun TagDetailStandIn() {
+        var selectedTab by rememberSaveable { mutableStateOf(TAG_DETAIL_MEMO_TAB) }
+
+        Column {
+            Text(text = TAG_DETAIL_CONTENT)
+            Text(text = "$TAG_DETAIL_SELECTED_TAB_PREFIX$selectedTab")
+            TextButton(onClick = { selectedTab = TAG_DETAIL_DDAY_TAB }) { Text(text = TAG_DETAIL_DDAY_TAB) }
+        }
+    }
+
     @Composable
     private fun NavDisplayTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -402,6 +445,9 @@ class DDayDetailNavDisplayTest {
         const val TIMETABLE_CONTENT = "TimetableContent"
         const val SEARCH_CONTENT = "SearchHomeContent"
         const val TAG_DETAIL_CONTENT = "TagDetailContent"
+        const val TAG_DETAIL_MEMO_TAB = "MemoTab"
+        const val TAG_DETAIL_DDAY_TAB = "DDayTab"
+        const val TAG_DETAIL_SELECTED_TAB_PREFIX = "Selected: "
         const val TAG_A_TITLE = "DDayDetailNavTagA"
         const val TAG_B_TITLE = "DDayDetailNavTagB"
         const val CALENDAR_DATE_COUNT = 3

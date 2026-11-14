@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.calendar.database.api.transaction.Hol
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabaseModule
 import io.github.taetae98coding.diary.core.calendar.database.impl.transaction.HolidayTransactionImpl
+import io.github.taetae98coding.diary.core.testing.holiday.holidayLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -244,7 +245,7 @@ class HolidayLocalDataSourceImplTest :
             start: LocalDate = LocalDate(2026, 1, 1),
             endInclusive: LocalDate = start,
         ): HolidayLocalEntity =
-            HolidayLocalEntity(
+            Arb.holidayLocalEntity().next().copy(
                 country = country,
                 year = year,
                 name = name,

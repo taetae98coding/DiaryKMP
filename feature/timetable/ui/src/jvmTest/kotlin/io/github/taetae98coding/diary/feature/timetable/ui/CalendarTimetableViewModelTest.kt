@@ -124,7 +124,7 @@ private fun getCalendarMemoUseCase(vararg resultByDateRange: Pair<LocalDateRange
 }
 
 private fun memo(): CalendarMemo {
-    val date = date(day = 22 + (Arb.int().next().toUInt() % 3u).toInt())
+    val date = date(day = Arb.int(22..24).next())
 
     return Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = date..date)).next()
 }

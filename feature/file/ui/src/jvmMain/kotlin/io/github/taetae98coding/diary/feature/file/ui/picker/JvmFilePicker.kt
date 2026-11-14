@@ -10,23 +10,26 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
+import org.koin.core.annotation.Single
 import java.awt.FileDialog
 import java.awt.Frame
 
-@Composable
-internal actual fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {
-    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<FilePickerDispatcher>())
-    val coroutineScope = rememberCoroutineScope()
-    val latestOnPick by rememberUpdatedState(onPick)
+@Single(binds = [FilePickerFactory::class])
+internal class JvmFilePickerFactory(
+    @FilePickerDispatcher private val dispatcher: CoroutineDispatcher,
+) : FilePickerFactory {
+    @Composable
+    override fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {
+        val coroutineScope = rememberCoroutineScope()
+        val latestOnPick by rememberUpdatedState(onPick)
 
-    return remember(dispatcher, coroutineScope) {
-        JvmFilePicker(
-            dispatcher = dispatcher,
-            coroutineScope = coroutineScope,
-            onPick = { uri -> latestOnPick(uri) },
-        )
+        return remember(dispatcher, coroutineScope) {
+            JvmFilePicker(
+                dispatcher = dispatcher,
+                coroutineScope = coroutineScope,
+                onPick = { uri -> latestOnPick(uri) },
+            )
+        }
     }
 }
 

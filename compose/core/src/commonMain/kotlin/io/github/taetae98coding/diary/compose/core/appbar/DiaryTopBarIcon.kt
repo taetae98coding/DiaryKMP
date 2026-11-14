@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.compose.core.appbar
 import androidx.compose.ui.graphics.vector.ImageVector
 import io.github.taetae98coding.diary.compose.core.icon.AutoAwesome
 import io.github.taetae98coding.diary.compose.core.icon.CalendarAddOn
+import io.github.taetae98coding.diary.compose.core.icon.CalendarMonth
 import io.github.taetae98coding.diary.compose.core.icon.Call
 import io.github.taetae98coding.diary.compose.core.icon.ContentCopy
 import io.github.taetae98coding.diary.compose.core.icon.Delete
@@ -19,6 +20,7 @@ import io.github.taetae98coding.diary.compose.core.icon.QrCodeScanner
 import io.github.taetae98coding.diary.compose.core.icon.RestartAlt
 import io.github.taetae98coding.diary.compose.core.icon.Search
 import io.github.taetae98coding.diary.compose.core.icon.Settings
+import io.github.taetae98coding.diary.compose.core.icon.Share
 import io.github.taetae98coding.diary.compose.core.icon.Sms
 import io.github.taetae98coding.diary.compose.core.icon.Star
 import io.github.taetae98coding.diary.compose.core.icon.StarFill
@@ -29,6 +31,7 @@ import io.github.taetae98coding.diary.compose.core.icon.Wifi
 public enum class DiaryTopBarIcon {
     AUTO_AWESOME,
     CALENDAR_ADD_ON,
+    CALENDAR_MONTH,
     CALL,
     COPY,
     DELETE,
@@ -45,6 +48,7 @@ public enum class DiaryTopBarIcon {
     RESET,
     SEARCH,
     SETTING,
+    SHARE,
     SMS,
     STAR,
     STAR_FILL,
@@ -57,6 +61,7 @@ internal val DiaryTopBarIcon.imageVector: ImageVector
         when (this) {
             DiaryTopBarIcon.AUTO_AWESOME -> DiaryIcons.AutoAwesome
             DiaryTopBarIcon.CALENDAR_ADD_ON -> DiaryIcons.CalendarAddOn
+            DiaryTopBarIcon.CALENDAR_MONTH -> DiaryIcons.CalendarMonth
             DiaryTopBarIcon.CALL -> DiaryIcons.Call
             DiaryTopBarIcon.COPY -> DiaryIcons.ContentCopy
             DiaryTopBarIcon.DELETE -> DiaryIcons.Delete
@@ -73,6 +78,7 @@ internal val DiaryTopBarIcon.imageVector: ImageVector
             DiaryTopBarIcon.RESET -> DiaryIcons.RestartAlt
             DiaryTopBarIcon.SEARCH -> DiaryIcons.Search
             DiaryTopBarIcon.SETTING -> DiaryIcons.Settings
+            DiaryTopBarIcon.SHARE -> DiaryIcons.Share
             DiaryTopBarIcon.SMS -> DiaryIcons.Sms
             DiaryTopBarIcon.STAR -> DiaryIcons.Star
             DiaryTopBarIcon.STAR_FILL -> DiaryIcons.StarFill
@@ -85,6 +91,6 @@ internal val DiaryTopBarIcon.buttonKey: String
     get() =
         when (this) {
             DiaryTopBarIcon.STAR, DiaryTopBarIcon.STAR_FILL -> "favorite"
-            DiaryTopBarIcon.LIST, DiaryTopBarIcon.MAP -> "viewMode"
+            DiaryTopBarIcon.CALENDAR_MONTH, DiaryTopBarIcon.LIST, DiaryTopBarIcon.MAP -> "viewMode"
             else -> name
         }

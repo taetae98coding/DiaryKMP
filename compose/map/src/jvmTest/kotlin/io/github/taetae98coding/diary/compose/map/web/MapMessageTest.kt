@@ -3,20 +3,19 @@ package io.github.taetae98coding.diary.compose.map.web
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.map.DiaryMapPin
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
-import io.github.taetae98coding.diary.compose.map.color
 import io.github.taetae98coding.diary.compose.map.diaryMapCamera
 import io.github.taetae98coding.diary.compose.map.diaryMapCoordinate
+import io.github.taetae98coding.diary.compose.map.diaryMapPin
 import io.github.taetae98coding.diary.compose.map.google.createGoogleMapHtml
 import io.github.taetae98coding.diary.compose.map.naver.createNaverMapHtml
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
@@ -128,10 +127,10 @@ class MapMessageTest :
         }
 
         test("TC-d114915a-d390-4f69-a9b2-ef4db18910bb: 지도가 알려온 핀 누르기 소식의 식별 값을 전달한다") {
-            val idList = List(2) { Uuid.random() }
+            val idList = List(2) { Arb.kotlinUuid().next() }
             val deliveredList = mutableListOf<Uuid>()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-            state.updatePins(idList.map { id -> pin(id = id) })
+            state.updatePins(idList.map { id -> Arb.diaryMapPin(id = id).next() })
 
             idList.forEach { id ->
                 state.handleMapMessage(
@@ -154,11 +153,11 @@ class MapMessageTest :
                     """{"type": "pinClick", "id": 1}""",
                     """{"type": "pinClick", "id": "식별자가 아닌 값"}""",
                     // 표시된 핀에 없는 식별 값
-                    """{"type": "pinClick", "id": "${Uuid.random()}"}""",
+                    """{"type": "pinClick", "id": "${Arb.kotlinUuid().next()}"}""",
                 )
             val deliveredList = mutableListOf<Uuid>()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-            state.updatePins(List(2) { pin(id = Uuid.random()) })
+            state.updatePins(List(2) { Arb.diaryMapPin().next() })
 
             messages.forEach { message ->
                 state.handleMapMessage(
@@ -173,10 +172,10 @@ class MapMessageTest :
         }
 
         test("핀 누르기 소식과 지도 누르기 소식을 서로 구분한다") {
-            val coordinate = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+            val coordinate = Arb.diaryMapCoordinate().next()
             val clickMessage =
                 """{"type": "click", "latitude": ${coordinate.latitude}, "longitude": ${coordinate.longitude}}"""
-            val pinId = Uuid.random()
+            val pinId = Arb.kotlinUuid().next()
             val pinClickMessage = """{"type": "pinClick", "id": "$pinId"}"""
 
             clickMessage.toMapMessageOrNull() shouldBe MapMessage.Click(coordinate = coordinate)
@@ -184,8 +183,8 @@ class MapMessageTest :
         }
 
         test("TC-a5b322a1-9410-46cc-9c91-51a66b9e41ae: 누르기 소식과 위치 소식을 서로 구분한다") {
-            val camera = DiaryMapCamera(latitude = 37.5665, longitude = 126.978, zoom = 11.0)
-            val coordinate = DiaryMapCoordinate(latitude = -33.4489, longitude = -70.6693)
+            val camera = Arb.diaryMapCamera().next().copy(bounds = null)
+            val coordinate = Arb.diaryMapCoordinate().next()
             val cameraMessage =
                 """{"type": "camera", "latitude": ${camera.latitude}, "longitude": ${camera.longitude}, "zoom": ${camera.zoom}}"""
             val clickMessage =
@@ -271,14 +270,4 @@ class MapMessageTest :
 
             message.toMapMessageOrNull().shouldBeNull()
         }
-    }) {
-    private companion object {
-        private fun pin(id: Uuid): DiaryMapPin =
-            DiaryMapPin(
-                id = id,
-                coordinate = Arb.diaryMapCoordinate().next(),
-                color = Arb.color().next(),
-                label = "label-${Arb.int().next()}",
-            )
-    }
-}
+    })

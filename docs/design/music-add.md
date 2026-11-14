@@ -77,10 +77,10 @@ MusicAdd 화면은 창 너비에 따라 단독으로 표시하거나 [Playlist �
 | 추가 성공 안내 | `곡이 추가되었습니다.` | `Music added.` |
 | 링크 미입력 안내 | `링크를 입력해 주세요.` | `Please enter a link.` |
 | 링크 형식 안내 | `YouTube 영상 링크를 입력해 주세요.` | `Please enter a YouTube video link.` |
-
-태그 입력의 칩 라벨과 태그 선택 목록의 문구는 [항목 태그 입력 컴포넌트 디자인](./entity-tag-input.md)을 따른다.
 | 제목 미입력 안내 | `제목을 입력해 주세요.` | `Please enter a title.` |
 | 불러오기 실패 안내 | `링크에서 곡 정보를 불러오지 못했습니다.` | `Could not fetch music info from the link.` |
+
+태그 입력의 칩 라벨과 태그 선택 목록의 문구는 [항목 태그 입력 컴포넌트 디자인](./entity-tag-input.md)을 따른다.
 
 불러오기 버튼의 접근성 이름은 라벨보다 길게 두어 무엇을 불러오는 버튼인지 낭독으로도 알 수 있게 한다.
 

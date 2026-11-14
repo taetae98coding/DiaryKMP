@@ -110,11 +110,8 @@ class SyncWorkWebTest :
             webRequests.map { request -> request.size } shouldContainExactly listOf(100, 100, 1)
         }
 
-        listOf(
-            "태그" to "메모",
-            "메모" to "메모와 태그의 연결",
-        ).forEach { (failed, _) ->
-            test("TC-674eebce-610c-4b46-8dce-79aef5252327 웹 항목은 $failed 업로드가 실패해도 시작한다") {
+        listOf("태그", "메모").forEach { failed ->
+            test("웹 항목은 $failed 업로드가 실패해도 시작한다") {
                 val context =
                     context(
                         tagList = tags(size = 1),
@@ -254,7 +251,7 @@ class SyncWorkWebTest :
                 headerList.map { header -> header.toRemote() }
         }
 
-        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 웹 항목은 기록된 순번으로 내려받기를 시작한다") {
+        test("웹 항목은 기록된 순번으로 내려받기를 시작한다") {
             val context = context()
             coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.WEB) } returns 9L
 

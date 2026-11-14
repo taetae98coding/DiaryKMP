@@ -10,16 +10,6 @@ import io.github.taetae98coding.diary.work.appaction.memo.MemoAppAction
 internal class MemoAppFunction(
     private val memoAppAction: MemoAppAction,
 ) {
-    suspend fun list(
-        sort: String?,
-        cursor: String?,
-    ): AppFunctionMemoPage = appFunctionCall { memoAppAction.list(sort = sort, cursor = cursor).toAppFunctionMemoPage() }
-
-    suspend fun finishedList(
-        sort: String?,
-        cursor: String?,
-    ): AppFunctionMemoPage = appFunctionCall { memoAppAction.finishedList(sort = sort, cursor = cursor).toAppFunctionMemoPage() }
-
     suspend fun get(memoId: String): AppFunctionMemoDetail? = appFunctionCall { memoAppAction.get(memoId = memoId)?.toAppFunctionMemoDetail() }
 
     suspend fun add(

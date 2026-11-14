@@ -2,10 +2,11 @@ import AppIntents
 import DiaryIos
 
 struct DDayEntityQuery: EntityStringQuery {
+    // ‘삭제한 디데이 되돌리기’에 넘긴 항목을 다시 찾을 수 있게 삭제된 항목도 찾는다.
     func entities(for identifiers: [DDayEntity.ID]) async throws -> [DDayEntity] {
         var entityList: [DDayEntity] = []
         for identifier in identifiers {
-            if let detail = try await appAction({ try await DiaryDDayAppAction.shared.get(ddayId: identifier) }) {
+            if let detail = try await appAction({ try await DiaryDDayAppAction.shared.getIncludingDeleted(ddayId: identifier) }) {
                 entityList.append(DDayEntity(detail: detail))
             }
         }
@@ -24,10 +25,11 @@ struct DDayEntityQuery: EntityStringQuery {
             .map(DDayEntity.init(dday:))
     }
 
+    // 상세와 추가 결과는 데스크톱 연결과 같이 삭제된 항목을 없는 항목으로 다룬다.
     static func require(ddayId: String) async throws -> DDayEntity {
-        guard let dday = try await DDayEntityQuery().entities(for: [ddayId]).first else {
+        guard let detail = try await appAction({ try await DiaryDDayAppAction.shared.get(ddayId: ddayId) }) else {
             throw AppIntentError.notFound(LocalizedStringResource("Couldn't find the D-Day.", table: "AppIntentDDay"))
         }
-        return dday
+        return DDayEntity(detail: detail)
     }
 }

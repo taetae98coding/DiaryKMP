@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountPlaceMemoRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -36,7 +37,7 @@ class PagePlaceMemoUseCaseTest :
             val pagingData = PagingData.from(listOf(memo()))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val repository = mockk<AccountPlaceMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { repository.page(account = account, placeId = placeId, sort = ListSort.DEFAULT) } returns flowOf(pagingData)
             val useCase = PagePlaceMemoUseCase(getAccountUseCase = getAccountUseCase, accountPlaceMemoRepository = repository)
 
@@ -57,7 +58,7 @@ class PagePlaceMemoUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val repository = mockk<AccountPlaceMemoRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase = PagePlaceMemoUseCase(getAccountUseCase = getAccountUseCase, accountPlaceMemoRepository = repository)
 
             When("대상 장소의 메모 페이지를 조회한다") {
@@ -78,7 +79,7 @@ class PagePlaceMemoUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val repository = mockk<AccountPlaceMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { repository.page(account = account, placeId = placeId, sort = ListSort.DEFAULT) } returns flow { throw failure }
             val useCase = PagePlaceMemoUseCase(getAccountUseCase = getAccountUseCase, accountPlaceMemoRepository = repository)
 
@@ -108,7 +109,7 @@ class PagePlaceMemoUseCaseTest :
             val otherAccountPagingFlow = MutableStateFlow(otherAccountPagingData)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val repository = mockk<AccountPlaceMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             every { repository.page(account = account, placeId = placeId, sort = ListSort.DEFAULT) } returns accountPagingFlow
             every { repository.page(account = otherAccount, placeId = placeId, sort = ListSort.DEFAULT) } returns otherAccountPagingFlow
             val useCase = PagePlaceMemoUseCase(getAccountUseCase = getAccountUseCase, accountPlaceMemoRepository = repository)

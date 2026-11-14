@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 import io.github.taetae98coding.diary.core.testing.holiday.holidaySetting
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetHolidayCountrySettingUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetSettingHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.SelectAllHolidayUseCase
@@ -122,7 +123,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 val holidaySettingList = listOf(holidaySetting(index = 0, isVisible = true), holidaySetting(index = 1, isVisible = false))
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
                 val selectAllHolidayUseCase = mockk<SelectAllHolidayUseCase>()
-                coEvery { selectAllHolidayUseCase(parameter = Unit) } coAnswers {
+                coEvery { selectAllHolidayUseCase() } coAnswers {
                     holidaySettingFlow.value = Result.success(holidaySettingList.map { setting -> setting.copy(isVisible = true) })
                     Result.success(Unit)
                 }
@@ -142,7 +143,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 1) {
-                    selectAllHolidayUseCase(parameter = Unit)
+                    selectAllHolidayUseCase()
                 }
             }
         }
@@ -152,7 +153,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 val holidaySettingList = listOf(holidaySetting(index = 0, isVisible = true), holidaySetting(index = 1, isVisible = false))
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
                 val unselectAllHolidayUseCase = mockk<UnselectAllHolidayUseCase>()
-                coEvery { unselectAllHolidayUseCase(parameter = Unit) } coAnswers {
+                coEvery { unselectAllHolidayUseCase() } coAnswers {
                     holidaySettingFlow.value = Result.success(holidaySettingList.map { setting -> setting.copy(isVisible = false) })
                     Result.success(Unit)
                 }
@@ -172,7 +173,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 1) {
-                    unselectAllHolidayUseCase(parameter = Unit)
+                    unselectAllHolidayUseCase()
                 }
             }
         }
@@ -186,7 +187,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                     )
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
                 val selectDaysOffHolidayUseCase = mockk<SelectDaysOffHolidayUseCase>()
-                coEvery { selectDaysOffHolidayUseCase(parameter = Unit) } coAnswers {
+                coEvery { selectDaysOffHolidayUseCase() } coAnswers {
                     holidaySettingFlow.value = Result.success(holidaySettingList.map { setting -> setting.copy(isVisible = setting.isHoliday) })
                     Result.success(Unit)
                 }
@@ -206,7 +207,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 1) {
-                    selectDaysOffHolidayUseCase(parameter = Unit)
+                    selectDaysOffHolidayUseCase()
                 }
             }
         }
@@ -281,9 +282,9 @@ class SettingHolidayViewModelTest : FunSpec() {
                 val selectAllHolidayUseCase = mockk<SelectAllHolidayUseCase>()
                 val unselectAllHolidayUseCase = mockk<UnselectAllHolidayUseCase>()
                 val selectDaysOffHolidayUseCase = mockk<SelectDaysOffHolidayUseCase>()
-                coEvery { selectAllHolidayUseCase(parameter = Unit) } returns Result.success(Unit)
-                coEvery { unselectAllHolidayUseCase(parameter = Unit) } returns Result.success(Unit)
-                coEvery { selectDaysOffHolidayUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { selectAllHolidayUseCase() } returns Result.success(Unit)
+                coEvery { unselectAllHolidayUseCase() } returns Result.success(Unit)
+                coEvery { selectDaysOffHolidayUseCase() } returns Result.success(Unit)
                 val viewModel =
                     settingHolidayViewModel(
                         getSettingHolidayUseCase =
@@ -307,9 +308,9 @@ class SettingHolidayViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 1) {
-                    selectAllHolidayUseCase(parameter = Unit)
-                    unselectAllHolidayUseCase(parameter = Unit)
-                    selectDaysOffHolidayUseCase(parameter = Unit)
+                    selectAllHolidayUseCase()
+                    unselectAllHolidayUseCase()
+                    selectDaysOffHolidayUseCase()
                 }
             }
         }
@@ -350,7 +351,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 val countrySettingFlow = MutableStateFlow<Result<HolidayCountrySetting>>(Result.failure(IllegalStateException()))
                 val viewModel =
                     settingHolidayViewModel(
-                        getHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(countrySettingFlow),
+                        getHolidayCountrySettingUseCase = stubGetHolidayCountrySettingUseCase(countrySettingFlow),
                         getSettingHolidayUseCase =
                             getSettingHolidayUseCase(
                                 flowOf(Result.success(holidaySettingList)),
@@ -381,7 +382,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 runTest(mainDispatcher) {
                     val viewModel =
                         settingHolidayViewModel(
-                            getHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(flowOf(countrySettingResult)),
+                            getHolidayCountrySettingUseCase = stubGetHolidayCountrySettingUseCase(flowOf(countrySettingResult)),
                             getSettingHolidayUseCase = getSettingHolidayUseCase(flowOf(holidaySettingListResult)),
                         )
 
@@ -444,7 +445,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 val holidaySettingFlow = MutableStateFlow(Result.success(koreaList))
                 val viewModel =
                     settingHolidayViewModel(
-                        getHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(countrySettingFlow),
+                        getHolidayCountrySettingUseCase = stubGetHolidayCountrySettingUseCase(countrySettingFlow),
                         getSettingHolidayUseCase = getSettingHolidayUseCase(holidaySettingFlow),
                     )
 
@@ -531,31 +532,31 @@ private val DEFAULT_COUNTRY_SETTING: HolidayCountrySetting =
         deviceCountry = HolidayCountry.KOREA,
     )
 
-private fun getHolidayCountrySettingUseCase(flow: Flow<Result<HolidayCountrySetting>> = flowOf(Result.success(DEFAULT_COUNTRY_SETTING))): GetHolidayCountrySettingUseCase =
+private fun stubGetHolidayCountrySettingUseCase(flow: Flow<Result<HolidayCountrySetting>> = flowOf(Result.success(DEFAULT_COUNTRY_SETTING))): GetHolidayCountrySettingUseCase =
     mockk<GetHolidayCountrySettingUseCase>().also { useCase ->
-        every { useCase(Unit) } returns flow
+        every { useCase() } returns flow
     }
 
 // 기기 지역은 조회를 시작할 때마다 새로 읽힌다.
 private fun deviceCountryReadingUseCase(deviceCountry: () -> HolidayCountry): GetHolidayCountrySettingUseCase =
     mockk<GetHolidayCountrySettingUseCase>().also { useCase ->
-        every { useCase(Unit) } returns flow { emit(Result.success(DEFAULT_COUNTRY_SETTING.copy(deviceCountry = deviceCountry()))) }
+        every { useCase() } returns flow { emit(Result.success(DEFAULT_COUNTRY_SETTING.copy(deviceCountry = deviceCountry()))) }
     }
 
 // 공휴일 목록도 조회를 시작할 때 기기 지역을 한 번 읽으므로, 조회를 시작할 때마다 그 시점 지역의 목록을 돌려준다.
 private fun deviceCountryReadingSettingHolidayUseCase(holidaySettingList: () -> List<HolidaySetting>): GetSettingHolidayUseCase =
     mockk<GetSettingHolidayUseCase>().also { useCase ->
-        every { useCase(Unit) } returns flow { emit(Result.success(holidaySettingList())) }
+        every { useCase() } returns flow { emit(Result.success(holidaySettingList())) }
     }
 
 private fun getSettingHolidayUseCase(flow: Flow<Result<List<HolidaySetting>>>): GetSettingHolidayUseCase =
     mockk<GetSettingHolidayUseCase>().also { useCase ->
-        every { useCase(Unit) } returns flow
+        every { useCase() } returns flow
     }
 
 private fun settingHolidayViewModel(
     getSettingHolidayUseCase: GetSettingHolidayUseCase,
-    getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(),
+    getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase = stubGetHolidayCountrySettingUseCase(),
     toggleHolidayCountryOptionUseCase: ToggleHolidayCountryOptionUseCase = mockk(),
     toggleHolidayVisibilityUseCase: ToggleHolidayVisibilityUseCase = mockk(),
     selectAllHolidayUseCase: SelectAllHolidayUseCase = mockk(),

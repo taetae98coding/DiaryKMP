@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.account.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.repository.FcmTokenRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -29,7 +30,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = Account.Guest, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-90250441-85e8-4644-a4fd-8e1675552f74 해제를 한 번 요청하고 등록은 요청하지 않는다") {
                     result.shouldBeSuccess()
@@ -45,7 +46,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = account, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-fe8a1e97-131a-454b-84fe-3ab5598f19f5 등록도 해제도 요청하지 않는다") {
                     result.shouldBeSuccess()
@@ -62,7 +63,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = account, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 등록을 한 번 요청하고 해제는 요청하지 않는다") {
                     result.shouldBeSuccess()
@@ -81,7 +82,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = account, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-4d24fc43-3f72-4b39-9d43-ea654eb37958 실패를 전달하고 오류 보고는 남기지 않는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
@@ -98,7 +99,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = Account.Guest, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-4d24fc43-3f72-4b39-9d43-ea654eb37958 실패를 전달하고 오류 보고는 남기지 않는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
@@ -115,7 +116,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = account, repository = repository)
 
             When("토큰을 제출한다") {
-                shouldThrowExactly<CancellationException> { useCase(parameter = Unit) }
+                shouldThrowExactly<CancellationException> { useCase() }
 
                 Then("TC-969f648b-64d1-4167-b5a1-e95732282aa5 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
@@ -128,7 +129,7 @@ class SubmitFcmTokenUseCaseTest :
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } returns Unit
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returnsMany
+            every { getAccountUseCase() } returnsMany
                 listOf(
                     flowOf(Result.success(account)),
                     flowOf(Result.success(account.copy(isSessionValid = true))),
@@ -136,11 +137,11 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = SubmitFcmTokenUseCase(getAccountUseCase = getAccountUseCase, fcmTokenRepository = repository)
 
             When("세션이 인증되기 전과 뒤의 계기에 토큰을 제출한다") {
-                useCase(parameter = Unit).shouldBeSuccess()
+                useCase().shouldBeSuccess()
                 coVerify(exactly = 0) { repository.upsert() }
                 coVerify(exactly = 0) { repository.delete() }
 
-                useCase(parameter = Unit).shouldBeSuccess()
+                useCase().shouldBeSuccess()
 
                 Then("TC-fe8a1e97-131a-454b-84fe-3ab5598f19f5 인증된 뒤에만 등록을 한 번 요청한다") {
                     coVerify(exactly = 1) { repository.upsert() }
@@ -156,7 +157,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = Account.Guest, repository = repository)
 
             When("게스트로 바뀐 계기에 토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-68ae3e2d-db68-4521-841f-5fa83acf7e6b 해제를 한 번 요청하고 실패를 전달한다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
@@ -175,7 +176,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = account, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-4d24fc43-3f72-4b39-9d43-ea654eb37958 통신 오류로 실패해도 오류 보고는 남기지 않는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
@@ -192,7 +193,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = account, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-ed327973-684c-4131-af2e-3c9a8d007034 성공으로 끝나고 오류 보고가 남지 않는다") {
                     result.shouldBeSuccess()
@@ -210,7 +211,7 @@ class SubmitFcmTokenUseCaseTest :
             val useCase = useCase(account = account, repository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-a5d2b40e-e204-4dc5-aa2f-9cb56a893b1a 실패를 전달하고 오류 보고는 남기지 않는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
@@ -223,11 +224,11 @@ class SubmitFcmTokenUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<FcmTokenRepository>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase = SubmitFcmTokenUseCase(getAccountUseCase = getAccountUseCase, fcmTokenRepository = repository)
 
             When("토큰을 제출한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("제출하지 않고 실패를 전달한다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
@@ -243,7 +244,7 @@ private fun useCase(
     repository: FcmTokenRepository,
 ): SubmitFcmTokenUseCase {
     val getAccountUseCase = mockk<GetAccountUseCase>()
-    every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+    every { getAccountUseCase() } returns flowOf(Result.success(account))
 
     return SubmitFcmTokenUseCase(getAccountUseCase = getAccountUseCase, fcmTokenRepository = repository)
 }

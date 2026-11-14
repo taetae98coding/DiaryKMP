@@ -87,6 +87,7 @@ class ContactDetailScreenEditTest {
         restorationTester.setContent {
             ContactDetailScreenTestHost {
                 ContactDetailScreen(
+                    contentSharerFactory = testContentSharerFactory(),
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
@@ -120,6 +121,7 @@ class ContactDetailScreenEditTest {
         restorationTester.setContent {
             ContactDetailScreenTestHost {
                 ContactDetailScreen(
+                    contentSharerFactory = testContentSharerFactory(),
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
@@ -156,6 +158,7 @@ class ContactDetailScreenEditTest {
             ContactDetailScreenTestHost {
                 if (isShown) {
                     ContactDetailScreen(
+                        contentSharerFactory = testContentSharerFactory(),
                         navigateUp = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
@@ -328,6 +331,7 @@ class ContactDetailScreenEditTest {
         restorationTester.setContent {
             ContactDetailScreenTestHost {
                 ContactDetailScreen(
+                    contentSharerFactory = testContentSharerFactory(),
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},

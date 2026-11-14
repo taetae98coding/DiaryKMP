@@ -32,6 +32,20 @@ internal interface AccountChecklistItemDao : RoomDao<AccountChecklistItemLocalEn
 
     @Query(
         """
+        SELECT checklist_item.*
+        FROM checklist_item
+        INNER JOIN account_checklist_item
+            ON account_checklist_item.checklist_item_id = checklist_item.id AND account_checklist_item.account_id = :accountId
+        WHERE checklist_item.id = :itemId
+        """,
+    )
+    fun find(
+        accountId: Uuid,
+        itemId: Uuid,
+    ): Flow<ChecklistItemLocalEntity?>
+
+    @Query(
+        """
         SELECT checklist_item.id
         FROM checklist_item
         INNER JOIN account_checklist_item

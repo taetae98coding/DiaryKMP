@@ -53,6 +53,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
@@ -90,6 +91,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailUiState
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.detail.memoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.detail.memoDetailUiState
+import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestContentSharerFactory
 import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.finished.MemoFinishedListViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiEffect
@@ -171,7 +173,6 @@ class MemoEntryNavigationTest {
     private var addWebList: List<Web> = emptyList()
     private var addContactList: List<ContactListItem> = emptyList()
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -586,7 +587,6 @@ class MemoEntryNavigationTest {
         val viewModelModule = viewModelModule()
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {
@@ -624,7 +624,7 @@ class MemoEntryNavigationTest {
                                         entry<WebDetailNavKey> { key -> Text(text = entryContent(key)) }
                                         entry<WebMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
                                         entry<SettingGeminiNavKey> { key -> Text(text = entryContent(key)) }
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
                                     },
                             )
                         }
@@ -637,11 +637,11 @@ class MemoEntryNavigationTest {
 
     private fun memoHomeViewModel(): MemoHomeViewModel {
         val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
-        every { getMemoFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        every { getMemoFilterUseCase() } returns flowOf(Result.success(emptyList()))
         val getMemoFilterTagIdUseCase = mockk<GetMemoFilterTagIdUseCase>()
-        every { getMemoFilterTagIdUseCase(parameter = Unit) } returns flowOf(Result.success(emptySet()))
+        every { getMemoFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
-        every { getMemoExistenceFilterUseCase(parameter = Unit) } returns flowOf(Result.success(MemoExistenceFilter()))
+        every { getMemoExistenceFilterUseCase() } returns flowOf(Result.success(MemoExistenceFilter()))
         val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
         every { pageMemoHomeUseCase(parameter = any()) } returns storedHomeMemoList.map { memoList -> Result.success(PagingData.from(memoList)) }
 

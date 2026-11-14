@@ -68,7 +68,7 @@ internal class CoreSpotlightIndex(
                 attributeSet.thumbnailData = iconRenderer.render(icon = icon, color = iconColor)
             }
 
-        // 만료일을 정하지 않으면 시스템이 한 달 뒤 항목을 지우므로, 삭제될 때까지 남도록 만료일을 두지 않는다.
+        // 만료일을 정하지 않으면 시스템이 한 달 뒤 항목을 지우므로, 삭제될 때까지 남도록 만료일을 먼 미래로 둔다.
         return CSSearchableItem(uniqueIdentifier = identifier, domainIdentifier = null, attributeSet = attributeSet).also { item ->
             item.expirationDate = NSDate.distantFuture
         }

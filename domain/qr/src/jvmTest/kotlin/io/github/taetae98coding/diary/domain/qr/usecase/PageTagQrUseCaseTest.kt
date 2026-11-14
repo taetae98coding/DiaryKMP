@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.repository.AccountTagQrRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
@@ -32,7 +33,7 @@ class PageTagQrUseCaseTest :
             val pagingData = PagingData.empty<Qr>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagQrRepository = mockk<AccountTagQrRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagQrRepository.page(account = account, tagId = tagId, scope = scope) } returns flowOf(pagingData)
             val useCase = PageTagQrUseCase(getAccountUseCase = getAccountUseCase, accountTagQrRepository = accountTagQrRepository)
 
@@ -54,7 +55,7 @@ class PageTagQrUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagQrRepository = mockk<AccountTagQrRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase = PageTagQrUseCase(getAccountUseCase = getAccountUseCase, accountTagQrRepository = accountTagQrRepository)
 
             When("대상 태그의 QR 페이지를 조회한다") {
@@ -76,7 +77,7 @@ class PageTagQrUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagQrRepository = mockk<AccountTagQrRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagQrRepository.page(account = account, tagId = tagId, scope = scope) } returns flow { throw failure }
             val useCase = PageTagQrUseCase(getAccountUseCase = getAccountUseCase, accountTagQrRepository = accountTagQrRepository)
 

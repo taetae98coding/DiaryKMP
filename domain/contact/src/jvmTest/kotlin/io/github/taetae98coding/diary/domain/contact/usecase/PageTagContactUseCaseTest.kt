@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountTagContactRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -34,7 +35,7 @@ class PageTagContactUseCaseTest :
             val pagingData = PagingData.empty<ContactListItem>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagContactRepository = mockk<AccountTagContactRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagContactRepository.page(account = account, tagId = tagId, scope = scope, sort = sort) } returns flowOf(pagingData)
             val useCase = PageTagContactUseCase(getAccountUseCase = getAccountUseCase, accountTagContactRepository = accountTagContactRepository)
 
@@ -57,7 +58,7 @@ class PageTagContactUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagContactRepository = mockk<AccountTagContactRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase = PageTagContactUseCase(getAccountUseCase = getAccountUseCase, accountTagContactRepository = accountTagContactRepository)
 
             When("대상 태그의 연락처 페이지를 조회한다") {
@@ -80,7 +81,7 @@ class PageTagContactUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagContactRepository = mockk<AccountTagContactRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagContactRepository.page(account = account, tagId = tagId, scope = scope, sort = sort) } returns flow { throw failure }
             val useCase = PageTagContactUseCase(getAccountUseCase = getAccountUseCase, accountTagContactRepository = accountTagContactRepository)
 

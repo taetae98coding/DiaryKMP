@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.work.spotlight
 import io.github.taetae98coding.diary.core.database.api.spotlight.datasource.SpotlightLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +43,7 @@ internal class SpotlightWork(
     }
 
     private fun getItemList(): Flow<List<SpotlightItem>> =
-        getAccountUseCase(parameter = Unit).flatMapLatest { result ->
+        getAccountUseCase().flatMapLatest { result ->
             result.fold(
                 onSuccess = ::getItemList,
                 // 현재 계정을 확인할 수 없으면 어떤 항목도 Spotlight에 나타나지 않아야 하므로 빈 목록으로 바꿔 색인을 비운다.
@@ -63,6 +64,7 @@ internal class SpotlightWork(
             spotlightLocalDataSource.getQrList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
             spotlightLocalDataSource.getMusicList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
             spotlightLocalDataSource.getDDayList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
+            spotlightLocalDataSource.getRoutineList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
         ) { itemListArray -> itemListArray.flatMap { it } }
     }
 

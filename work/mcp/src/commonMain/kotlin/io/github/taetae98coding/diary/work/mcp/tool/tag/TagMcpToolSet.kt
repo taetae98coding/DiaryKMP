@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.work.mcp.tool.tag
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
@@ -18,6 +19,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.changeActive
 import io.github.taetae98coding.diary.work.mcp.tool.json.changedCountResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrNull
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrRandom
@@ -31,6 +33,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParamete
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.readActive
 import io.github.taetae98coding.diary.work.mcp.tool.readFirst
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import io.github.taetae98coding.diary.work.mcp.tool.uuidSet
@@ -89,14 +92,14 @@ internal class TagMcpToolSet(
             McpTool(
                 name = "tag_get",
                 description =
-                    "Gets one tag with the tags it links to (its child tags). Returns null when the tag does not exist. " +
-                        "Use tag_memo_list, tag_web_list and tag_place_list for the items linked to the tag.",
+                    "Gets one tag with the tags it links to (its child tags). Returns null when the tag does not exist or is deleted. " +
+                        "Use the tag item list tools such as tag_memo_list and tag_web_list for the items linked to the tag.",
                 parameterList = listOf(tagIdParameter),
                 kind = McpToolKind.READ,
             ) { arguments -> getTag(arguments) },
             McpTool(
                 name = "tag_add",
-                description = "Adds a tag. The title must not be blank. Linked tags must exist and not be deleted.",
+                description = "Adds a tag. The title must not be blank.",
                 parameterList =
                     listOf(
                         McpToolParameter(name = TITLE, type = McpToolParameterType.STRING, description = "Title of the tag.", isRequired = true),
@@ -144,19 +147,19 @@ internal class TagMcpToolSet(
                 description = "Marks a tag as finished.",
                 parameterList = listOf(tagIdParameter),
                 kind = McpToolKind.WRITE,
-            ) { arguments -> changedCountResult(finishTagUseCase(parameter = arguments.uuid(TAG_ID)).getOrThrow()) },
+            ) { arguments -> findTagUseCase.changeActive(id = arguments.uuid(TAG_ID), isDeleted = Tag::isDeleted) { id -> finishTagUseCase(parameter = id) } },
             McpTool(
                 name = "tag_restart",
                 description = "Marks a finished tag as not finished.",
                 parameterList = listOf(tagIdParameter),
                 kind = McpToolKind.WRITE,
-            ) { arguments -> changedCountResult(restartTagUseCase(parameter = arguments.uuid(TAG_ID)).getOrThrow()) },
+            ) { arguments -> findTagUseCase.changeActive(id = arguments.uuid(TAG_ID), isDeleted = Tag::isDeleted) { id -> restartTagUseCase(parameter = id) } },
             McpTool(
                 name = "tag_delete",
                 description = "Deletes a tag. Use tag_restore with the same id to undo.",
                 parameterList = listOf(tagIdParameter),
                 kind = McpToolKind.DESTRUCTIVE,
-            ) { arguments -> changedCountResult(deleteTagUseCase(parameter = arguments.uuid(TAG_ID)).getOrThrow()) },
+            ) { arguments -> findTagUseCase.changeActive(id = arguments.uuid(TAG_ID), isDeleted = Tag::isDeleted) { id -> deleteTagUseCase(parameter = id) } },
             McpTool(
                 name = "tag_restore",
                 description = "Restores a deleted tag.",
@@ -168,7 +171,7 @@ internal class TagMcpToolSet(
     private suspend fun getTag(arguments: McpToolArguments) =
         run {
             val tagId = arguments.uuid(TAG_ID)
-            val tag = findTagUseCase.readFirst(parameter = tagId) ?: return@run JsonNull
+            val tag = findTagUseCase.readFirst(parameter = tagId)?.takeUnless { tag -> tag.isDeleted } ?: return@run JsonNull
 
             buildJsonObject {
                 put("tag", tag.toJson())
@@ -179,7 +182,7 @@ internal class TagMcpToolSet(
     private suspend fun updateTag(arguments: McpToolArguments) =
         run {
             val tagId = arguments.uuid(TAG_ID)
-            val current = findTagUseCase.readFirst(parameter = tagId)?.detail ?: return@run changedCountResult(count = 0)
+            val current = findTagUseCase.readActive(id = tagId, isDeleted = Tag::isDeleted)?.detail ?: return@run changedCountResult(count = 0)
             val detail =
                 TagDetail(
                     emoji = arguments.stringOrNull(EMOJI) ?: current.emoji,

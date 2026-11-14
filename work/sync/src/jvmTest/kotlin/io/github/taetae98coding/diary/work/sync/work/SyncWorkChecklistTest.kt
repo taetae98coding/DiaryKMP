@@ -231,7 +231,7 @@ class SyncWorkChecklistTest :
             }
         }
 
-        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 체크리스트와 체크 항목 내려받기는 각자 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 체크리스트와 체크 항목 내려받기는 각자 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val checklistPullList = checklistPulls(usnList = listOf(4L))
             val itemPullList = checklistItemPulls(usnList = listOf(7L, 8L))
@@ -262,20 +262,24 @@ class SyncWorkChecklistTest :
             coVerify(exactly = 2) { context.checklistItemRemoteDataSource.pull(any()) }
         }
 
-        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 체크리스트와 체크 항목만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 체크리스트와 체크 항목만 업로드한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val context = context(accountId = accountId)
+            val checklistList = checklists(size = 1)
+            val itemList = checklistItems(size = 1)
+            val context = context(accountId = accountId, checklistList = checklistList, checklistItemList = itemList)
             coEvery { context.checklistSyncLocalDataSource.readPendingList(accountId = otherAccountId) } returns checklists(size = 1)
             coEvery { context.checklistItemSyncLocalDataSource.readPendingList(accountId = otherAccountId) } returns checklistItems(size = 1)
 
             context.subject.doWork()
 
-            coVerify(exactly = 1) { context.checklistSyncLocalDataSource.readPendingList(accountId = accountId) }
-            coVerify(exactly = 1) { context.checklistItemSyncLocalDataSource.readPendingList(accountId = accountId) }
+            coVerify(exactly = 1) {
+                context.checklistRemoteDataSource.push(checklistList.map { checklist -> checklist.toRemote() })
+            }
+            coVerify(exactly = 1) { context.checklistItemRemoteDataSource.push(itemList.map { item -> item.toRemote() }) }
+            coVerify(exactly = 1) { context.checklistRemoteDataSource.push(any()) }
+            coVerify(exactly = 1) { context.checklistItemRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.checklistSyncLocalDataSource.readPendingList(accountId = otherAccountId) }
             coVerify(exactly = 0) { context.checklistItemSyncLocalDataSource.readPendingList(accountId = otherAccountId) }
-            coVerify(exactly = 0) { context.checklistRemoteDataSource.push(any()) }
-            coVerify(exactly = 0) { context.checklistItemRemoteDataSource.push(any()) }
         }
     })

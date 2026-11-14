@@ -47,20 +47,13 @@ internal fun SearchHomeResult(
             isSortVisibleProvider = { pagingItems.itemCount > 0 },
         )
 
-        DiaryCrossfade(
-            targetState = query.isNotBlank() && pagingItems.isLoadedEmpty(),
+        SearchHomeResultBody(
+            emptyIcon = emptyIcon,
             modifier = Modifier.fillMaxSize(),
-        ) { isEmpty ->
-            if (isEmpty) {
-                DiaryEmptyBox(
-                    title = stringResource(Res.string.search_home_empty_title),
-                    description = stringResource(Res.string.search_home_empty_description),
-                    icon = emptyIcon,
-                )
-            } else {
-                list()
-            }
-        }
+            query = query,
+            pagingItems = pagingItems,
+            list = list,
+        )
     }
 
     DiaryListSortBottomSheetHost(
@@ -70,6 +63,30 @@ internal fun SearchHomeResult(
     )
 }
 
+@Composable
+internal fun SearchHomeResultBody(
+    emptyIcon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    query: String = "",
+    pagingItems: LazyPagingItems<*> = remember { flowOf(PagingData.empty<Any>()) }.collectAsLazyPagingItems(),
+    list: @Composable () -> Unit,
+) {
+    DiaryCrossfade(
+        targetState = query.isNotBlank() && pagingItems.isLoadedEmpty(),
+        modifier = modifier,
+    ) { isEmpty ->
+        if (isEmpty) {
+            DiaryEmptyBox(
+                title = stringResource(Res.string.search_home_empty_title),
+                description = stringResource(Res.string.search_home_empty_description),
+                icon = emptyIcon,
+            )
+        } else {
+            list()
+        }
+    }
+}
+
 @ScreenPreview
 @Composable
 private fun SearchHomeResultPreview() {
@@ -77,6 +94,19 @@ private fun SearchHomeResultPreview() {
         SearchHomeResult(
             onEvent = {},
             emptyIcon = { MemoIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
+            query = "여행",
+            list = {},
+        )
+    }
+}
+
+@ScreenPreview
+@Composable
+private fun SearchHomeResultBodyPreview() {
+    DiaryTheme {
+        SearchHomeResultBody(
+            emptyIcon = { MemoIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
+            modifier = Modifier.fillMaxSize(),
             query = "여행",
             list = {},
         )

@@ -34,10 +34,10 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.core.navigation.ScreenEntryInstaller
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import org.koin.compose.getKoin
 
 @Composable
 internal fun AppNavigation(
+    entryInstallerList: List<ScreenEntryInstaller>,
     modifier: Modifier = Modifier,
     appState: AppState = rememberAppState(),
 ) {
@@ -46,8 +46,6 @@ internal fun AppNavigation(
     // 같은 이유로 placeholder의 저장 상태와 ViewModel이 목록 entry의 수명을 따르도록 placeholder 전용 저장소를 제공하고, 목록 entry가 빠질 때 decorator가 비운다.
     // FIXME placeholder를 decorate하지 않는 것은 navigation3의 제약이라 라이브러리에서 고쳐져야 한다. 등록된 이슈는 아직 없다.
     val resultEventBus = rememberResultEventBus()
-    val koin = getKoin()
-    val entryInstallerList = remember(koin) { koin.getAll<ScreenEntryInstaller>() }
     val placeholderStateHolder = rememberListDetailPlaceholderStateHolder()
 
     CompositionLocalProvider(

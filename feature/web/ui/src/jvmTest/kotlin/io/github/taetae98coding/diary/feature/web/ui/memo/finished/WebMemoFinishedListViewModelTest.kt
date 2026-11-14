@@ -10,6 +10,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.web.web
@@ -22,6 +23,7 @@ import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListEffect
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -76,6 +78,32 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
                 itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
                 verify(exactly = 1) { pageUseCase(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) }
+            }
+        }
+
+        test("TC-c247eb4b-2ac6-4da0-9439-0b7e57b8354e 기간 없는 메모는 헤더 없이 먼저 두고 시작 날짜가 같은 메모는 한 헤더로 묶는다") {
+            runTest(mainDispatcher) {
+                val webId = Arb.kotlinUuid().next()
+                val date = Arb.kotlinxLocalDate().next()
+                val noPeriodMemo = Arb.memo(title = Arb.nonBlankString().next(), dateTime = null).next()
+                val firstMemo = Arb.memo(title = Arb.nonBlankString().next(), dateTime = MemoDateTime.AllDay(dateRange = date..date)).next()
+                val secondMemo = Arb.memo(title = Arb.nonBlankString().next(), dateTime = MemoDateTime.AllDay(dateRange = date..date)).next()
+                val pageUseCase = mockk<PageFinishedWebMemoUseCase>()
+                every { pageUseCase(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(noPeriodMemo, firstMemo, secondMemo))))
+                val viewModel = viewModel(webId = webId, pageUseCase = pageUseCase)
+
+                val itemList = flowOf(viewModel.memoPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe
+                    listOf(
+                        MemoListItem.Content(memo = noPeriodMemo),
+                        MemoListItem.DateHeader(date = date),
+                        MemoListItem.Content(memo = firstMemo),
+                        MemoListItem.Content(memo = secondMemo),
+                    )
             }
         }
 

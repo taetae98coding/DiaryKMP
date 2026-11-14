@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
@@ -118,11 +119,13 @@ internal fun ComposeContentTestRule.setContactAddScreen(
     resultEventBus: ResultEventBus = ResultEventBus(),
     tagViewModel: EntityAddTagViewModel = addTagScreenTestViewModel(),
     navigateToTagAdd: () -> Unit = {},
+    initialDetail: ContactDetail = ContactDetail.EMPTY,
 ) {
     setContent {
         ContactAddScreenTestTheme(resultEventBus = resultEventBus) {
             ContactAddScreen(
                 addedResultRequestKey = null,
+                initialDetail = initialDetail,
                 navigateUp = navigateUp,
                 componentVisibleProvider = { componentVisible },
                 addViewModel = viewModel,

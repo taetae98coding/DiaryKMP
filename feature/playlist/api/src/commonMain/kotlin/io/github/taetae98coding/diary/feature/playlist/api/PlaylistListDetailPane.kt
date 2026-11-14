@@ -17,4 +17,4 @@ public fun List<ScreenNavKey>.isPlaylistAddOnDetailPane(): Boolean {
 }
 
 // 초기 태그가 있는 MusicAdd는 TagDetail 곡 탭에서 진입한 것이다.
-private fun ScreenNavKey.isPlaylistDetailPaneKey(): Boolean = (this is MusicAddNavKey && initialTagId == null) || this is MusicDetailNavKey
+private fun ScreenNavKey.isPlaylistDetailPaneKey(): Boolean = (this is MusicAddNavKey && initialTagId == null) || (this is MusicDetailNavKey && !isStandalone)

@@ -1,6 +1,11 @@
 package io.github.taetae98coding.diary.feature.contact.ui.detail.memo
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -276,7 +281,31 @@ class ContactDetailMemoTabTest {
     @Test
     fun `TC-1e48bac7-41ed-4382-8039-94767ce28981 앱을 다시 실행해 상세 화면에 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
         val titleList = positionMemoTitleList()
-        setMemoTab(pagingData = contactMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = contactMemo(title = title)) }))
+        var launchCount by mutableIntStateOf(0)
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 목록도 처음부터 다시 받으므로, 새 키로 저장 상태 없이 새 조회 결과와 함께 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val pagingDataFlow = remember { MutableStateFlow(contactMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = contactMemo(title = title)) })) }
+
+                DiaryTheme {
+                    EntityDetailMemoTab(
+                        emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title),
+                        emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description),
+                        onEvent = {},
+                        onMemoListEvent = {},
+                        modifier = Modifier.fillMaxSize(),
+                        memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                    )
+                }
+            }
+        }
+        waitUntilMemoIsDisplayed(title = titleList.first())
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
+        composeRule.onNodeWithText(titleList.first()).assertIsNotDisplayed()
+
+        composeRule.runOnIdle { launchCount += 1 }
         waitUntilMemoIsDisplayed(title = titleList.first())
 
         composeRule.onNodeWithText(titleList.first()).assertIsDisplayed()

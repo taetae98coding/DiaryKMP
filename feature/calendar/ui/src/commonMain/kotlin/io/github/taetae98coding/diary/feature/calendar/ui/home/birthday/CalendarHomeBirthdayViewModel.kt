@@ -51,11 +51,11 @@ internal class CalendarHomeBirthdayViewModel(
         this.yearMonth.value = yearMonth
 
         val dateRange = yearMonth.calendarHomeFetchDateRange()
-        val yearList = (dateRange.start.year..dateRange.endInclusive.year).filter { year -> fetchingYearSet.add(year) }
-        if (yearList.isEmpty()) return
 
-        viewModelScope.launch {
-            yearList.forEach { year ->
+        for (year in dateRange.start.year..dateRange.endInclusive.year) {
+            if (!fetchingYearSet.add(year)) continue
+
+            viewModelScope.launch {
                 try {
                     fetchLunarUseCase(parameter = year)
                 } finally {

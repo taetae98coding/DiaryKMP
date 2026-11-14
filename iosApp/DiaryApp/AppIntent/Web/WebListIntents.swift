@@ -85,8 +85,9 @@ struct WebMemoListIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
+        _ = try await WebEntityQuery.require(webId: web.id)
         let memoPage = try await appAction {
-            try await DiaryWebAppAction.shared.memoList(webId: web.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.webList(webId: web.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: LinkedMemoListDialog.make(page: memoPage))
     }
@@ -119,8 +120,9 @@ struct WebFinishedMemoListIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
+        _ = try await WebEntityQuery.require(webId: web.id)
         let memoPage = try await appAction {
-            try await DiaryWebAppAction.shared.memoFinishedList(webId: web.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.webFinishedList(webId: web.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: LinkedMemoListDialog.make(page: memoPage))
     }

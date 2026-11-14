@@ -8,7 +8,7 @@
 
 ## 동작 목록과 이름 규칙
 
-앱 동작은 데스크톱 앱 연결의 도구와 하나씩 짝을 이루며 모두 107개다. 동작마다 데스크톱 도구 이름을 기준 열쇠로 삼아 Android 함수 이름과 iOS 이름을 정한다.
+앱 동작은 데스크톱 앱 연결의 도구와 하나씩 짝을 이루며 모두 137개다. 동작마다 데스크톱 도구 이름을 기준 열쇠로 삼아 Android 함수 이름과 iOS 이름을 정한다.
 
 | 환경 | 보이는 이름 | 규칙 |
 | --- | --- | --- |
@@ -60,13 +60,15 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | QR | `QR` | `QR Code` / `QR Codes` | `qrcode` |
 | 곡 | `곡` | `Song` / `Songs` | `music.note` |
 | 디데이 | `디데이` | `D-Day` / `D-Days` | `hourglass` |
+| 루틴 | `루틴` | `Routine` / `Routines` | `repeat` |
+| 루틴 기록 | `루틴 기록` | `Routine Record` / `Routine Records` | `checkmark.circle` |
 | 캘린더 메모 | `캘린더 메모` | `Calendar Memo` / `Calendar Memos` | `calendar` |
 | 캘린더 디데이 | `캘린더 디데이` | `Calendar D-Day` / `Calendar D-Days` | `calendar` |
 | 생일 | `생일` | `Birthday` / `Birthdays` | `gift` |
 | 공휴일 | `공휴일` | `Holiday` / `Holidays` | `flag` |
 | 음력 날짜 | `음력 날짜` | `Lunar Date` / `Lunar Dates` | `moon` |
 
-메모, 태그, 장소, 디데이, 캘린더 메모의 아이콘은 그 항목의 색으로, 캘린더 디데이의 아이콘은 그 디데이의 색으로 칠하고, 나머지는 앱의 주 색으로 칠한다.
+메모, 태그, 장소, 디데이, 루틴, 캘린더 메모의 아이콘은 그 항목의 색으로, 캘린더 디데이의 아이콘은 그 디데이의 색으로 칠하고, 나머지는 앱의 주 색으로 칠한다.
 
 ## 기능 영역별 동작
 
@@ -114,6 +116,13 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `tag_memo_finished_list` | `tagMemoFinishedList` | 태그의 완료된 메모 보기<br/>Get Tag's Finished Memos | 태그에 연결된 완료된 메모를 가져옵니다.<br/>Gets finished memos linked to a tag. |
 | `tag_web_list` | `tagWebList` | 태그의 웹 보기<br/>Get Tag's Webs | 태그에 연결된 웹을 가져옵니다.<br/>Gets webs linked to a tag. |
 | `tag_place_list` | `tagPlaceList` | 태그의 장소 보기<br/>Get Tag's Places | 태그에 연결된 장소를 가져옵니다.<br/>Gets places linked to a tag. |
+| `tag_contact_list` | `tagContactList` | 태그의 연락처 보기<br/>Get Tag's Contacts | 태그에 연결된 연락처를 가져옵니다.<br/>Gets contacts linked to a tag. |
+| `tag_checklist_list` | `tagChecklistList` | 태그의 체크리스트 보기<br/>Get Tag's Checklists | 태그에 연결된 체크리스트를 가져옵니다.<br/>Gets checklists linked to a tag. |
+| `tag_music_list` | `tagMusicList` | 태그의 곡 보기<br/>Get Tag's Songs | 태그에 연결된 곡을 가져옵니다.<br/>Gets songs linked to a tag. |
+| `tag_qr_list` | `tagQrList` | 태그의 QR 보기<br/>Get Tag's QR Codes | 태그에 연결된 QR을 가져옵니다.<br/>Gets QR codes linked to a tag. |
+| `tag_dday_list` | `tagDdayList` | 태그의 디데이 보기<br/>Get Tag's D-Days | 태그에 연결된 디데이를 가져옵니다.<br/>Gets D-Days linked to a tag. |
+| `tag_routine_list` | `tagRoutineList` | 태그의 루틴 보기<br/>Get Tag's Routines | 태그에 연결된, 완료하지 않은 루틴을 진행 중, 시작 전 순으로 가져옵니다.<br/>Gets routines linked to a tag that aren't finished, in progress first, then not started. |
+| `tag_routine_finished_list` | `tagRoutineFinishedList` | 태그의 완료된 루틴 보기<br/>Get Tag's Finished Routines | 태그에 연결된 완료된 루틴을 가져옵니다.<br/>Gets finished routines linked to a tag. |
 | `tag_link_add` | `tagLinkAdd` | 태그에 하위 태그 연결<br/>Link Child Tag to Tag | 태그에 다른 태그를 하위 태그로 연결합니다. 메모, 웹, 장소의 태그는 바뀌지 않습니다.<br/>Links another tag to a tag as its child. Tags of memos, webs and places don't change. |
 | `tag_link_remove` | `tagLinkRemove` | 태그에서 하위 태그 연결 해제<br/>Unlink Child Tag from Tag | 태그에서 하위 태그 연결을 해제합니다. 반대 방향의 연결은 그대로 둡니다.<br/>Unlinks a child tag from a tag. A link in the opposite direction stays. |
 
@@ -153,7 +162,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `contact_list` | `contactList` | 연락처 목록 보기<br/>Get Contacts | 연락처를 가져옵니다. 즐겨찾기한 연락처가 항상 먼저 옵니다.<br/>Gets contacts. Favorite contacts always come first. |
-| `contact_get` | `contactGet` | 연락처 상세 보기<br/>Get Contact Details | 연락처 하나의 모든 정보를 가져옵니다.<br/>Gets all details of a contact. |
+| `contact_get` | `contactGet` | 연락처 상세 보기<br/>Get Contact Details | 연락처 하나의 모든 정보를 연결된 태그와 함께 가져옵니다.<br/>Gets all details of a contact with its linked tags. |
 | `contact_memo_list` | `contactMemoList` | 연락처의 진행 중 메모 보기<br/>Get Contact's In-Progress Memos | 연락처에 연결된, 완료하지 않은 메모를 가져옵니다.<br/>Gets memos linked to a contact that aren't finished. |
 | `contact_memo_finished_list` | `contactMemoFinishedList` | 연락처의 완료된 메모 보기<br/>Get Contact's Finished Memos | 연락처에 연결된 완료된 메모를 가져옵니다.<br/>Gets finished memos linked to a contact. |
 | `contact_add` | `contactAdd` | 연락처 추가<br/>Add Contact | 새 연락처를 추가합니다. 새 연락처는 즐겨찾기가 아닙니다.<br/>Adds a new contact. The new contact isn't a favorite. |
@@ -162,18 +171,22 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `contact_unfavorite` | `contactUnfavorite` | 연락처 즐겨찾기 해제<br/>Unfavorite Contact | 연락처의 즐겨찾기를 해제합니다.<br/>Removes the favorite mark from a contact. |
 | `contact_delete` | `contactDelete` | 연락처 삭제<br/>Delete Contact | 연락처를 삭제합니다. 같은 연락처로 ‘삭제한 연락처 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a contact. Run Restore Deleted Contact with the same contact to undo. |
 | `contact_restore` | `contactRestore` | 삭제한 연락처 되돌리기<br/>Restore Deleted Contact | 삭제한 연락처를 되돌립니다.<br/>Restores a deleted contact. |
+| `contact_tag_add` | `contactTagAdd` | 연락처에 태그 연결<br/>Link Tag to Contact | 연락처에 태그를 연결합니다.<br/>Links a tag to a contact. |
+| `contact_tag_remove` | `contactTagRemove` | 연락처에서 태그 연결 해제<br/>Unlink Tag from Contact | 연락처에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a contact. |
 
 ### 체크리스트
 
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `checklist_list` | `checklistList` | 체크리스트 목록 보기<br/>Get Checklists | 체크리스트를 제목순으로, 체크한 항목 수와 함께 가져옵니다.<br/>Gets checklists by title, with how many items are checked. |
-| `checklist_get` | `checklistGet` | 체크리스트 상세 보기<br/>Get Checklist Details | 체크리스트 하나를 모든 항목과 함께 가져옵니다.<br/>Gets a checklist with all its items. |
+| `checklist_get` | `checklistGet` | 체크리스트 상세 보기<br/>Get Checklist Details | 체크리스트 하나를 모든 항목, 연결된 태그와 함께 가져옵니다.<br/>Gets a checklist with all its items and linked tags. |
 | `checklist_add` | `checklistAdd` | 체크리스트 추가<br/>Add Checklist | 새 체크리스트를 추가합니다. 항목을 함께 넣을 수 있고, 빈 항목은 건너뜁니다.<br/>Adds a new checklist. You can add items too; empty items are skipped. |
 | `checklist_update` | `checklistUpdate` | 체크리스트 수정<br/>Edit Checklist | 체크리스트의 제목과 설명을 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title or description of a checklist. Values left empty stay the same. |
 | `checklist_reset` | `checklistReset` | 체크리스트 리셋<br/>Reset Checklist | 체크리스트의 모든 체크를 한 번에 해제합니다. 항목은 그대로 남습니다.<br/>Unchecks all items of a checklist at once. The items stay. |
 | `checklist_delete` | `checklistDelete` | 체크리스트 삭제<br/>Delete Checklist | 체크리스트를 삭제합니다. 같은 체크리스트로 ‘삭제한 체크리스트 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a checklist. Run Restore Deleted Checklist with the same checklist to undo. |
 | `checklist_restore` | `checklistRestore` | 삭제한 체크리스트 되돌리기<br/>Restore Deleted Checklist | 삭제한 체크리스트를 되돌립니다.<br/>Restores a deleted checklist. |
+| `checklist_tag_add` | `checklistTagAdd` | 체크리스트에 태그 연결<br/>Link Tag to Checklist | 체크리스트에 태그를 연결합니다.<br/>Links a tag to a checklist. |
+| `checklist_tag_remove` | `checklistTagRemove` | 체크리스트에서 태그 연결 해제<br/>Unlink Tag from Checklist | 체크리스트에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a checklist. |
 | `checklist_item_add` | `checklistItemAdd` | 체크리스트 항목 추가<br/>Add Checklist Item | 체크리스트 끝에 체크 안 된 항목을 추가합니다.<br/>Adds an unchecked item to the end of a checklist. |
 | `checklist_item_check` | `checklistItemCheck` | 체크리스트 항목 체크<br/>Check Checklist Item | 체크리스트 항목을 체크합니다.<br/>Checks a checklist item. |
 | `checklist_item_uncheck` | `checklistItemUncheck` | 체크리스트 항목 체크 해제<br/>Uncheck Checklist Item | 체크리스트 항목의 체크를 해제합니다.<br/>Unchecks a checklist item. |
@@ -184,22 +197,26 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `qr_list` | `qrList` | QR 목록 보기<br/>Get QR Codes | 저장한 QR을 제목순으로 가져옵니다.<br/>Gets saved QR codes by title. |
-| `qr_get` | `qrGet` | QR 상세 보기<br/>Get QR Code Details | 저장한 QR 하나를 가져옵니다.<br/>Gets a saved QR code. |
+| `qr_get` | `qrGet` | QR 상세 보기<br/>Get QR Code Details | 저장한 QR 하나를 연결된 태그와 함께 가져옵니다.<br/>Gets a saved QR code with its linked tags. |
 | `qr_add` | `qrAdd` | QR 추가<br/>Add QR Code | 새 QR을 추가합니다. 내용에는 QR에 담을 글을 그대로 넣습니다.<br/>Adds a new QR code. Enter the exact text to encode as the content. |
 | `qr_update` | `qrUpdate` | QR 수정<br/>Edit QR Code | QR의 제목, 설명, 내용을 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title, description or content of a QR code. Values left empty stay the same. |
 | `qr_delete` | `qrDelete` | QR 삭제<br/>Delete QR Code | QR을 삭제합니다. 같은 QR로 ‘삭제한 QR 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a QR code. Run Restore Deleted QR Code with the same QR code to undo. |
 | `qr_restore` | `qrRestore` | 삭제한 QR 되돌리기<br/>Restore Deleted QR Code | 삭제한 QR을 되돌립니다.<br/>Restores a deleted QR code. |
+| `qr_tag_add` | `qrTagAdd` | QR에 태그 연결<br/>Link Tag to QR Code | QR에 태그를 연결합니다.<br/>Links a tag to a QR code. |
+| `qr_tag_remove` | `qrTagRemove` | QR에서 태그 연결 해제<br/>Unlink Tag from QR Code | QR에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a QR code. |
 
 ### 곡
 
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
 | --- | --- | --- | --- |
 | `music_list` | `musicList` | 플레이리스트 보기<br/>Get Playlist | 플레이리스트의 곡을 가져옵니다.<br/>Gets the songs in the playlist. |
-| `music_get` | `musicGet` | 곡 상세 보기<br/>Get Song Details | 플레이리스트의 곡 하나를 가져옵니다.<br/>Gets a song in the playlist. |
+| `music_get` | `musicGet` | 곡 상세 보기<br/>Get Song Details | 플레이리스트의 곡 하나를 연결된 태그와 함께 가져옵니다.<br/>Gets a song in the playlist with its linked tags. |
 | `music_add` | `musicAdd` | 곡 추가<br/>Add Song | 플레이리스트에 곡을 추가합니다. 링크로 곡 정보를 불러오지 않으므로 제목과 가수를 직접 넣습니다.<br/>Adds a song to the playlist. Song information isn't loaded from the link, so enter the title and artist yourself. |
 | `music_update` | `musicUpdate` | 곡 수정<br/>Edit Song | 곡의 제목, 가수, 링크를 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title, artist or link of a song. Values left empty stay the same. |
 | `music_delete` | `musicDelete` | 곡 삭제<br/>Delete Song | 플레이리스트에서 곡을 삭제합니다. 같은 곡으로 ‘삭제한 곡 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a song from the playlist. Run Restore Deleted Song with the same song to undo. |
 | `music_restore` | `musicRestore` | 삭제한 곡 되돌리기<br/>Restore Deleted Song | 삭제한 곡을 되돌립니다.<br/>Restores a deleted song. |
+| `music_tag_add` | `musicTagAdd` | 곡에 태그 연결<br/>Link Tag to Song | 곡에 태그를 연결합니다.<br/>Links a tag to a song. |
+| `music_tag_remove` | `musicTagRemove` | 곡에서 태그 연결 해제<br/>Unlink Tag from Song | 곡에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a song. |
 
 ### 디데이
 
@@ -214,6 +231,27 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `dday_tag_add` | `ddayTagAdd` | 디데이에 태그 연결<br/>Link Tag to D-Day | 디데이에 태그를 연결합니다.<br/>Links a tag to a D-Day. |
 | `dday_tag_remove` | `ddayTagRemove` | 디데이에서 태그 연결 해제<br/>Unlink Tag from D-Day | 디데이에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a D-Day. |
 
+### 루틴
+
+| 도구 | Android 함수 | iOS 제목 | iOS 설명 |
+| --- | --- | --- | --- |
+| `routine_list` | `routineList` | 루틴 목록 보기<br/>Get Routines | 완료하지 않은 루틴을 진행 중, 시작 전 순으로, 이번 주기의 합계와 달성률과 함께 가져옵니다. 앱에서 고른 태그 필터가 적용되고, 앱에서 고른 보기 범위와 관계없이 오늘 할 루틴이 아닌 루틴도 가져옵니다.<br/>Gets the routines that aren't finished, in progress first, then not started, with this period's total and progress. The tag filter chosen in the app applies, and routines that aren't for today are included whatever the list is set to show. |
+| `routine_finished_list` | `routineFinishedList` | 완료된 루틴 목록 보기<br/>Get Finished Routines | 완료된 루틴을 가져옵니다.<br/>Gets finished routines. |
+| `routine_get` | `routineGet` | 루틴 상세 보기<br/>Get Routine Details | 루틴 하나를 연결된 태그와 함께 가져옵니다.<br/>Gets a routine with its linked tags. |
+| `routine_add` | `routineAdd` | 루틴 추가<br/>Add Routine | 새 루틴을 추가합니다. 시작 날짜를 고르지 않으면 오늘을 쓰고, 색은 무작위로 정합니다.<br/>Adds a new routine. Today is used if you don't choose a start date, and the color is chosen at random. |
+| `routine_update` | `routineUpdate` | 루틴 수정<br/>Edit Routine | 루틴의 제목, 설명, 색, 시작 날짜, 주기, 단위, 목표량, 한 번에 기록할 양을 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title, description, color, start date, repeat, unit, goal or amount per record of a routine. Values left empty stay the same. |
+| `routine_finish` | `routineFinish` | 루틴 완료<br/>Finish Routine | 루틴을 완료합니다. 기록은 그대로 남습니다.<br/>Marks a routine as finished. Its records stay. |
+| `routine_restart` | `routineRestart` | 루틴 다시 시작<br/>Restart Routine | 완료된 루틴을 다시 시작합니다.<br/>Marks a finished routine as not finished. |
+| `routine_delete` | `routineDelete` | 루틴 삭제<br/>Delete Routine | 루틴을 삭제합니다. 기록은 지워지지 않습니다. 같은 루틴으로 ‘삭제한 루틴 되돌리기’를 실행하면 기록과 함께 되돌릴 수 있습니다.<br/>Deletes a routine. Its records aren't removed. Run Restore Deleted Routine with the same routine to bring it back with its records. |
+| `routine_restore` | `routineRestore` | 삭제한 루틴 되돌리기<br/>Restore Deleted Routine | 삭제한 루틴을 되돌립니다.<br/>Restores a deleted routine. |
+| `routine_tag_add` | `routineTagAdd` | 루틴에 태그 연결<br/>Link Tag to Routine | 루틴에 태그를 연결합니다.<br/>Links a tag to a routine. |
+| `routine_tag_remove` | `routineTagRemove` | 루틴에서 태그 연결 해제<br/>Unlink Tag from Routine | 루틴에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a routine. |
+| `routine_record_list` | `routineRecordList` | 루틴 기록 보기<br/>Get Routine Records | 루틴의 기록을 날짜가 늦은 순으로 가져옵니다.<br/>Gets the records of a routine, latest date first. |
+| `routine_record_add` | `routineRecordAdd` | 루틴 기록 넣기<br/>Add Routine Record | 루틴에 기록을 넣습니다. 날짜를 고르지 않으면 오늘을, 양을 넣지 않으면 그 루틴의 한 번에 기록할 양을 씁니다.<br/>Adds a record to a routine. Today is used if you don't choose a date, and the routine's amount per record if you don't enter an amount. |
+| `routine_record_remove` | `routineRecordRemove` | 루틴 기록 빼기<br/>Remove Routine Record | 루틴에서 기록 하나를 뺍니다. 되돌릴 수 없으므로 필요하면 같은 날짜와 양으로 다시 넣습니다.<br/>Removes a record from its routine. This can't be undone; add it again with the same date and amount if needed. |
+
+루틴 기록의 넣기와 빼기는 [RoutineDetail 화면 디자인](./routine-detail.md)의 넣기 버튼, 빼기 버튼과 같은 동사를 쓴다.
+
 ### 검색
 
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
@@ -223,6 +261,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `search_place` | `searchPlace` | 저장한 장소 검색<br/>Search Saved Places | 앱에 저장한 장소를 검색합니다. 앱 밖의 장소는 찾지 않습니다.<br/>Searches places saved in the app. Places outside the app aren't searched. |
 | `search_web` | `searchWeb` | 웹 검색<br/>Search Webs | 앱에 저장한 웹을 검색합니다.<br/>Searches webs saved in the app. |
 | `search_dday` | `searchDday` | 디데이 검색<br/>Search D-Days | 앱에 저장한 디데이를 남은 날이나 지난 날과 함께 검색합니다.<br/>Searches D-Days saved in the app, with the days left or passed. |
+| `search_routine` | `searchRoutine` | 루틴 검색<br/>Search Routines | 완료된 루틴을 포함해 앱에 저장한 루틴을 이번 주기의 합계와 달성률과 함께 검색합니다.<br/>Searches routines saved in the app, including finished ones, with this period's total and progress. |
 
 ### 캘린더
 
@@ -281,6 +320,14 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `endDate` (디데이) | 종료일<br/>End Date | 기념일을 이 날까지만 알립니다.<br/>Anniversaries are shown only up to this date. |
 | `clearEndDate` | 종료일 지우기<br/>Remove End Date | 켜면 종료일을 지웁니다.<br/>Turn on to remove the end date. |
 | `overflowPolicy` | 달력에 없는 날짜<br/>Missing Dates | 개월 간격의 기념일이 그 달에 없는 날짜에 걸릴 때의 처리. 선택지: 말일로 당김, 표시하지 않음, 다음 달 1일로 미룸 / Use last day of month, Skip, Use 1st of next month. 추가에서 고르지 않으면 말일로 당김입니다.<br/>What to do when a monthly anniversary falls on a date the month doesn't have. If not chosen when adding, Use last day of month. |
+| `startDate` (루틴) | 시작 날짜<br/>Start Date | 추가에서 비워 두면 오늘입니다. 수정에서는 비워 두면 지금 시작 날짜를 그대로 둡니다.<br/>When adding, leave it empty to use today. When editing, leave it empty to keep the current start date. |
+| `cycle` | 주기<br/>Repeat | 선택지: 매일, 평일만, 주말만, 매주, 매월 / Daily, Weekdays, Weekends, Weekly, Monthly. 추가에서 고르지 않으면 매일입니다.<br/>If not chosen when adding, Daily. |
+| `unit` | 단위<br/>Unit | 양 뒤에 붙여 읽을 글자. 10자까지. 예: 회, ml, 분. 추가에서 비워 두면 단위 없이 숫자만 보입니다. 수정에서 지우려면 빈 글을 넣습니다.<br/>Text shown right after amounts, up to 10 characters, like times, ml or min. Leave it empty when adding to show numbers only. To remove it when editing, enter empty text. |
+| `goalAmount` | 목표량<br/>Goal | 한 주기에 채우려는 양. 1부터 9999999 사이의 정수. 비워 두면 추가에서는 목표 없는 루틴이 됩니다.<br/>The amount to reach in each period, a whole number from 1 to 9999999. Leave it empty to add a routine without a goal. |
+| `clearGoalAmount` | 목표량 지우기<br/>Remove Goal | 켜면 목표량을 지웁니다.<br/>Turn on to remove the goal. |
+| `amountPerRecord` | 한 번에 기록할 양<br/>Amount per Record | 1부터 9999999 사이의 정수. 추가에서 넣지 않으면 1입니다.<br/>A whole number from 1 to 9999999. If not entered when adding, 1. |
+| `date` (루틴 기록) | 날짜<br/>Date | 루틴의 시작 날짜와 같거나 그 뒤여야 합니다. 비워 두면 오늘입니다.<br/>Must be on or after the routine's start date. Leave it empty to use today. |
+| `amount` (루틴 기록) | 양<br/>Amount | 1부터 9999999 사이의 정수. 비워 두면 그 루틴의 한 번에 기록할 양입니다.<br/>A whole number from 1 to 9999999. Leave it empty to use the routine's amount per record. |
 | `query` | 검색어<br/>Search Term | — |
 | `startDate`, `endDate` | 시작일, 마지막 날<br/>Start Date, End Date | 마지막 날도 범위에 포함합니다.<br/>The end date is included. |
 | `year` | 연도<br/>Year | — |
@@ -289,7 +336,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `scope` | 포함할 태그<br/>Tags to Include | 선택지: 이 태그만, 바로 연결한 태그까지, 연결된 모든 태그까지 / This tag only, Directly linked tags, All linked tags. 고르지 않으면 이 태그만입니다.<br/>If not chosen, this tag only. |
 | `cursor` | 페이지<br/>Page | 1부터 시작하는 페이지 번호. 비워 두면 첫 페이지입니다.<br/>Page number starting at 1. Leave empty for the first page. |
 
-항목을 가리키는 입력값(`memoId`, `tagId`, `placeId`, `webId`, `contactId`, `checklistId`, `itemId`, `qrId`, `musicId`, `ddayId`, `primaryTagId`, `linkedTagId`와 그 목록)은 iOS에서 id 글 대신 항목을 고르는 입력으로 보여 준다. 이름은 다음과 같다.
+항목을 가리키는 입력값(`memoId`, `tagId`, `placeId`, `webId`, `contactId`, `checklistId`, `itemId`, `qrId`, `musicId`, `ddayId`, `routineId`, `recordId`, `primaryTagId`, `linkedTagId`와 그 목록)은 iOS에서 id 글 대신 항목을 고르는 입력으로 보여 준다. 이름은 다음과 같다.
 
 | 쓰임 | 한국어 | 영어 |
 | --- | --- | --- |
@@ -300,7 +347,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 하위 태그 | `하위 태그` | `Child Tag` |
 | 삭제 되돌리기의 대상 | `되돌릴 {대상}` | `{Entity} to Restore` |
 
-항목 선택 목록은 `결과 항목 표시`의 제목과 부제로 항목을 보여 주고, 맨 위에 검색 칸을 둔다. 삭제한 항목은 선택 목록에 나타나지 않으므로, 삭제 되돌리기에는 삭제 동작에 넘긴 항목을 변수로 그대로 넘긴다.
+항목 선택 목록은 `결과 항목 표시`의 제목과 부제로 항목을 보여 주고, 맨 위에 검색 칸을 둔다. 삭제한 항목은 선택 목록에 나타나지 않으므로, 삭제 되돌리기에는 삭제 동작에 넘긴 항목을 변수로 그대로 넘긴다. 그 변수를 삭제 되돌리기가 아닌 동작에 넘기면 `결과 표시`의 `삭제된 항목을 대상으로 넘김` 문구로 끝난다.
 
 ### 기간 입력
 
@@ -391,6 +438,7 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 | 목록·검색에 항목이 없음 | `결과가 없어요.` | `No results.` |
 | 하나 조회에서 항목이 있음 | 문구 없이 항목만 보여 준다 | 문구 없이 항목만 보여 준다 |
 | 하나 조회에서 항목이 없음 | `{대상을} 찾을 수 없어요.` | `Couldn't find the {entity}.` |
+| 삭제된 항목을 대상으로 넘김(삭제 되돌리기 제외) | `{대상을} 찾을 수 없어요.` | `Couldn't find the {entity}.` |
 | 추가 | `{대상을} 추가했어요.` | `Added the {entity}.` |
 | 복사 | `메모를 복사했어요.` | `Copied the memo.` |
 | 바뀐 개수를 돌려주는 동작에서 1개 이상 | 아래 `바꾸기 결과 문구` | 아래 `바꾸기 결과 문구` |
@@ -415,13 +463,14 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 | 즐겨찾기 / 해제 | `즐겨찾기했어요.` / `즐겨찾기를 해제했어요.` | `Added to favorites.` / `Removed from favorites.` |
 | 체크 / 체크 해제 | `체크했어요.` / `체크를 해제했어요.` | `Checked.` / `Unchecked.` |
 | 체크리스트 리셋 | `체크 N개를 해제했어요.` | `Unchecked N items.` |
+| 루틴 기록 넣기 / 빼기 | `기록을 넣었어요.` / `기록을 뺐어요.` | `Added the record.` / `Removed the record.` |
 
 조사가 붙은 대상 이름은 다음과 같다.
 
 | 항목 | 목적격 |
 | --- | --- |
 | 메모, 태그, 장소, 연락처, 체크리스트, 체크리스트 항목, 디데이 | `메모를`, `태그를`, `장소를`, `연락처를`, `체크리스트를`, `체크리스트 항목을`, `디데이를` |
-| 웹, QR, 곡 | `웹을`, `QR을`, `곡을` |
+| 웹, QR, 곡, 루틴, 루틴 기록 | `웹을`, `QR을`, `곡을`, `루틴을`, `루틴 기록을` |
 
 ### 결과 항목 표시
 
@@ -441,6 +490,8 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 | 곡 | 제목 | 가수 |
 | 디데이 | 제목 | 카드 문구 |
 | 캘린더 디데이 | `🎉 {제목} {날짜 문구}` | 날짜 |
+| 루틴 | 제목 | 카드 문구. 달성률이 있으면 `{카드 문구} · {달성률}` |
+| 루틴 기록 | 양 문구 | 날짜 |
 | 생일 | `🎂 {연락처 표시 이름}` | 날짜 |
 | 공휴일 | 이름 | 하루이면 날짜, 여러 날이면 `{시작일} – {마지막 날}` |
 | 음력 날짜 | 한국어 `음력 {월}월 {일}일`, 윤달이면 `음력 윤{월}월 {일}일`<br/>영어 `Lunar {월}/{일}`, 윤달이면 `Lunar leap {월}/{일}` | 양력 날짜 |
@@ -448,6 +499,8 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 QR의 내용은 남에게 보이면 안 되는 값일 수 있으므로 제목과 부제에 넣지 않는다. 단축어에서는 항목의 값으로 꺼내 쓸 수 있다.
 
 디데이의 카드 문구는 동작을 실행한 시점의 오늘로 계산한 값을 [DDayHome 화면 디자인](./dday-home.md)의 `카드 문구 표기`대로 기기 언어에 맞게 쓴다. 캘린더 디데이의 `{날짜 문구}`는 [CalendarHome 디자인](./calendar-home.md)의 디데이 아이템과 같은 표기를 쓴다.
+
+루틴의 카드 문구와 달성률은 동작을 실행한 시점의 오늘로 계산한 값을 [RoutineHome 화면 디자인](./routine-home.md)의 `카드 문구 표기`대로 기기 언어에 맞게 쓴다. 예를 들어 `오늘 1500 / 2000ml · 75%`, `이번 달 12000m`, `시작 전`, `완료`다. 루틴 기록의 양 문구도 같은 표기를 쓰고 그 루틴의 단위로 읽으며, 단위가 비어 있으면 숫자만 쓴다.
 
 날짜와 시간은 기기의 지역 설정에 맞는 운영체제 기본 형식으로 보여 준다. 하루 종일 기간은 날짜만, 시간이 있는 기간은 날짜와 시간을 보여 주며, 시작과 끝이 같은 날이면 날짜를 한 번만 쓴다.
 
@@ -470,6 +523,9 @@ QR의 내용은 남에게 보이면 안 되는 값일 수 있으므로 제목과
 | 채운 년, 채운 개월 | `채운 년`, `채운 개월` | `Full Years`, `Full Months` |
 | 캘린더 디데이의 날짜와 날짜 문구 | `날짜`, `날짜 문구` | `Date`, `Date Label` |
 | 캘린더 디데이의 디데이 | `디데이` | `D-Day` |
+| 루틴의 진행 상태 | `진행 상태`. 값은 `시작 전`, `진행 중` | `Status`. Values are `Not started`, `In progress` |
+| 루틴의 이번 주기 합계, 달성률 | `이번 주기 합계`, `달성률` | `Period Total`, `Progress` |
+| 루틴 기록의 루틴 | `루틴` | `Routine` |
 
 ## 참고
 

@@ -1,6 +1,11 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -25,6 +30,9 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePicke
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -32,7 +40,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -42,21 +49,33 @@ class MemoDetailScreenPlaceTest {
 
     @Test
     fun `TC-e957a6a9-7f42-4b5c-b674-8d38ce04d1f7 TC-01d02413-e8ec-4ee5-b3f6-866b680a4254 상세 대상 메모가 바뀌면 새 대상 메모에 연결된 장소를 노출한다`() {
-        val homePlace = testPlace(title = HOME_PLACE_TITLE)
-        val officePlace = testPlace(title = OFFICE_PLACE_TITLE)
-        val placeList = listOf(homePlace, officePlace)
-        val uiState = MutableStateFlow<MemoDetailUiState>(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
-        val placeUiState =
-            MutableStateFlow<MemoPlaceInputUiState>(
-                MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(homePlace)),
-            )
+        val firstMemoId = Arb.kotlinUuid().next()
+        val secondMemoId = Arb.kotlinUuid().next()
+        // 서로 다른 장소가 연결된 메모 두 개다. 장소 연결은 상세 대상 메모의 식별자로 조회된다.
+        val linkedPlaceMap = mapOf(firstMemoId to testPlace(title = HOME_PLACE_TITLE), secondMemoId to testPlace(title = OFFICE_PLACE_TITLE))
+        var memoId by mutableStateOf(firstMemoId)
 
-        composeRule.setMemoDetailScreenWithTag(uiState = uiState, placeUiState = placeUiState)
+        composeRule.setContent {
+            // 상세 대상이 바뀌면 내비게이션이 그 메모의 화면과 ViewModel을 새로 만드는 것을 그대로 따른다.
+            key(memoId) {
+                val placeViewModel =
+                    remember {
+                        screenTestPlaceViewModel(
+                            uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOfNotNull(linkedPlaceMap[memoId]))),
+                        )
+                    }
+
+                MemoDetailScreenWithPlace(
+                    placeViewModel = placeViewModel,
+                    detailUiState = memoDetailUiState(id = memoId, detail = memoDetail(MEMO_TITLE)),
+                )
+            }
+        }
         composeRule.onNodeWithText(DEFAULT_PLACE_SELECT_LABEL).performScrollTo()
         composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
+        composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertDoesNotExist()
 
-        uiState.value = memoDetailUiState(id = SECOND_PLACE_MEMO_ID, detail = memoDetail(MEMO_TITLE))
-        placeUiState.value = MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(officePlace))
+        memoId = secondMemoId
         composeRule.waitForIdle()
         composeRule.onNodeWithText(DEFAULT_PLACE_SELECT_LABEL).performScrollTo()
 
@@ -147,11 +166,14 @@ class MemoDetailScreenPlaceTest {
     }
 
     @Composable
-    private fun MemoDetailScreenWithPlace(placeViewModel: MemoPlaceViewModel) {
+    private fun MemoDetailScreenWithPlace(
+        placeViewModel: MemoPlaceViewModel,
+        detailUiState: MemoDetailUiState = memoDetailUiState(detail = memoDetail(MEMO_TITLE)),
+    ) {
         MemoDetailScreenTestTheme {
             MemoDetailScreen(
                 addRequestKey = TEST_ADD_REQUEST_KEY,
-                detailViewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE)))),
+                detailViewModel = screenTestViewModel(uiState = MutableStateFlow(detailUiState)),
                 tagViewModel = screenTestTagViewModel(),
                 webViewModel = screenTestWebViewModel(),
                 contactViewModel = screenTestContactViewModel(),
@@ -159,6 +181,7 @@ class MemoDetailScreenPlaceTest {
                 placeMapViewModel = screenTestPlaceMapViewModel(),
                 placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
+                contentSharerFactory = screenTestContentSharerFactory(),
                 navigateUp = {},
                 navigateToCopiedMemo = {},
                 navigateToTagAdd = {},
@@ -182,9 +205,5 @@ class MemoDetailScreenPlaceTest {
     private fun ComposeContentTestRule.performPlaceSelectClick() {
         onNodeWithText(DEFAULT_PLACE_SELECT_LABEL).performSemanticsAction(SemanticsActions.OnClick)
         waitForIdle()
-    }
-
-    private companion object {
-        val SECOND_PLACE_MEMO_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000021")
     }
 }

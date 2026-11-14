@@ -26,18 +26,18 @@ import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -172,9 +172,10 @@ class CalendarHomeScreenBirthdayTest {
         val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
         every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
             flowOf(Result.success(listOf(birthday(name = NAME, date = july(day = 8)))))
+        val errorMessage = Arb.nonBlankString().next()
         val fetchLunarUseCase = mockk<FetchLunarUseCase>()
         coEvery { fetchLunarUseCase(parameter = any()) } returns
-            Result.failure(IllegalStateException(Arb.string().next()))
+            Result.failure(IllegalStateException(errorMessage))
         val birthdayViewModel =
             CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase)
 
@@ -187,6 +188,8 @@ class CalendarHomeScreenBirthdayTest {
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+        composeRule.onAllNodes(isPopup()).assertCountEquals(0)
+        composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
     }
 
     @Test
@@ -308,7 +311,6 @@ class CalendarHomeScreenBirthdayTest {
         }
     }
 
-    // 생일 아이템이 그 날짜 칸과 같은 가로 자리에 놓였는지 확인한다.
     private fun assertBirthdayUnderDate(dateDescription: String) {
         val dateBounds = composeRule.onNodeWithContentDescription(dateDescription).fetchSemanticsNode().boundsInRoot
         val birthdayCenterX =
@@ -333,24 +335,12 @@ class CalendarHomeScreenBirthdayTest {
         name: String,
         date: LocalDate,
         nameQualifier: String = "",
-    ): CalendarContactBirthday =
-        CalendarContactBirthday(
-            contactId = Arb.kotlinUuid().next(),
-            name = name,
-            nameQualifier = nameQualifier,
-            date = date,
-        )
+    ): CalendarContactBirthday = Arb.calendarContactBirthday().next().copy(name = name, nameQualifier = nameQualifier, date = date)
 
     private fun memo(
         title: String,
         date: LocalDate,
-    ): CalendarMemo =
-        CalendarMemo(
-            id = Arb.kotlinUuid().next(),
-            title = title,
-            color = 0xFF3A7BD5,
-            dateTime = MemoDateTime.AllDay(dateRange = date..date),
-        )
+    ): CalendarMemo = Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = date..date), title = title).next()
 
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 

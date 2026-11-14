@@ -25,7 +25,7 @@ struct QrListIntent: AppIntent {
 
 struct QrDetailIntent: AppIntent {
     static let title = LocalizedStringResource("Get QR Code Details", table: "AppIntentQr")
-    static let description = IntentDescription(LocalizedStringResource("Gets a saved QR code.", table: "AppIntentQr"))
+    static let description = IntentDescription(LocalizedStringResource("Gets a saved QR code with its linked tags.", table: "AppIntentQr"))
 
     @Parameter(title: LocalizedStringResource("QR Code", table: "AppIntentQr"))
     var qr: QrEntity

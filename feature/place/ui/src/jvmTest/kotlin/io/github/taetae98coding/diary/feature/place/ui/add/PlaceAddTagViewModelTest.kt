@@ -152,6 +152,33 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-2355ae81-e9cb-4203-86cb-23b6bbca72f6 표시되던 태그가 삭제되면 제외된 것으로 표시되고 선택은 남는다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val selectedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(tag)))
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = any()) } returns selectedTagFlow
+                val viewModel =
+                    EntityAddTagViewModel(
+                        initialTagId = tag.id,
+                        pageTagUseCase = pageTagUseCase(),
+                        getSelectedTagUseCase = getSelectedTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+
+                    selectedTagFlow.value = Result.success(emptyList())
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+            }
+        }
+
         test("TC-71d58634-9629-4149-805c-c8482f8d3e5c 표시 기준에서 빠졌던 태그가 다시 표시 기준을 만족하면 유지되어 있던 선택이 다시 나타난다") {
             runTest(mainDispatcher) {
                 val tag = tag()

@@ -18,7 +18,7 @@ kotlin {
 
         swiftPackage(
             url = url("https://github.com/googlemaps/ios-maps-sdk.git"),
-            version = exact("11.2.0"),
+            version = exact(libs.versions.googleMapIos.get()),
             products = listOf(product("GoogleMaps")),
         )
     }
@@ -40,16 +40,8 @@ kotlin {
             }
         }
 
-        iosMain {
-            dependencies {
-                implementation(libs.koin.annotations)
-                implementation(libs.koin.compose.viewmodel)
-            }
-        }
-
         jvmMain {
             dependencies {
-                implementation(libs.koin.compose.viewmodel)
                 implementation(projects.library.webkit)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(ktorLibs.server.cio)

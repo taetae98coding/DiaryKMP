@@ -104,6 +104,7 @@ struct EditWebIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await WebEntityQuery.require(webId: web.id)
         let changedCount = try await appAction {
             try await DiaryWebAppAction.shared.update(webId: web.id, title: title, webDescription: webDescription, url: url, headers: headers)
         }

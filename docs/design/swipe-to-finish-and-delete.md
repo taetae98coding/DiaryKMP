@@ -40,6 +40,9 @@
 | TagHome | `태그 완료` | `태그 삭제` |
 | TagFinishedList | `태그 다시 시작` | `태그 삭제` |
 | SearchHome 태그 결과 | 미완료 태그는 `태그 완료`, 완료된 태그는 `태그 다시 시작` | `태그 삭제` |
+| RoutineHome 목록 보기, TagDetail 루틴 탭 | `루틴 완료` | `루틴 삭제` |
+| RoutineFinishedList, TagRoutineFinishedList | `루틴 다시 시작` | `루틴 삭제` |
+| SearchHome 루틴 결과 | 미완료 루틴은 `루틴 완료`, 완료된 루틴은 `루틴 다시 시작` | `루틴 삭제` |
 | WebHome, TagDetail 웹 탭, SearchHome 웹 결과 | 없음 | `웹 삭제` |
 | PlaceHome, TagDetail 장소 탭, SearchHome 장소 결과 | 없음 | `장소 삭제` |
 | ContactHome, TagDetail 연락처 탭 | 없음 | `연락처 삭제` |
@@ -48,8 +51,8 @@
 | ChecklistHome, TagDetail 체크리스트 탭 | 없음 | `체크리스트 삭제` |
 | DDayHome, TagDetail 디데이 탭, SearchHome 디데이 결과 | 없음 | `디데이 삭제` |
 
-그 외 기본 환경에서는 `Finish memo`, `Restart memo`, `Delete memo`, `Finish tag`, `Restart tag`, `Delete tag`, `Delete web`, `Delete place`, `Delete contact`, `Delete song`, `Delete QR code`, `Delete checklist`, `Delete D-Day`를 쓴다.
+그 외 기본 환경에서는 `Finish memo`, `Restart memo`, `Delete memo`, `Finish tag`, `Restart tag`, `Delete tag`, `Finish routine`, `Restart routine`, `Delete routine`, `Delete web`, `Delete place`, `Delete contact`, `Delete song`, `Delete QR code`, `Delete checklist`, `Delete D-Day`를 쓴다.
 
-미완료 항목과 완료된 항목을 함께 보여 주는 SearchHome의 메모·태그 결과에서는 카드마다 그 항목의 완료 여부에 맞는 시작 방향 아이콘을 쓴다. 미완료 항목에는 완료 아이콘을, 완료된 항목에는 다시 시작 아이콘을 쓴다. 동작을 실행한 뒤 카드가 목록에 남으면 카드를 원래 자리로 되돌리고, 다음 스와이프에서는 바뀐 완료 여부에 맞는 아이콘을 쓴다.
+미완료 항목과 완료된 항목을 함께 보여 주는 SearchHome의 메모·태그·루틴 결과에서는 카드마다 그 항목의 완료 여부에 맞는 시작 방향 아이콘을 쓴다. 미완료 항목에는 완료 아이콘을, 완료된 항목에는 다시 시작 아이콘을 쓴다. 동작을 실행한 뒤 카드가 목록에 남으면 카드를 원래 자리로 되돌리고, 다음 스와이프에서는 바뀐 완료 여부에 맞는 아이콘을 쓴다.
 
-캘린더의 기간 막대, 선택 목록과 칩처럼 기준 스펙의 `적용 대상`에 없는 자리는 스와이프에 반응하지 않는다.
+캘린더의 기간 막대, RoutineHome 달력 보기의 루틴 기록 아이템, 선택 목록과 칩처럼 기준 스펙의 `적용 대상`에 없는 자리는 스와이프에 반응하지 않는다.

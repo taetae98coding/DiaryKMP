@@ -36,7 +36,6 @@ class HolidayHomeScreenRevisitTest {
 
     private val targetYear = mutableStateOf<Int?>(null)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -105,12 +104,12 @@ class HolidayHomeScreenRevisitTest {
             getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(),
         )
 
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
 
         scrollTo(year = YEAR + 1)
         scrollTo(year = YEAR)
 
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
         composeRule.onNodeWithContentDescription(DEFAULT_LOADING_DESCRIPTION).assertDoesNotExist()
     }
 
@@ -125,14 +124,14 @@ class HolidayHomeScreenRevisitTest {
             getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(),
         )
 
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
 
         // 이후의 동기화는 끝나지 않는다.
         coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
         scrollTo(year = YEAR + 1)
         scrollTo(year = YEAR)
 
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
         composeRule.onNodeWithContentDescription(DEFAULT_LOADING_DESCRIPTION).assertDoesNotExist()
 
         completion.complete(Result.success(providedHolidayList()))
@@ -149,7 +148,7 @@ class HolidayHomeScreenRevisitTest {
             getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(),
         )
 
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
 
         // 이후의 동기화는 2025년만 실패한다.
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returns
@@ -183,7 +182,7 @@ class HolidayHomeScreenRevisitTest {
         scrollTo(year = YEAR)
 
         composeRule.onNodeWithText(DEFAULT_ERROR_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
     }
 
     @Test
@@ -207,7 +206,7 @@ class HolidayHomeScreenRevisitTest {
         scrollTo(year = YEAR)
 
         composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
     }
 
     private fun scrollTo(year: Int) {

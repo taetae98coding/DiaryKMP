@@ -17,4 +17,4 @@ public fun List<ScreenNavKey>.isQrAddOnDetailPane(): Boolean {
 }
 
 // 초기 태그가 있는 QrAdd는 TagDetail QR 탭에서 진입한 것이다.
-private fun ScreenNavKey.isQrDetailPaneKey(): Boolean = (this is QrAddNavKey && initialTagId == null) || this is QrDetailNavKey
+private fun ScreenNavKey.isQrDetailPaneKey(): Boolean = (this is QrAddNavKey && initialTagId == null) || (this is QrDetailNavKey && !isStandalone)

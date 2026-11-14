@@ -22,6 +22,8 @@
 
 목록 화면에서 항목 추가를 실행하는 키보드 단축키의 키 조합과 처리 조건은 [목록 추가 단축키](./list-add-shortcut.md)가 소유한다. 각 문서는 그 화면에서 단축키가 실행하는 추가만 남긴다.
 
+iPhone과 iPad에서 상태 표시줄을 눌러 화면 본문을 맨 위로 되돌리는 조작의 수단, 누른 위치가 화면에 대응되는 기준, 돌아가는 움직임은 [맨 위로 돌아가기](./scroll-to-top.md)가 소유한다. 본문이 위아래로 스크롤되는 화면에 함께 적용되므로 각 화면 문서는 이 조작을 다시 적지 않는다.
+
 모든 화면의 상단 바가 플랫폼마다 그려지는 표현과 상단 바에 둘 수 있는 제목·동작 버튼의 종류는 [상단 바](./top-bar.md)가 소유한다. 각 화면 문서는 그 화면의 상단 바에 두는 제목과 버튼, 순서, 조건과 문구만 남긴다.
 
 iOS에서 시스템 표현으로 그리는 공통 컴포넌트의 목록은 [플랫폼별 컴포넌트 표현 범위](./platform-presentation.md)가 소유한다. 각 컴포넌트의 iOS 표현은 그 컴포넌트를 소유하는 문서가 정하고, 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3로 그린다.
@@ -64,7 +66,9 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 
 새 항목 하나를 입력해 추가하는 화면들이 함께 쓰는 화면 구조, 표시 영역과 소프트 키보드 처리, 초점과 단축키, 진행과 피드백 표현은 [항목 추가 화면 공통](./entity-add.md)이 소유한다. 각 추가 화면 문서는 본문에 두는 입력의 종류와 순서, 그 화면에서만 다른 표현과 문구만 남긴다.
 
-완료된 항목만 모아 보여 주는 목록 화면들이 함께 쓰는 화면 구조, 정렬 줄 자리, 목록과 빈 상태·새로고침 표현은 [완료 목록 공통](./finished-list.md)이 소유한다. 각 화면 문서는 상단 바 제목과 카드 표현, 제스처만 남긴다.
+완료된 항목만 모아 보여 주는 목록 화면들이 함께 쓰는 화면 구조, 정렬 줄 자리, 목록과 빈 상태·새로고침 표현은 [완료 목록 공통](./finished-list.md)이 소유한다. 각 화면 문서는 상단 바 제목과 카드 표현, 제스처, 정렬 줄을 두지 않는 화면이면 그 점만 남긴다.
+
+상세 화면들이 함께 쓰는 공유 버튼의 아이콘, 접근성 이름과 설명, 비활성과 숨김 표현, 공유 시트가 나타나는 모습, 공유하지 못했을 때의 안내와 공통 문구는 [항목 공유 공통](./entity-share.md)이 소유한다. 각 상세 화면 문서는 공유 버튼을 상단 바 어느 자리에 두는지, 공유 형식을 고르는 표현, 공유할 내용이 성립하지 않을 때의 피드백과 문구만 남긴다.
 
 연락처·장소·웹 상세 화면의 메모 탭이 함께 쓰는 탭 안 구성, 메모 추가 버튼, 정렬 줄, 목록, 제스처와 피드백, 단축키, 문구는 [항목 상세 메모 탭 공통](./entity-detail-memo.md)이 소유한다. 각 상세 화면 문서는 탭 행과 페이지 영역의 배치, 떠 있는 버튼의 교체, 탭 접근성 이름만 남긴다.
 
@@ -97,6 +101,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [항목 추가 화면 공통](./entity-add.md)
 - [항목 상세 화면 공통](./entity-detail.md)
 - [항목 상세 메모 탭 공통](./entity-detail-memo.md)
+- [항목 공유 공통](./entity-share.md)
 - [항목 목록 화면 공통](./entity-home.md)
 - [항목 완료 메모 목록 화면](./entity-memo-finished-list.md)
 - [항목 완료 메모 목록·상세 배치](./entity-memo-finished-list-detail.md)
@@ -165,8 +170,12 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [QrScan 화면](./qr-scan.md)
 - [QR 목록·상세 배치](./qr-list-detail.md)
 - [RoutineAdd 화면](./routine-add.md)
+- [RoutineDetail 화면](./routine-detail.md)
+- [RoutineFinishedList 화면](./routine-finished-list.md)
+- [RoutineFinishedList 목록·상세 배치](./routine-finished-list-detail.md)
 - [RoutineHome 화면](./routine-home.md)
 - [Routine 목록·상세 배치](./routine-list-detail.md)
+- [맨 위로 돌아가기](./scroll-to-top.md)
 - [SearchHome 화면](./search-home.md)
 - [검색 입력](./search-input.md)
 - [묶음 목록 항목](./segmented-list-item.md)
@@ -177,6 +186,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [Setting 목록·상세 배치](./setting-list-detail.md)
 - [SettingMap 화면](./setting-map.md)
 - [SettingMcp 화면](./setting-mcp.md)
+- [공유로 항목 추가](./share-add.md)
 - [Spotlight 항목](./spotlight.md)
 - [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md)
 - [새로고침](./sync-refresh.md)
@@ -191,6 +201,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [TagDetail 곡 탭](./tag-detail-music.md)
 - [TagDetail QR 탭](./tag-detail-qr.md)
 - [TagDetail 디데이 탭](./tag-detail-dday.md)
+- [TagDetail 루틴 탭](./tag-detail-routine.md)
 - [태그 이모지 입력 컴포넌트](./tag-emoji-input.md)
 - [TagFinishedList 화면](./tag-finished-list.md)
 - [TagFinishedList 목록·상세 배치](./tag-finished-list-detail.md)
@@ -201,6 +212,8 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [제목 입력](./title-input.md)
 - [TagMemoFinishedList 화면](./tag-memo-finished-list.md)
 - [TagMemoFinishedList 목록·상세 배치](./tag-memo-finished-list-detail.md)
+- [TagRoutineFinishedList 화면](./tag-routine-finished-list.md)
+- [TagRoutineFinishedList 목록·상세 배치](./tag-routine-finished-list-detail.md)
 - [Timetable 컴포넌트](./timetable.md)
 - [상단 바](./top-bar.md)
 - [TopLevelNavigation](./top-level-navigation.md)

@@ -677,7 +677,7 @@ class AccountEntityTagLocalDataSourceImplWebTest :
             }
         }
 
-        test("TC-571e6bc0-b495-4fbc-9c4e-088efb8c58f8 TC-d0f6e80d-1519-4cd9-a469-783143e72753 태그 연결은 웹 목록과 웹 검색 결과를 바꾸지 않는다") {
+        test("TC-571e6bc0-b495-4fbc-9c4e-088efb8c58f8 태그 연결은 웹 목록과 웹 검색 결과를 바꾸지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val firstWeb = web(title = "a-web")
             val secondWeb = web(title = "b-web")

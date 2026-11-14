@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +34,8 @@ import io.github.taetae98coding.diary.compose.core.icon.FileIcon
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGestureBox
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
@@ -82,28 +82,30 @@ internal fun FileHomeList(
                 )
             }
 
-            // 당겨서 새로고침은 스크롤 가능한 자식의 중첩 스크롤로만 감지하므로 실패와 빈 상태에도 스크롤을 둔다.
             FileHomeListContent.FAILED -> {
-                FileLoadFailed(
-                    message = stringResource(Res.string.file_home_load_failed_message),
-                    onRetry = { onEvent(FileHomeScaffoldEvent.ClickRetry) },
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                )
+                PullToRefreshGestureBox(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    FileLoadFailed(
+                        message = stringResource(Res.string.file_home_load_failed_message),
+                        onRetry = { onEvent(FileHomeScaffoldEvent.ClickRetry) },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
 
             FileHomeListContent.EMPTY -> {
-                DiaryEmptyBox(
-                    title = stringResource(Res.string.file_home_empty_title),
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                    description = stringResource(Res.string.file_home_empty_description),
-                    icon = { FileIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
-                )
+                PullToRefreshGestureBox(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    DiaryEmptyBox(
+                        title = stringResource(Res.string.file_home_empty_title),
+                        description = stringResource(Res.string.file_home_empty_description),
+                        icon = { FileIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
+                    )
+                }
             }
 
             FileHomeListContent.LIST -> {
@@ -126,7 +128,7 @@ private fun FileHomeLazyColumn(
     filePagingItems: LazyPagingItems<DiaryFile> = remember { flowOf(PagingData.empty<DiaryFile>()) }.collectAsLazyPagingItems(),
 ) {
     LazyColumn(
-        modifier = modifier.testTag(FILE_HOME_LIST_TEST_TAG),
+        modifier = modifier.testTag(FILE_HOME_LIST_TEST_TAG).systemScroll(listState) { listState.animateScrollToItem(0) },
         state = listState,
         contentPadding = PaddingValues(vertical = DiaryTheme.dimens.screenVerticalPadding),
     ) {

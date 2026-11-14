@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHoliday
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
@@ -34,7 +35,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
 
 class HolidayHomeYearViewModelTest : FunSpec() {
@@ -52,7 +52,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-3e671ef3-60bb-4e81-b4a9-8cc809ee4ed1 년도가 화면에 드러나면 그 년도와 앞뒤 년도의 공휴일을 동기화한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val fetchHolidayUseCase = successfulFetchHolidayUseCase()
 
                 holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase).fetch()
@@ -66,7 +66,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-edc935be-be00-45d3-9066-7cee21d4457a 다른 년도로 이동하면 이동한 년도 기준으로 동기화한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val fetchHolidayUseCase = successfulFetchHolidayUseCase()
 
                 holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase).fetch()
@@ -83,7 +83,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-fa0c469a-2195-40cc-b82d-58b8e6920abd 한 판단 대상 년도의 동기화가 실패해도 다른 대상 년도의 동기화를 계속한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = year - 1) } returns
                     Result.failure(IllegalStateException(Arb.string().next()))
@@ -103,16 +103,20 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-be1ab5df-161e-4870-8b23-0fbe93bdc920 한 년도의 동기화가 진행 중이어도 다른 년도의 동기화를 시작한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
-                coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
-                coEvery { fetchHolidayUseCase(parameter = year - 1) } coAnswers { completion.await() }
+                coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
+                coEvery { fetchHolidayUseCase(parameter = year + 2) } returns Result.success(providedHolidayList())
 
                 holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase).fetch()
+                advanceUntilIdle()
                 holidayHomeYearViewModel(year = year + 1, fetchHolidayUseCase = fetchHolidayUseCase).fetch()
                 advanceUntilIdle()
 
+                coVerify(exactly = 1) { fetchHolidayUseCase(parameter = year - 1) }
+                coVerify(exactly = 2) { fetchHolidayUseCase(parameter = year) }
+                coVerify(exactly = 2) { fetchHolidayUseCase(parameter = year + 1) }
                 coVerify(exactly = 1) { fetchHolidayUseCase(parameter = year + 2) }
 
                 completion.complete(Result.success(providedHolidayList()))
@@ -122,7 +126,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-ff49fe21-b41d-4052-bf43-b503f48b74fe 동기화가 진행 중일 때 다시 요청하면 새 동기화를 시작하지 않는다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
@@ -133,6 +137,8 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { fetchHolidayUseCase(parameter = year - 1) }
+                coVerify(exactly = 1) { fetchHolidayUseCase(parameter = year) }
+                coVerify(exactly = 1) { fetchHolidayUseCase(parameter = year + 1) }
 
                 completion.complete(Result.success(providedHolidayList()))
                 advanceUntilIdle()
@@ -141,7 +147,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-f56be085-158a-407e-ba5f-bdec0d790f97 년도가 다시 화면에 드러나면 동기화를 다시 요청한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val fetchHolidayUseCase = successfulFetchHolidayUseCase()
                 val viewModel = holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase)
                 viewModel.fetch()
@@ -158,7 +164,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("동기화가 끝나기 전에는 로딩 상태를 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
@@ -177,7 +183,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("모든 대상 년도의 동기화가 성공하면 조회한 황금연휴 목록을 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val goldenHolidayGroup = goldenHolidayGroup(year = year)
                 val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
                 every { getGoldenHolidayUseCase(parameter = any()) } returns
@@ -194,7 +200,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("대상 년도 중 하나라도 동기화에 실패하면 오류 상태를 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
                 coEvery { fetchHolidayUseCase(parameter = year + 1) } returns
@@ -211,7 +217,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("표시 년도의 공휴일이 제공되지 않으면 제공 없음 상태를 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
                 coEvery { fetchHolidayUseCase(parameter = year) } returns Result.success(emptyList())
@@ -227,7 +233,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("앞뒤 년도의 공휴일만 제공되지 않으면 황금연휴 목록을 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val goldenHolidayGroup = goldenHolidayGroup(year = year)
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(emptyList())
@@ -252,7 +258,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("받아오지 못한 대상 년도가 있으면 표시 년도가 제공되지 않아도 오류 상태를 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
                 coEvery { fetchHolidayUseCase(parameter = year) } returns Result.success(emptyList())
@@ -270,7 +276,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("제공 없음 상태에서 다시 동기화하면 로딩 상태로 돌아간다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val goldenHolidayGroup = goldenHolidayGroup(year = year)
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
@@ -304,7 +310,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("재시도하면 다시 동기화하고 성공하면 목록 상태가 된다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val goldenHolidayGroup = goldenHolidayGroup(year = year)
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
@@ -340,7 +346,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("다시 동기화하는 동안 이미 로딩된 목록을 유지한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val goldenHolidayGroup = goldenHolidayGroup(year = year)
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
@@ -374,7 +380,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("연차 개수가 바뀌면 바뀐 연차 개수로 황금연휴를 다시 조회한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val goldenHolidayGroup = goldenHolidayGroup(year = year)
                 val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
                 every { getGoldenHolidayUseCase(parameter = any()) } answers {
@@ -398,7 +404,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("조회 중인 황금연휴가 바뀌면 바뀐 목록을 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val goldenHolidayGroup = goldenHolidayGroup(year = year)
                 val changedGoldenHolidayGroup = goldenHolidayGroup(year = year)
                 val goldenHolidayGroupFlow = MutableStateFlow(listOf(goldenHolidayGroup))
@@ -421,7 +427,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("황금연휴 조회에 실패하면 알리지 않고 공휴일 없이 계산한 빈 목록을 표시한다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
                 every { getGoldenHolidayUseCase(parameter = any()) } returns
                     flowOf(Result.failure(IllegalStateException(Arb.string().next())))
@@ -437,7 +443,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-a297cd36-c2ff-4065-9037-4c34460ef8b0 기기 지역을 바꾸고 5초가 지나기 전에 돌아오면 목록은 이전 지역 기준으로 남는다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val previousRegionList = listOf(goldenHolidayGroup(year = year))
                 val changedRegionList = listOf(goldenHolidayGroup(year = year))
                 val getGoldenHolidayUseCase = regionChangingGetGoldenHolidayUseCase(previousRegionList, changedRegionList)
@@ -462,7 +468,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-254e8814-7a28-45bc-89f6-189a1792d1e1 기기 지역을 바꾸고 5초가 지난 뒤 돌아오면 바뀐 지역 기준으로 목록이 다시 표시된다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val previousRegionList = listOf(goldenHolidayGroup(year = year))
                 val changedRegionList = listOf(goldenHolidayGroup(year = year))
                 val getGoldenHolidayUseCase = regionChangingGetGoldenHolidayUseCase(previousRegionList, changedRegionList)
@@ -485,7 +491,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
         test("TC-a8bb0295-cca6-41fa-9feb-3e2d8a6fa19a 바뀐 지역에 적용 국가가 없으면 5초가 지나기 전에 돌아와도 제공 없음 안내가 표시된다") {
             runTest(mainDispatcher) {
-                val year = randomYear()
+                val year = Arb.int(YEAR_RANGE).next()
                 val previousRegionList = listOf(goldenHolidayGroup(year = year))
                 var isRegionChanged = false
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
@@ -539,7 +545,7 @@ private fun regionChangingGetGoldenHolidayUseCase(
             )
     }
 
-private fun providedHolidayList(): List<Holiday> = listOf(holiday(year = randomYear()))
+private fun providedHolidayList(): List<Holiday> = listOf(Arb.holiday(year = Arb.int(YEAR_RANGE).next(), isHoliday = true).next())
 
 private fun successfulFetchHolidayUseCase(): FetchHolidayUseCase =
     mockk<FetchHolidayUseCase>().also { useCase ->
@@ -552,35 +558,19 @@ private fun emptyGetGoldenHolidayUseCase(): GetGoldenHolidayUseCase =
     }
 
 private fun goldenHolidayGroup(year: Int): GoldenHolidayGroup {
-    val start = randomDate(year = year)
+    val holiday = Arb.holiday(year = year, isHoliday = true).next()
+    val start = holiday.dateRange.start
 
     return GoldenHolidayGroup(
         optionList =
             listOf(
                 GoldenHoliday(
                     dateRange = start..start.plus(2, DateTimeUnit.DAY),
-                    holidayList = listOf(holiday(year = year)),
+                    holidayList = listOf(holiday),
                     annualLeaveDateRangeList = emptyList(),
                 ),
             ),
     )
 }
 
-private fun holiday(year: Int): Holiday {
-    val start = randomDate(year = year)
-
-    return Holiday(
-        name = Arb.string().next(),
-        isHoliday = true,
-        dateRange = start..start,
-    )
-}
-
-private fun randomDate(year: Int): LocalDate =
-    LocalDate(
-        year = year,
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )
-
-private fun randomYear(): Int = 2_000 + (Arb.int().next().toUInt() % 1_000u).toInt()
+private val YEAR_RANGE = 2_000..2_999

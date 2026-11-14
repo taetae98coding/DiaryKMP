@@ -106,7 +106,7 @@ class CalendarFilterTagDaoTest :
             database.selectedTagIdList(accountId = secondAccountId) shouldBe listOf(secondTag.id)
         }
 
-        test("TC-aa13a24d-1be5-46ff-933a-c6635b91f8c3 저장된 필터 선택은 새로 조회를 시작해도 유지된다") {
+        test("저장된 필터 선택은 새로 조회를 시작해도 유지된다") {
             val accountId = Arb.kotlinUuid().next()
             val firstTag = tag(title = "Alpha")
             val secondTag = tag(title = "Bravo")

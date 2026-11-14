@@ -28,17 +28,19 @@ import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TA
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.actionNameList
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
 import io.github.taetae98coding.diary.feature.checklist.ui.failedChecklistPagingData
 import io.github.taetae98coding.diary.feature.checklist.ui.loadingChecklistPagingData
 import io.github.taetae98coding.diary.feature.checklist.ui.refreshableList
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.checklist.ui.testChecklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.visibleTextList
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -83,7 +85,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `TC-5458d371-b068-4e29-b8b4-0b48ef52c120 계정에 저장된 체크리스트를 제목과 진행 정도로 표시한다`() {
-        val summaryList = listOf(testChecklistSummary(checkedCount = 1, totalCount = 3), testChecklistSummary(checkedCount = 2, totalCount = 5))
+        val summaryList = listOf(Arb.checklistSummary(checkedCount = 1, totalCount = 3).next(), Arb.checklistSummary(checkedCount = 2, totalCount = 5).next())
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(summaryList))
 
         summaryList.forEach { summary ->
@@ -100,7 +102,7 @@ class ChecklistHomeScaffoldTest {
     @Test
     @Config(qualifiers = "ko")
     fun `TC-5458d371-b068-4e29-b8b4-0b48ef52c120 한국어 환경에서 진행 정도를 접근성 설명으로 읽는다`() {
-        val summary = testChecklistSummary(checkedCount = 2, totalCount = 4)
+        val summary = Arb.checklistSummary(checkedCount = 2, totalCount = 4).next()
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
         composeRule.onNode(hasTestTag(CHECKLIST_CARD_TEST_TAG) and hasContentDescription("전체 4개 중 2개 체크")).assertExists()
@@ -108,7 +110,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `체크 항목이 없는 체크리스트는 진행 정도를 0개 중 0개로 보인다`() {
-        val summary = testChecklistSummary(checkedCount = 0, totalCount = 0)
+        val summary = Arb.checklistSummary(checkedCount = 0, totalCount = 0).next()
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
         composeRule.onNodeWithText("0/0", useUnmergedTree = true).assertExists()
@@ -117,7 +119,7 @@ class ChecklistHomeScaffoldTest {
     @Test
     @Config(qualifiers = "ko")
     fun `TC-e8a23b29-084b-427e-9d4c-242c59e6f9e6 제목, 뒤로가기, 체크리스트 목록과 체크리스트 추가 외의 정보와 동작을 두지 않는다`() {
-        val summary = testChecklistSummary(checkedCount = 1, totalCount = 2)
+        val summary = Arb.checklistSummary(checkedCount = 1, totalCount = 2).next()
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
         composeRule.visibleTextList() shouldContainExactlyInAnyOrder listOf(KOREAN_TITLE, summary.checklist.detail.title, "1/2")
@@ -128,7 +130,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `TC-27d32d69-4e6c-453c-b626-5bd76d802b22 체크리스트 카드에는 제목과 진행 정도 외의 글을 표시하지 않는다`() {
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
         composeRule.onNode(hasTestTag(CHECKLIST_CARD_TEST_TAG) and hasText(summary.checklist.detail.title)).assertExists()
@@ -139,7 +141,7 @@ class ChecklistHomeScaffoldTest {
     @Test
     fun `TC-d3047469-1345-4506-aa74-4099ec6046b5 목록의 체크리스트를 선택하면 그 체크리스트의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<ChecklistListEvent>()
-        val summaryList = listOf(testChecklistSummary(), testChecklistSummary())
+        val summaryList = listOf(Arb.checklistSummary().next(), Arb.checklistSummary().next())
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(summaryList), onChecklistListEvent = eventList::add)
 
         composeRule
@@ -158,7 +160,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `TC-afb6e890-81f2-4e2e-a4b7-a23693cc162c 체크리스트가 표시된 목록에서 추가를 누르면 추가 이벤트를 한 번 내보낸다`() {
-        assertAddClicked(pagingData = checklistPagingDataOf(listOf(testChecklistSummary())))
+        assertAddClicked(pagingData = checklistPagingDataOf(listOf(Arb.checklistSummary().next())))
     }
 
     @Test
@@ -262,7 +264,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `TC-97186cfc-09b1-4ed3-81c1-0a5415e6aa9a 표시할 체크리스트가 있으면 빈 상태 안내를 표시하지 않는다`() {
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
         composeRule.onNode(hasTestTag(CHECKLIST_CARD_TEST_TAG) and hasText(summary.checklist.detail.title)).assertExists()
@@ -282,7 +284,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `TC-cf5344b6-e2ce-4548-a4eb-5b8446509b5b 체크리스트가 표시된 목록을 당기면 새로고침을 요청한다`() {
-        assertRefreshRequested(pagingData = checklistPagingDataOf(listOf(testChecklistSummary())))
+        assertRefreshRequested(pagingData = checklistPagingDataOf(listOf(Arb.checklistSummary().next())))
     }
 
     @Test
@@ -294,7 +296,7 @@ class ChecklistHomeScaffoldTest {
     fun `TC-f2bfc1c3-f78e-4673-a09a-602fc845e077 새로고침이 실행되는 동안 진행이 표시되고 끝나면 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setChecklistHomeScaffold(
-            pagingData = checklistPagingDataOf(listOf(testChecklistSummary())),
+            pagingData = checklistPagingDataOf(listOf(Arb.checklistSummary().next())),
             uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) },
         )
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
@@ -307,7 +309,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `끝까지 스크롤하면 마지막 체크리스트 카드가 추가 버튼 위에 놓인다`() {
-        val summaryList = List(SCROLL_COUNT) { testChecklistSummary() }
+        val summaryList = List(SCROLL_COUNT) { Arb.checklistSummary().next() }
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(summaryList))
 
         composeRule.refreshableList().performScrollToIndex(summaryList.lastIndex)

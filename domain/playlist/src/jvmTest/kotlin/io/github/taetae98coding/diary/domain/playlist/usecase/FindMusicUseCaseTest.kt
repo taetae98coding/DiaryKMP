@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -27,7 +28,7 @@ class FindMusicUseCaseTest :
                 val account = Arb.accountUser().next()
                 val music = music(isDeleted = isDeleted)
                 val getAccountUseCase = mockk<GetAccountUseCase>()
-                every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+                every { getAccountUseCase() } returns flowOf(Result.success(account))
                 val accountMusicRepository = mockk<AccountMusicRepository>()
                 every { accountMusicRepository.find(account = account, musicId = music.id) } returns flowOf(music)
                 val useCase =
@@ -48,7 +49,7 @@ class FindMusicUseCaseTest :
             val account = Arb.accountUser().next()
             val musicId = Uuid.random()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMusicRepository = mockk<AccountMusicRepository>()
             every { accountMusicRepository.find(account = account, musicId = musicId) } returns flowOf(null)
             val useCase =
@@ -67,7 +68,7 @@ class FindMusicUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
             val useCase =
                 FindMusicUseCase(

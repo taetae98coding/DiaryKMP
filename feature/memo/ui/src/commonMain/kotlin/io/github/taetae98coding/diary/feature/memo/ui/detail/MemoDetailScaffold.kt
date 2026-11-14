@@ -16,6 +16,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
@@ -30,6 +32,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactPickerDialogHost
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactPickerEvent
+import io.github.taetae98coding.diary.feature.memo.ui.detail.share.MemoDetailShareBottomSheetHost
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
@@ -73,6 +76,8 @@ internal fun MemoDetailScaffold(
     geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
     componentVisibleProvider: () -> MemoDetailScaffoldComponentVisible = { MemoDetailScaffoldComponentVisible() },
     isStandalone: Boolean = true,
+    isShareSupported: Boolean = false,
+    shareSheetState: DialogState = rememberDialogState(),
 ) {
     val placeMapState = rememberMemoPlaceMapState(uiState = placeCardUiStateProvider())
     val isChanged by rememberMemoDetailChanged(state = state, uiStateProvider = uiStateProvider)
@@ -80,12 +85,7 @@ internal fun MemoDetailScaffold(
     Scaffold(
         modifier = modifier.submitShortcut(isEnabledProvider = { isChanged }) { onEvent(MemoDetailScaffoldEvent.ClickUpdate) },
         topBar = {
-            MemoDetailTopBar(
-                uiStateProvider = uiStateProvider,
-                onEvent = onEvent,
-                componentVisibleProvider = componentVisibleProvider,
-                geminiUiStateProvider = geminiUiStateProvider,
-            )
+            MemoDetailTopBar(onEvent = onEvent, uiStateProvider = uiStateProvider, componentVisibleProvider = componentVisibleProvider, geminiUiStateProvider = geminiUiStateProvider, isShareSupported = isShareSupported)
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
@@ -116,6 +116,7 @@ internal fun MemoDetailScaffold(
     }
 
     MemoDetailDialogHost(
+        onEvent = onEvent,
         onTagPickerEvent = onTagPickerEvent,
         onWebPickerEvent = onWebPickerEvent,
         onContactPickerEvent = onContactPickerEvent,
@@ -133,6 +134,7 @@ internal fun MemoDetailScaffold(
         placeCardUiStateProvider = placeCardUiStateProvider,
         placeMapState = placeMapState,
         geminiUiStateProvider = geminiUiStateProvider,
+        shareSheetState = shareSheetState,
     )
 }
 
@@ -150,6 +152,7 @@ private fun rememberMemoDetailChanged(
 
 @Composable
 private fun MemoDetailDialogHost(
+    onEvent: (MemoDetailScaffoldEvent) -> Unit,
     onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
     onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
     onContactPickerEvent: (MemoContactPickerEvent) -> Unit,
@@ -167,6 +170,7 @@ private fun MemoDetailDialogHost(
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,
     placeMapState: DiaryMapState?,
     geminiUiStateProvider: () -> MemoGeminiUiState,
+    shareSheetState: DialogState,
 ) {
     MemoTagPickerDialogHost(
         dialogState = state.tagPickerDialogState,
@@ -195,6 +199,7 @@ private fun MemoDetailDialogHost(
         onDismissRequest = onGeminiDismissRequest,
         uiStateProvider = geminiUiStateProvider,
     )
+    MemoDetailShareBottomSheetHost(onEvent = onEvent, sheetState = shareSheetState)
 }
 
 private class MemoDetailUiStatePreviewParameter : PreviewParameterProvider<MemoDetailUiState> {

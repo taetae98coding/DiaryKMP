@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountCalendarFilterRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
@@ -28,7 +29,7 @@ class SelectCalendarFilterTagUseCaseTest :
             val tagId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountCalendarFilterRepository = mockk<AccountCalendarFilterRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             coEvery { accountCalendarFilterRepository.upsert(account = account, tagId = tagId) } just Runs
             val useCase =
                 SelectCalendarFilterTagUseCase(
@@ -55,7 +56,7 @@ class SelectCalendarFilterTagUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountCalendarFilterRepository = mockk<AccountCalendarFilterRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase =
                 SelectCalendarFilterTagUseCase(
                     getAccountUseCase = getAccountUseCase,

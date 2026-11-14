@@ -9,11 +9,13 @@ import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TA
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.checklist.ui.testChecklistSummary
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -42,7 +44,7 @@ class ChecklistHomeScreenRefreshTest {
     fun `TC-cf5344b6-e2ce-4548-a4eb-5b8446509b5b 체크리스트가 표시된 목록을 당기면 계정 데이터의 서버 동기화를 한 번 요청한다`() {
         val syncViewModel = syncViewModel()
 
-        setChecklistHomeScreen(summaryList = listOf(testChecklistSummary()), syncViewModel = syncViewModel)
+        setChecklistHomeScreen(summaryList = listOf(Arb.checklistSummary().next()), syncViewModel = syncViewModel)
         composeRule.onNodeWithTag(CHECKLIST_CARD_TEST_TAG).assertExists()
         composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()

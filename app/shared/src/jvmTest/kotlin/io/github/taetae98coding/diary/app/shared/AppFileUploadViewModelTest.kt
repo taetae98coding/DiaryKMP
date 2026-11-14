@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.ReconcileFileUploadUseCase
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -110,7 +111,7 @@ class AppFileUploadViewModelTest : FunSpec() {
         reconcileFileUploadUseCase: ReconcileFileUploadUseCase = mockk(),
     ): AppFileUploadViewModel {
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
 
         return AppFileUploadViewModel(
             getAccountUseCase = getAccountUseCase,

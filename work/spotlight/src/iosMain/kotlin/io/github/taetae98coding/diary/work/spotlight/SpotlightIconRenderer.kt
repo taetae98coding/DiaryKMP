@@ -75,6 +75,7 @@ internal class SpotlightIconRenderer {
                     SpotlightIcon.QR -> "qrcode"
                     SpotlightIcon.MUSIC -> "music.note"
                     SpotlightIcon.DDAY -> "hourglass"
+                    SpotlightIcon.ROUTINE -> "repeat"
                 }
 
         private fun Long.toUIColor(): UIColor =

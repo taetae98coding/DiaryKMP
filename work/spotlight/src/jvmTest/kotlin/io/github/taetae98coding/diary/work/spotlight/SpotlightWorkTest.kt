@@ -11,9 +11,11 @@ import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -52,7 +54,7 @@ class SpotlightWorkTest :
             }
         }
 
-        test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 현재 계정의 아홉 종류 항목을 담고 다른 계정의 항목은 담지 않는다") {
+        test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 현재 계정의 열 종류 항목을 담고 다른 계정의 항목은 담지 않는다") {
             runTest {
                 val account = Arb.accountUser().next()
                 val memo = Arb.memoLocalEntity().next()
@@ -64,6 +66,7 @@ class SpotlightWorkTest :
                 val qr = Arb.qrLocalEntity().next()
                 val music = Arb.musicLocalEntity().next()
                 val dday = Arb.ddayLocalEntity().next()
+                val routine = Arb.routineLocalEntity().next()
                 val otherAccountMemo = Arb.memoLocalEntity().next()
                 val dataSource =
                     spotlightLocalDataSource(
@@ -77,6 +80,7 @@ class SpotlightWorkTest :
                 every { dataSource.getQrList(account.id) } returns flowOf(listOf(qr))
                 every { dataSource.getMusicList(account.id) } returns flowOf(listOf(music))
                 every { dataSource.getDDayList(account.id) } returns flowOf(listOf(dday))
+                every { dataSource.getRoutineList(account.id) } returns flowOf(listOf(routine))
                 val index = SpotlightIndexState()
 
                 startWork(account = MutableStateFlow(Result.success(account)), dataSource = dataSource, index = index)
@@ -92,6 +96,7 @@ class SpotlightWorkTest :
                         qr.toSpotlightItem(),
                         music.toSpotlightItem(),
                         dday.toSpotlightItem(),
+                        routine.toSpotlightItem(),
                     )
             }
         }
@@ -151,12 +156,16 @@ class SpotlightWorkTest :
             }
         }
 
-        test("TC-29e44189-cc2f-43d5-9a38-b738e75f615d 계정이 바뀌면 이전 계정의 항목을 빼고 바뀐 계정의 항목을 담는다") {
-            listOf(
-                Account.Guest to Arb.accountUser().next(),
-                Arb.accountUser().next() to Account.Guest,
-            ).forEach { (before, after) ->
+        // 로그아웃과 계정 탈퇴는 둘 다 계정이 사용자에서 게스트로 바뀌는 것으로 전달된다.
+        listOf(
+            Triple("로그인", true, false),
+            Triple("로그아웃", false, true),
+            Triple("계정 탈퇴", false, true),
+        ).forEach { (change, isGuestBefore, isGuestAfter) ->
+            test("TC-29e44189-cc2f-43d5-9a38-b738e75f615d $change 으로 계정이 바뀌면 이전 계정의 항목을 빼고 바뀐 계정의 항목을 담는다") {
                 runTest {
+                    val before: Account = if (isGuestBefore) Account.Guest else Arb.accountUser().next()
+                    val after: Account = if (isGuestAfter) Account.Guest else Arb.accountUser().next()
                     val beforeMemo = Arb.memoLocalEntity().next()
                     val afterMemo = Arb.memoLocalEntity().next()
                     val account = MutableStateFlow(Result.success(before))
@@ -258,6 +267,7 @@ private fun spotlightLocalDataSource(memoListOf: (Uuid) -> Flow<List<MemoLocalEn
         every { getQrList(any()) } returns flowOf(emptyList())
         every { getMusicList(any()) } returns flowOf(emptyList())
         every { getDDayList(any()) } returns flowOf(emptyList())
+        every { getRoutineList(any()) } returns flowOf(emptyList())
     }
 
 private fun TestScope.startWork(
@@ -266,7 +276,7 @@ private fun TestScope.startWork(
     index: SpotlightIndexState,
 ) {
     val getAccountUseCase = mockk<GetAccountUseCase>()
-    every { getAccountUseCase(parameter = Unit) } returns account
+    every { getAccountUseCase() } returns account
 
     backgroundScope.launch {
         SpotlightWork(
