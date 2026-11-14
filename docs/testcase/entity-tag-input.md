@@ -4,11 +4,11 @@
 
 이 문서에서 `domain > 추가 항목의 동작 판정`, `domain > 추가한 태그의 자동 선택`, `domain > 태그 검색어`, `domain > 태그 선택 목록의 열림 상태`, `feature > 선택 상태 표시`, `feature > 태그 검색`, `feature > 태그 상세 이동`, `feature > 태그 선택 목록`, `feature > 태그 선택과 해제`, `feature > 태그 추가 이동` 절은 [태그 선택 입력 공통 스펙](../spec/client/tag-select-input.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡, QR 또는 디데이 하나를 가리킨다. 이 문서의 케이스는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail, DDayAdd, DDayDetail 열네 화면에서 같은 결과로 판정된다. 사용자가 반영한 선택이 언제 저장된 연결이 되는지는 각 화면의 테스트 케이스([WebAdd](./web-add.md), [WebDetail](./web-detail.md), [PlaceAdd](./place-add.md), [PlaceDetail](./place-detail.md), [ContactAdd](./contact-add.md), [ContactDetail](./contact-detail.md), [ChecklistAdd](./checklist-add.md), [ChecklistDetail](./checklist-detail.md), [MusicAdd](./music-add.md), [MusicDetail](./music-detail.md), [QrAdd](./qr-add.md), [QrDetail](./qr-detail.md), [DDayAdd](./dday-add.md), [DDayDetail](./dday-detail.md))에서 다룬다.
+이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡, QR, 디데이 또는 루틴 하나를 가리킨다. 이 문서의 케이스는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail, DDayAdd, DDayDetail, RoutineAdd, RoutineDetail 열여섯 화면에서 같은 결과로 판정된다. 사용자가 반영한 선택이 언제 저장된 연결이 되는지는 각 화면의 테스트 케이스([WebAdd](./web-add.md), [WebDetail](./web-detail.md), [PlaceAdd](./place-add.md), [PlaceDetail](./place-detail.md), [ContactAdd](./contact-add.md), [ContactDetail](./contact-detail.md), [ChecklistAdd](./checklist-add.md), [ChecklistDetail](./checklist-detail.md), [MusicAdd](./music-add.md), [MusicDetail](./music-detail.md), [QrAdd](./qr-add.md), [QrDetail](./qr-detail.md), [DDayAdd](./dday-add.md), [DDayDetail](./dday-detail.md), [RoutineAdd](./routine-add.md), [RoutineDetail](./routine-detail.md))에서 다룬다.
 
 검색어의 정규화와 일치 판정, 검색 결과 없음 판정은 [검색어 일치 판정 스펙](../spec/client/search-match.md)에 위임되어 있으며, 태그 선택 목록에서의 결과를 이 문서의 케이스로 덮는다.
 
-완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 각 화면의 케이스는 위 열네 문서에서 다룬다.
+완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 각 화면의 케이스는 위 열여섯 문서에서 다룬다.
 
 ## feature
 

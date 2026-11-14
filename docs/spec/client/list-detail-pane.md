@@ -121,6 +121,8 @@
 - [Playlist 목록·상세 배치 스펙](./playlist-list-detail.md)
 - [QR 목록·상세 배치 스펙](./qr-list-detail.md)
 - [Routine 목록·상세 배치 스펙](./routine-list-detail.md)
+- [RoutineFinishedList 목록·상세 배치 스펙](./routine-finished-list-detail.md)
+- [TagRoutineFinishedList 목록·상세 배치 스펙](./tag-routine-finished-list-detail.md)
 - [Setting 목록·상세 배치 스펙](./setting-list-detail.md)
 - [Tag 목록·상세 배치 스펙](./tag-list-detail.md)
 - [TagFinishedList 목록·상세 배치 스펙](./tag-finished-list-detail.md)

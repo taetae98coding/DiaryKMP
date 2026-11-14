@@ -69,9 +69,11 @@
 | TagDetail 장소 탭 | 탭 줄 바로 아래 보기 모드 전환 버튼과 같은 줄, 장소 보기 모드 영역 위 |
 | TagDetail 메모 탭 | 탭 줄 바로 아래 완료된 메모 진입 버튼과 같은 줄, 목록 위 |
 | ContactDetail·PlaceDetail·WebDetail 메모 탭 | 탭 줄 바로 아래 완료된 메모 진입 버튼과 같은 줄, 그 탭의 목록 위 |
-| SearchHome 다섯 유형 | 유형 탭 줄 바로 아래, 그 유형의 결과 목록 위 |
+| SearchHome의 루틴을 뺀 다섯 유형 | 유형 탭 줄 바로 아래, 그 유형의 결과 목록 위 |
 | PlaceHome | 장소 목록 영역 맨 위, 격자 위 |
 | ChecklistDetail | 본문의 설명 입력 아래, 체크 항목 행 위. 본문을 스크롤하면 상단 바 바로 아래에 붙어 남는다 |
+
+루틴을 보여 주는 RoutineHome 목록 보기, RoutineFinishedList, TagDetail 루틴 탭, TagRoutineFinishedList, SearchHome 루틴 결과에는 정렬 컨트롤을 두지 않는다. 기준 스펙에 따라 이 목록들에는 사용자가 고를 정렬이 없기 때문이다. RoutineFinishedList, TagRoutineFinishedList와 SearchHome 루틴 결과에는 정렬 줄도 두지 않는다. RoutineHome 목록 보기와 TagDetail 루틴 탭은 완료된 루틴 진입 버튼을 끝 쪽에 둔 줄만 남기며, 그 줄은 [목록 진입 버튼 디자인](./list-entry-button.md)의 `자리와 폭`을 따른다.
 
 PlaceHome의 정렬 줄은 보기 모드에 따라 정해지는 장소 목록 영역 안에 둔다. 지도 모드에서는 지도 영역이 아니라 장소 목록 영역의 맨 위에 두고, 목록 모드에서는 본문 맨 위에 둔다. 보기 모드를 바꿔도 컨트롤의 표시 내용은 바뀌지 않으며, 모드 전환의 교차 페이드에 정렬 줄도 함께 포함된다.
 

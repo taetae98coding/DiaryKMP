@@ -20,6 +20,7 @@
 - [QrAdd 화면 디자인](./qr-add.md)
 - [QrDetail 화면 디자인](./qr-detail.md)
 - [RoutineAdd 화면 디자인](./routine-add.md)
+- [RoutineDetail 화면 디자인](./routine-detail.md)
 - [TagAdd 화면 디자인](./tag-add.md)
 - [TagDetail 화면 디자인](./tag-detail.md)
 - [WebAdd 화면 디자인](./web-add.md)
