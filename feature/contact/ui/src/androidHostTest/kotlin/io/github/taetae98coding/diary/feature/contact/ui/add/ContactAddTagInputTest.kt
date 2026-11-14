@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
@@ -115,6 +116,7 @@ class ContactAddTagInputTest {
                     navigateToTagDetail = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     addedResultRequestKey = null,
+                    initialDetail = ContactDetail.EMPTY,
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     addViewModel = screenTestViewModel(),
                     tagViewModel = tagViewModel,
@@ -209,6 +211,7 @@ class ContactAddTagInputTest {
                     navigateToTagDetail = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     addedResultRequestKey = null,
+                    initialDetail = ContactDetail.EMPTY,
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     addViewModel = remember { screenTestViewModel() },
                     tagViewModel = tagViewModel,

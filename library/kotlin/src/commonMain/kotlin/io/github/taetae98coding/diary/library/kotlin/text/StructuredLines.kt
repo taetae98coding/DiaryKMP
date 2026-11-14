@@ -1,11 +1,11 @@
-package io.github.taetae98coding.diary.domain.qr.content
+package io.github.taetae98coding.diary.library.kotlin.text
 
 // vCard와 iCalendar의 줄을 다룬다. 공백이나 탭으로 시작하는 줄은 앞 줄에 이어진 줄이라 한 항목으로 묶고, 고치지 않은 줄은 글자 그대로 되돌려 쓴다.
-internal class StructuredLines private constructor(
+public class StructuredLines private constructor(
     private val lineBreak: String,
     private val physicalLines: MutableList<String>,
 ) {
-    val entries: List<Entry>
+    public val entries: List<Entry>
         get() {
             val result = mutableListOf<Entry>()
             physicalLines.forEachIndexed { index, line ->
@@ -19,20 +19,38 @@ internal class StructuredLines private constructor(
             return result
         }
 
-    val size: Int
+    public val size: Int
         get() = physicalLines.size
 
-    fun find(
+    public fun find(
         name: String,
         range: IntRange = physicalLines.indices,
     ): Entry? = entries.firstOrNull { entry -> entry.start in range && entry.property?.name == name }
 
-    fun indexOfLine(
+    // component 묶음 자체의 항목만 준다. 그 안에서 다시 시작하는 묶음(일정 안의 알림 등)의 항목은 뺀다.
+    public fun blockEntries(component: String): List<Entry> {
+        val entryList = entries
+        val start = entryList.indexOfFirst { entry -> entry.text.equals("BEGIN:$component", ignoreCase = true) }
+        if (start < 0) return emptyList()
+
+        val result = mutableListOf<Entry>()
+        var depth = 0
+        for (entry in entryList.drop(start + 1)) {
+            when {
+                entry.text.startsWith(BEGIN_PREFIX, ignoreCase = true) -> depth += 1
+                entry.text.startsWith(END_PREFIX, ignoreCase = true) -> if (depth == 0) break else depth -= 1
+                depth == 0 -> result += entry
+            }
+        }
+        return result
+    }
+
+    public fun indexOfLine(
         text: String,
         from: Int = 0,
     ): Int? = entries.firstOrNull { entry -> entry.start >= from && entry.text.equals(text, ignoreCase = true) }?.start
 
-    fun replace(
+    public fun replace(
         entry: Entry,
         line: String,
     ) {
@@ -40,11 +58,11 @@ internal class StructuredLines private constructor(
         physicalLines.add(entry.start, line)
     }
 
-    fun remove(entry: Entry) {
+    public fun remove(entry: Entry) {
         repeat(entry.endExclusive - entry.start) { physicalLines.removeAt(entry.start) }
     }
 
-    fun insert(
+    public fun insert(
         index: Int,
         line: String,
     ) {
@@ -53,12 +71,12 @@ internal class StructuredLines private constructor(
 
     override fun toString(): String = physicalLines.joinToString(separator = lineBreak)
 
-    data class Entry(
+    public data class Entry(
         val text: String,
         val start: Int,
         val endExclusive: Int,
     ) {
-        val property: Property?
+        public val property: Property?
             get() {
                 val colon = text.indexOf(':')
                 if (colon < 0) return null
@@ -74,15 +92,15 @@ internal class StructuredLines private constructor(
             }
     }
 
-    data class Property(
+    public data class Property(
         val name: String,
         val head: String,
         val parameters: String,
         val value: String,
     )
 
-    companion object {
-        fun parse(raw: String): StructuredLines {
+    public companion object {
+        public fun parse(raw: String): StructuredLines {
             val lineBreak =
                 when {
                     raw.contains(LINE_BREAK) -> LINE_BREAK
@@ -96,9 +114,13 @@ internal class StructuredLines private constructor(
     }
 }
 
+private const val LINE_BREAK = "\r\n"
+private const val BEGIN_PREFIX = "BEGIN:"
+private const val END_PREFIX = "END:"
+
 private fun String.isContinuation(): Boolean = startsWith(' ') || startsWith('\t')
 
-internal fun String.unescapeStructuredText(): String =
+public fun String.unescapeStructuredText(): String =
     buildString {
         var index = 0
         val text = this@unescapeStructuredText
@@ -115,7 +137,7 @@ internal fun String.unescapeStructuredText(): String =
         }
     }
 
-internal fun String.splitUnescaped(delimiter: Char): List<String> {
+public fun String.splitUnescaped(delimiter: Char): List<String> {
     val result = mutableListOf<String>()
     val current = StringBuilder()
     var index = 0
@@ -140,3 +162,12 @@ internal fun String.splitUnescaped(delimiter: Char): List<String> {
     result += current.toString()
     return result
 }
+
+// N, ADR처럼 ;로 나뉜 값에서 비어 있지 않은 부분을 공백으로 잇는다.
+public fun String.joinStructuredComponents(): String =
+    splitUnescaped(';')
+        .map(String::unescapeStructuredText)
+        .filter(String::isNotEmpty)
+        .joinToString(separator = " ")
+
+public fun String.firstStructuredComponent(): String = splitUnescaped(';').first().unescapeStructuredText()

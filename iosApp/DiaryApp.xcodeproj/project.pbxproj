@@ -11,12 +11,38 @@
 		F1B000000000000000000001 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F1B000000000000000000011 /* FirebaseAnalytics */; };
 		F1B000000000000000000002 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = F1B000000000000000000012 /* FirebasePerformance */; };
 		F1B000000000000000000003 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F1B000000000000000000013 /* FirebaseMessaging */; };
+		5E1A00000000000000000009 /* DiaryShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5E1A00000000000000000002 /* DiaryShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5E1A0000000000000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D1A000000000000000000002 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5E1A00000000000000000001;
+			remoteInfo = DiaryShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5E1A0000000000000000000A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				5E1A00000000000000000009 /* DiaryShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C0DEC0DE000000000000F001 /* Dev.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Dev.xcconfig; sourceTree = "<group>"; };
 		C0DEC0DE000000000000F002 /* Real.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Real.xcconfig; sourceTree = "<group>"; };
 		D1A000000000000000000005 /* DiaryApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiaryApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E1A00000000000000000002 /* DiaryShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DiaryShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -27,6 +53,13 @@
 			);
 			target = D1A000000000000000000006 /* DiaryApp */;
 		};
+		5E1A00000000000000000004 /* Exceptions for "DiaryShare" folder in "DiaryShare" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5E1A00000000000000000001 /* DiaryShare */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -36,6 +69,14 @@
 				D1A000000000000000000011 /* Exceptions for "DiaryApp" folder in "DiaryApp" target */,
 			);
 			path = DiaryApp;
+			sourceTree = "<group>";
+		};
+		5E1A00000000000000000003 /* DiaryShare */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5E1A00000000000000000004 /* Exceptions for "DiaryShare" folder in "DiaryShare" target */,
+			);
+			path = DiaryShare;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -49,6 +90,13 @@
 				F1B000000000000000000001 /* FirebaseAnalytics in Frameworks */,
 				F1B000000000000000000002 /* FirebasePerformance in Frameworks */,
 				F1B000000000000000000003 /* FirebaseMessaging in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5E1A00000000000000000006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				D1A000000000000000000004 /* DiaryApp */,
+				5E1A00000000000000000003 /* DiaryShare */,
 				C0DEC0DE000000000000F000 /* Config */,
 				D1A000000000000000000003 /* Products */,
 			);
@@ -77,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				D1A000000000000000000005 /* DiaryApp.app */,
+				5E1A00000000000000000002 /* DiaryShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,12 +142,14 @@
 				D1A000000000000000000007 /* Sources */,
 				D1A000000000000000000008 /* Frameworks */,
 				D1A000000000000000000009 /* Resources */,
+				5E1A0000000000000000000A /* Embed Foundation Extensions */,
 				F1B000000000000000000031 /* Copy GoogleService-Info.plist */,
 				F1B000000000000000000032 /* Upload Crashlytics dSYM */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				5E1A0000000000000000000C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D1A000000000000000000004 /* DiaryApp */,
@@ -113,6 +165,28 @@
 			productReference = D1A000000000000000000005 /* DiaryApp.app */;
 			productType = "com.apple.product-type.application";
 		};
+		5E1A00000000000000000001 /* DiaryShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5E1A00000000000000000008 /* Build configuration list for PBXNativeTarget "DiaryShare" */;
+			buildPhases = (
+				5E1A00000000000000000005 /* Sources */,
+				5E1A00000000000000000006 /* Frameworks */,
+				5E1A00000000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5E1A00000000000000000003 /* DiaryShare */,
+			);
+			name = DiaryShare;
+			packageProductDependencies = (
+			);
+			productName = DiaryShare;
+			productReference = 5E1A00000000000000000002 /* DiaryShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -123,6 +197,9 @@
 				LastSwiftUpdateCheck = 1700;
 				LastUpgradeCheck = 1700;
 				TargetAttributes = {
+					5E1A00000000000000000001 = {
+						CreatedOnToolsVersion = 27.2;
+					};
 					D1A000000000000000000006 = {
 						CreatedOnToolsVersion = 17.0;
 					};
@@ -148,12 +225,20 @@
 			projectRoot = "";
 			targets = (
 				D1A000000000000000000006 /* DiaryApp */,
+				5E1A00000000000000000001 /* DiaryShare */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D1A000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5E1A00000000000000000007 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -236,13 +321,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5E1A00000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5E1A0000000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5E1A00000000000000000001 /* DiaryShare */;
+			targetProxy = 5E1A0000000000000000000B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		C0DEC0DE0000000000000D01 /* DevDebug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C0DEC0DE000000000000F001 /* Dev.xcconfig */;
 			buildSettings = {
+				DIARY_APP_NAME = DiaryDev;
 			};
 			name = DevDebug;
 		};
@@ -250,6 +351,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C0DEC0DE000000000000F001 /* Dev.xcconfig */;
 			buildSettings = {
+				DIARY_APP_NAME = DiaryDev;
 			};
 			name = DevRelease;
 		};
@@ -257,6 +359,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C0DEC0DE000000000000F002 /* Real.xcconfig */;
 			buildSettings = {
+				DIARY_APP_NAME = DiaryRealDebug;
 			};
 			name = RealDebug;
 		};
@@ -264,6 +367,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C0DEC0DE000000000000F002 /* Real.xcconfig */;
 			buildSettings = {
+				DIARY_APP_NAME = Diary;
 			};
 			name = RealRelease;
 		};
@@ -281,7 +385,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiaryApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = DiaryDev;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used to scan QR codes.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the weather for your current location and your position on the map.";
@@ -328,7 +432,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiaryApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = DiaryDev;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used to scan QR codes.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the weather for your current location and your position on the map.";
@@ -375,7 +479,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiaryApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = DiaryRealDebug;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used to scan QR codes.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the weather for your current location and your position on the map.";
@@ -422,7 +526,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiaryApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Diary;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera is used to scan QR codes.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the weather for your current location and your position on the map.";
@@ -455,6 +559,126 @@
 			};
 			name = RealRelease;
 		};
+		5E1A00000000000000000E01 /* DevDebug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4TV6L66XZ8;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DiaryShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.2.4;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.taetae98coding.diary.dev.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = DevDebug;
+		};
+		5E1A00000000000000000E02 /* DevRelease */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4TV6L66XZ8;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DiaryShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.2.4;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.taetae98coding.diary.dev.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = DevRelease;
+		};
+		5E1A00000000000000000E03 /* RealDebug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4TV6L66XZ8;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DiaryShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.2.4;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.taetae98coding.diary.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = RealDebug;
+		};
+		5E1A00000000000000000E04 /* RealRelease */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4TV6L66XZ8;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DiaryShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(DIARY_APP_NAME)";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.2.4;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.taetae98coding.diary.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = RealRelease;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -476,6 +700,17 @@
 				C0DEC0DE0000000000000E02 /* DevRelease */,
 				C0DEC0DE0000000000000E03 /* RealDebug */,
 				C0DEC0DE0000000000000E04 /* RealRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = RealRelease;
+		};
+		5E1A00000000000000000008 /* Build configuration list for PBXNativeTarget "DiaryShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5E1A00000000000000000E01 /* DevDebug */,
+				5E1A00000000000000000E02 /* DevRelease */,
+				5E1A00000000000000000E03 /* RealDebug */,
+				5E1A00000000000000000E04 /* RealRelease */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = RealRelease;

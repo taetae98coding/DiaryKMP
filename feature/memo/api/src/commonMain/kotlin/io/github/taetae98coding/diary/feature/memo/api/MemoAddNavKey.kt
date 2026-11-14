@@ -14,6 +14,9 @@ public data class MemoAddNavKey(
     val initialWebId: Uuid? = null,
     val initialDateRange: InitialDateRange? = null,
     val initialDateTimeRange: InitialDateTimeRange? = null,
+    val initialTitle: String = "",
+    val initialDescription: String = "",
+    val isStandalone: Boolean = false,
 ) : ScreenNavKey {
     override val screenName: String get() = "MemoAdd"
 

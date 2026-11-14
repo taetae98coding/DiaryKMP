@@ -88,6 +88,16 @@ class QrContentRawTest :
                         crlf("BEGIN:VEVENT", "SUMMARY:메모", "DESCRIPTION:a", " b", "END:VEVENT"),
                         QrContent.Event(title = "메모", description = "ab", period = null),
                     ),
+                    Triple(
+                        QrFormat.EVENT,
+                        crlf("BEGIN:VEVENT", "SUMMARY:여행", "DTSTART:20260927", "DTEND:20260929", "END:VEVENT"),
+                        QrContent.Event(title = "여행", period = QrEventPeriod.AllDay(start = LocalDate(2026, 9, 27), endInclusive = LocalDate(2026, 9, 28))),
+                    ),
+                    Triple(
+                        QrFormat.EVENT,
+                        crlf("BEGIN:VEVENT", "BEGIN:VALARM", "SUMMARY:알림 제목", "DESCRIPTION:Reminder", "END:VALARM", "SUMMARY:회의", "END:VEVENT"),
+                        QrContent.Event(title = "회의", description = "", period = null),
+                    ),
                 )
 
             caseList.forEach { (format, raw, expected) ->
@@ -131,6 +141,12 @@ class QrContentRawTest :
             assertPatch(QrFormat.SMS, "SMSTO:010:hi", { content: QrContent.Sms -> content.copy(message = "") }, "SMSTO:010")
             assertPatch(QrFormat.EVENT, eventLocation, { content: QrContent.Event -> content.copy(location = "L") }, crlf("BEGIN:VEVENT", "SUMMARY:a", "RRULE:FREQ=WEEKLY", "LOCATION:L", "END:VEVENT"))
             assertPatch(QrFormat.EVENT, eventPeriod, { content: QrContent.Event -> content.copy(period = null) }, crlf("BEGIN:VEVENT", "SUMMARY:a", "END:VEVENT"))
+            assertPatch(
+                QrFormat.EVENT,
+                crlf("BEGIN:VEVENT", "SUMMARY:a", "BEGIN:VALARM", "DESCRIPTION:Reminder", "END:VALARM", "END:VEVENT"),
+                { content: QrContent.Event -> content.copy(description = "d") },
+                crlf("BEGIN:VEVENT", "SUMMARY:a", "BEGIN:VALARM", "DESCRIPTION:Reminder", "END:VALARM", "DESCRIPTION:d", "END:VEVENT"),
+            )
         }
 
         test("TC-0ceb6056-2071-4632-8c39-17cb6cf8774c 일정 기간을 고치면 종일 여부가 같을 때 시간대 표기를 그대로 둔다") {

@@ -30,6 +30,9 @@ class AppDeepLinkNavigationTest :
                 "diary://qr-detail?id=${Arb.kotlinUuid().next()}",
                 "diary://music-detail?id=${Arb.kotlinUuid().next()}",
                 "diary://dday-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://web-add?initialTitle=a&initialUrl=https%3A%2F%2Fexample.com",
+                "diary://memo-add?initialTitle=a&initialStartDate=2026-11-20&initialEndDate=2026-11-21",
+                "diary://contact-add?initialName=a&initialPhoneNumberList=010&initialPhoneNumberList=02&initialBirthday=1990-03-15",
             ).forEach { deepLink ->
                 val request = DeepLinkRequest(deepLink)
 

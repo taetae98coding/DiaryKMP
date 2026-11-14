@@ -42,7 +42,7 @@ internal class ContactFormState(
 }
 
 @Composable
-internal fun rememberContactAddFormState(): ContactFormState = rememberContactFormState(initialDetail = ContactDetail.EMPTY)
+internal fun rememberContactAddFormState(initialDetail: ContactDetail = ContactDetail.EMPTY): ContactFormState = rememberContactFormState(initialDetail = initialDetail)
 
 @Composable
 internal fun rememberContactDetailFormState(initialDetail: ContactDetail = ContactDetail.EMPTY): ContactFormState = rememberContactFormState(initialDetail = initialDetail)

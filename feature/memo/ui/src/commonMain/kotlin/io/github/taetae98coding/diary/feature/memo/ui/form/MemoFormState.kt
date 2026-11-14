@@ -46,10 +46,14 @@ internal class MemoFormState(
 }
 
 @Composable
-internal fun rememberMemoAddFormState(initialDateTime: DiaryDateTimeInputValue? = null): MemoFormState =
+internal fun rememberMemoAddFormState(
+    initialTitle: String = "",
+    initialDescription: String = "",
+    initialDateTime: DiaryDateTimeInputValue? = null,
+): MemoFormState =
     rememberMemoFormState(
-        initialTitle = "",
-        initialDescription = "",
+        initialTitle = initialTitle,
+        initialDescription = initialDescription,
         initialColor = randomColor(),
         initialDateTime = initialDateTime,
     )

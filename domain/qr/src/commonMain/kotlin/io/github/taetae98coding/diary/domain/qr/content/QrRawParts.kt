@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.domain.qr.content
 
+import io.github.taetae98coding.diary.library.kotlin.text.splitUnescaped
+
 internal class WifiEntries(
     val prefix: String,
     val items: MutableList<Pair<String, String>>,

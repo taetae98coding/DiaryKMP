@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
@@ -29,6 +30,7 @@ import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.isWebListDetailPane
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScreen
+import io.github.taetae98coding.diary.feature.web.ui.add.initialDetail
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScreen
@@ -79,6 +81,7 @@ internal fun webHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map
                     navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     addedResultRequestKey = null,
+                    initialDetail = WebDetail.EMPTY,
                     componentVisibleProvider = { WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
                     addViewModel = koinViewModel(),
                     tagViewModel = koinViewModel { parametersOf(null) },
@@ -100,6 +103,7 @@ private fun EntryProviderScope<ScreenNavKey>.webAddEntry(backStack: NavBackStack
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             addedResultRequestKey = key.requestKey,
+            initialDetail = key.initialDetail(),
             componentVisibleProvider = { WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             addViewModel = koinViewModel(),
             tagViewModel = koinViewModel { parametersOf(key.initialTagId) },

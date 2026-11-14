@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
+import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.property.Arb
@@ -74,6 +75,7 @@ class WebAddScreenMessageTest {
             WebAddScreenTestTheme {
                 WebAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = WebDetail.EMPTY,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

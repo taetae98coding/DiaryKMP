@@ -72,6 +72,8 @@ internal fun ComposeContentTestRule.setMemoAddScreenForTagAdd(
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
                 navigateToGeminiSetting = {},
+                initialTitle = "",
+                initialDescription = "",
                 initialDateTime = null,
                 componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                 isStandalone = true,

@@ -39,6 +39,8 @@ internal fun MemoAddScreen(
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
     navigateToGeminiSetting: () -> Unit,
+    initialTitle: String,
+    initialDescription: String,
     initialDateTime: DiaryDateTimeInputValue?,
     addRequestKey: Uuid,
     componentVisibleProvider: () -> MemoAddScaffoldComponentVisible,
@@ -53,7 +55,7 @@ internal fun MemoAddScreen(
     geminiViewModel: MemoGeminiViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val scaffoldState = rememberMemoAddFormState(initialDateTime = initialDateTime)
+    val scaffoldState = rememberMemoAddFormState(initialTitle = initialTitle, initialDescription = initialDescription, initialDateTime = initialDateTime)
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val webUiState by webViewModel.uiState.collectAsStateWithLifecycle()

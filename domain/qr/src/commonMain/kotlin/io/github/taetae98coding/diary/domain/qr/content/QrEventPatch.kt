@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.domain.qr.content
 
+import io.github.taetae98coding.diary.library.kotlin.text.StructuredLines
+import io.github.taetae98coding.diary.library.kotlin.text.isICalendarDate
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 
@@ -22,7 +24,7 @@ private fun StructuredLines.setEventValue(
     value: String,
 ) {
     val range = eventRange() ?: return
-    val entry = find(property, range)
+    val entry = findEventEntry(property)
     when {
         entry != null && value.isEmpty() -> remove(entry)
         entry != null -> replace(entry, "${checkNotNull(entry.property).head}:$value")
@@ -34,9 +36,9 @@ private fun StructuredLines.setEventPeriod(
     period: QrEventPeriod?,
     previous: QrEventPeriod?,
 ) {
-    val range = eventRange() ?: return
-    val startEntry = find("DTSTART", range)
-    val endEntry = find("DTEND", range)
+    eventRange() ?: return
+    val startEntry = findEventEntry("DTSTART")
+    val endEntry = findEventEntry("DTEND")
 
     val canKeepZone = startEntry != null && endEntry != null
 
@@ -55,7 +57,7 @@ private fun QrEventPeriod.isSameKind(other: QrEventPeriod?): Boolean = other != 
 
 // 종일 여부가 같으면 매개변수와 끝의 Z 같은 시간대 표기를 두고 날짜와 시각 숫자만 바꾼다.
 private fun StructuredLines.Property.withValue(value: String): String {
-    val zone = if (!isDate() && this.value.endsWith('Z')) "Z" else ""
+    val zone = if (!isICalendarDate() && this.value.endsWith('Z')) "Z" else ""
     return "$head:$value$zone"
 }
 

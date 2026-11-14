@@ -325,6 +325,7 @@ class ContactAddScreenTest {
             ContactAddScreenTestTheme {
                 ContactAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = ContactDetail.EMPTY,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     addViewModel = viewModel,
@@ -371,6 +372,7 @@ class ContactAddScreenTest {
             ContactAddScreenTestTheme {
                 ContactAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = ContactDetail.EMPTY,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     addViewModel = viewModel,
@@ -401,6 +403,7 @@ class ContactAddScreenTest {
             ContactAddScreenTestTheme {
                 ContactAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = ContactDetail.EMPTY,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     addViewModel = viewModel,
@@ -455,6 +458,7 @@ class ContactAddScreenTest {
                 ContactAddScreenTestTheme {
                     ContactAddScreen(
                         addedResultRequestKey = null,
+                        initialDetail = ContactDetail.EMPTY,
                         navigateUp = {},
                         componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                         addViewModel = viewModel,
