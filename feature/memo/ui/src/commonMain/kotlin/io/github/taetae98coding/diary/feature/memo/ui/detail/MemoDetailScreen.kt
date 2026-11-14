@@ -2,19 +2,27 @@ package io.github.taetae98coding.diary.feature.memo.ui.detail
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.detail.share.rememberMemoDetailSharer
+import io.github.taetae98coding.diary.feature.memo.ui.detail.share.sharePeriodText
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.collectMemoFormSelectablePagingItems
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
@@ -58,15 +66,14 @@ internal fun MemoDetailScreen(
     placeMapViewModel: MemoPlaceMapViewModel,
     placePickerMapViewModel: MemoPlacePickerMapViewModel,
     geminiViewModel: MemoGeminiViewModel,
+    contentSharerFactory: ContentSharerFactory,
     modifier: Modifier = Modifier,
 ) {
     val uiState by detailViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val webUiState by webViewModel.uiState.collectAsStateWithLifecycle()
     val contactUiState by contactViewModel.uiState.collectAsStateWithLifecycle()
-    val placeUiState by placeViewModel.uiState.collectAsStateWithLifecycle()
-    val placeMapUiState by placeMapViewModel.uiState.collectAsStateWithLifecycle()
-    val placePickerMapUiState by placePickerMapViewModel.uiState.collectAsStateWithLifecycle()
+    val placeCardUiStateProvider = rememberMemoPlaceCardUiStateProvider(placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel, placePickerMapViewModel = placePickerMapViewModel)
     val geminiUiState by geminiViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
@@ -79,6 +86,7 @@ internal fun MemoDetailScreen(
 
     key(shownContent?.id) {
         val scaffoldState = rememberMemoDetailFormState(initialDetail = shownContent?.detail ?: MemoDetail.EMPTY)
+        val shareHandler = rememberMemoDetailShareHandler(contentSharerFactory = contentSharerFactory, scaffoldState = scaffoldState, uiStateProvider = { uiState })
 
         MemoDetailTargetEffect(id = shownContent?.id, scaffoldState = scaffoldState, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo, navigateToGeminiSetting = navigateToGeminiSetting)
 
@@ -86,7 +94,7 @@ internal fun MemoDetailScreen(
             state = scaffoldState,
             tagPagingItems = tagPagingItems,
             uiStateProvider = { uiState },
-            onEvent = { event -> handleMemoDetailEvent(event = event, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, scaffoldState = scaffoldState, navigateUp = navigateUp) },
+            onEvent = { event -> handleMemoDetailEvent(event = event, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, scaffoldState = scaffoldState, navigateUp = navigateUp, onShareEvent = shareHandler.onEvent) },
             onFormEvent = { event ->
                 handleMemoFormEvent(
                     event = event,
@@ -114,12 +122,67 @@ internal fun MemoDetailScreen(
             webPagingItems = webPagingItems,
             contactUiStateProvider = { contactUiState },
             contactPagingItems = contactPagingItems,
-            placeCardUiStateProvider = { MemoPlaceCardUiState(mapUiState = placeMapUiState, placeUiState = placeUiState, pickerMapUiState = placePickerMapUiState) },
+            placeCardUiStateProvider = placeCardUiStateProvider,
             placePagingItems = placePagingItems,
             geminiUiStateProvider = { geminiUiState },
             componentVisibleProvider = componentVisibleProvider,
             isStandalone = isStandalone,
+            isShareSupported = shareHandler.isSupported,
+            shareSheetState = shareHandler.sheetState,
         )
+    }
+}
+
+@Stable
+private class MemoDetailShareHandler(
+    val isSupported: Boolean,
+    val sheetState: DialogState,
+    val onEvent: (MemoDetailScaffoldEvent.Share) -> Unit,
+)
+
+@Composable
+private fun rememberMemoDetailShareHandler(
+    contentSharerFactory: ContentSharerFactory,
+    scaffoldState: MemoFormState,
+    uiStateProvider: () -> MemoDetailUiState,
+): MemoDetailShareHandler {
+    val sheetState = rememberDialogState()
+    val sharer = rememberMemoDetailSharer(contentSharerFactory = contentSharerFactory, snackbarHostState = scaffoldState.snackbarHostState)
+    val periodText by rememberUpdatedState(scaffoldState.sharePeriodText())
+    val latestUiStateProvider by rememberUpdatedState(uiStateProvider)
+    val coroutineScope = rememberCoroutineScope()
+
+    return remember(sheetState, sharer, scaffoldState, coroutineScope) {
+        MemoDetailShareHandler(
+            isSupported = sharer.support.isTextSupported,
+            sheetState = sheetState,
+            onEvent = { event ->
+                handleMemoDetailShareEvent(
+                    event = event,
+                    content = latestUiStateProvider() as? MemoDetailUiState.Content,
+                    scaffoldState = scaffoldState,
+                    periodText = periodText,
+                    sharer = sharer,
+                    shareSheetState = sheetState,
+                    coroutineScope = coroutineScope,
+                )
+            },
+        )
+    }
+}
+
+@Composable
+private fun rememberMemoPlaceCardUiStateProvider(
+    placeViewModel: MemoPlaceViewModel,
+    placeMapViewModel: MemoPlaceMapViewModel,
+    placePickerMapViewModel: MemoPlacePickerMapViewModel,
+): () -> MemoPlaceCardUiState {
+    val placeUiState = placeViewModel.uiState.collectAsStateWithLifecycle()
+    val mapUiState = placeMapViewModel.uiState.collectAsStateWithLifecycle()
+    val pickerMapUiState = placePickerMapViewModel.uiState.collectAsStateWithLifecycle()
+
+    return remember(placeUiState, mapUiState, pickerMapUiState) {
+        { MemoPlaceCardUiState(mapUiState = mapUiState.value, placeUiState = placeUiState.value, pickerMapUiState = pickerMapUiState.value) }
     }
 }
 

@@ -417,6 +417,8 @@ class QrNavDisplayTest {
                                     backStack = backStack,
                                     cameraPreviewContent = AndroidQrScanCameraPreviewContent(),
                                     qrActionLauncherFactory = AndroidQrActionLauncherFactory(),
+                                    contentSharerFactory = testContentSharerFactory(),
+                                    qrCodePngEncoder = testQrCodePngEncoder(),
                                 )
                             },
                     )

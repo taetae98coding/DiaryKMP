@@ -56,6 +56,7 @@ internal fun PlaceDetailScaffold(
     uiStateProvider: () -> PlaceDetailUiState = { PlaceDetailUiState.Loading },
     searchUiStateProvider: () -> PlaceSearchUiState = { PlaceSearchUiState.Idle },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
+    isShareSupported: Boolean = false,
     tabFloatingActionButton: @Composable (PlaceDetailTab) -> Unit,
     tabContent: @Composable (PlaceDetailTab) -> Unit,
 ) {
@@ -75,6 +76,7 @@ internal fun PlaceDetailScaffold(
                 onEvent = onEvent,
                 uiStateProvider = uiStateProvider,
                 mapProviderProvider = { state.mapState.provider },
+                isShareSupported = isShareSupported,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },

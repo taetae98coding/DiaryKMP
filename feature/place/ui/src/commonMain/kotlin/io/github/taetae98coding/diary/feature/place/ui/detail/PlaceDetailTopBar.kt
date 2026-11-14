@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.core.share.ShareAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.feature.place.ui.PREVIEW_PLACE_DETAIL
@@ -23,6 +24,7 @@ internal fun PlaceDetailTopBar(
     modifier: Modifier = Modifier,
     uiStateProvider: () -> PlaceDetailUiState = { PlaceDetailUiState.Loading },
     mapProviderProvider: () -> DiaryMapProvider = { DiaryMapProvider.NAVER },
+    isShareSupported: Boolean = false,
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.place_navigate_up_button_content_description)
@@ -45,6 +47,9 @@ internal fun PlaceDetailTopBar(
         },
         actions = {
             if (uiState is PlaceDetailUiState.Content) {
+                if (isShareSupported) {
+                    ShareAction(onClick = { onEvent(PlaceDetailScaffoldEvent.ClickShare) })
+                }
                 IconAction(
                     icon = DiaryTopBarIcon.OPEN_IN_NEW,
                     contentDescription = openExternalMapContentDescription,
@@ -87,6 +92,7 @@ private fun PlaceDetailTopBarPreview() {
                     detail = PREVIEW_PLACE_DETAIL,
                 )
             },
+            isShareSupported = true,
         )
     }
 }

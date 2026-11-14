@@ -70,6 +70,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
 import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestRealViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
+import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestContentSharerFactory
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScaffoldComponentVisible
@@ -328,7 +329,7 @@ class MemoListDetailPlaceholderTest {
                     sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
                     entryProvider =
                         entryProvider {
-                            memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                            memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
                         },
                 )
             }

@@ -192,6 +192,7 @@ class MusicDetailScreenProgressTest {
                     navigateToTagDetail = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }

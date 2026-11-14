@@ -69,6 +69,7 @@ import io.github.taetae98coding.diary.feature.web.ui.add.urlInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeViewModel
 import io.github.taetae98coding.diary.feature.web.ui.home.testWeb
@@ -251,7 +252,7 @@ class WebListDetailNavigationTest {
                         entryProvider =
                             entryProvider {
                                 entry<WebListDetailMoreNavKey> { Text(text = MORE_CONTENT) }
-                                webEntry(backStack = backStack)
+                                webEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
                                 entry<SearchHomeNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }

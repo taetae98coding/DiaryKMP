@@ -48,6 +48,7 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.FIRST_PLACE_ID
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailUiState
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
+import io.github.taetae98coding.diary.feature.place.ui.detail.contentSharerFactoryOf
 import io.github.taetae98coding.diary.feature.place.ui.detail.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemo
@@ -206,7 +207,7 @@ class PlaceNavDisplayTest {
                                 entryProvider =
                                     entryProvider {
                                         entry<PlaceNavDisplayPreviousNavKey> { Text(text = PREVIOUS_CONTENT) }
-                                        placeEntry(backStack = backStack)
+                                        placeEntry(backStack = backStack, contentSharerFactory = contentSharerFactoryOf())
                                         entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                                         entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
                                     },

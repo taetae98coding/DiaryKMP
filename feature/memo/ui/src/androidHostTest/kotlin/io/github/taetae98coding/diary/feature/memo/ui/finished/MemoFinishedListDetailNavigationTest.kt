@@ -50,6 +50,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailUiState
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.detail.memoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.detail.memoDetailUiState
+import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestContentSharerFactory
 import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
@@ -249,7 +250,7 @@ class MemoFinishedListDetailNavigationTest {
                                 entryProvider =
                                     entryProvider {
                                         entry<FinishedListTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
                                     },
                             )
                         }

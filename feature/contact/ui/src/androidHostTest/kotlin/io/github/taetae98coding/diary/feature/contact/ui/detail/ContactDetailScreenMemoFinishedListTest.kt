@@ -118,6 +118,7 @@ class ContactDetailScreenMemoFinishedListTest {
                 if (isDetailOnTop) {
                     saveableStateHolder.SaveableStateProvider(key = DETAIL_ENTRY_KEY) {
                         ContactDetailScreen(
+                            contentSharerFactory = testContentSharerFactory(),
                             navigateUp = {},
                             navigateToMemoAdd = {},
                             navigateToMemoDetail = {},

@@ -30,6 +30,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.screenTestViewMo
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.setContactDetailScreen
 import io.github.taetae98coding.diary.feature.contact.ui.detail.testContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
@@ -79,6 +80,7 @@ class ContactDetailTabBoundaryTest {
 
                 ContactDetailScreenTestHost {
                     ContactDetailScreen(
+                        contentSharerFactory = testContentSharerFactory(),
                         navigateUp = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},

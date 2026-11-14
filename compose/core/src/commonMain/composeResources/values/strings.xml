@@ -37,4 +37,7 @@
     <string name="color_picker_dialog_confirm">Confirm</string>
     <string name="color_picker_dialog_random_button_content_description">Random color</string>
     <string name="pull_to_refresh_refreshing_content_description">Refreshing</string>
+    <string name="share_button_content_description">Share</string>
+    <string name="share_failed_message">Couldn't share.</string>
+    <string name="share_copied_message">Copied to clipboard.</string>
 </resources>

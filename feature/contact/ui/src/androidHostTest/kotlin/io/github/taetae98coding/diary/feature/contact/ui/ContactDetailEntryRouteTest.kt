@@ -40,6 +40,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.contactMemoPagin
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.testContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -81,6 +82,7 @@ class ContactDetailEntryRouteTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
+        stopKoin()
     }
 
     @After
@@ -190,7 +192,7 @@ class ContactDetailEntryRouteTest {
                                         entry<MemoHomeStandInNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
                                         entry<MemoAddNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
                                         entry<MemoDetailNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
-                                        contactDetailEntry(backStack = backStack)
+                                        contactDetailEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
                                     },
                             )
                         }

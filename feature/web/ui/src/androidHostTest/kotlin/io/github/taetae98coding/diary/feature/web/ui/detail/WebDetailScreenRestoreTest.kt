@@ -281,6 +281,7 @@ class WebDetailScreenRestoreTest {
                 webViewModel = webViewModel,
                 pageViewModel = pageViewModel,
                 tagViewModel = tagViewModel,
+                contentSharerFactory = testContentSharerFactory(),
             )
         }
     }

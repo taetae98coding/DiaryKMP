@@ -14,4 +14,14 @@ internal sealed interface MemoDetailScaffoldEvent {
     data object ClickCopy : MemoDetailScaffoldEvent
 
     data object ClickDelete : MemoDetailScaffoldEvent
+
+    sealed interface Share : MemoDetailScaffoldEvent
+
+    data object ClickShare : Share
+
+    data object ClickShareText : Share
+
+    data object ClickShareCalendarFile : Share
+
+    data object DismissShareSheet : Share
 }

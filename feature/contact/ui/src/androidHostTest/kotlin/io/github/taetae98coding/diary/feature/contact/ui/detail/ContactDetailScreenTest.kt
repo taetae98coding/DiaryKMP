@@ -119,6 +119,7 @@ class ContactDetailScreenTest {
         restorationTester.setContent {
             ContactTagTestTheme {
                 ContactDetailScreen(
+                    contentSharerFactory = testContentSharerFactory(),
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
@@ -187,6 +188,7 @@ class ContactDetailScreenTest {
         composeRule.setContent {
             ContactTagTestTheme {
                 ContactDetailScreen(
+                    contentSharerFactory = testContentSharerFactory(),
                     navigateUp = navigateUp,
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},

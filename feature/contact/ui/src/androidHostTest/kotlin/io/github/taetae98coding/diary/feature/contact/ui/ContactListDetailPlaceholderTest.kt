@@ -94,6 +94,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_ADD
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
+import io.github.taetae98coding.diary.feature.contact.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeFilterUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
@@ -819,7 +820,7 @@ class ContactListDetailPlaceholderTest {
             homeEntry = {
                 contactHomeEntry(backStack = backStack)
                 contactAddEntry(backStack = backStack)
-                if (isProductDetail) contactDetailEntry(backStack = backStack)
+                if (isProductDetail) contactDetailEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
             },
             isStubDetail = !isProductDetail,
         )

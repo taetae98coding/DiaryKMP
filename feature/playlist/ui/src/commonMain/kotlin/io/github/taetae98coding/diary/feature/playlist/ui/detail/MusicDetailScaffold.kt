@@ -46,6 +46,7 @@ internal fun MusicDetailScaffold(
     uiStateProvider: () -> MusicDetailUiState = { MusicDetailUiState.Loading },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
     componentVisibleProvider: () -> MusicDetailScaffoldComponentVisible = { MusicDetailScaffoldComponentVisible() },
+    isShareSupported: Boolean = false,
 ) {
     val isChanged by remember(state) {
         derivedStateOf {
@@ -61,6 +62,7 @@ internal fun MusicDetailScaffold(
                 onEvent = onEvent,
                 uiStateProvider = uiStateProvider,
                 componentVisibleProvider = componentVisibleProvider,
+                isShareSupported = isShareSupported,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },

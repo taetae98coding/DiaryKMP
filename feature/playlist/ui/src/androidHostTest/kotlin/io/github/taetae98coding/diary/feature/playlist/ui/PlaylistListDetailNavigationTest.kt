@@ -66,6 +66,7 @@ import io.github.taetae98coding.diary.feature.playlist.ui.addTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailEffect
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiState
@@ -507,7 +508,7 @@ class PlaylistListDetailNavigationTest {
                         entryProvider =
                             entryProvider {
                                 entry<NavigationTestMoreNavKey> { Text(text = MORE_CONTENT) }
-                                playlistEntry(backStack = backStack)
+                                playlistEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
                             },
                     )
                 }
@@ -543,7 +544,7 @@ class PlaylistListDetailNavigationTest {
                                 rememberViewModelStoreNavEntryDecorator(),
                                 rememberListDetailPlaceholderNavEntryDecorator(holder),
                             ),
-                        entryProvider = entryProvider { playlistEntry(backStack = restorableBackStack) },
+                        entryProvider = entryProvider { playlistEntry(backStack = restorableBackStack, contentSharerFactory = testContentSharerFactory()) },
                     )
                 }
             }

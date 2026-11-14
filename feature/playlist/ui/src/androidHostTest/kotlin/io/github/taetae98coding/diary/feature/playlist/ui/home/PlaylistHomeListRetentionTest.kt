@@ -54,6 +54,7 @@ import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewMo
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailEffect
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.playlistEntry
@@ -272,7 +273,7 @@ class PlaylistHomeListRetentionTest {
                     entryProvider =
                         entryProvider {
                             entry<RetentionMoreNavKey> { Text(text = MORE_CONTENT) }
-                            playlistEntry(backStack = backStack)
+                            playlistEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
                         },
                 )
             }

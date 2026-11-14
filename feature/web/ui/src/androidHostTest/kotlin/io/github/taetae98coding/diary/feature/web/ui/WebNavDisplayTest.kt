@@ -68,6 +68,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoVi
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
+import io.github.taetae98coding.diary.feature.web.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
@@ -331,7 +332,7 @@ class WebNavDisplayTest {
                 entryProvider =
                     entryProvider {
                         entry<WebNavDisplayMoreNavKey> { Text(text = MORE_CONTENT) }
-                        webEntry(backStack = backStack)
+                        webEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
                         entry<SearchHomeNavKey> { Text(text = ROUTE_CONTENT) }
                         entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                         entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }

@@ -82,7 +82,7 @@ class QrEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { qrEntry(backStack = NavBackStack(*backStack.toTypedArray()), cameraPreviewContent = mockk(), qrActionLauncherFactory = mockk()) }
+            val provider = entryProvider<ScreenNavKey> { qrEntry(backStack = NavBackStack(*backStack.toTypedArray()), cameraPreviewContent = mockk(), qrActionLauncherFactory = mockk(), contentSharerFactory = mockk(), qrCodePngEncoder = mockk()) }
 
             return provider(key).metadata
         }

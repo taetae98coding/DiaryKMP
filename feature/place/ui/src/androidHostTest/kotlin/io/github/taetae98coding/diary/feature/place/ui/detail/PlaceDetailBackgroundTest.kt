@@ -117,6 +117,7 @@ class PlaceDetailBackgroundTest {
                         detailViewModel = remember { screenTestViewModel(uiState = uiState) },
                         searchViewModel = remember { searchScreenTestViewModel() },
                         tagViewModel = tagViewModel,
+                        contentSharerFactory = contentSharerFactoryOf(),
                     )
                 }
             }

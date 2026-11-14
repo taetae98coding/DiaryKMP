@@ -41,6 +41,7 @@ class MusicDetailScreenFocusTest {
                     navigateToTagDetail = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }
@@ -69,6 +70,7 @@ class MusicDetailScreenFocusTest {
                     navigateToTagDetail = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }

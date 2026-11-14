@@ -468,6 +468,7 @@ class WebDetailScreenTest {
                     pageViewModel = pageViewModel(),
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }
@@ -512,6 +513,7 @@ class WebDetailScreenTest {
                     pageViewModel = pageViewModel,
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }
@@ -548,6 +550,7 @@ class WebDetailScreenTest {
                         pageViewModel = enteredPageViewModelList[entryCount],
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }
@@ -597,6 +600,7 @@ class WebDetailScreenTest {
                         pageViewModel = pageViewModel,
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }

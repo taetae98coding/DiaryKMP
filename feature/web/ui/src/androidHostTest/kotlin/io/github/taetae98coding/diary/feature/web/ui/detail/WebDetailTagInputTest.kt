@@ -303,6 +303,7 @@ class WebDetailTagInputTest {
                     pageViewModel = pageViewModel,
                     navigateToTagDetail = navigateToTagDetail,
                     tagViewModel = tagViewModel,
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }

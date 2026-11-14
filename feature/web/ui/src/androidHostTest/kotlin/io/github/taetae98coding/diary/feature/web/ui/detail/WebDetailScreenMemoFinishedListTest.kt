@@ -145,6 +145,7 @@ class WebDetailScreenMemoFinishedListTest {
                             webViewModel = viewModel,
                             pageViewModel = pageViewModel,
                             tagViewModel = tagViewModel,
+                            contentSharerFactory = testContentSharerFactory(),
                         )
                     }
                 }

@@ -226,6 +226,7 @@ internal fun ComposeContentTestRule.setWebDetailMemoScreen(
                 webViewModel = viewModel,
                 pageViewModel = pageViewModel,
                 tagViewModel = detailTagScreenTestViewModel(),
+                contentSharerFactory = testContentSharerFactory(),
             )
         }
     }

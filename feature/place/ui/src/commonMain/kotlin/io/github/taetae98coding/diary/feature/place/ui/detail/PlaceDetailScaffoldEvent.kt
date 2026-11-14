@@ -10,4 +10,6 @@ internal sealed interface PlaceDetailScaffoldEvent {
     data object ClickSearch : PlaceDetailScaffoldEvent
 
     data object ClickOpenExternalMap : PlaceDetailScaffoldEvent
+
+    data object ClickShare : PlaceDetailScaffoldEvent
 }

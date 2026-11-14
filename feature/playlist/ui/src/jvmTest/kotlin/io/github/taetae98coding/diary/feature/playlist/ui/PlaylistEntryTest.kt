@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import kotlin.uuid.Uuid
 
 class PlaylistEntryTest :
@@ -71,7 +72,7 @@ class PlaylistEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { playlistEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { playlistEntry(backStack = NavBackStack(*backStack.toTypedArray()), contentSharerFactory = mockk()) }
 
             return provider(key).metadata
         }

@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -215,6 +216,7 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
     tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
     uriHandler: UriHandler = mockk(relaxed = true),
+    contentSharerFactory: ContentSharerFactory = contentSharerFactoryOf(),
 ) {
     preparePlaceDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
 
@@ -233,6 +235,7 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
                     navigateUp = navigateUp,
                     navigateToTagDetail = navigateToTagDetail,
                     tagViewModel = tagViewModel,
+                    contentSharerFactory = contentSharerFactory,
                 )
             }
         }

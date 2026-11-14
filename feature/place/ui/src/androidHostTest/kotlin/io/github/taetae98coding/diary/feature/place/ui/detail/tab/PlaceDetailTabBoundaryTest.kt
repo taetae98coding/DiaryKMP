@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.FIRST_PLACE_ID
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScreen
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScreenTestTheme
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
+import io.github.taetae98coding.diary.feature.place.ui.detail.contentSharerFactoryOf
 import io.github.taetae98coding.diary.feature.place.ui.detail.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.preparePlaceDetailTabViewModels
 import io.github.taetae98coding.diary.feature.place.ui.detail.screenTestViewModel
@@ -86,6 +87,7 @@ class PlaceDetailTabBoundaryTest {
                 detailViewModel = remember { screenTestViewModel(uiState = MutableStateFlow(content(id = FIRST_PLACE_ID))) },
                 searchViewModel = remember { searchScreenTestViewModel() },
                 tagViewModel = remember { detailTagScreenTestViewModel() },
+                contentSharerFactory = contentSharerFactoryOf(),
             )
         }
     }

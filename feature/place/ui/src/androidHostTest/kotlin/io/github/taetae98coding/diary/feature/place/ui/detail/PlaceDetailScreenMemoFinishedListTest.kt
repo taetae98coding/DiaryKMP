@@ -134,6 +134,7 @@ class PlaceDetailScreenMemoFinishedListTest {
                                 navigateUp = {},
                                 navigateToTagDetail = {},
                                 tagViewModel = tagViewModel,
+                                contentSharerFactory = contentSharerFactoryOf(),
                             )
                         }
                     }

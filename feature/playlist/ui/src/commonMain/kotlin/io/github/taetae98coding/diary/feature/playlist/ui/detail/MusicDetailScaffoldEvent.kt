@@ -7,6 +7,8 @@ internal sealed interface MusicDetailScaffoldEvent {
 
     data object ClickFetchLink : MusicDetailScaffoldEvent
 
+    data object ClickShare : MusicDetailScaffoldEvent
+
     data object ClickOpenInNew : MusicDetailScaffoldEvent
 
     data object ClickDelete : MusicDetailScaffoldEvent

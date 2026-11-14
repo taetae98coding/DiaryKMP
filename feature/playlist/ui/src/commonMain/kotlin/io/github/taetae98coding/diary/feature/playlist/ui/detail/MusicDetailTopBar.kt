@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.core.share.ShareAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.music_detail_delete_button_content_description
@@ -20,6 +21,7 @@ internal fun MusicDetailTopBar(
     modifier: Modifier = Modifier,
     uiStateProvider: () -> MusicDetailUiState = { MusicDetailUiState.Loading },
     componentVisibleProvider: () -> MusicDetailScaffoldComponentVisible = { MusicDetailScaffoldComponentVisible() },
+    isShareSupported: Boolean = false,
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.playlist_navigate_up_button_content_description)
@@ -43,6 +45,9 @@ internal fun MusicDetailTopBar(
         },
         actions = {
             if (uiState is MusicDetailUiState.Content) {
+                if (isShareSupported) {
+                    ShareAction(onClick = { onEvent(MusicDetailScaffoldEvent.ClickShare) })
+                }
                 IconAction(
                     icon = DiaryTopBarIcon.OPEN_IN_NEW,
                     contentDescription = openInNewContentDescription,
@@ -67,6 +72,7 @@ private fun MusicDetailTopBarPreview() {
         MusicDetailTopBar(
             onEvent = {},
             uiStateProvider = { MusicDetailUiState.Content(id = Uuid.NIL, detail = previewMusic(title = "곡 제목", artist = "가수").detail) },
+            isShareSupported = true,
         )
     }
 }

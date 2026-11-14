@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -40,10 +41,13 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-internal fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.contactEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     contactHomeEntry(backStack = backStack)
     contactAddEntry(backStack = backStack)
-    contactDetailEntry(backStack = backStack)
+    contactDetailEntry(backStack = backStack, contentSharerFactory = contentSharerFactory)
     contactMemoFinishedListEntry(backStack = backStack)
 }
 
@@ -110,7 +114,10 @@ internal fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBack
     }
 }
 
-internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     entry<ContactDetailNavKey>(
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
     ) { key ->
@@ -129,6 +136,7 @@ internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavB
             componentVisibleProvider = { ContactDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             contactViewModel = koinViewModel { parametersOf(key.id) },
             tagViewModel = koinViewModel { parametersOf(EntityTagKind.CONTACT, key.id) },
+            contentSharerFactory = contentSharerFactory,
         )
     }
 }

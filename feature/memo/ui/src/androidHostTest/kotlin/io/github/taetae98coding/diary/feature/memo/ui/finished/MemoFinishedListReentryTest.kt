@@ -38,6 +38,7 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestContentSharerFactory
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScaffoldFilterUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
@@ -170,7 +171,7 @@ class MemoFinishedListReentryTest {
                                 entryProvider =
                                     entryProvider {
                                         entry<ReentryTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
                                     },
                             )
                         }

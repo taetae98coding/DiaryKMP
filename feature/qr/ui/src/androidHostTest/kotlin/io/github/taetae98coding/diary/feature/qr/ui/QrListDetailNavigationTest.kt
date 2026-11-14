@@ -799,6 +799,8 @@ class QrListDetailNavigationTest {
                                     backStack = backStack,
                                     cameraPreviewContent = AndroidQrScanCameraPreviewContent(),
                                     qrActionLauncherFactory = AndroidQrActionLauncherFactory(),
+                                    contentSharerFactory = testContentSharerFactory(),
+                                    qrCodePngEncoder = testQrCodePngEncoder(),
                                 )
                             },
                     )
@@ -844,6 +846,8 @@ class QrListDetailNavigationTest {
                                     backStack = restorableBackStack,
                                     cameraPreviewContent = AndroidQrScanCameraPreviewContent(),
                                     qrActionLauncherFactory = AndroidQrActionLauncherFactory(),
+                                    contentSharerFactory = testContentSharerFactory(),
+                                    qrCodePngEncoder = testQrCodePngEncoder(),
                                 )
                             },
                     )

@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.mockk
 import kotlin.uuid.Uuid
 
 class PlaceEntryTest :
@@ -31,7 +32,7 @@ class PlaceEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { placeEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { placeEntry(backStack = NavBackStack(*backStack.toTypedArray()), contentSharerFactory = mockk()) }
 
             return provider(key).metadata
         }

@@ -39,6 +39,8 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.AndroidQrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.qr.ui.testContentSharerFactory
+import io.github.taetae98coding.diary.feature.qr.ui.testQrCodePngEncoder
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainAll
@@ -295,6 +297,8 @@ class QrDetailActionTest {
                 navigateToScan = {},
                 permissionManager = rememberPermissionManager(),
                 qrActionLauncherFactory = remember { AndroidQrActionLauncherFactory() },
+                contentSharerFactory = remember { testContentSharerFactory() },
+                qrCodePngEncoder = remember { testQrCodePngEncoder() },
                 resultEventBus = remember { ResultEventBus() },
                 componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                 qrViewModel = viewModel,

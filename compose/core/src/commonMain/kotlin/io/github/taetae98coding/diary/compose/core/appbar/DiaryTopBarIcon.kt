@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.core.icon.QrCodeScanner
 import io.github.taetae98coding.diary.compose.core.icon.RestartAlt
 import io.github.taetae98coding.diary.compose.core.icon.Search
 import io.github.taetae98coding.diary.compose.core.icon.Settings
+import io.github.taetae98coding.diary.compose.core.icon.Share
 import io.github.taetae98coding.diary.compose.core.icon.Sms
 import io.github.taetae98coding.diary.compose.core.icon.Star
 import io.github.taetae98coding.diary.compose.core.icon.StarFill
@@ -45,6 +46,7 @@ public enum class DiaryTopBarIcon {
     RESET,
     SEARCH,
     SETTING,
+    SHARE,
     SMS,
     STAR,
     STAR_FILL,
@@ -73,6 +75,7 @@ internal val DiaryTopBarIcon.imageVector: ImageVector
             DiaryTopBarIcon.RESET -> DiaryIcons.RestartAlt
             DiaryTopBarIcon.SEARCH -> DiaryIcons.Search
             DiaryTopBarIcon.SETTING -> DiaryIcons.Settings
+            DiaryTopBarIcon.SHARE -> DiaryIcons.Share
             DiaryTopBarIcon.SMS -> DiaryIcons.Sms
             DiaryTopBarIcon.STAR -> DiaryIcons.Star
             DiaryTopBarIcon.STAR_FILL -> DiaryIcons.StarFill

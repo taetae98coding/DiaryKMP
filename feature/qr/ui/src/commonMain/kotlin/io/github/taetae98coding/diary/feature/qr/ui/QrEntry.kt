@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -26,6 +27,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScreen
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScreen
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionLauncherFactory
+import io.github.taetae98coding.diary.feature.qr.ui.detail.share.QrCodePngEncoder
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScreen
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraPreviewContent
@@ -39,10 +41,17 @@ internal fun EntryProviderScope<ScreenNavKey>.qrEntry(
     backStack: NavBackStack<ScreenNavKey>,
     cameraPreviewContent: QrScanCameraPreviewContent,
     qrActionLauncherFactory: QrActionLauncherFactory,
+    contentSharerFactory: ContentSharerFactory,
+    qrCodePngEncoder: QrCodePngEncoder,
 ) {
     qrHomeEntry(backStack = backStack)
     qrAddEntry(backStack = backStack)
-    qrDetailEntry(backStack = backStack, qrActionLauncherFactory = qrActionLauncherFactory)
+    qrDetailEntry(
+        backStack = backStack,
+        qrActionLauncherFactory = qrActionLauncherFactory,
+        contentSharerFactory = contentSharerFactory,
+        qrCodePngEncoder = qrCodePngEncoder,
+    )
     qrScanEntry(backStack = backStack, cameraPreviewContent = cameraPreviewContent)
 }
 
@@ -114,6 +123,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrAddEntry(backStack: NavBackStack<
 private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(
     backStack: NavBackStack<ScreenNavKey>,
     qrActionLauncherFactory: QrActionLauncherFactory,
+    contentSharerFactory: ContentSharerFactory,
+    qrCodePngEncoder: QrCodePngEncoder,
 ) {
     entry<QrDetailNavKey>(
         metadata = { key -> backStack.qrListDetailPaneMetadata(key) },
@@ -129,6 +140,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(
             tagAddRequestKey = tagAddRequestKey,
             permissionManager = rememberPermissionManager(),
             qrActionLauncherFactory = qrActionLauncherFactory,
+            contentSharerFactory = contentSharerFactory,
+            qrCodePngEncoder = qrCodePngEncoder,
             resultEventBus = LocalResultEventBus.current,
             componentVisibleProvider = { QrDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             qrViewModel = koinViewModel { parametersOf(key.id) },

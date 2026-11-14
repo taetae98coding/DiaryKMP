@@ -33,6 +33,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.atTime
@@ -363,6 +364,7 @@ class MemoEntryTest :
                     memoEntry(
                         backStack = NavBackStack(*backStack.toTypedArray()),
                         homeReselectEvent = emptyFlow(),
+                        contentSharerFactory = mockk(),
                     )
                 }
 

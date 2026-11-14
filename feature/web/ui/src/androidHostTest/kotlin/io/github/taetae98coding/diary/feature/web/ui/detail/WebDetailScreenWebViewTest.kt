@@ -427,6 +427,7 @@ class WebDetailScreenWebViewTest {
                     webViewModel = webViewModel,
                     pageViewModel = pageViewModel,
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }

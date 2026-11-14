@@ -71,6 +71,8 @@ import io.github.taetae98coding.diary.feature.qr.ui.detail.action.AndroidQrActio
 import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
+import io.github.taetae98coding.diary.feature.qr.ui.testContentSharerFactory
+import io.github.taetae98coding.diary.feature.qr.ui.testQrCodePngEncoder
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldContainExactly
@@ -155,7 +157,7 @@ class QrDetailScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(LOADING).assertExists()
-        composeRule.buttonNameList() shouldBe listOf(NAVIGATE_UP)
+        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP)
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
     }
 
@@ -167,7 +169,7 @@ class QrDetailScreenTest {
 
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(2)
         // 태그 입력의 추가 칩은 내용 설명 대신 글자로 이름을 드러내므로 이름 없는 버튼 하나로 센다.
-        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB, "") + INFO_INPUT_CONTROL_LIST
+        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, SHARE, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB, "") + INFO_INPUT_CONTROL_LIST
         composeRule.onNodeWithText(TAG_INPUT_LABEL).assertExists()
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.waitForIdle()
@@ -852,6 +854,8 @@ class QrDetailScreenTest {
                     navigateToScan = navigateToScan,
                     permissionManager = rememberPermissionManager(),
                     qrActionLauncherFactory = remember { AndroidQrActionLauncherFactory() },
+                    contentSharerFactory = remember { testContentSharerFactory() },
+                    qrCodePngEncoder = remember { testQrCodePngEncoder() },
                     resultEventBus = resultEventBus,
                     componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                     qrViewModel = viewModel,
@@ -907,6 +911,7 @@ class QrDetailScreenTest {
         const val REFLECT_DELAY_MILLIS = 200L
 
         const val NAVIGATE_UP = "뒤로가기"
+        const val SHARE = "공유"
         const val UNDO = "되돌리기"
         const val SCAN = "QR 스캔"
         const val DELETE = "QR 삭제"

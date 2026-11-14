@@ -9,6 +9,7 @@ internal fun handlePlaceDetailScaffoldEvent(
     detailViewModel: PlaceDetailViewModel,
     scaffoldState: PlaceFormState,
     openExternalMap: () -> Unit,
+    share: () -> Unit,
     navigateUp: () -> Unit,
 ) {
     when (event) {
@@ -17,6 +18,7 @@ internal fun handlePlaceDetailScaffoldEvent(
         is PlaceDetailScaffoldEvent.ClickDelete -> detailViewModel.delete()
         is PlaceDetailScaffoldEvent.ClickSearch -> scaffoldState.searchDialogState.show()
         is PlaceDetailScaffoldEvent.ClickOpenExternalMap -> openExternalMap()
+        is PlaceDetailScaffoldEvent.ClickShare -> share()
     }
 }
 

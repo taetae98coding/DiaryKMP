@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -40,10 +41,13 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-internal fun EntryProviderScope<ScreenNavKey>.webEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.webEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     webHomeEntry(backStack = backStack)
     webAddEntry(backStack = backStack)
-    webDetailEntry(backStack = backStack)
+    webDetailEntry(backStack = backStack, contentSharerFactory = contentSharerFactory)
     webMemoFinishedListEntry(backStack = backStack)
 }
 
@@ -111,7 +115,10 @@ private fun EntryProviderScope<ScreenNavKey>.webAddEntry(backStack: NavBackStack
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    contentSharerFactory: ContentSharerFactory,
+) {
     entry<WebDetailNavKey> { key ->
         val tagAddRequestKey = rememberResultRequestKey()
 
@@ -127,6 +134,7 @@ private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackSt
             webViewModel = koinViewModel { parametersOf(key.id) },
             pageViewModel = koinViewModel { parametersOf(key.id) },
             tagViewModel = koinViewModel { parametersOf(EntityTagKind.WEB, key.id) },
+            contentSharerFactory = contentSharerFactory,
         )
     }
 }

@@ -291,6 +291,7 @@ class MemoDetailScreenBoundaryTest {
                 placeMapViewModel = screenTestPlaceMapViewModel(),
                 placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
+                contentSharerFactory = screenTestContentSharerFactory(),
                 navigateUp = navigateUp,
                 navigateToCopiedMemo = {},
                 navigateToTagAdd = {},

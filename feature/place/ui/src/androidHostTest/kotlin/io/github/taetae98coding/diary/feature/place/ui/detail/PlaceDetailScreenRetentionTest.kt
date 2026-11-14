@@ -49,6 +49,7 @@ class PlaceDetailScreenRetentionTest {
                     navigateUp = {},
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = contentSharerFactoryOf(),
                 )
             }
         }
@@ -92,6 +93,7 @@ class PlaceDetailScreenRetentionTest {
                         navigateUp = {},
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = contentSharerFactoryOf(),
                     )
                 }
             }
@@ -138,6 +140,7 @@ class PlaceDetailScreenRetentionTest {
                         navigateUp = {},
                         navigateToTagDetail = {},
                         tagViewModel = remember { detailTagScreenTestViewModel() },
+                        contentSharerFactory = contentSharerFactoryOf(),
                     )
                 }
             }

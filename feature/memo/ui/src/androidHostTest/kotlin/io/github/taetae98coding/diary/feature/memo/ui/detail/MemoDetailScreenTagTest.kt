@@ -83,6 +83,7 @@ class MemoDetailScreenTagTest {
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
+                    contentSharerFactory = screenTestContentSharerFactory(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},

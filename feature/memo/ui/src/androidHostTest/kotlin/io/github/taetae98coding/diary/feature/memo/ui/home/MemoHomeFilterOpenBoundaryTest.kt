@@ -41,6 +41,7 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestContentSharerFactory
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
@@ -170,7 +171,7 @@ class MemoHomeFilterOpenBoundaryTest {
                             entryProvider =
                                 entryProvider {
                                     entry<FilterBoundaryTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                    memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                    memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
                                 },
                         )
                     }

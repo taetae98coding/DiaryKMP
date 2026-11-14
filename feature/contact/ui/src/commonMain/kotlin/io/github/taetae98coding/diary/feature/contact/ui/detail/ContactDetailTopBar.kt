@@ -3,8 +3,10 @@ package io.github.taetae98coding.diary.feature.contact.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.core.share.ShareAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.Res
@@ -21,12 +23,10 @@ internal fun ContactDetailTopBar(
     modifier: Modifier = Modifier,
     uiStateProvider: () -> ContactDetailUiState = { ContactDetailUiState.Loading },
     componentVisibleProvider: () -> ContactDetailScaffoldComponentVisible = { ContactDetailScaffoldComponentVisible() },
+    isShareSupported: Boolean = false,
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.contact_navigate_up_button_content_description)
-    val favoriteContentDescription = stringResource(Res.string.contact_detail_favorite_button_content_description)
-    val unfavoriteContentDescription = stringResource(Res.string.contact_detail_unfavorite_button_content_description)
-    val deleteContentDescription = stringResource(Res.string.contact_detail_delete_button_content_description)
 
     DiaryTopBar(
         title = {
@@ -45,20 +45,35 @@ internal fun ContactDetailTopBar(
         },
         actions = {
             if (uiState is ContactDetailUiState.Content) {
-                IconAction(
-                    icon = if (uiState.isFavorite) DiaryTopBarIcon.STAR_FILL else DiaryTopBarIcon.STAR,
-                    contentDescription = if (uiState.isFavorite) unfavoriteContentDescription else favoriteContentDescription,
-                    onClick = { onEvent(ContactDetailScaffoldEvent.ClickFavorite) },
-                    isInProgress = uiState.isFavoriteInProgress,
-                )
-                IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
-                    contentDescription = deleteContentDescription,
-                    onClick = { onEvent(ContactDetailScaffoldEvent.ClickDelete) },
-                    isInProgress = uiState.isDeleteInProgress,
-                )
+                if (isShareSupported) {
+                    ShareAction(onClick = { onEvent(ContactDetailScaffoldEvent.ClickShare) })
+                }
+                ContactDetailContentActions(onEvent = onEvent, uiState = uiState)
             }
         },
+    )
+}
+
+@Composable
+private fun DiaryTopBarActionScope.ContactDetailContentActions(
+    onEvent: (ContactDetailScaffoldEvent) -> Unit,
+    uiState: ContactDetailUiState.Content,
+) {
+    val favoriteContentDescription = stringResource(Res.string.contact_detail_favorite_button_content_description)
+    val unfavoriteContentDescription = stringResource(Res.string.contact_detail_unfavorite_button_content_description)
+    val deleteContentDescription = stringResource(Res.string.contact_detail_delete_button_content_description)
+
+    IconAction(
+        icon = if (uiState.isFavorite) DiaryTopBarIcon.STAR_FILL else DiaryTopBarIcon.STAR,
+        contentDescription = if (uiState.isFavorite) unfavoriteContentDescription else favoriteContentDescription,
+        onClick = { onEvent(ContactDetailScaffoldEvent.ClickFavorite) },
+        isInProgress = uiState.isFavoriteInProgress,
+    )
+    IconAction(
+        icon = DiaryTopBarIcon.DELETE,
+        contentDescription = deleteContentDescription,
+        onClick = { onEvent(ContactDetailScaffoldEvent.ClickDelete) },
+        isInProgress = uiState.isDeleteInProgress,
     )
 }
 
@@ -69,6 +84,7 @@ private fun ContactDetailTopBarPreview() {
         ContactDetailTopBar(
             onEvent = {},
             uiStateProvider = { ContactDetailUiState.Content(id = Uuid.NIL, detail = ContactDetail.EMPTY.copy(name = "김철수"), isFavorite = true) },
+            isShareSupported = true,
         )
     }
 }
