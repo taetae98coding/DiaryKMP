@@ -75,11 +75,12 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             )
         }
 
-        test("TC-9a99bb31-632c-406d-8388-9ea5832f4709 삭제된 장소는 연결이 남아 있어도 조회되지 않는다") {
+        test("TC-9a99bb31-632c-406d-8388-9ea5832f4709 TC-7cf65b5b-70b2-4298-ac53-3303c960aff2 삭제된 장소는 연결이 남아 있어도 조회되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val place = place()
             insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
+            dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(place)
 
             placeTransaction.upsert(accountId = accountId, placeList = listOf(place.copy(isDeleted = true)), placeTagList = emptyList())
 

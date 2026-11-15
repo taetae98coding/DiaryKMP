@@ -288,10 +288,11 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 0) { context.accountTagLinkSyncTransaction.upsert(any(), any(), any()) }
         }
 
-        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 태그 연결만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 태그 연결만 업로드한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val context = context(accountId = accountId)
+            val tagLinkList = tagLinks(size = 1)
+            val context = context(accountId = accountId, tagLinkList = tagLinkList)
             coEvery {
                 context.tagLinkSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns tagLinks(size = 1)
@@ -299,12 +300,12 @@ class SyncWorkTagLinkTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.tagLinkSyncLocalDataSource.readPendingList(accountId = accountId)
+                context.tagLinkRemoteDataSource.push(tagLinkList.map { tagLink -> tagLink.toRemote() })
             }
+            coVerify(exactly = 1) { context.tagLinkRemoteDataSource.push(any()) }
             coVerify(exactly = 0) {
                 context.tagLinkSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
-            coVerify(exactly = 0) { context.tagLinkRemoteDataSource.push(any()) }
         }
     }) {
     public companion object {

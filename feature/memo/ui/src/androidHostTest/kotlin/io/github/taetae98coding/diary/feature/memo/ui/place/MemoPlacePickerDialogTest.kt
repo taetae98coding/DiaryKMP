@@ -1,9 +1,12 @@
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -55,6 +58,9 @@ class MemoPlacePickerDialogTest {
         )
 
         composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOff()
+        composeRule.onAllNodes(hasText(text = DEFAULT_RETRY_TEXT, ignoreCase = true) and hasAnyAncestor(isDialog())).assertCountEquals(0)
+        composeRule.onAllNodes(hasText(text = APPEND_FAILURE_MESSAGE, substring = true)).assertCountEquals(0)
+        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -109,6 +115,27 @@ class MemoPlacePickerDialogTest {
     }
 
     @Test
+    fun `TC-16a56440-8c52-46b8-9ccd-b494b5122495 나타난 장소가 없어도 장소 추가 항목을 누르면 장소 추가 행동만 전달한다`() {
+        var placeAddCount = 0
+        val selectedIdList = mutableListOf<Uuid>()
+        val unselectedIdList = mutableListOf<Uuid>()
+        composeRule.setMemoPlacePickerDialog(
+            placeList = emptyList(),
+            onPlaceSelect = selectedIdList::add,
+            onPlaceUnselect = unselectedIdList::add,
+            onPlaceAdd = { placeAddCount += 1 },
+        )
+        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
+
+        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_PLACE_ADD).performClick()
+        composeRule.waitForIdle()
+
+        placeAddCount shouldBe 1
+        selectedIdList shouldBe emptyList()
+        unselectedIdList shouldBe emptyList()
+    }
+
+    @Test
     fun `장소 추가 항목에 장소 추가 동작 이름을 제공한다`() {
         composeRule.setMemoPlacePickerDialog(placeList = listOf(testPlace(title = HOME_PLACE_TITLE)))
 
@@ -149,3 +176,8 @@ class MemoPlacePickerDialogTest {
         unselectedIdList shouldBe emptyList()
     }
 }
+
+private const val DEFAULT_RETRY_TEXT = "Retry"
+
+// 조회 실패 대역이 담는 오류 메시지다. 화면에 그대로 드러나지 않아야 한다.
+private const val APPEND_FAILURE_MESSAGE = "append failed"

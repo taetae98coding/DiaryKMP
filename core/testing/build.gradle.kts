@@ -6,6 +6,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                api(projects.core.calendarDatabase.api)
+                api(projects.core.calendarNetwork.api)
                 api(projects.core.database.api)
                 api(projects.core.googleNetwork.api)
                 api(projects.core.ipNetwork.api)

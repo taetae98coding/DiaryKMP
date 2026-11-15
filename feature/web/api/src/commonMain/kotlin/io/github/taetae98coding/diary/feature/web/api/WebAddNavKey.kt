@@ -9,6 +9,9 @@ public data class WebAddNavKey(
     val initialTagId: Uuid? = null,
     // 화면이 여러 번 쌓여도 결과를 돌려줄 웹 입력을 서로 구분하도록 요청마다 다른 키를 받는다.
     val requestKey: Uuid? = null,
+    val initialTitle: String = "",
+    val initialUrl: String = "",
+    val isStandalone: Boolean = false,
 ) : ScreenNavKey {
     override val screenName: String get() = "WebAdd"
 }

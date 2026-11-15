@@ -9,11 +9,16 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.routine.ui.loadedRoutinePagingData
+import io.github.taetae98coding.diary.feature.routine.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,6 +30,11 @@ import org.robolectric.annotation.Config
 class RoutineHomeScaffoldTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-ee387456-97a9-4cd6-a8fb-987ae93517aa 표시할 루틴이 없으면 빈 상태 안내를 표시한다`() {
@@ -94,15 +104,20 @@ class RoutineHomeScaffoldTest {
         uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         componentVisibleProvider: () -> RoutineHomeScaffoldComponentVisible = { RoutineHomeScaffoldComponentVisible() },
     ) {
+        val pagingDataFlow = MutableStateFlow(loadedRoutinePagingData())
+
         composeRule.setContent {
             DiaryTheme {
                 RoutineHomeScaffold(
                     onEvent = onEvent,
-                    uiStateProvider = uiStateProvider,
+                    onRoutineListEvent = {},
+                    routinePagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                    syncUiStateProvider = uiStateProvider,
                     componentVisibleProvider = componentVisibleProvider,
                 )
             }
         }
+        composeRule.waitForIdle()
     }
 
     private companion object {

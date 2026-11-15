@@ -629,7 +629,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-b7e14b09-d12c-4454-addb-34dc24a60be2 대상 연락처가 삭제 상태로 바뀌어도 내용 표시 상태를 유지하고 수정과 삭제를 처리한다") {
+        test("TC-b7e14b09-d12c-4454-addb-34dc24a60be2 TC-fa086b84-94ef-4d78-a1b4-2dd04e8a8211 대상 연락처가 삭제 상태로 바뀌어도 내용 표시 상태를 유지하고 수정과 삭제를 처리한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val contactFlow = MutableStateFlow(Result.success<Contact?>(contact))

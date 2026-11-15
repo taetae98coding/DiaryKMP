@@ -204,7 +204,10 @@ class AccountTagLinkSyncTransactionImplTest :
             "늦음" to Instant.fromEpochMilliseconds(2_000),
             "같음" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
-            test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
+            // 태그 연결 문서의 "내려받은 연결이 기기에 반영된다"는 서버 수정 시각이 더 늦은 경우라, 그 ID는 늦음 행에만 붙인다.
+            val pulledTc = if (label == "늦음") "TC-4b6965f3-bda3-4b32-9b08-009f2a266eea " else ""
+
+            test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 ${pulledTc}서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
                 val accountId = Arb.kotlinUuid().next()
                 val local = tagLink(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = remoteUpdatedAt)
@@ -213,6 +216,7 @@ class AccountTagLinkSyncTransactionImplTest :
                 transaction.upsert(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
 
                 findTagLink(fromTagId = local.fromTagId, toTagId = local.toTagId) shouldBe remote
+                syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 5L
             }
         }
 
@@ -228,7 +232,7 @@ class AccountTagLinkSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 5L
         }
 
-        test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 TC-4b6965f3-bda3-4b32-9b08-009f2a266eea 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = Arb.kotlinUuid().next()
             val remote = tagLink()
 
@@ -239,21 +243,28 @@ class AccountTagLinkSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 5L
         }
 
-        test("TC-84a29c64-490b-482a-acab-32fae5dbba26 내려받기 저장은 이미 있는 연결의 대기 여부를 덮어쓰지 않는다") {
-            val accountId = Arb.kotlinUuid().next()
-            val pending = tagLink(updatedAt = Instant.fromEpochMilliseconds(1_000))
-            val synced = tagLink(updatedAt = Instant.fromEpochMilliseconds(1_000))
-            insertWithSyncState(accountId, pending, isDirty = true)
-            insertWithSyncState(accountId, synced, isDirty = false)
+        listOf(
+            "늦음" to Instant.fromEpochMilliseconds(3_000),
+            "같음" to Instant.fromEpochMilliseconds(2_000),
+            "이른" to Instant.fromEpochMilliseconds(1_000),
+        ).forEach { (label, remoteUpdatedAt) ->
+            test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
 
-            transaction.upsert(
-                accountId = accountId,
-                tagLinkList = listOf(pending, synced),
-                cursor = 5L,
-            )
+                val accountId = Arb.kotlinUuid().next()
+                val pending = tagLink(updatedAt = Instant.fromEpochMilliseconds(2_000))
+                val synced = tagLink(updatedAt = Instant.fromEpochMilliseconds(2_000))
+                insertWithSyncState(accountId, pending, isDirty = true)
+                insertWithSyncState(accountId, synced, isDirty = false)
 
-            isPending(pending, accountId) shouldBe true
-            isPending(synced, accountId) shouldBe false
+                transaction.upsert(
+                    accountId = accountId,
+                    tagLinkList = listOf(pending.copy(updatedAt = remoteUpdatedAt), synced.copy(updatedAt = remoteUpdatedAt)),
+                    cursor = 5L,
+                )
+
+                isPending(pending, accountId) shouldBe true
+                isPending(synced, accountId) shouldBe false
+            }
         }
 
         test("같은 출발 태그의 다른 연결은 서로 독립적으로 저장된다") {

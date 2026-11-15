@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.core.share.ShareAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.Res
@@ -26,6 +27,7 @@ internal fun MemoDetailTopBar(
     uiStateProvider: () -> MemoDetailUiState = { MemoDetailUiState.Loading },
     componentVisibleProvider: () -> MemoDetailScaffoldComponentVisible = { MemoDetailScaffoldComponentVisible() },
     geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
+    isShareSupported: Boolean = false,
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.memo_detail_navigate_up_button_content_description)
@@ -50,6 +52,9 @@ internal fun MemoDetailTopBar(
         },
         actions = {
             if (uiState is MemoDetailUiState.Content) {
+                if (isShareSupported) {
+                    ShareAction(onClick = { onEvent(MemoDetailScaffoldEvent.ClickShare) })
+                }
                 if (geminiUiStateProvider().isButtonVisible) {
                     IconAction(
                         icon = DiaryTopBarIcon.AUTO_AWESOME,

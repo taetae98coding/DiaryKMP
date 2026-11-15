@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
+import io.github.taetae98coding.diary.domain.search.usecase.SearchRoutineUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchWebUseCase
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -19,6 +20,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParamete
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.routine.toJson
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.koin.core.annotation.Factory
@@ -45,6 +47,7 @@ internal class SearchMcpToolSet(
     private val searchPlaceUseCase: SearchPlaceUseCase,
     private val searchWebUseCase: SearchWebUseCase,
     private val searchDDayUseCase: SearchDDayUseCase,
+    private val searchRoutineUseCase: SearchRoutineUseCase,
     private val clock: Clock,
 ) : McpToolSet {
     override val toolList: List<McpTool> =
@@ -110,6 +113,22 @@ internal class SearchMcpToolSet(
                         parameter = SearchDDayUseCase.Parameter(query = arguments.string(QUERY), sort = arguments.sort(searchSortList)),
                         offset = arguments.pageOffset(),
                     ).toJson { dday -> dday.toJson(today = today) }
+            },
+            McpTool(
+                name = "search_routine",
+                description =
+                    "Searches saved routines by the query, like the routine results of the search screen, finished routines included, in progress first, then not started, by title within each, " +
+                        "with this cycle's total and achievement rate counted from today.",
+                parameterList = listOf(queryParameter, mcpPageCursorParameter),
+                kind = McpToolKind.READ,
+            ) { arguments ->
+                val today = clock.todayIn(TimeZone.currentSystemDefault())
+
+                searchRoutineUseCase
+                    .readPage(
+                        parameter = SearchRoutineUseCase.Parameter(query = arguments.string(QUERY), today = today),
+                        offset = arguments.pageOffset(),
+                    ).toJson { summary -> summary.toJson(today = today) }
             },
         )
 }

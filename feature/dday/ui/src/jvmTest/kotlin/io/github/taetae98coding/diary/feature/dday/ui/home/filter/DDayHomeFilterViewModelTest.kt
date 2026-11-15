@@ -7,6 +7,7 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.SelectDDayFilterTagUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UnselectAllDDayFilterTagUseCase
@@ -123,13 +124,13 @@ class DDayHomeFilterViewModelTest : FunSpec() {
         test("TC-fa768c1e-19a6-4bf1-9773-caf996cdb89e 선택 전체 해제를 실행하면 전체 해제를 한 번 요청한다") {
             runTest(mainDispatcher) {
                 val unselectAllUseCase = mockk<UnselectAllDDayFilterTagUseCase>()
-                coEvery { unselectAllUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { unselectAllUseCase() } returns Result.success(Unit)
                 val viewModel = viewModel(unselectAllDDayFilterTagUseCase = unselectAllUseCase)
 
                 viewModel.unselectAllTag()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { unselectAllUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { unselectAllUseCase() }
             }
         }
 
@@ -159,7 +160,7 @@ class DDayHomeFilterViewModelTest : FunSpec() {
         unselectAllDDayFilterTagUseCase: UnselectAllDDayFilterTagUseCase = mockk(),
     ): DDayHomeFilterViewModel {
         val getDDayFilterUseCase = mockk<GetDDayFilterUseCase>()
-        every { getDDayFilterUseCase(parameter = Unit) } returns filterFlow
+        every { getDDayFilterUseCase() } returns filterFlow
 
         return DDayHomeFilterViewModel(
             pageTagUseCase = pageTagUseCase,

@@ -22,7 +22,13 @@
 
 상세 영역의 메모에서 태그, 웹 항목, 연락처, 장소의 상세나 추가로 이동한 화면은 이 배치에 참여하지 않고 단독으로 표시한다. 그 화면에서 돌아온 결과는 [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `배치에 참여하는 화면`을 따른다.
 
-메모 목록이 아닌 곳에서 진입한 MemoAdd 화면과 MemoDetail 화면은 이 배치에 참여하지 않고 단독으로 표시한다. 캘린더 홈과 캘린더 시간표 화면, 황금연휴 화면, TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, SearchHome 화면에서 진입한 경우가 여기에 해당한다.
+상세 영역의 메모에서 작성 도우미를 시작해 이동한 SettingGemini 화면도 이 배치에 참여하지 않는다. 표시와 뒤로가기는 [SettingGemini 화면 스펙](./setting-gemini.md)의 `진입과 이동`을 따른다.
+
+메모 목록에서 검색을 선택해 이동한 SearchHome 화면도 이 배치에 참여하지 않고 단독으로 표시한다.
+
+메모 목록이 아닌 곳에서 진입한 MemoAdd 화면과 MemoDetail 화면은 이 배치에 참여하지 않고 단독으로 표시한다. 캘린더 홈과 캘린더 시간표 화면, 황금연휴 화면, TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, SearchHome 화면에서 진입한 경우가 여기에 해당한다. Spotlight 검색 결과에서 진입한 MemoDetail 화면도 메모 목록에서 진입한 것이 아니므로, 메모 목록이나 이 배치의 상세 영역을 보던 중에 골랐어도 [Spotlight 항목 노출 스펙](./spotlight.md)의 `고른 항목 열기`에 따라 단독으로 표시한다.
+
+이 배치에 참여하지 않고 단독으로 표시한 MemoDetail 화면에서 메모를 복사하면 복사한 메모의 상세도 단독 표시를 이어받아, 메모 목록 위에서 열었더라도 이 배치에 참여하지 않고 단독으로 표시한다.
 
 MemoFinishedList 화면에서 진입한 MemoDetail 화면은 이 배치 대신 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따른다.
 
@@ -47,3 +53,5 @@ MemoFinishedList 화면에서 진입한 MemoDetail 화면은 이 배치 대신 [
 앱이 백그라운드에 있는 동안 시스템이 앱을 정리했다가 다시 만드는 것도 이 배치를 떠난 것으로 보지 않는다. 상세 선택과 표시 비율은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `유지와 초기화 기준`에 따라 떠나기 전 그대로 다시 보인다.
 
 메모 목록에서 완료된 메모 확인을 선택해 MemoFinishedList 화면에 다녀오는 것도 이 배치를 떠난 것으로 보지 않는다. MemoFinishedList 화면에서 메모 목록으로 돌아오면 이 배치의 상세 선택과 표시 비율, 상세 영역에서 그 전에 놓였던 화면으로 돌아가는 뒤로가기 기록은 MemoFinishedList로 떠나기 전 그대로다. MemoFinishedList 화면 자체의 배치는 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따른다.
+
+메모 목록에서 검색을 선택해 SearchHome 화면에 다녀오는 것도 이 배치를 떠난 것으로 보지 않는다. SearchHome 화면에서 메모 목록으로 돌아오면 이 배치의 상세 선택과 상세 영역에서 그 전에 놓였던 화면으로 돌아가는 뒤로가기 기록은 SearchHome으로 떠나기 전 그대로다.

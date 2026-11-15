@@ -22,18 +22,13 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
-import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +48,11 @@ class RoutineListDetailNavigationTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestTopLevelNavKey, RoutineHomeNavKey)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
+
     @After
     fun tearDown() {
         stopKoin()
@@ -80,9 +79,26 @@ class RoutineListDetailNavigationTest {
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        backStack.last() shouldBe RoutineAddNavKey
+        backStack.last() shouldBe RoutineAddNavKey()
         composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `TC-f731c7b3-d20c-4718-ae02-b9287ed7d17a 단독으로 표시된 루틴 추가에서 뒤로가면 RoutineHome으로 돌아간다`() {
+        setRoutineNavDisplay()
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(NavigationTestTopLevelNavKey, RoutineHomeNavKey)
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -102,15 +118,15 @@ class RoutineListDetailNavigationTest {
     private fun setRoutineNavDisplay() {
         val viewModelModule =
             module {
-                factory<SyncRefreshViewModel> {
-                    mockk<SyncRefreshViewModel>(relaxed = true) {
-                        every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                    }
-                }
+                factory { routineHomeViewModel() }
+                factory { routineHomeCalendarViewModel() }
+                factory { routineHomeHolidayViewModel() }
+                factory { routineSyncRefreshViewModel() }
+                factory { routineAddViewModel() }
+                factory { routineAddTagViewModel() }
             }
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {
@@ -120,7 +136,7 @@ class RoutineListDetailNavigationTest {
 
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
+                    RoutineTestTheme {
                         val holder = rememberListDetailPlaceholderStateHolder()
 
                         CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
@@ -152,6 +168,7 @@ class RoutineListDetailNavigationTest {
         const val DEFAULT_ADD_TITLE = "Add Routine"
         const val DEFAULT_EMPTY_TITLE = "No routines yet"
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add routine"
+        const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
     }
 }
 

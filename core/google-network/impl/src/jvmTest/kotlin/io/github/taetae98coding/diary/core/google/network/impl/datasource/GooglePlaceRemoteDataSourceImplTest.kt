@@ -204,7 +204,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-22cce4a8-f806-49e1-85d3-07225309b5bc: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+        test("좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val representable = Arb.googlePlaceRemoteEntity().next()
             val withoutLocationName = "place-${Arb.int().next()}"
             val withoutLatitudeName = "place-${Arb.int().next()}"

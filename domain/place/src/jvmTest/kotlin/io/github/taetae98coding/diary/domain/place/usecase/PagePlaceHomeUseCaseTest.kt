@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -29,7 +30,7 @@ class PagePlaceHomeUseCaseTest :
             val account = Arb.accountUser().next()
             val placeList = List(2) { place() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             every { accountPlaceRepository.page(account = account, query = "", sort = ListSort.RECENTLY_UPDATED) } returns flowOf(PagingData.from(placeList))
             val useCase =
@@ -51,7 +52,7 @@ class PagePlaceHomeUseCaseTest :
         Given("현재 계정을 확인할 수 없도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
             val useCase =
                 PagePlaceHomeUseCase(

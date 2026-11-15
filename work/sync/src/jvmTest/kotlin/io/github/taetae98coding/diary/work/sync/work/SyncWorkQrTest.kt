@@ -145,7 +145,7 @@ class SyncWorkQrTest :
             musicRequests shouldContainExactly listOf(100, 100, 1)
         }
 
-        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 QR 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 QR 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = qrPulls(usnList = listOf(4L, 6L))
             val secondPullList = qrPulls(usnList = listOf(9L))
@@ -173,10 +173,11 @@ class SyncWorkQrTest :
             coVerify(exactly = 3) { context.qrRemoteDataSource.pull(any()) }
         }
 
-        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 QR만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 QR만 업로드한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val context = context(accountId = accountId)
+            val qrList = qrs(size = 1)
+            val context = context(accountId = accountId, qrList = qrList)
             coEvery {
                 context.qrSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns qrs(size = 1)
@@ -184,11 +185,11 @@ class SyncWorkQrTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.qrSyncLocalDataSource.readPendingList(accountId = accountId)
+                context.qrRemoteDataSource.push(qrList.map { qr -> qr.toRemote() })
             }
+            coVerify(exactly = 1) { context.qrRemoteDataSource.push(any()) }
             coVerify(exactly = 0) {
                 context.qrSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
-            coVerify(exactly = 0) { context.qrRemoteDataSource.push(any()) }
         }
     })

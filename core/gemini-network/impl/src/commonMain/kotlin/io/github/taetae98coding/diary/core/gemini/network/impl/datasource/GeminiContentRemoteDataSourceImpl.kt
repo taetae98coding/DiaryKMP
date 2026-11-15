@@ -26,7 +26,8 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.readUTF8Line
+import io.ktor.utils.io.LineEnding
+import io.ktor.utils.io.readLine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.catch
@@ -92,11 +93,12 @@ internal class GeminiContentRemoteDataSourceImpl(
     private fun String.toContent(): ContentRemoteEntity = ContentRemoteEntity(parts = listOf(PartRemoteEntity(text = this)))
 
     // 서버가 보내는 이벤트는 `data:` 줄들과 빈 줄로 끝나는 묶음이며, 한 묶음의 `data:` 줄을 이어 붙인 것이 응답 조각 하나다.
+    // SSE는 CR 단독 줄 끝도 허용하므로 LF·CRLF만 받는 기본값 대신 Lenient로 읽는다.
     private suspend fun ByteReadChannel.forEachEventData(onData: suspend (String) -> Unit) {
         val data = StringBuilder()
 
         while (true) {
-            val line = readUTF8Line() ?: break
+            val line = readLine(lineEnding = LineEnding.Lenient) ?: break
 
             when {
                 line.isEmpty() && data.isNotEmpty() -> {

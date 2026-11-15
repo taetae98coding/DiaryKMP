@@ -14,6 +14,8 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.holiday
 import io.github.taetae98coding.diary.feature.holiday.ui.home.goldenholiday.GoldenHolidayYear
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -62,7 +64,13 @@ class HolidayHomeScaffoldGoldenHolidayTest {
         )
 
         composeRule.onNodeWithText("1 leave").assertExists()
-        composeRule.onNodeWithText(DEFAULT_ANNUAL_LEAVE_ITEM_LABEL).assertExists()
+        // 연차 이름이 2월 6일 열 안에 놓였는지를 이웃한 5일, 7일 열과의 경계로 확인한다.
+        val leaveX = composeRule.centerX(DEFAULT_ANNUAL_LEAVE_ITEM_LABEL)
+        val day5X = composeRule.centerX("5")
+        val day6X = composeRule.centerX("6")
+        val day7X = composeRule.centerX("7")
+        leaveX shouldBeGreaterThan (day5X + day6X) / 2
+        leaveX shouldBeLessThan (day6X + day7X) / 2
     }
 
     @Test
@@ -178,5 +186,10 @@ class HolidayHomeScaffoldGoldenHolidayTest {
         private const val SUMMARY_AND_TWO_WEEK_COUNT = 3
     }
 }
+
+private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.centerX(text: String): Float =
+    onNodeWithText(text)
+        .fetchSemanticsNode()
+        .boundsInRoot.center.x
 
 private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.textCount(text: String): Int = onAllNodesWithText(text).fetchSemanticsNodes().size

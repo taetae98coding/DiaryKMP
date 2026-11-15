@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.setting.ui.home
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileDownloadDirectorySupportUseCase
 import io.github.taetae98coding.diary.domain.mcp.usecase.ReadMcpServerSupportUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
@@ -114,7 +115,7 @@ class SettingHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val pending = CompletableDeferred<Result<Boolean>>()
                 val readUseCase = mockk<ReadFileDownloadDirectorySupportUseCase>()
-                coEvery { readUseCase(Unit) } coAnswers { pending.await() }
+                coEvery { readUseCase() } coAnswers { pending.await() }
                 val viewModel = viewModel(fileUseCase = readUseCase)
 
                 viewModel.uiState.test {
@@ -129,7 +130,7 @@ class SettingHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val pending = CompletableDeferred<Result<Boolean>>()
                 val readUseCase = mockk<ReadMcpServerSupportUseCase>()
-                coEvery { readUseCase(Unit) } coAnswers { pending.await() }
+                coEvery { readUseCase() } coAnswers { pending.await() }
                 val viewModel = viewModel(fileUseCase = fileUseCase(Result.success(true)), mcpUseCase = readUseCase)
 
                 viewModel.uiState.test {
@@ -161,7 +162,7 @@ class SettingHomeViewModelTest : FunSpec() {
         test("TC-f9d774f7-c64b-4f6c-af2b-188c19a37b09 제공 여부를 읽지 못한 뒤 화면을 떠났다가 다시 들어오면 다시 확인한다") {
             runTest(mainDispatcher) {
                 val readUseCase = mockk<ReadFileDownloadDirectorySupportUseCase>()
-                coEvery { readUseCase(Unit) } returnsMany listOf(Result.failure(IllegalStateException("read error")), Result.success(true))
+                coEvery { readUseCase() } returnsMany listOf(Result.failure(IllegalStateException("read error")), Result.success(true))
 
                 viewModel(fileUseCase = readUseCase).uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
@@ -173,7 +174,7 @@ class SettingHomeViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingHomeUiState.Loading
                     awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                 }
-                coVerify(exactly = 2) { readUseCase(Unit) }
+                coVerify(exactly = 2) { readUseCase() }
             }
         }
 
@@ -205,7 +206,7 @@ class SettingHomeViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingHomeUiState.Loading
                     awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList - SettingHomeItem.FILE)
                 }
-                coVerify(exactly = 2) { readUseCase(Unit) }
+                coVerify(exactly = 2) { readUseCase() }
             }
         }
 
@@ -243,7 +244,7 @@ class SettingHomeViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     expectNoEvents()
                 }
-                coVerify(exactly = 1) { readUseCase(Unit) }
+                coVerify(exactly = 1) { readUseCase() }
             }
         }
 
@@ -263,7 +264,7 @@ class SettingHomeViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     expectNoEvents()
                 }
-                coVerify(exactly = 1) { readUseCase(Unit) }
+                coVerify(exactly = 1) { readUseCase() }
             }
         }
 
@@ -297,7 +298,7 @@ class SettingHomeViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     expectNoEvents()
                 }
-                coVerify(exactly = 1) { readUseCase(Unit) }
+                coVerify(exactly = 1) { readUseCase() }
             }
         }
     }
@@ -307,19 +308,19 @@ class SettingHomeViewModelTest : FunSpec() {
         next: Result<Boolean>,
     ): ReadFileDownloadDirectorySupportUseCase {
         val fileUseCase = mockk<ReadFileDownloadDirectorySupportUseCase>()
-        coEvery { fileUseCase(Unit) } returnsMany listOf(first, next)
+        coEvery { fileUseCase() } returnsMany listOf(first, next)
         return fileUseCase
     }
 
     private fun fileUseCase(result: Result<Boolean>): ReadFileDownloadDirectorySupportUseCase {
         val fileUseCase = mockk<ReadFileDownloadDirectorySupportUseCase>()
-        coEvery { fileUseCase(Unit) } returns result
+        coEvery { fileUseCase() } returns result
         return fileUseCase
     }
 
     private fun mcpSupportUseCase(result: Result<Boolean>): ReadMcpServerSupportUseCase {
         val mcpUseCase = mockk<ReadMcpServerSupportUseCase>()
-        coEvery { mcpUseCase(Unit) } returns result
+        coEvery { mcpUseCase() } returns result
         return mcpUseCase
     }
 

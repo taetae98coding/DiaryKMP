@@ -39,6 +39,9 @@ import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountM
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routine.entity.AccountRoutineLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routinefilter.entity.RoutineFilterTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routinerecord.entity.AccountRoutineRecordLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.sync.entity.SyncCursorLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
@@ -57,6 +60,8 @@ import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineRecordLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
@@ -82,6 +87,8 @@ private val ACCOUNT_TABLE_LIST =
         "account_checklist",
         "account_checklist_item",
         "account_dday",
+        "account_routine",
+        "account_routine_record",
         "account_memo_tag",
         "account_memo_place",
         "account_memo_web",
@@ -94,10 +101,12 @@ private val ACCOUNT_TABLE_LIST =
         "account_music_tag",
         "account_qr_tag",
         "account_dday_tag",
+        "account_routine_tag",
         "tag_filter",
         "memo_filter_tag",
         "calendar_filter_tag",
         "dday_filter_tag",
+        "routine_filter_tag",
         "sync_cursor",
     )
 
@@ -113,6 +122,8 @@ private val ENTITY_TABLE_LIST =
         "checklist",
         "checklist_item",
         "dday",
+        "routine",
+        "routine_record",
         "memo_tag",
         "memo_place",
         "memo_web",
@@ -125,6 +136,7 @@ private val ENTITY_TABLE_LIST =
         "music_tag",
         "qr_tag",
         "dday_tag",
+        "routine_tag",
     )
 
 private data class FilledEntity(
@@ -139,7 +151,21 @@ private data class FilledEntity(
     val checklistId: Uuid,
     val checklistItemId: Uuid,
     val ddayId: Uuid,
-)
+    val routineId: Uuid,
+    val routineRecordId: Uuid,
+) {
+    fun entityId(kind: EntityTagKindLocalEntity): Uuid =
+        when (kind) {
+            EntityTagKindLocalEntity.WEB -> webId
+            EntityTagKindLocalEntity.PLACE -> placeId
+            EntityTagKindLocalEntity.CONTACT -> contactId
+            EntityTagKindLocalEntity.CHECKLIST -> checklistId
+            EntityTagKindLocalEntity.MUSIC -> musicId
+            EntityTagKindLocalEntity.QR -> qrId
+            EntityTagKindLocalEntity.DDAY -> ddayId
+            EntityTagKindLocalEntity.ROUTINE -> routineId
+        }
+}
 
 class AccountDataTransactionImplTest :
     FunSpec({
@@ -172,7 +198,24 @@ class AccountDataTransactionImplTest :
                 }
             }
 
-        /** 항목 종류를 한 계정 몫으로 채우고 만든 항목을 돌려준다. */
+        suspend fun fillRoutine(
+            accountId: Uuid,
+            isDirty: Boolean,
+        ): Pair<Uuid, Uuid> {
+            val routine = Arb.routineLocalEntity().next()
+            val routineRecord = Arb.routineRecordLocalEntity().next().copy(routineId = routine.id)
+
+            database.routineDao().upsert(routine)
+            database.accountRoutineDao().upsert(AccountRoutineLocalEntity(accountId = accountId, routineId = routine.id, isDirty = isDirty))
+
+            database.routineRecordDao().upsert(routineRecord)
+            database.accountRoutineRecordDao().upsert(
+                AccountRoutineRecordLocalEntity(accountId = accountId, routineRecordId = routineRecord.id, isDirty = isDirty),
+            )
+
+            return routine.id to routineRecord.id
+        }
+
         suspend fun fillEntity(
             accountId: Uuid,
             isDirty: Boolean,
@@ -188,6 +231,7 @@ class AccountDataTransactionImplTest :
             val checklist = Arb.checklistLocalEntity().next()
             val checklistItem = Arb.checklistItemLocalEntity().next().copy(checklistId = checklist.id)
             val dday = Arb.ddayLocalEntity().next()
+            val (routineId, routineRecordId) = fillRoutine(accountId = accountId, isDirty = isDirty)
 
             database.memoDao().upsert(memo)
             database.accountMemoDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = memo.id, isDirty = isDirty))
@@ -239,6 +283,8 @@ class AccountDataTransactionImplTest :
                 checklistId = checklist.id,
                 checklistItemId = checklistItem.id,
                 ddayId = dday.id,
+                routineId = routineId,
+                routineRecordId = routineRecordId,
             )
         }
 
@@ -264,6 +310,10 @@ class AccountDataTransactionImplTest :
                 AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = entity.checklistItemId, isDirty = false),
             )
             database.accountDDayDao().upsert(AccountDDayLocalEntity(accountId = accountId, ddayId = entity.ddayId, isDirty = false))
+            database.accountRoutineDao().upsert(AccountRoutineLocalEntity(accountId = accountId, routineId = entity.routineId, isDirty = false))
+            database.accountRoutineRecordDao().upsert(
+                AccountRoutineRecordLocalEntity(accountId = accountId, routineRecordId = entity.routineRecordId, isDirty = false),
+            )
         }
 
         suspend fun fillRelation(
@@ -312,20 +362,7 @@ class AccountDataTransactionImplTest :
             )
 
             EntityTagKindLocalEntity.entries.forEach { kind ->
-                val entityTag =
-                    Arb.entityTagLocalEntity().next().copy(
-                        entityId =
-                            when (kind) {
-                                EntityTagKindLocalEntity.WEB -> entity.webId
-                                EntityTagKindLocalEntity.PLACE -> entity.placeId
-                                EntityTagKindLocalEntity.CONTACT -> entity.contactId
-                                EntityTagKindLocalEntity.CHECKLIST -> entity.checklistId
-                                EntityTagKindLocalEntity.MUSIC -> entity.musicId
-                                EntityTagKindLocalEntity.QR -> entity.qrId
-                                EntityTagKindLocalEntity.DDAY -> entity.ddayId
-                            },
-                        tagId = entity.tagId,
-                    )
+                val entityTag = Arb.entityTagLocalEntity().next().copy(entityId = entity.entityId(kind = kind), tagId = entity.tagId)
                 val table = database.entityTagTable(kind = kind)
 
                 table.upsert(entityTagList = listOf(entityTag))
@@ -345,6 +382,7 @@ class AccountDataTransactionImplTest :
             database.memoFilterTagDao().upsert(MemoFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
             database.calendarFilterTagDao().upsert(CalendarFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
             database.ddayFilterTagDao().upsert(DDayFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
+            database.routineFilterTagDao().upsert(RoutineFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
 
             SyncKindLocalEntity.entries.forEach { kind ->
                 database.syncCursorDao().upsert(
@@ -367,7 +405,7 @@ class AccountDataTransactionImplTest :
             fillAccountState(accountId = accountId, entity = entity)
         }
 
-        test("TC-ce8de4c6-cb52-4b84-a7d8-ef0fbd8517b7 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
+        test("TC-ce8de4c6-cb52-4b84-a7d8-ef0fbd8517b7 TC-e64cb655-d2fc-4b69-942a-20e3ad112f67 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
             val accountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
 
@@ -381,7 +419,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-fb5b77ea-f160-4081-baed-4c400465f7ea 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
+        test("TC-fb5b77ea-f160-4081-baed-4c400465f7ea TC-e64cb655-d2fc-4b69-942a-20e3ad112f67 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
@@ -427,7 +465,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 스물두 종류가 모두 기본 커서로 조회된다") {
+        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 스물다섯 종류가 모두 기본 커서로 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
 

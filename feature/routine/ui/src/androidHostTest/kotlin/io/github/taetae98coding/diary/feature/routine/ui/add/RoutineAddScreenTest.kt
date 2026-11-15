@@ -1,8 +1,9 @@
 package io.github.taetae98coding.diary.feature.routine.ui.add
 
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
@@ -13,13 +14,29 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.routine.RoutineCycle
+import io.github.taetae98coding.diary.domain.routine.RoutineInput
+import io.github.taetae98coding.diary.feature.routine.ui.RoutineTestTheme
+import io.github.taetae98coding.diary.feature.routine.ui.form.ROUTINE_FORM_DEFAULT_CYCLE_DAILY
+import io.github.taetae98coding.diary.feature.routine.ui.form.rememberRoutineAddFormState
+import io.github.taetae98coding.diary.feature.routine.ui.form.routineFormAmountPerRecordInput
+import io.github.taetae98coding.diary.feature.routine.ui.form.routineFormDateButton
+import io.github.taetae98coding.diary.feature.routine.ui.form.routineFormDisplayedColorHex
+import io.github.taetae98coding.diary.feature.routine.ui.form.routineFormEditableText
+import io.github.taetae98coding.diary.feature.routine.ui.form.routineFormGoalAmountInput
+import io.github.taetae98coding.diary.feature.routine.ui.form.routineFormInputtedUnit
+import io.github.taetae98coding.diary.feature.routine.ui.form.routineFormSelectedCycle
+import io.github.taetae98coding.diary.feature.routine.ui.form.today
+import io.github.taetae98coding.diary.feature.routine.ui.routineAddTagViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.routineAddViewModel
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -33,6 +50,39 @@ class RoutineAddScreenTest {
 
         composeRule.titleInput().editableText() shouldBe ""
         composeRule.descriptionInput().editableText() shouldBe ""
+    }
+
+    @Test
+    fun `TC-edbcdc9b-03b0-4a1e-99d2-edba55ad2074 화면에 처음 진입하면 컬러가 제시되고 시작 날짜는 오늘, 나머지는 처음 값이다`() {
+        setRoutineAddScreen()
+        composeRule.waitForIdle()
+
+        composeRule.routineFormDisplayedColorHex().length shouldBe COLOR_HEX_LENGTH
+        composeRule.routineFormDateButton(today()).assertExists()
+        composeRule.routineFormSelectedCycle() shouldBe ROUTINE_FORM_DEFAULT_CYCLE_DAILY
+        composeRule.routineFormInputtedUnit() shouldBe ""
+        composeRule.routineFormGoalAmountInput().routineFormEditableText() shouldBe ""
+        composeRule.routineFormAmountPerRecordInput().routineFormEditableText() shouldBe "1"
+    }
+
+    @Test
+    fun `TC-aee23c66-2db7-41d8-9fec-cb549d0296ca 새 루틴의 입력은 매일, 빈 단위, 한 번에 기록할 양 1이고 목표량이 없다`() {
+        var input: RoutineInput? = null
+
+        composeRule.setContent {
+            RoutineTestTheme {
+                val state = rememberRoutineAddFormState()
+
+                SideEffect { input = state.input }
+            }
+        }
+        composeRule.waitForIdle()
+
+        val newInput = input.shouldNotBeNull()
+        newInput.cycle shouldBe RoutineCycle.DAILY
+        newInput.unit shouldBe ""
+        newInput.amountPerRecord shouldBe 1
+        newInput.goalAmount shouldBe null
     }
 
     @Test
@@ -56,28 +106,6 @@ class RoutineAddScreenTest {
 
         composeRule.titleInput().editableText() shouldBe title
         composeRule.descriptionInput().editableText() shouldBe description
-    }
-
-    @Test
-    fun `TC-8a81e75d-a18f-4b36-8f91-81c9c9ef26bc 추가를 실행해도 입력 내용과 화면 상태가 바뀌지 않는다`() {
-        val title = TYPED_TITLE
-        val description = TYPED_DESCRIPTION
-        var navigateUpCount = 0
-        setRoutineAddScreen(navigateUp = { navigateUpCount += 1 })
-        composeRule.titleInput().performTextInput(title)
-        composeRule.descriptionInput().performTextInput(description)
-        // 설명의 미리보기는 마크다운을 비동기로 그려 waitForIdle 뒤에도 늦게 나타날 수 있으므로, 그려진 뒤의 글을 기준으로 삼는다.
-        composeRule.waitUntil(timeoutMillis = WAIT_TIMEOUT_MILLIS) { description in composeRule.displayedTextList() }
-        val initialTextList = composeRule.displayedTextList()
-
-        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
-        composeRule.waitForIdle()
-
-        composeRule.titleInput().editableText() shouldBe title
-        composeRule.descriptionInput().editableText() shouldBe description
-        // 성공·실패 안내는 새 글로 나타나므로, 추가 전후로 화면의 글이 같으면 안내가 표시되지 않은 것이다.
-        composeRule.displayedTextList() shouldBe initialTextList
-        navigateUpCount shouldBe 0
     }
 
     @Test
@@ -109,10 +137,15 @@ class RoutineAddScreenTest {
         componentVisible: RoutineAddScaffoldComponentVisible = RoutineAddScaffoldComponentVisible(),
     ) {
         composeRule.setContent {
-            DiaryTheme {
+            RoutineTestTheme {
                 RoutineAddScreen(
                     navigateUp = navigateUp,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = Uuid.NIL,
                     componentVisibleProvider = { componentVisible },
+                    addViewModel = remember { routineAddViewModel() },
+                    tagViewModel = remember { routineAddTagViewModel() },
                 )
             }
         }
@@ -125,11 +158,6 @@ class RoutineAddScreenTest {
             ?.text
             .orEmpty()
 
-    private fun ComposeContentTestRule.displayedTextList(): List<String> =
-        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .flatMap { node -> node.config[SemanticsProperties.Text].map { text -> text.text } }
-
     private fun ComposeContentTestRule.titleInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[TITLE_INPUT_INDEX]
 
     private fun ComposeContentTestRule.descriptionInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[DESCRIPTION_INPUT_INDEX]
@@ -141,9 +169,7 @@ class RoutineAddScreenTest {
         private const val TYPED_TITLE = "Morning stretch"
         private const val TYPED_DESCRIPTION = "Ten minutes after waking up"
 
-        private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add routine"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
-
-        private const val WAIT_TIMEOUT_MILLIS = 5_000L
+        private const val COLOR_HEX_LENGTH = 7
     }
 }

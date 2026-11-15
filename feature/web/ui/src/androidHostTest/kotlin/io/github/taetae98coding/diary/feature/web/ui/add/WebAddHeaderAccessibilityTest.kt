@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import org.junit.Rule
 import org.junit.Test
@@ -94,6 +95,7 @@ class WebAddHeaderAccessibilityTest {
             WebAddScreenTestTheme {
                 WebAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = WebDetail.EMPTY,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

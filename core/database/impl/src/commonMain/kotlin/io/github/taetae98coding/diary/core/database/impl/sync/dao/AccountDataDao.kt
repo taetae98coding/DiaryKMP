@@ -179,6 +179,42 @@ internal interface AccountDataDao {
 
     @Query(
         """
+        DELETE FROM routine
+        WHERE EXISTS (
+            SELECT 1 FROM account_routine
+            WHERE account_routine.routine_id = routine.id AND account_routine.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_routine
+            WHERE account_routine.routine_id = routine.id AND account_routine.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteRoutine(accountId: Uuid)
+
+    @Query("DELETE FROM account_routine WHERE account_id = :accountId")
+    suspend fun deleteAccountRoutine(accountId: Uuid)
+
+    @Query(
+        """
+        DELETE FROM routine_record
+        WHERE EXISTS (
+            SELECT 1 FROM account_routine_record
+            WHERE account_routine_record.routine_record_id = routine_record.id
+                AND account_routine_record.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_routine_record
+            WHERE account_routine_record.routine_record_id = routine_record.id
+                AND account_routine_record.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteRoutineRecord(accountId: Uuid)
+
+    @Query("DELETE FROM account_routine_record WHERE account_id = :accountId")
+    suspend fun deleteAccountRoutineRecord(accountId: Uuid)
+
+    @Query(
+        """
         DELETE FROM memo_tag
         WHERE EXISTS (
             SELECT 1 FROM account_memo_tag
@@ -429,6 +465,27 @@ internal interface AccountDataDao {
     @Query("DELETE FROM account_dday_tag WHERE account_id = :accountId")
     suspend fun deleteAccountDDayTag(accountId: Uuid)
 
+    @Query(
+        """
+        DELETE FROM routine_tag
+        WHERE EXISTS (
+            SELECT 1 FROM account_routine_tag
+            WHERE account_routine_tag.routine_id = routine_tag.routine_id
+                AND account_routine_tag.tag_id = routine_tag.tag_id
+                AND account_routine_tag.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_routine_tag
+            WHERE account_routine_tag.routine_id = routine_tag.routine_id
+                AND account_routine_tag.tag_id = routine_tag.tag_id
+                AND account_routine_tag.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteRoutineTag(accountId: Uuid)
+
+    @Query("DELETE FROM account_routine_tag WHERE account_id = :accountId")
+    suspend fun deleteAccountRoutineTag(accountId: Uuid)
+
     @Query("DELETE FROM tag_filter WHERE account_id = :accountId")
     suspend fun deleteTagFilter(accountId: Uuid)
 
@@ -440,6 +497,12 @@ internal interface AccountDataDao {
 
     @Query("DELETE FROM dday_filter_tag WHERE account_id = :accountId")
     suspend fun deleteDDayFilterTag(accountId: Uuid)
+
+    @Query("DELETE FROM routine_filter_tag WHERE account_id = :accountId")
+    suspend fun deleteRoutineFilterTag(accountId: Uuid)
+
+    @Query("DELETE FROM routine_filter WHERE account_id = :accountId")
+    suspend fun deleteRoutineFilter(accountId: Uuid)
 
     @Query("DELETE FROM sync_cursor WHERE account_id = :accountId")
     suspend fun deleteSyncCursor(accountId: Uuid)

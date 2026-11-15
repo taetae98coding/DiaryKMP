@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.place.ui.search
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
@@ -79,6 +80,21 @@ class PlaceSearchResultTest {
 
         composeRule.onNodeWithText(place.name).assertExists()
         composeRule.onNodeWithText(place.address).assertExists()
+    }
+
+    @Test
+    fun `TC-8faf1cb5-cbd4-4d47-ac79-47103378eac2 TC-578a8b85-e169-4604-9240-64501d16ef2b 주소가 없는 결과는 이름만 표시한다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val withAddress = searchedPlace(name = randomText(prefix = FIRST_PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
+        val withoutAddress = searchedPlace(name = randomText(prefix = SECOND_PLACE_NAME_PREFIX), address = "")
+
+        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(withAddress, withoutAddress)) })
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.waitForIdle()
+
+        rowTextList(name = withAddress.name) shouldBe listOf(withAddress.name, withAddress.address)
+        rowTextList(name = withoutAddress.name) shouldBe listOf(withoutAddress.name)
     }
 
     @Test
@@ -247,6 +263,13 @@ class PlaceSearchResultTest {
             .fetchSemanticsNodes()
             .size shouldBe placeList.size
     }
+
+    private fun rowTextList(name: String): List<String> =
+        composeRule
+            .onNode(hasClickAction() and hasText(name))
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .map { text -> text.text }
 
     private companion object {
         private const val QUERY_PREFIX = "query"

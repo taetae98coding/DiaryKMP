@@ -219,21 +219,28 @@ class AccountMemoTagSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO_TAG) shouldBe 8L
         }
 
-        test("TC-84a29c64-490b-482a-acab-32fae5dbba26 내려받기 저장은 이미 있는 연결의 대기 여부를 덮어쓰지 않는다") {
-            val accountId = Arb.kotlinUuid().next()
-            val pending = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
-            val synced = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
-            insertWithSyncState(accountId, pending, isDirty = true)
-            insertWithSyncState(accountId, synced, isDirty = false)
+        listOf(
+            "늦음" to Instant.fromEpochMilliseconds(3_000),
+            "같음" to Instant.fromEpochMilliseconds(2_000),
+            "이른" to Instant.fromEpochMilliseconds(1_000),
+        ).forEach { (label, remoteUpdatedAt) ->
+            test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
 
-            transaction.upsert(
-                accountId = accountId,
-                memoTagList = listOf(pending, synced),
-                cursor = 5L,
-            )
+                val accountId = Arb.kotlinUuid().next()
+                val pending = memoTag(updatedAt = Instant.fromEpochMilliseconds(2_000))
+                val synced = memoTag(updatedAt = Instant.fromEpochMilliseconds(2_000))
+                insertWithSyncState(accountId, pending, isDirty = true)
+                insertWithSyncState(accountId, synced, isDirty = false)
 
-            isPending(pending, accountId) shouldBe true
-            isPending(synced, accountId) shouldBe false
+                transaction.upsert(
+                    accountId = accountId,
+                    memoTagList = listOf(pending.copy(updatedAt = remoteUpdatedAt), synced.copy(updatedAt = remoteUpdatedAt)),
+                    cursor = 5L,
+                )
+
+                isPending(pending, accountId) shouldBe true
+                isPending(synced, accountId) shouldBe false
+            }
         }
 
         test("같은 메모의 다른 태그 관계는 서로 독립적으로 저장된다") {

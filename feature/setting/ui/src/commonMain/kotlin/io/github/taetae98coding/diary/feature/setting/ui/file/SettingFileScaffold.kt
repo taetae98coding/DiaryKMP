@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -13,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.setting_file_title
@@ -27,6 +29,8 @@ internal fun SettingFileScaffold(
     uiStateProvider: () -> SettingFileUiState = { SettingFileUiState.Loading },
     componentVisibleProvider: () -> SettingFileScaffoldComponentVisible = { SettingFileScaffoldComponentVisible() },
 ) {
+    val listState = rememberLazyListState()
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -43,7 +47,9 @@ internal fun SettingFileScaffold(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .systemScroll(listState) { listState.animateScrollToItem(0) },
+            state = listState,
             contentPadding = DiaryTheme.dimens.screenPaddingValues,
             verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
         ) {

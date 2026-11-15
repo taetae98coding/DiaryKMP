@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.core.database.impl.entitytag.dao.EntityTag
 import io.github.taetae98coding.diary.core.database.impl.musictag.musicTagTable
 import io.github.taetae98coding.diary.core.database.impl.placetag.placeTagTable
 import io.github.taetae98coding.diary.core.database.impl.qrtag.qrTagTable
+import io.github.taetae98coding.diary.core.database.impl.routinetag.routineTagTable
 import io.github.taetae98coding.diary.core.database.impl.webtag.webTagTable
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
@@ -131,4 +132,5 @@ internal fun DiaryDatabase.entityTagTable(kind: EntityTagKindLocalEntity): Entit
         EntityTagKindLocalEntity.MUSIC -> musicTagTable()
         EntityTagKindLocalEntity.QR -> qrTagTable()
         EntityTagKindLocalEntity.DDAY -> ddayTagTable()
+        EntityTagKindLocalEntity.ROUTINE -> routineTagTable()
     }

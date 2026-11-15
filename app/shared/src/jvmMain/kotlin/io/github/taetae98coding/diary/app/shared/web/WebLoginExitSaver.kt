@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.app.shared.web
 
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.web.usecase.SaveWebLoginUseCase
 import kotlinx.coroutines.runBlocking
 import org.koin.mp.KoinPlatform
@@ -8,7 +9,7 @@ internal class WebLoginExitSaver(
     private val saveWebLoginUseCase: SaveWebLoginUseCase,
 ) {
     suspend fun save() {
-        saveWebLoginUseCase(parameter = Unit)
+        saveWebLoginUseCase()
     }
 }
 

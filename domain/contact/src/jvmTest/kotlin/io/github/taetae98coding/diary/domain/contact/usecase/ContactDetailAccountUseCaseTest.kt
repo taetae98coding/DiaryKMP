@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
@@ -23,7 +24,7 @@ class ContactDetailAccountUseCaseTest :
             val account = Arb.accountUser().next()
             val deleted = contact().copy(isDeleted = true)
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
             every { accountContactRepository.find(account = account, contactId = deleted.id) } returns flowOf(deleted)
             val useCase =

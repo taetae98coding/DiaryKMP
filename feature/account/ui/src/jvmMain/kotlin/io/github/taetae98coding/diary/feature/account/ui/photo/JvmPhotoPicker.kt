@@ -5,18 +5,18 @@ import androidx.compose.runtime.remember
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
+import org.koin.core.annotation.Single
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.FilenameFilter
 import javax.imageio.ImageIO
 
-@Composable
-internal actual fun rememberPhotoPicker(): PhotoPicker {
-    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<PhotoPickerDispatcher>())
-
-    return remember(dispatcher) { JvmPhotoPicker(dispatcher = dispatcher) }
+@Single(binds = [PhotoPickerFactory::class])
+internal class JvmPhotoPickerFactory(
+    @PhotoPickerDispatcher private val dispatcher: CoroutineDispatcher,
+) : PhotoPickerFactory {
+    @Composable
+    override fun rememberPhotoPicker(): PhotoPicker = remember(dispatcher) { JvmPhotoPicker(dispatcher = dispatcher) }
 }
 
 internal class JvmPhotoPicker(

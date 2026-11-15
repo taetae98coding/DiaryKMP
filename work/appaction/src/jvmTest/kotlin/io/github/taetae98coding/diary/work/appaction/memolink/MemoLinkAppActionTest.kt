@@ -26,7 +26,7 @@ import kotlinx.coroutines.test.runTest
 
 class MemoLinkAppActionTest :
     FunSpec({
-        test("태그 연결, 해제, 대표 태그 지정은 받은 id로 앱 기능을 실행하고 MCP와 같은 완료 결과를 돌려준다") {
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결, 해제, 대표 태그 지정은 받은 id로 앱 기능을 실행하고 MCP와 같은 완료 결과를 돌려준다") {
             runTest {
                 val memoId = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()

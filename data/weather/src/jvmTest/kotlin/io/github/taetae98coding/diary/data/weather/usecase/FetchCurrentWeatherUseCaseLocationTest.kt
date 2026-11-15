@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteE
 import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -40,7 +41,7 @@ class FetchCurrentWeatherUseCaseLocationTest :
                 )
 
             When("현재 날씨 동기화를 요청한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-3253502b-5d0a-45c2-af8c-f7c7806ee83e 디바이스 위치로 조회하고 공인 IP 기준 위치는 사용하지 않는다") {
                     result.isSuccess shouldBe true
@@ -66,7 +67,7 @@ class FetchCurrentWeatherUseCaseLocationTest :
                 )
 
             When("현재 날씨 동기화를 요청한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-65566469-303b-41e1-b25d-323c6b8b8eb3 동기화가 성공하고 공인 IP 기준 위치로 조회한다") {
                     result.isSuccess shouldBe true

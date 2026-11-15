@@ -14,7 +14,9 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.contact.ui.DEFAULT_ENTITY_TAG_LABEL
+import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.clickEntityTagInput
 import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
@@ -120,12 +122,11 @@ class ContactDetailTagInputTest {
             viewModel = viewModel,
             tagViewModel = detailTagScreenTestViewModel(selectableTagList = listOf(selectableTag)),
         )
-        composeRule.nameInput().performTextReplacement(TYPED_NAME)
-        composeRule.waitForIdle()
+        editForm()
 
         linkTag(title = SELECTABLE_TAG_TITLE)
 
-        composeRule.nameInput().assert(hasText(TYPED_NAME))
+        assertEditedForm()
         composeRule.onNodeWithContentDescription(DEFAULT_UNFAVORITE_DESCRIPTION).assertExists()
         verify(exactly = 0) { viewModel.toggleFavorite() }
         verify(exactly = 0) { viewModel.update(detail = any()) }
@@ -139,12 +140,11 @@ class ContactDetailTagInputTest {
             viewModel = viewModel,
             tagViewModel = detailTagScreenTestViewModel(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag)),
         )
-        composeRule.nameInput().performTextReplacement(TYPED_NAME)
-        composeRule.waitForIdle()
+        editForm()
 
         unlinkTag(title = LINKED_TAG_TITLE)
 
-        composeRule.nameInput().assert(hasText(TYPED_NAME))
+        assertEditedForm()
         composeRule.onNodeWithContentDescription(DEFAULT_UNFAVORITE_DESCRIPTION).assertExists()
         verify(exactly = 0) { viewModel.toggleFavorite() }
         verify(exactly = 0) { viewModel.update(detail = any()) }
@@ -171,6 +171,20 @@ class ContactDetailTagInputTest {
         composeRule.clickEntityTagInput()
 
         tagAddCount shouldBe 1
+    }
+
+    // 이름, 설명과 전화번호를 저장 내용과 다르게 고쳐 둔다.
+    private fun editForm() {
+        composeRule.nameInput().performTextReplacement(TYPED_NAME)
+        composeRule.descriptionInput().performTextReplacement(TYPED_DESCRIPTION)
+        composeRule.phoneNumberInput().performTextReplacement(TYPED_PHONE_NUMBER)
+        composeRule.waitForIdle()
+    }
+
+    private fun assertEditedForm() {
+        composeRule.nameInput().assert(hasText(TYPED_NAME))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
+        composeRule.phoneNumberInput().assert(hasText(TYPED_PHONE_NUMBER))
     }
 
     private fun linkTag(title: String) {
@@ -227,8 +241,11 @@ class ContactDetailTagInputTest {
         const val LINKED_TAG_TITLE = "ContactDetailLinkedTag"
         const val SELECTABLE_TAG_TITLE = "ContactDetailSelectableTag"
         const val TYPED_NAME = "ContactDetailTagTypedName"
+        const val TYPED_DESCRIPTION = "ContactDetailTagTypedDescription"
+        const val STORED_PHONE_NUMBER = "010-1234-5678"
+        const val TYPED_PHONE_NUMBER = "02-987-6543"
         const val DEFAULT_UNFAVORITE_DESCRIPTION = "Remove from favorites"
 
-        fun content(isFavorite: Boolean = false): ContactDetailUiState = ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail(), isFavorite = isFavorite)
+        fun content(isFavorite: Boolean = false): ContactDetailUiState = ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail(phoneNumberList = listOf(STORED_PHONE_NUMBER)), isFavorite = isFavorite)
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Constraints
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.format.NOON_HOUR
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
@@ -73,7 +74,13 @@ internal fun TimetableGrid(
                 visibleHeightProvider = { scrollState.viewportSize },
             )
         },
-        modifier = modifier.verticalScroll(scrollState),
+        modifier =
+            modifier
+                .systemScroll(scrollState) {
+                    if (state.selectState.selection == null) {
+                        scrollState.animateScrollTo(0)
+                    }
+                }.verticalScroll(scrollState),
     ) { measurables, constraints ->
         val childConstraints = constraints.copy(minHeight = 0)
         val placeableList = measurables.map { it.measure(childConstraints) }

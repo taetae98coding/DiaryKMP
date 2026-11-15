@@ -19,12 +19,14 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
+import io.github.taetae98coding.diary.domain.search.usecase.SearchRoutineUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchWebUseCase
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebViewModel
 import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
@@ -61,7 +63,6 @@ class SearchHomeTypeReturnTest {
         stopKoin()
     }
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -152,16 +153,11 @@ class SearchHomeTypeReturnTest {
                 factory { SearchHomePlaceViewModel(searchPlaceUseCase, mockk(), mockk()) }
                 factory { SearchHomeWebViewModel(emptySearchWebUseCase(), mockk(), mockk()) }
                 factory { SearchHomeDDayViewModel(emptySearchDDayUseCase(), mockk(), mockk()) }
+                factory { SearchHomeRoutineViewModel(emptySearchRoutineUseCase(), mockk(), mockk(), mockk(), mockk()) }
             }
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
-            val viewModelStoreOwner =
-                remember {
-                    object : ViewModelStoreOwner {
-                        override val viewModelStore: ViewModelStore = ViewModelStore()
-                    }
-                }
+            val viewModelStoreOwner = rememberSearchHomeTestViewModelStoreOwner()
 
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
@@ -173,12 +169,14 @@ class SearchHomeTypeReturnTest {
                             navigateToPlaceDetail = {},
                             navigateToWebDetail = {},
                             navigateToDDayDetail = {},
+                            navigateToRoutineDetail = {},
                             initialType = SearchHomeType.MEMO,
                             memoViewModel = koinViewModel(),
                             tagViewModel = koinViewModel(),
                             placeViewModel = koinViewModel(),
                             webViewModel = koinViewModel(),
                             ddayViewModel = koinViewModel(),
+                            routineViewModel = koinViewModel(),
                         )
                     }
                 }
@@ -197,3 +195,5 @@ class SearchHomeTypeReturnTest {
 private fun emptySearchWebUseCase(): SearchWebUseCase = mockk<SearchWebUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
 
 private fun emptySearchDDayUseCase(): SearchDDayUseCase = mockk<SearchDDayUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
+
+private fun emptySearchRoutineUseCase(): SearchRoutineUseCase = mockk<SearchRoutineUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.kotest.core.spec.style.FunSpec
@@ -104,7 +105,7 @@ class FileHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val fileList = List(2) { Arb.diaryFile().next() }
                 val pageFileUseCase = mockk<PageFileUseCase>()
-                every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
+                every { pageFileUseCase() } returns flowOf(Result.success(PagingData.from(fileList)))
                 val viewModel = viewModel(pageFileUseCase = pageFileUseCase)
 
                 flowOf(viewModel.filePagingData.first()).asSnapshot() shouldBe fileList
@@ -116,7 +117,7 @@ class FileHomeViewModelTest : FunSpec() {
                 val fileList = List(3) { Arb.diaryFile().next() }
                 val updatedFile = fileList[1].copy(title = Arb.string().next(), name = Arb.string().next())
                 val pageFileUseCase = mockk<PageFileUseCase>()
-                every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
+                every { pageFileUseCase() } returns flowOf(Result.success(PagingData.from(fileList)))
                 val viewModel = viewModel(pageFileUseCase = pageFileUseCase, updatedFileMap = mapOf(updatedFile.id to updatedFile))
 
                 flowOf(viewModel.filePagingData.first()).asSnapshot() shouldBe listOf(fileList[0], updatedFile, fileList[2])
@@ -127,9 +128,9 @@ class FileHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val fileList = List(2) { Arb.diaryFile().next() }
                 val pageFileUseCase = mockk<PageFileUseCase>()
-                every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
+                every { pageFileUseCase() } returns flowOf(Result.success(PagingData.from(fileList)))
                 val getUpdatedFileUseCase = mockk<GetUpdatedFileUseCase>()
-                every { getUpdatedFileUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException()))
+                every { getUpdatedFileUseCase() } returns flowOf(Result.failure(IllegalStateException()))
                 val viewModel = viewModel(pageFileUseCase = pageFileUseCase, getUpdatedFileUseCase = getUpdatedFileUseCase)
 
                 flowOf(viewModel.filePagingData.first()).asSnapshot() shouldBe fileList
@@ -139,7 +140,7 @@ class FileHomeViewModelTest : FunSpec() {
         test("파일 조회가 실패하면 빈 목록을 전달한다") {
             runTest(mainDispatcher) {
                 val pageFileUseCase = mockk<PageFileUseCase>()
-                every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException()))
+                every { pageFileUseCase() } returns flowOf(Result.failure(IllegalStateException()))
                 val viewModel = viewModel(pageFileUseCase = pageFileUseCase)
 
                 flowOf(viewModel.filePagingData.first()).asSnapshot().shouldBeEmpty()
@@ -149,13 +150,13 @@ class FileHomeViewModelTest : FunSpec() {
 
     private fun viewModel(
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(Account.Guest)),
-        pageFileUseCase: PageFileUseCase = mockk<PageFileUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns emptyFlow() },
+        pageFileUseCase: PageFileUseCase = mockk<PageFileUseCase>().also { useCase -> every { useCase() } returns emptyFlow() },
         updatedFileMap: Map<Uuid, DiaryFile> = emptyMap(),
         getUpdatedFileUseCase: GetUpdatedFileUseCase =
-            mockk<GetUpdatedFileUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns flowOf(Result.success(updatedFileMap)) },
+            mockk<GetUpdatedFileUseCase>().also { useCase -> every { useCase() } returns flowOf(Result.success(updatedFileMap)) },
     ): FileHomeViewModel {
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
 
         return FileHomeViewModel(
             getAccountUseCase = getAccountUseCase,

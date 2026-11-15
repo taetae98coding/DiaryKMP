@@ -20,6 +20,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(projects.logger.console.api)
                 implementation(libs.androidx.paging.testing)
             }
         }

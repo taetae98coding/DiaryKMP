@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SubmitFcmTokenUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -81,7 +82,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
-                coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                coEvery { submitFcmTokenUseCase() } coAnswers { awaitCancellation() }
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow(), submitFcmTokenUseCase = submitFcmTokenUseCase)
 
                 viewModel.uiState.confirmedAccount().test {
@@ -96,7 +97,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+                coVerify(exactly = 2) { submitFcmTokenUseCase() }
             }
         }
 
@@ -234,46 +235,46 @@ class AppFcmTokenViewModelTest : FunSpec() {
         test("제출 계기가 발생하면 토큰 제출을 요청한다") {
             runTest(mainDispatcher) {
                 val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
-                coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { submitFcmTokenUseCase() } returns Result.success(Unit)
                 val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
 
                 viewModel.submit(Account.Guest)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { submitFcmTokenUseCase() }
             }
         }
 
         test("TC-065688c3-be4c-4116-b1b1-f362455a7f78 진행 중인 제출과 다른 계정의 제출 요청은 기다리지 않고 바로 제출 UseCase를 실행한다") {
             runTest(mainDispatcher) {
                 val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
-                coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                coEvery { submitFcmTokenUseCase() } coAnswers { awaitCancellation() }
                 val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
 
                 viewModel.submit(Account.Guest)
                 viewModel.submit(Arb.accountUser().next())
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+                coVerify(exactly = 2) { submitFcmTokenUseCase() }
             }
         }
 
         test("TC-065688c3-be4c-4116-b1b1-f362455a7f78 토큰 제출 요청이 반복되어도 진행 중에는 제출 UseCase를 한 번만 실행하고 끝나면 다시 제출할 수 있다") {
             runTest(mainDispatcher) {
                 val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
-                coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { submitFcmTokenUseCase() } returns Result.success(Unit)
                 val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
 
                 viewModel.submit(Account.Guest)
                 viewModel.submit(Account.Guest)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { submitFcmTokenUseCase() }
 
                 viewModel.submit(Account.Guest)
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+                coVerify(exactly = 2) { submitFcmTokenUseCase() }
             }
         }
     }
@@ -286,7 +287,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             submitFcmTokenUseCase: SubmitFcmTokenUseCase = mockk(relaxed = true),
         ): AppFcmTokenViewModel {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
 
             return AppFcmTokenViewModel(
                 getAccountUseCase = getAccountUseCase,

@@ -5,9 +5,12 @@ import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.ip.network.impl.IpNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.ip.network.impl.createIpHttpClient
 import io.github.taetae98coding.diary.core.ip.network.impl.di.IpHttpClient
+import io.github.taetae98coding.diary.core.testing.ip.ipRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
@@ -24,20 +27,17 @@ import org.koin.plugin.module.dsl.koinApplication
 class IpRemoteDataSourceImplTest :
     FunSpec({
         test("TC-96d559a1-b705-4e8b-8cf1-a225f4f44f18 ip-api 응답 JSON의 위경도를 그대로 제공한다") {
-            val engine = createMockEngine()
+            val entity = Arb.ipRemoteEntity().next()
+            val engine = createMockEngine(entity = entity)
             val dataSource = createDataSource(engine)
 
             val actual = dataSource.get()
 
-            actual shouldBe
-                IpRemoteEntity(
-                    latitude = 99.9999,
-                    longitude = 999.999,
-                )
+            actual shouldBe entity
         }
 
         test("TC-15beb4b5-7b62-43ce-9235-f7f033f9bec7 공인 IP 기준 위치를 외부 서비스에 한 번 조회한다") {
-            val engine = createMockEngine()
+            val engine = createMockEngine(entity = Arb.ipRemoteEntity().next())
             val dataSource = createDataSource(engine)
 
             dataSource.get()
@@ -49,7 +49,7 @@ class IpRemoteDataSourceImplTest :
         }
 
         test("공인 IP 기준 위치 조회는 위경도 필드만 요청한다") {
-            val engine = createMockEngine()
+            val engine = createMockEngine(entity = Arb.ipRemoteEntity().next())
             val dataSource = createDataSource(engine)
 
             dataSource.get()
@@ -74,10 +74,10 @@ class IpRemoteDataSourceImplTest :
         }
     }) {
     public companion object {
-        private fun createMockEngine(): MockEngine =
+        private fun createMockEngine(entity: IpRemoteEntity): MockEngine =
             MockEngine {
                 respond(
-                    content = readResource("ip-api-response.json"),
+                    content = """{"lat": ${entity.latitude}, "lon": ${entity.longitude}}""",
                     status = HttpStatusCode.OK,
                     headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
@@ -91,7 +91,5 @@ class IpRemoteDataSourceImplTest :
                     },
                 )
             }.koin.get()
-
-        private fun readResource(name: String): String = checkNotNull(IpRemoteDataSourceImplTest::class.java.classLoader.getResource(name)).readText()
     }
 }

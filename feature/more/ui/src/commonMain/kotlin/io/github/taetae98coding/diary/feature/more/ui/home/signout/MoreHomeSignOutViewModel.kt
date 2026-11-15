@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,10 +33,10 @@ internal class MoreHomeSignOutViewModel(
 
         viewModelScope.launch {
             try {
-                if (findSyncPendingUseCase(parameter = Unit).first().getOrDefault(false)) {
+                if (findSyncPendingUseCase().first().getOrDefault(false)) {
                     updateConfirmVisible(isConfirmVisible = true)
                 } else {
-                    signOutUseCase(parameter = Unit)
+                    signOutUseCase()
                 }
             } finally {
                 isInProgress = false
@@ -50,7 +51,7 @@ internal class MoreHomeSignOutViewModel(
 
         viewModelScope.launch {
             try {
-                signOutUseCase(parameter = Unit)
+                signOutUseCase()
             } finally {
                 isInProgress = false
             }

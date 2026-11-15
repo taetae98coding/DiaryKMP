@@ -34,5 +34,6 @@
 - [MusicDetail 화면 디자인](./music-detail.md): 상단 바 제목, 삭제 버튼의 자리, 수정 실행 단축키, 피드백 스낵바, 진입할 때의 초점
 - [PlaceDetail 화면 디자인](./place-detail.md): 상단 바 제목, 삭제 버튼의 자리
 - [QrDetail 화면 디자인](./qr-detail.md): 상단 바 제목, 삭제 버튼의 자리, 수정 실행 단축키
+- [RoutineDetail 화면 디자인](./routine-detail.md): 상단 바 제목, 삭제 버튼의 자리, 수정 실행 단축키, 피드백 스낵바, 진입할 때의 초점
 - [TagDetail 화면 디자인](./tag-detail.md): 상단 바 제목
 - [WebDetail 화면 디자인](./web-detail.md): 상단 바 제목, 삭제 버튼의 자리, 수정 실행 단축키, 피드백 스낵바, 진입할 때의 초점

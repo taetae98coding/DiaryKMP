@@ -64,6 +64,15 @@ public object DiarySearchAppAction {
 
         return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
     }
+
+    public suspend fun routine(
+        query: String,
+        pageNumber: Int,
+    ): DiaryAppActionRoutinePage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> searchAppAction().routine(query = query, cursor = cursor) }
+
+        return DiaryAppActionRoutinePage(items = page.items.map { routine -> routine.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
 }
 
 private fun searchAppAction(): SearchAppAction = diaryAppAction()

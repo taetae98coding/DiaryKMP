@@ -19,6 +19,8 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.share.ContentSharer
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -119,8 +121,6 @@ internal fun ContactDetailScreenTestHost(
     resultEventBus: ResultEventBus = ResultEventBus(),
     content: @Composable () -> Unit,
 ) {
-    // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
-    // 테스트마다 새 소유자를 제공해 이전 테스트의 탭별 ViewModel이 재사용되지 않게 한다.
     val viewModelStoreOwner =
         remember {
             object : ViewModelStoreOwner {
@@ -162,12 +162,14 @@ internal fun ComposeContentTestRule.setContactDetailScreen(
     navigateToTagDetail: (Uuid) -> Unit = {},
     tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
     resultEventBus: ResultEventBus = ResultEventBus(),
+    contentSharerFactory: ContentSharerFactory = testContentSharerFactory(),
 ) {
     prepareContactDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
 
     setContent {
         ContactDetailScreenTestHost(resultEventBus = resultEventBus) {
             ContactDetailScreen(
+                contentSharerFactory = contentSharerFactory,
                 navigateUp = navigateUp,
                 navigateToMemoAdd = navigateToMemoAdd,
                 navigateToMemoDetail = navigateToMemoDetail,
@@ -184,6 +186,13 @@ internal fun ComposeContentTestRule.setContactDetailScreen(
     }
     waitForIdle()
 }
+
+// 공유를 다루지 않는 테스트는 공유를 제공하지 않는 환경으로 둔다.
+internal fun testContentSharerFactory(contentSharer: ContentSharer = mockk(relaxed = true)): ContentSharerFactory =
+    object : ContentSharerFactory {
+        @Composable
+        override fun rememberContentSharer(): ContentSharer = contentSharer
+    }
 
 internal fun ComposeContentTestRule.selectContactDetailTab(contentDescription: String) {
     onNodeWithContentDescription(contentDescription).performClick()

@@ -275,10 +275,11 @@ class SyncWorkMemoContactTest :
             coVerify(exactly = 0) { context.accountMemoContactSyncTransaction.upsert(any(), any(), any()) }
         }
 
-        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 메모·연락처 연결만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 메모·연락처 연결만 업로드한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val context = context(accountId = accountId)
+            val memoContactList = memoContacts(size = 1)
+            val context = context(accountId = accountId, memoContactList = memoContactList)
             coEvery {
                 context.memoContactSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns memoContacts(size = 1)
@@ -286,8 +287,9 @@ class SyncWorkMemoContactTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.memoContactSyncLocalDataSource.readPendingList(accountId = accountId)
+                context.memoContactRemoteDataSource.push(memoContactList.map { memoContact -> memoContact.toRemote() })
             }
+            coVerify(exactly = 1) { context.memoContactRemoteDataSource.push(any()) }
             coVerify(exactly = 0) {
                 context.memoContactSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }

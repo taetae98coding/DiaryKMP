@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.domain.qr.content
 
+import io.github.taetae98coding.diary.library.kotlin.text.StructuredLines
+
 public fun QrContent.patch(
     raw: String,
     previous: QrContent,

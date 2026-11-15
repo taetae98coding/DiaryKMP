@@ -46,4 +46,4 @@ private fun externalMapUriList(
     }
 }
 
-private fun UriHandler.openFirstAvailable(uriList: List<String>): Boolean = uriList.any(::tryOpenUri)
+private suspend fun UriHandler.openFirstAvailable(uriList: List<String>): Boolean = uriList.any { uri -> tryOpenUri(uri) }

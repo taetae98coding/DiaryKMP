@@ -14,5 +14,7 @@ public interface SupabaseAuth {
 
     public suspend fun retrieveUserForCurrentSession()
 
+    public suspend fun refreshStoppedSession()
+
     public suspend fun signOut()
 }

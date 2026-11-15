@@ -335,12 +335,11 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-4b7d7cd6-f4b7-4aef-8016-35bc0427b3a0 자동 선택된 웹 항목의 선택을 해제하면 다시 선택되지 않는다") {
+        test("선택한 웹 항목의 선택을 해제하면 선택에서 빠진다") {
             runTest(mainDispatcher) {
                 val addedWeb = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(addedWeb))))
 
-                // WebAdd 화면에서 돌아와 자동 선택된 상태를 만든다.
                 viewModel.selectWeb(id = addedWeb.id)
                 viewModel.unselectWeb(id = addedWeb.id)
 

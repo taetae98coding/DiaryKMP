@@ -29,6 +29,8 @@ class DailyMemoNotificationChannelTest {
         val channel = notificationManager().getNotificationChannel(DAILY_MEMO_NOTIFICATION_CHANNEL_ID)
 
         channel.importance shouldBe NotificationManager.IMPORTANCE_LOW
+        channel.shouldVibrate() shouldBe false
+        channel.canShowBadge() shouldBe false
         channel.name shouldBe "Daily memo reminder"
         channel.description shouldBe "Reminds you every morning to check today's memos."
     }

@@ -802,7 +802,26 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(noPeriodMemo.id, earlyMemo.id, lateMemo.id)
         }
 
-        test("TC-ac09d2d6-355d-49db-99df-059c900fd82c 정렬을 바꿔도 노출하는 메모는 달라지지 않는다") {
+        test("TC-ac09d2d6-355d-49db-99df-059c900fd82c 정렬을 바꿔도 태그 필터 조건은 유지되고 순서만 바뀐다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tag = tag()
+            val earlyTagMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
+            val lateTagMemo = sortMemo(title = "Bravo", updatedAt = 3_000, startDay = 21)
+            val untaggedMemo = sortMemo(title = "Charlie", updatedAt = 2_000, startDay = 20)
+            insert(accountId, earlyTagMemo, lateTagMemo, untaggedMemo)
+            insertTag(accountId, tag)
+            linkTag(accountId = accountId, memoId = earlyTagMemo.id, tagId = tag.id)
+            linkTag(accountId = accountId, memoId = lateTagMemo.id, tagId = tag.id)
+            selectFilterTag(accountId = accountId, tagId = tag.id)
+            pagedIds(accountId) shouldBe listOf(earlyTagMemo.id, lateTagMemo.id)
+
+            database
+                .accountMemoDao()
+                .page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED.queryValue)
+                .pagedIds() shouldBe listOf(lateTagMemo.id, earlyTagMemo.id)
+        }
+
+        test("정렬을 바꿔도 노출하는 메모는 달라지지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val memo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
             val finishedMemo = memo(isFinished = true)

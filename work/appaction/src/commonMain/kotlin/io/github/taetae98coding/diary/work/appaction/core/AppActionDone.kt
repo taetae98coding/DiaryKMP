@@ -5,3 +5,5 @@ public data class AppActionDone(
 )
 
 internal val appActionDone: AppActionDone = AppActionDone(done = true)
+
+internal val appActionNotDone: AppActionDone = AppActionDone(done = false)

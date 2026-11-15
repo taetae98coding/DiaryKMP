@@ -78,7 +78,7 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-29bacaef-39bb-4f55-b5c1-1e77f7c44a07 TC-fd4f5bc6-1a79-4112-b4ee-9eba037d13b9 추가 버튼 표시 상태이면 메모 추가 버튼이 표시된다`() {
+    fun `TC-fd4f5bc6-1a79-4112-b4ee-9eba037d13b9 추가 버튼 표시 상태이면 메모 추가 버튼이 표시된다`() {
         setMemoHomeScaffold(componentVisibleProvider = { MemoHomeScaffoldComponentVisible(isAddButtonVisible = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())

@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.search.repository.AccountSearchMemoRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -33,7 +34,7 @@ class SearchMemoUseCaseTest :
             val memoList = List(2) { memo() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchMemoRepository = mockk<AccountSearchMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every {
                 accountSearchMemoRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(memoList))
@@ -62,7 +63,7 @@ class SearchMemoUseCaseTest :
             val memoList = List(2) { memo() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchMemoRepository = mockk<AccountSearchMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             every {
                 accountSearchMemoRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(memoList))
@@ -107,7 +108,7 @@ class SearchMemoUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchMemoRepository = mockk<AccountSearchMemoRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchMemoUseCase(
                     getAccountUseCase = getAccountUseCase,

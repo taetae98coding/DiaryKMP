@@ -8,6 +8,9 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
@@ -39,13 +42,13 @@ import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 import kotlin.time.Clock
 
-internal const val THIS_YEAR_PERIOD: String = "Feb 5 ~ Feb 8"
+internal const val THIS_YEAR_PERIOD: String = "Feb 6 ~ Feb 8"
 internal const val NEXT_YEAR_PERIOD: String = "Feb 5 ~ Feb 7"
 
 private const val HOLIDAY_NAME = "공휴일"
 private const val NEXT_YEAR_HOLIDAY_NAME = "내년 공휴일"
 
-internal fun providedHolidayList(): List<Holiday> = listOf(holiday(name = HOLIDAY_NAME, start = february(day = 5)))
+internal fun providedHolidayList(): List<Holiday> = listOf(holiday(name = HOLIDAY_NAME, start = february(day = 6)))
 
 internal fun successfulFetchHolidayUseCase(): FetchHolidayUseCase =
     mockk<FetchHolidayUseCase>().also { useCase ->
@@ -85,9 +88,9 @@ internal fun thisYearGetGoldenHolidayUseCase(year: Int = YEAR): GetGoldenHoliday
         }
     }
 
-// 2월 5일 공휴일로 2월 5일부터 8일까지가 연휴인 응답이다. 2026년이면 2월 5일이 목요일이라 실제 연휴와도 같다.
+// 2월 6일 공휴일로 2월 6일부터 8일까지가 연휴인 응답이다. 2026년이면 2월 6일이 금요일이라 실제 연휴와도 같다.
 private fun thisYearGoldenHolidayGroup(year: Int): GoldenHolidayGroup {
-    val start = LocalDate(year = year, month = Month.FEBRUARY, day = 5)
+    val start = LocalDate(year = year, month = Month.FEBRUARY, day = 6)
 
     return goldenHolidayGroup(
         optionList =
@@ -99,6 +102,12 @@ private fun thisYearGoldenHolidayGroup(year: Int): GoldenHolidayGroup {
                 ),
             ),
     )
+}
+
+// 공휴일 이름은 항목의 요약과 주별 표시에 함께 나오므로 하나 이상 있는지로 확인한다.
+internal fun ComposeContentTestRule.assertThisYearGoldenHolidayShown() {
+    onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+    onAllNodesWithText(HOLIDAY_NAME).onFirst().assertExists()
 }
 
 // 2027년 2월 5일은 금요일이므로 2월 5일부터 7일까지가 연휴다.
@@ -126,7 +135,7 @@ internal fun nextYearGoldenHolidayGroup(): GoldenHolidayGroup {
 
 // 모듈이 호출마다 달라지는 UseCase를 붙잡아야 해 최상위 val로 둘 수 없고, 그래서 KOIN-W003(그래프 컴파일 타임 검증 불가)이 남는다.
 // 억제 수단은 compileSafety를 끄는 것뿐인데 이 모듈의 프로덕션 정의 검증까지 잃으므로 경고를 그대로 받아들인다.
-private fun holidayHomeYearViewModelModule(
+internal fun holidayHomeYearViewModelModule(
     fetchHolidayUseCase: FetchHolidayUseCase,
     getGoldenHolidayUseCase: GetGoldenHolidayUseCase,
 ): Module =
@@ -152,7 +161,6 @@ internal fun ComposeContentTestRule.setHolidayHomeScreen(
     clock: Clock? = null,
 ) {
     val setContent: (@Composable () -> Unit) -> Unit = restorationTester?.let { tester -> tester::setContent } ?: this::setContent
-    // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
     // 화면 재생성은 구성만 다시 만들고 소유자는 넘겨받으므로 구성 바깥에 두고, 다시 진입하거나 다시 실행한 화면만 새 소유자를 받는다.
     val viewModelStoreOwnerMap = mutableMapOf<Int?, ViewModelStoreOwner>()
 
@@ -204,7 +212,7 @@ internal fun ComposeContentTestRule.setHolidayHomeScreen(
 }
 
 @Composable
-private fun ScrollToYearEffect(
+internal fun ScrollToYearEffect(
     state: HolidayHomeScaffoldState,
     targetYear: State<Int?>,
 ) {

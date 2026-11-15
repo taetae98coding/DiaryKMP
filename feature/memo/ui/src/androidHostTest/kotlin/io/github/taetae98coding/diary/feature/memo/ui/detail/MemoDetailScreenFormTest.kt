@@ -204,6 +204,7 @@ class MemoDetailScreenFormTest {
                 placeMapViewModel = screenTestPlaceMapViewModel(),
                 placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = geminiViewModel,
+                contentSharerFactory = screenTestContentSharerFactory(),
                 navigateUp = {},
                 navigateToCopiedMemo = {},
                 navigateToTagAdd = {},

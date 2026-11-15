@@ -127,7 +127,7 @@ class PlaceSearchRepositoryImplTest :
             coVerify(exactly = 2) { dataSource.search(query = query, locationBias = null) }
         }
 
-        test("TC-2eff41ae-28e1-4305-a906-620d864e6476 네이버 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+        test("네이버 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val query = query()
             val remoteList =
                 Arb
@@ -146,7 +146,7 @@ class PlaceSearchRepositoryImplTest :
             actual[1].coordinate.isRepresentable shouldBe false
         }
 
-        test("TC-22cce4a8-f806-49e1-85d3-07225309b5bc Google 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+        test("Google 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val query = query()
             val remoteList = Arb.googlePlaceRemoteEntity().take(PLACE_COUNT).toList()
             val withoutCoordinate = remoteList[1].copy(location = GooglePlaceLocationRemoteEntity())

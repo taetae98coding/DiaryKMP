@@ -18,4 +18,4 @@ public fun List<ScreenNavKey>.isDDayAddOnDetailPane(): Boolean {
 }
 
 // 초기 태그가 있는 DDayAdd는 TagDetail 디데이 탭에서 진입한 것이다.
-private fun ScreenNavKey.isDDayDetailPaneKey(): Boolean = (this is DDayAddNavKey && initialTagId == null) || this is DDayDetailNavKey
+private fun ScreenNavKey.isDDayDetailPaneKey(): Boolean = (this is DDayAddNavKey && initialTagId == null) || (this is DDayDetailNavKey && !isStandalone)

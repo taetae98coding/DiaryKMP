@@ -252,6 +252,36 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         searchTests()
         restorationTests()
+        searchFailureTests()
+    }
+
+    private fun searchFailureTests() {
+        test("TC-1be57da0-c892-44c0-b931-b66688f46c17 검색어를 바꿔 다시 조회하다 실패하면 이전 태그를 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val tagList = List(2) { tag() }
+                val id = Arb.kotlinUuid().next()
+                val pageTagLinkSelectableTagUseCase = mockk<PageTagLinkSelectableTagUseCase>()
+                every {
+                    pageTagLinkSelectableTagUseCase(parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = id, query = ""))
+                } returns flowOf(Result.success(PagingData.from(tagList)))
+                every {
+                    pageTagLinkSelectableTagUseCase(
+                        parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = id, query = SEARCH_QUERY),
+                    )
+                } returns flowOf(Result.failure(IllegalStateException()))
+                val viewModel = viewModel(id = id, pageTagLinkSelectableTagUseCase = pageTagLinkSelectableTagUseCase)
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
+
+                    viewModel.updateQuery(SEARCH_QUERY)
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
     }
 
     private fun searchTests() {

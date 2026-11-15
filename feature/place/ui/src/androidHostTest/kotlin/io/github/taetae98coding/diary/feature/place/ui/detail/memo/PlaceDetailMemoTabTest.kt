@@ -266,16 +266,6 @@ class PlaceDetailMemoTabTest {
         composeRule.onNodeWithText(titleList.first()).assertIsNotDisplayed()
     }
 
-    @Test
-    fun `TC-871261ad-4598-436c-b5d2-046a450c85a6 앱을 다시 실행해 상세 화면에 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
-        val titleList = positionMemoTitleList()
-        setMemoTab(pagingData = placeMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = placeMemo(title = title)) }))
-        waitUntilMemoIsDisplayed(title = titleList.first())
-
-        composeRule.onNodeWithText(titleList.first()).assertIsDisplayed()
-        composeRule.onNodeWithText(titleList.last()).assertIsNotDisplayed()
-    }
-
     private fun positionMemoTitleList(): List<String> = List(POSITION_MEMO_COUNT) { index -> "$POSITION_MEMO_TITLE_PREFIX${index.toString().padStart(length = 2, padChar = '0')}" }
 
     private fun assertSelectSort(

@@ -19,7 +19,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScreen
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
-import io.github.taetae98coding.diary.feature.setting.ui.file.picker.rememberDirectoryPicker
+import io.github.taetae98coding.diary.feature.setting.ui.file.picker.DirectoryPickerFactory
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiScreen
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffoldComponentVisible
@@ -31,12 +31,15 @@ import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpScaffoldC
 import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpScreen
 import org.koin.compose.viewmodel.koinViewModel
 
-internal fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.settingEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    directoryPickerFactory: DirectoryPickerFactory,
+) {
     settingHomeEntry(backStack = backStack)
     settingHolidayEntry(backStack = backStack)
     settingMapEntry(backStack = backStack)
     settingGeminiEntry(backStack = backStack)
-    settingFileEntry(backStack = backStack)
+    settingFileEntry(backStack = backStack, directoryPickerFactory = directoryPickerFactory)
     settingMcpEntry(backStack = backStack)
 }
 
@@ -109,7 +112,10 @@ private fun EntryProviderScope<ScreenNavKey>.settingGeminiEntry(backStack: NavBa
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    directoryPickerFactory: DirectoryPickerFactory,
+) {
     entry<SettingFileNavKey>(
         metadata = { key -> backStack.settingDetailPaneMetadata(key) },
     ) {
@@ -121,7 +127,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(backStack: NavBack
             componentVisibleProvider = {
                 SettingFileScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
             },
-            directoryPicker = rememberDirectoryPicker(onPick = viewModel::setDirectory),
+            directoryPicker = directoryPickerFactory.rememberDirectoryPicker(onPick = viewModel::setDirectory),
             viewModel = viewModel,
         )
     }

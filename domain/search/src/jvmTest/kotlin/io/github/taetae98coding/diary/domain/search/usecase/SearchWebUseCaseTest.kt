@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.search.repository.AccountSearchWebRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -33,7 +34,7 @@ class SearchWebUseCaseTest :
             val webList = List(2) { web() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchWebRepository = mockk<AccountSearchWebRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every {
                 accountSearchWebRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(webList))
@@ -62,7 +63,7 @@ class SearchWebUseCaseTest :
             val webList = List(2) { web() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchWebRepository = mockk<AccountSearchWebRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             every {
                 accountSearchWebRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(webList))
@@ -107,7 +108,7 @@ class SearchWebUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchWebRepository = mockk<AccountSearchWebRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchWebUseCase(
                     getAccountUseCase = getAccountUseCase,

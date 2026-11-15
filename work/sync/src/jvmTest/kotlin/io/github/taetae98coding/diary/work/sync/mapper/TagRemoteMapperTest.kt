@@ -12,7 +12,7 @@ import io.kotest.property.arbitrary.next
 
 class TagRemoteMapperTest :
     FunSpec({
-        test("TC-cb16b55c-2e2e-40b2-b6a1-70c5ee02410f TC-429c3283-a871-461c-99ea-9f5f4fbce798 local to remote") {
+        test("TC-429c3283-a871-461c-99ea-9f5f4fbce798 local to remote") {
             finishedAndDeletedCaseList.forEach { (isFinished, isDeleted) ->
                 val local = Arb.localTag(isFinished = isFinished, isDeleted = isDeleted).next()
 

@@ -4,18 +4,14 @@ import androidx.compose.runtime.saveable.SaverScope
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.map.provider.label
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.enum
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import kotlin.uuid.Uuid
 
 class DiaryMapStateTest :
     FunSpec({
@@ -44,15 +40,7 @@ class DiaryMapStateTest :
         }
 
         test("핀은 빈 목록으로 시작하고 updatePins가 전달한 목록으로 바뀐다") {
-            val pins =
-                List(PIN_COUNT) {
-                    DiaryMapPin(
-                        id = Uuid.random(),
-                        coordinate = Arb.diaryMapCoordinate().next(),
-                        color = Arb.color().next(),
-                        label = "label-${Arb.string().next()}",
-                    )
-                }
+            val pins = List(PIN_COUNT) { Arb.diaryMapPin().next() }
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.pins shouldBe emptyList()
@@ -71,7 +59,10 @@ class DiaryMapStateTest :
         }
 
         test("TC-dd13cbb2-390e-4fa5-a5cc-1a8d05e3e22c 초기 위치를 지정하면 그 위치를 가운데에 두고 동네 수준 확대로 시작 카메라를 삼는다") {
-            List(INITIAL_COORDINATE_COUNT) { validCoordinate() }.forEach { coordinate ->
+            listOf(
+                Arb.diaryMapCoordinate(latitudeRange = SEOUL_LATITUDE_RANGE, longitudeRange = SEOUL_LONGITUDE_RANGE).next(),
+                Arb.diaryMapCoordinate(latitudeRange = SOUTHERN_LATITUDE_RANGE, longitudeRange = WESTERN_LONGITUDE_RANGE).next(),
+            ).forEach { coordinate ->
                 val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = coordinate)
 
                 state.camera shouldBe
@@ -215,9 +206,9 @@ class DiaryMapStateTest :
         }
 
         test("TC-6170238d-af31-4849-9d2e-9d0642ecddf1 다른 핀 목록을 전달하면 빠진 핀은 사라지고 새 핀이 더해진다") {
-            val kept = pin()
-            val removed = pin()
-            val added = pin()
+            val kept = Arb.diaryMapPin().next()
+            val removed = Arb.diaryMapPin().next()
+            val added = Arb.diaryMapPin().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.updatePins(listOf(removed, kept))
 
@@ -383,7 +374,7 @@ class DiaryMapStateTest :
         }
 
         test("TC-b1cd40a3-293f-4ba7-96d2-451c17d137d5 지도가 옮겨진 위치를 알려와도 전달된 핀 목록은 그대로 남는다") {
-            val pins = List(PIN_COUNT) { pin() }
+            val pins = List(PIN_COUNT) { Arb.diaryMapPin().next() }
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.updatePins(pins)
 
@@ -407,12 +398,12 @@ class DiaryMapStateTest :
 
         test("TC-d87428ad-50ce-4e35-8200-afcd4b9026fa 지점을 바꿔도 핀은 그대로이고 핀 목록을 바꿔도 지점은 그대로다") {
             val spot = Arb.diaryMapCoordinate().next()
-            val pins = List(PIN_COUNT) { pin() }
+            val pins = List(PIN_COUNT) { Arb.diaryMapPin().next() }
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.selectSpot(spot)
             state.updatePins(pins)
 
-            state.updatePins(listOf(pin()))
+            state.updatePins(listOf(Arb.diaryMapPin().next()))
             state.updatePins(emptyList())
 
             state.spot shouldBe spot
@@ -446,25 +437,10 @@ class DiaryMapStateTest :
         private const val REPEAT_COUNT = 3
         private const val PIN_COUNT = 3
 
-        private const val MAX_LATITUDE = 900_000
-        private const val MAX_LONGITUDE = 1_800_000
-        private const val COORDINATE_SCALE = 10_000.0
-        private const val INITIAL_COORDINATE_COUNT = 2
-
-        // 임의로 만든 Double은 좌표 범위를 크게 벗어나므로, 정수로 유효 범위의 위도와 경도를 만든다.
-        private fun validCoordinate(): DiaryMapCoordinate =
-            DiaryMapCoordinate(
-                latitude = Arb.int().next() % MAX_LATITUDE / COORDINATE_SCALE,
-                longitude = Arb.int().next() % MAX_LONGITUDE / COORDINATE_SCALE,
-            )
-
-        private fun pin(): DiaryMapPin =
-            DiaryMapPin(
-                id = Arb.kotlinUuid().next(),
-                coordinate = Arb.diaryMapCoordinate().next(),
-                color = Arb.color().next(),
-                label = "label-${Arb.string().next()}",
-            )
+        private val SEOUL_LATITUDE_RANGE = 37.4..37.7
+        private val SEOUL_LONGITUDE_RANGE = 126.8..127.2
+        private val SOUTHERN_LATITUDE_RANGE = -60.0..-1.0
+        private val WESTERN_LONGITUDE_RANGE = -170.0..-1.0
 
         private fun DiaryMapState.saveAndRestore(): DiaryMapState? {
             val saved = with(DiaryMapState.Saver) { with(SaverScope { true }) { save(this@saveAndRestore) } }

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.mcp.usecase
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.mcp.McpServerState
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.mcp.manager.McpServerManager
 import io.github.taetae98coding.diary.domain.mcp.repository.McpSettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -24,7 +25,7 @@ class OtherMcpServerUseCaseTest :
             coEvery { repository.setEnabled(isEnabled = any()) } returns Unit
 
             When("연결을 켠다") {
-                val result = EnableMcpServerUseCase(mcpSettingRepository = repository)(parameter = Unit)
+                val result = EnableMcpServerUseCase(mcpSettingRepository = repository)()
 
                 Then("켬을 저장한다") {
                     result.shouldBeSuccess()
@@ -33,7 +34,7 @@ class OtherMcpServerUseCaseTest :
             }
 
             When("연결을 끈다") {
-                val result = DisableMcpServerUseCase(mcpSettingRepository = repository)(parameter = Unit)
+                val result = DisableMcpServerUseCase(mcpSettingRepository = repository)()
 
                 Then("꺼짐을 저장한다") {
                     result.shouldBeSuccess()
@@ -49,7 +50,7 @@ class OtherMcpServerUseCaseTest :
 
             When("연결 사용 설정을 구독한다") {
                 Then("저장된 값과 바뀐 값을 차례로 받는다") {
-                    GetMcpServerEnabledUseCase(mcpSettingRepository = repository)(parameter = Unit).test {
+                    GetMcpServerEnabledUseCase(mcpSettingRepository = repository)().test {
                         val first = enabledFlow.value
                         awaitItem().shouldBeSuccess() shouldBe first
 
@@ -70,7 +71,7 @@ class OtherMcpServerUseCaseTest :
 
             When("연결 상태를 구독한다") {
                 Then("상태가 바뀔 때마다 받는다") {
-                    GetMcpServerStateUseCase(mcpServerManager = manager)(parameter = Unit).test {
+                    GetMcpServerStateUseCase(mcpServerManager = manager)().test {
                         awaitItem().shouldBeSuccess() shouldBe McpServerState.Off
 
                         stateFlow.value = McpServerState.Running(address = address)
@@ -81,7 +82,7 @@ class OtherMcpServerUseCaseTest :
             }
 
             When("연결을 제공하는지 확인한다") {
-                val result = ReadMcpServerSupportUseCase(mcpServerManager = manager)(parameter = Unit)
+                val result = ReadMcpServerSupportUseCase(mcpServerManager = manager)()
 
                 Then("제공 여부를 그대로 돌려준다") {
                     result.shouldBeSuccess() shouldBe true

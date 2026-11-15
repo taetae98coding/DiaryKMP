@@ -275,10 +275,11 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.accountMemoWebSyncTransaction.upsert(any(), any(), any()) }
         }
 
-        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 메모·웹 연결만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 메모·웹 연결만 업로드한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val context = context(accountId = accountId)
+            val memoWebList = memoWebs(size = 1)
+            val context = context(accountId = accountId, memoWebList = memoWebList)
             coEvery {
                 context.memoWebSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns memoWebs(size = 1)
@@ -286,8 +287,9 @@ class SyncWorkMemoWebTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.memoWebSyncLocalDataSource.readPendingList(accountId = accountId)
+                context.memoWebRemoteDataSource.push(memoWebList.map { memoWeb -> memoWeb.toRemote() })
             }
+            coVerify(exactly = 1) { context.memoWebRemoteDataSource.push(any()) }
             coVerify(exactly = 0) {
                 context.memoWebSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }

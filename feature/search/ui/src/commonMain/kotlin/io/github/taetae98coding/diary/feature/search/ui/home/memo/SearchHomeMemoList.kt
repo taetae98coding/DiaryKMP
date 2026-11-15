@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.SwipeMemoCard
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
@@ -57,7 +58,7 @@ internal fun SearchHomeMemoList(
         emptyIcon = { MemoIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
     ) {
         LazyColumn(
-            modifier = Modifier.testTag(SEARCH_HOME_MEMO_LIST_TEST_TAG),
+            modifier = Modifier.testTag(SEARCH_HOME_MEMO_LIST_TEST_TAG).systemScroll(listState) { listState.animateScrollToItem(0) },
             state = listState,
             contentPadding = DiaryTheme.dimens.screenPaddingValues,
             verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),

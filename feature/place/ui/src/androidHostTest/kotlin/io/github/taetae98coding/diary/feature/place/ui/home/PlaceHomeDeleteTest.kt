@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -242,9 +243,9 @@ class PlaceHomeDeleteTest {
         private fun mapViewModel(): PlaceHomeMapViewModel {
             // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
+            every { getDefaultMapProviderUseCase() } returns emptyFlow()
             val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
+            coEvery { fetchCurrentLocationUseCase() } returns Result.failure(IllegalStateException(Arb.string().next()))
 
             return PlaceHomeMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

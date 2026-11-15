@@ -7,6 +7,7 @@ import kotlin.uuid.Uuid
 @Serializable
 public data class DDayDetailNavKey(
     val id: Uuid,
+    val isStandalone: Boolean = false,
 ) : ScreenNavKey {
     override val screenName: String get() = "DDayDetail"
 }

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.mcp.usecase
 
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.mcp.manager.McpServerManager
 import io.github.taetae98coding.diary.domain.mcp.repository.McpSettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -34,7 +35,7 @@ class RunMcpServerUseCaseTest :
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(MutableStateFlow(true)), mcpServerManager = manager)
 
-                        backgroundScope.launch { useCase(parameter = Unit) }
+                        backgroundScope.launch { useCase() }
                         runCurrent()
 
                         coVerify(exactly = 1) { manager.start() }
@@ -51,7 +52,7 @@ class RunMcpServerUseCaseTest :
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(MutableStateFlow(false)), mcpServerManager = manager)
 
-                        backgroundScope.launch { useCase(parameter = Unit) }
+                        backgroundScope.launch { useCase() }
                         runCurrent()
 
                         coVerify(exactly = 0) { manager.start() }
@@ -68,7 +69,7 @@ class RunMcpServerUseCaseTest :
                         val enabledFlow = MutableStateFlow(false)
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(enabledFlow), mcpServerManager = manager)
-                        backgroundScope.launch { useCase(parameter = Unit) }
+                        backgroundScope.launch { useCase() }
                         runCurrent()
                         clearMocks(manager, answers = false)
 
@@ -89,7 +90,7 @@ class RunMcpServerUseCaseTest :
                         val enabledFlow = MutableStateFlow(true)
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(enabledFlow), mcpServerManager = manager)
-                        backgroundScope.launch { useCase(parameter = Unit) }
+                        backgroundScope.launch { useCase() }
                         runCurrent()
 
                         enabledFlow.value = false
@@ -113,7 +114,7 @@ class RunMcpServerUseCaseTest :
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(flowOf(true, true, true)), mcpServerManager = manager)
 
-                        backgroundScope.launch { useCase(parameter = Unit) }
+                        backgroundScope.launch { useCase() }
                         runCurrent()
 
                         coVerify(exactly = 1) { manager.start() }
@@ -128,7 +129,7 @@ class RunMcpServerUseCaseTest :
                         val manager = serverManager()
                         coEvery { manager.start() } coAnswers { awaitCancellation() }
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(enabledFlow), mcpServerManager = manager)
-                        backgroundScope.launch { useCase(parameter = Unit) }
+                        backgroundScope.launch { useCase() }
                         runCurrent()
 
                         enabledFlow.value = false
@@ -147,7 +148,7 @@ class RunMcpServerUseCaseTest :
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(flow { awaitCancellation() }), mcpServerManager = manager)
 
-                        val result = async { useCase(parameter = Unit) }
+                        val result = async { useCase() }
                         runCurrent()
 
                         result.isCompleted shouldBe false
@@ -167,7 +168,7 @@ class RunMcpServerUseCaseTest :
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(flow { throw failure }), mcpServerManager = manager)
 
-                        val result = useCase(parameter = Unit)
+                        val result = useCase()
 
                         result.shouldBeFailure<IllegalStateException>().message shouldBe failure.message
                         coVerify(exactly = 0) { manager.start() }
@@ -181,7 +182,7 @@ class RunMcpServerUseCaseTest :
                         val manager = serverManager()
                         val useCase = RunMcpServerUseCase(mcpSettingRepository = settingRepository(emptyFlow()), mcpServerManager = manager)
 
-                        useCase(parameter = Unit)
+                        useCase()
 
                         coVerify(exactly = 0) { manager.start() }
                     }

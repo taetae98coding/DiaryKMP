@@ -17,20 +17,20 @@ import kotlinx.coroutines.flow.emptyFlow
 class RoutineEntryTest :
     FunSpec({
         test("TC-60b8a575-1947-4f86-8c3f-6325a0c126ea 루틴 목록에서 이어 진입한 루틴 추가는 목록·상세 배치의 상세 pane이다") {
-            val backStack = listOf(OtherTopLevelNavKey, RoutineHomeNavKey, RoutineAddNavKey)
+            val backStack = listOf(OtherTopLevelNavKey, RoutineHomeNavKey, RoutineAddNavKey())
 
-            metadataOf(backStack = backStack, key = RoutineAddNavKey).keys shouldBe detailPaneMetadataKeys
+            metadataOf(backStack = backStack, key = RoutineAddNavKey()).keys shouldBe detailPaneMetadataKeys
         }
 
         test("루틴 목록 바로 위가 아닌 루틴 추가는 목록·상세 배치의 상세 pane이 아니다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherTopLevelNavKey, RoutineAddNavKey),
-                    listOf(RoutineHomeNavKey, OtherTopLevelNavKey, RoutineAddNavKey),
+                    listOf(OtherTopLevelNavKey, RoutineAddNavKey()),
+                    listOf(RoutineHomeNavKey, OtherTopLevelNavKey, RoutineAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
-                metadataOf(backStack = backStack, key = RoutineAddNavKey).shouldBeEmpty()
+                metadataOf(backStack = backStack, key = RoutineAddNavKey()).shouldBeEmpty()
             }
         }
 

@@ -3,8 +3,8 @@
 # 각 회차는 --rerun으로 캐시 없이 실행한다. 전체 실행에서만 실패하는 순서 의존 문제는 단독 실행으로 재현되지 않을 수 있으므로,
 # 모두 통과하면 그 모듈의 테스트 태스크 전체를 같은 방법으로 다시 돌려 본다.
 #
-# 사용법: DIARY_AGENTS/scripts/rerun-test.sh <태스크 경로> [테스트 필터] [횟수]   횟수 기본값은 5다.
-#   DIARY_AGENTS/scripts/rerun-test.sh :feature:memo:ui:testAndroidHostTest '*MemoListDetailPlaceholderTest*' 5
+# 사용법: bash DIARY_AGENTS/scripts/rerun-test.sh <태스크 경로> [테스트 필터] [횟수]   횟수 기본값은 5다.
+#   bash DIARY_AGENTS/scripts/rerun-test.sh :feature:memo:ui:testAndroidHostTest '*MemoListDetailPlaceholderTest*' 5
 # 종료 코드: 0 모두 통과, 1 모두 실패, 3 일부만 실패(간헐 실패)
 set -uo pipefail
 

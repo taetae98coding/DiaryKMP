@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.RefreshUserDataUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -48,7 +49,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
         test("TC-5ce779c1-3217-4697-ae8b-04ba136bc0c1 앞선 확인이 끝난 뒤 다시 요청하면 사용자 정보 다시 확인을 다시 시작한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RefreshUserDataUseCase>()
-                coEvery { useCase(Unit) } returns Result.success(Unit)
+                coEvery { useCase() } returns Result.success(Unit)
                 val viewModel = MoreHomeRefreshViewModel(refreshUserDataUseCase = useCase)
 
                 viewModel.refresh()
@@ -56,7 +57,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
                 viewModel.refresh()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { useCase(Unit) }
+                coVerify(exactly = 2) { useCase() }
             }
         }
 
@@ -64,7 +65,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Unit>()
                 val useCase = mockk<RefreshUserDataUseCase>()
-                coEvery { useCase(Unit) } coAnswers { Result.success(completion.await()) }
+                coEvery { useCase() } coAnswers { Result.success(completion.await()) }
                 val viewModel = MoreHomeRefreshViewModel(refreshUserDataUseCase = useCase)
 
                 viewModel.refresh()
@@ -74,7 +75,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
                 completion.complete(Unit)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(Unit) }
+                coVerify(exactly = 1) { useCase() }
             }
         }
 
@@ -82,7 +83,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val accountDetermined = CompletableDeferred<Unit>()
                 val useCase = mockk<RefreshUserDataUseCase>()
-                coEvery { useCase(Unit) } coAnswers { Result.success(accountDetermined.await()) }
+                coEvery { useCase() } coAnswers { Result.success(accountDetermined.await()) }
                 val viewModel = MoreHomeRefreshViewModel(refreshUserDataUseCase = useCase)
 
                 viewModel.refresh()
@@ -92,7 +93,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
                 accountDetermined.complete(Unit)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(Unit) }
+                coVerify(exactly = 1) { useCase() }
             }
         }
 
@@ -101,7 +102,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
                 val email = "diary-" + Arb.string().next()
                 val profileImage = Arb.string().next()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
-                every { getAccountUseCase(Unit) } returns
+                every { getAccountUseCase() } returns
                     flowOf(
                         Result.success<Account>(
                             Account.User(
@@ -114,7 +115,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
                     )
                 val accountViewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
                 val useCase = mockk<RefreshUserDataUseCase>()
-                coEvery { useCase(Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                coEvery { useCase() } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = MoreHomeRefreshViewModel(refreshUserDataUseCase = useCase)
 
                 accountViewModel.uiState.test {
@@ -127,7 +128,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 1) { useCase(Unit) }
+                coVerify(exactly = 1) { useCase() }
             }
         }
     }

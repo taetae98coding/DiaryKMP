@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
 import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.core.icon.PlaylistIcon
 import io.github.taetae98coding.diary.compose.core.icon.QrIcon
+import io.github.taetae98coding.diary.compose.core.icon.RoutineIcon
 import io.github.taetae98coding.diary.compose.core.icon.TagIcon
 import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -25,6 +26,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_memo_content
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_music_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_place_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_qr_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_routine_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_web_content_description
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -63,6 +65,7 @@ private fun TagDetailTabIcon(tab: TagDetailTab) {
         TagDetailTab.MUSIC -> PlaylistIcon(contentDescription = stringResource(Res.string.tag_detail_tab_music_content_description))
         TagDetailTab.QR -> QrIcon(contentDescription = stringResource(Res.string.tag_detail_tab_qr_content_description))
         TagDetailTab.DDAY -> DDayIcon(contentDescription = stringResource(Res.string.tag_detail_tab_dday_content_description))
+        TagDetailTab.ROUTINE -> RoutineIcon(contentDescription = stringResource(Res.string.tag_detail_tab_routine_content_description))
     }
 }
 

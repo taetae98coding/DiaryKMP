@@ -1,17 +1,18 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home.weather
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.numericDouble
 import io.kotest.property.arbitrary.string
@@ -32,7 +33,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.LocalDate
 
 class CalendarHomeWeatherViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -55,7 +55,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 viewModel.fetch()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase() }
             }
         }
 
@@ -63,15 +63,22 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } coAnswers { completion.await() }
+                coEvery { useCase() } coAnswers { completion.await() }
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
+                backgroundScope.launch { viewModel.uiState.collect {} }
 
                 viewModel.fetch()
+                runCurrent()
                 viewModel.fetch()
+                runCurrent()
+
+                viewModel.uiState.value.isLoading shouldBe true
+                coVerify(exactly = 1) { useCase() }
+
                 completion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase() }
             }
         }
 
@@ -88,8 +95,8 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 viewModel.refreshOnLocationPermissionGranted()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
-                coVerify(exactly = 0) { fetchCurrentWeatherUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase() }
+                coVerify(exactly = 0) { fetchCurrentWeatherUseCase() }
             }
         }
 
@@ -97,7 +104,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 var isFetchCancelled = false
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers {
+                coEvery { fetchCurrentWeatherUseCase() } coAnswers {
                     try {
                         awaitCancellation()
                     } finally {
@@ -117,8 +124,8 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 isFetchCancelled shouldBe true
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
-                coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase() }
+                coVerify(exactly = 1) { fetchCurrentWeatherUseCase() }
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 runCurrent()
                 viewModel.uiState.value.isLoading shouldBe false
@@ -130,7 +137,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 var isRefreshCancelled = false
                 val refreshCompletion = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<RefreshCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } coAnswers {
+                coEvery { useCase() } coAnswers {
                     try {
                         refreshCompletion.await()
                     } catch (exception: CancellationException) {
@@ -146,25 +153,25 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 isRefreshCancelled shouldBe false
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase() }
 
                 refreshCompletion.complete(Result.success(Unit))
                 advanceUntilIdle()
                 viewModel.refreshOnLocationPermissionGranted()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { useCase(parameter = Unit) }
+                coVerify(exactly = 2) { useCase() }
             }
         }
 
         test("TC-254dd50d-aa6f-4461-9e67-9f4882d82f0d 멈추고 다시 받는 동안 이미 표시하던 날씨를 계속 표시한다") {
             runTest(mainDispatcher) {
-                val calendarWeather = calendarWeather()
+                val calendarWeather = Arb.calendarWeather(date = Arb.kotlinxLocalDate().next(), temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()), descriptionList = emptyList()).next()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                coEvery { fetchCurrentWeatherUseCase() } coAnswers { awaitCancellation() }
                 val refreshCompletion = CompletableDeferred<Result<Unit>>()
                 val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
-                coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } coAnswers { refreshCompletion.await() }
+                coEvery { refreshCurrentWeatherUseCase() } coAnswers { refreshCompletion.await() }
                 val viewModel =
                     weatherViewModel(
                         fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
@@ -190,7 +197,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<RefreshCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } coAnswers { completion.await() }
+                coEvery { useCase() } coAnswers { completion.await() }
                 val viewModel = weatherViewModel(refreshCurrentWeatherUseCase = useCase)
 
                 viewModel.refreshOnLocationPermissionGranted()
@@ -209,10 +216,10 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
         test("TC-cfac82d4-8af3-4b80-ab6b-ca2c2b56fde5 날씨 동기화 중에 위치 권한을 허용하면 다시 받는 동기화가 끝날 때까지 진행 중임을 알린다") {
             runTest(mainDispatcher) {
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                coEvery { fetchCurrentWeatherUseCase() } coAnswers { awaitCancellation() }
                 val refreshCompletion = CompletableDeferred<Result<Unit>>()
                 val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
-                coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } coAnswers { refreshCompletion.await() }
+                coEvery { refreshCurrentWeatherUseCase() } coAnswers { refreshCompletion.await() }
                 val viewModel =
                     weatherViewModel(
                         fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
@@ -223,7 +230,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 advanceUntilIdle()
                 viewModel.refreshOnLocationPermissionGranted()
                 advanceUntilIdle()
-                coVerify(exactly = 1) { refreshCurrentWeatherUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { refreshCurrentWeatherUseCase() }
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 runCurrent()
                 viewModel.uiState.value.isLoading shouldBe true
@@ -239,7 +246,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } coAnswers { completion.await() }
+                coEvery { useCase() } coAnswers { completion.await() }
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 runCurrent()
@@ -266,14 +273,14 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 viewModel.fetch()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { useCase(parameter = Unit) }
+                coVerify(exactly = 2) { useCase() }
             }
         }
 
         test("동기화가 실패로 끝난 뒤 발생한 새 동기화 조건은 처리한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } returns
+                coEvery { useCase() } returns
                     Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
 
@@ -282,13 +289,13 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 viewModel.fetch()
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { useCase(parameter = Unit) }
+                coVerify(exactly = 2) { useCase() }
             }
         }
 
         test("날짜별 날씨가 조회되면 캘린더에 표시할 날씨로 제공한다") {
             runTest(mainDispatcher) {
-                val calendarWeather = calendarWeather()
+                val calendarWeather = Arb.calendarWeather(date = Arb.kotlinxLocalDate().next(), temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()), descriptionList = emptyList()).next()
                 val viewModel =
                     weatherViewModel(
                         getCurrentCalendarWeatherUseCase =
@@ -355,29 +362,15 @@ private fun weatherViewModel(
 
 private fun successfulFetchCurrentWeatherUseCase(): FetchCurrentWeatherUseCase =
     mockk<FetchCurrentWeatherUseCase>().also { useCase ->
-        coEvery { useCase(parameter = Unit) } returns Result.success(Unit)
+        coEvery { useCase() } returns Result.success(Unit)
     }
 
 private fun successfulRefreshCurrentWeatherUseCase(): RefreshCurrentWeatherUseCase =
     mockk<RefreshCurrentWeatherUseCase>().also { useCase ->
-        coEvery { useCase(parameter = Unit) } returns Result.success(Unit)
+        coEvery { useCase() } returns Result.success(Unit)
     }
 
 private fun getCurrentCalendarWeatherUseCase(result: Result<CalendarWeatherReport>): GetCurrentCalendarWeatherUseCase =
     mockk<GetCurrentCalendarWeatherUseCase>().also { useCase ->
-        every { useCase(parameter = Unit) } returns flowOf(result)
+        every { useCase() } returns flowOf(result)
     }
-
-private fun calendarWeather(): CalendarWeather =
-    CalendarWeather(
-        date = randomDate(),
-        temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()),
-        weatherList = emptyList(),
-    )
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2_000 + (Arb.int().next().toUInt() % 1_000u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

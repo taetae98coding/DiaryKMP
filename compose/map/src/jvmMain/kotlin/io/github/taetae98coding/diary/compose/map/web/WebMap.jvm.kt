@@ -11,6 +11,7 @@ import kotlin.uuid.Uuid
 
 @Composable
 internal fun WebMap(
+    httpServer: MapHttpServer,
     createHtml: (
         camera: DiaryMapCamera?,
         spot: DiaryMapCoordinate?,
@@ -25,6 +26,7 @@ internal fun WebMap(
     onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     MapWebView(
+        httpServer = httpServer,
         createHtml = {
             createHtml(
                 state.camera,

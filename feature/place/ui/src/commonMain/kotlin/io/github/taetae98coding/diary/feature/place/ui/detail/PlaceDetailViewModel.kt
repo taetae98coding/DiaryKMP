@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInvalidException
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
@@ -36,7 +37,7 @@ internal class PlaceDetailViewModel(
     val uiState: StateFlow<PlaceDetailUiState> =
         combine(
             findPlaceUseCase(parameter = id),
-            getDefaultMapProviderUseCase(parameter = Unit),
+            getDefaultMapProviderUseCase(),
             isUpdateInProgress,
             isDeleteInProgress,
         ) { placeResult, providerResult, isUpdateInProgress, isDeleteInProgress ->

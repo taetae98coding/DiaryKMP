@@ -26,6 +26,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.coVerify
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -136,12 +137,14 @@ class FileDetailScreenRetentionTest {
         val file = Arb.nonBlankDiaryFile().next().copy(title = DOCUMENTED_OLD_TITLE)
         // 시스템이 앱을 정리하면 ViewModel도 새로 만들어지므로, 복원하는 순간 새 화면 상태로 바꾼다.
         var screen by mutableStateOf(FileDetailTestScreen(mocks = FileDetailMocks(file = file)))
+        screen.mocks.downloadAnswer = { awaitCancellation() }
         val tester = StateRestorationTester(composeRule)
 
         tester.setContent { screen.Content() }
         composeRule.waitForIdle()
         composeRule.titleInput().performTextReplacement(DOCUMENTED_NEW_TITLE)
-        composeRule.waitForIdle()
+        composeRule.clickDownload()
+        composeRule.progressIn(DOWNLOAD_DESCRIPTION).assertExists()
         val restored = FileDetailTestScreen(mocks = FileDetailMocks(file = file))
         screen = restored
         tester.emulateSavedInstanceStateRestore()

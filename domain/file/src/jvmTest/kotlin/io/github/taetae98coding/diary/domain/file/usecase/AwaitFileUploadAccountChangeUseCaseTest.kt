@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.file.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
@@ -66,7 +67,7 @@ class AwaitFileUploadAccountChangeUseCaseTest :
     public companion object {
         private fun getAccountUseCase(accountFlow: MutableStateFlow<Result<Account>>): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
-            every { useCase(parameter = Unit) } returns accountFlow
+            every { useCase() } returns accountFlow
             return useCase
         }
     }

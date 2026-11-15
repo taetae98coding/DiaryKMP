@@ -44,5 +44,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- 공유하던 앱의 작업에서 잠깐 실행되므로 앱 작업에 섞이지 않게 taskAffinity를 비운다. 앱 작업에 들어가면 DiaryActivity 위에 놓여
+             singleTop이 onNewIntent 대신 새 DiaryActivity를 만든다. 여러 개를 한 번에 보내는 ACTION_SEND_MULTIPLE은 받지 않는다. -->
+        <activity
+            android:name=".share.ShareActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/ShareTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="text/x-vcard" />
+                <data android:mimeType="text/vcard" />
+                <data android:mimeType="text/directory" />
+                <data android:mimeType="text/calendar" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

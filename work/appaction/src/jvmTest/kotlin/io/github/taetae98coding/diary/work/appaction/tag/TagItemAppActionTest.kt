@@ -1,30 +1,51 @@
 package io.github.taetae98coding.diary.work.appaction.tag
 
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
+import io.github.taetae98coding.diary.core.testing.contact.contact
+import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.place.place
+import io.github.taetae98coding.diary.core.testing.playlist.music
+import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.core.testing.routine.routineSummary
 import io.github.taetae98coding.diary.core.testing.web.web
+import io.github.taetae98coding.diary.domain.checklist.usecase.PageTagChecklistUseCase
+import io.github.taetae98coding.diary.domain.contact.usecase.PageTagContactUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.PageTagDDayUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedTagMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageTagMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PageTagPlaceUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.PageTagMusicUseCase
+import io.github.taetae98coding.diary.domain.qr.usecase.PageTagQrUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedTagRoutineUseCase
+import io.github.taetae98coding.diary.domain.routine.usecase.PageTagRoutineUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageTagWebUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.dday.toAppActionDDay
+import io.github.taetae98coding.diary.work.appaction.routine.toAppActionRoutine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 class TagItemAppActionTest :
     FunSpec({
@@ -141,6 +162,146 @@ class TagItemAppActionTest :
                 verify(exactly = 1) {
                     pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.DESCENDANT, sort = ListSort.RECENTLY_UPDATED))
                 }
+            }
+        }
+
+        test("태그의 연락처 목록은 받은 범위와 연락처 정렬로 조회해 그 연락처들을 돌려준다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val itemList = Arb.list(Arb.contact(), 1..3).next().map { contact -> ContactListItem(contact = contact, nameQualifier = Arb.string().next()) }
+                val pageTagContactUseCase = mockk<PageTagContactUseCase>()
+                every { pageTagContactUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(itemList)))
+                val action = tagItemAppActionOf(pageTagContactUseCase)
+
+                val page = action.contactList(tagId = tagId.toString(), scope = "child", sort = null, cursor = null)
+
+                page.items.map { contact -> contact.id } shouldBe itemList.map { item -> item.contact.id.toString() }
+                page.nextCursor shouldBe null
+                verify(exactly = 1) { pageTagContactUseCase(parameter = PageTagContactUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD, sort = ListSort.NAME)) }
+            }
+        }
+
+        test("태그의 체크리스트 목록은 받은 범위로 조회해 그 체크리스트들을 진행 정도와 함께 돌려준다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val summaryList =
+                    Arb.list(Arb.checklistSummary(), 1..3).next()
+                val pageTagChecklistUseCase = mockk<PageTagChecklistUseCase>()
+                every { pageTagChecklistUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(summaryList)))
+                val action = tagItemAppActionOf(pageTagChecklistUseCase)
+
+                val page = action.checklistList(tagId = tagId.toString(), scope = null, cursor = null)
+
+                page.items.map { summary -> Triple(summary.id, summary.checkedCount, summary.totalCount) } shouldBe
+                    summaryList.map { summary -> Triple(summary.checklist.id.toString(), summary.checkedCount, summary.totalCount) }
+                page.nextCursor shouldBe null
+                verify(exactly = 1) { pageTagChecklistUseCase(parameter = PageTagChecklistUseCase.Parameter(tagId = tagId, scope = TagScope.SELF)) }
+            }
+        }
+
+        test("태그의 곡 목록은 받은 범위와 곡 정렬로 조회해 그 곡들을 돌려준다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val musicList = Arb.list(Arb.music(), 1..3).next()
+                val pageTagMusicUseCase = mockk<PageTagMusicUseCase>()
+                every { pageTagMusicUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(musicList)))
+                val action = tagItemAppActionOf(pageTagMusicUseCase)
+
+                val page = action.musicList(tagId = tagId.toString(), scope = "descendant", sort = "recently_updated", cursor = null)
+
+                page.items.map { music -> music.id } shouldBe musicList.map { music -> music.id.toString() }
+                page.nextCursor shouldBe null
+                verify(exactly = 1) {
+                    pageTagMusicUseCase(parameter = PageTagMusicUseCase.Parameter(tagId = tagId, scope = TagScope.DESCENDANT, sort = ListSort.RECENTLY_UPDATED))
+                }
+            }
+        }
+
+        test("태그의 QR 목록은 받은 범위로 조회해 그 QR들을 돌려준다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val qrList = Arb.list(Arb.qr(), 1..3).next()
+                val pageTagQrUseCase = mockk<PageTagQrUseCase>()
+                every { pageTagQrUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(qrList)))
+                val action = tagItemAppActionOf(pageTagQrUseCase)
+
+                val page = action.qrList(tagId = tagId.toString(), scope = null, cursor = null)
+
+                page.items.map { qr -> qr.id } shouldBe qrList.map { qr -> qr.id.toString() }
+                page.nextCursor shouldBe null
+                verify(exactly = 1) { pageTagQrUseCase(parameter = PageTagQrUseCase.Parameter(tagId = tagId, scope = TagScope.SELF)) }
+            }
+        }
+
+        test("태그의 디데이 목록은 받은 범위로 조회해 그 디데이들을 오늘로 계산한 값과 함께 돌려준다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val now = Arb.secondPrecisionInstant().next()
+                val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val ddayList = Arb.list(Arb.dday(), 1..3).next()
+                val pageTagDDayUseCase = mockk<PageTagDDayUseCase>()
+                val clock = mockk<Clock>()
+                every { pageTagDDayUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(ddayList)))
+                every { clock.now() } returns now
+                val action = tagItemAppActionOf(pageTagDDayUseCase, clock)
+
+                action.ddayList(tagId = tagId.toString(), scope = "child", cursor = null) shouldBe
+                    AppActionPage(items = ddayList.map { dday -> dday.toAppActionDDay(today = today) }, nextCursor = null)
+                verify(exactly = 1) { pageTagDDayUseCase(parameter = PageTagDDayUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD)) }
+            }
+        }
+
+        test("태그의 루틴 목록은 오늘을 넘겨 조회하고 오늘로 계산한 값을 함께 담는다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val now = Arb.secondPrecisionInstant().next()
+                val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val summaryList = Arb.list(Arb.routineSummary(), 1..3).next()
+                val pageTagRoutineUseCase = mockk<PageTagRoutineUseCase>()
+                val clock = mockk<Clock>()
+                every { pageTagRoutineUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(summaryList)))
+                every { clock.now() } returns now
+                val action = tagItemAppActionOf(pageTagRoutineUseCase, clock)
+
+                action.routineList(tagId = tagId.toString(), scope = "child", cursor = null) shouldBe
+                    AppActionPage(items = summaryList.map { summary -> summary.toAppActionRoutine(today = today) }, nextCursor = null)
+                verify(exactly = 1) { pageTagRoutineUseCase(parameter = PageTagRoutineUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD, today = today)) }
+            }
+        }
+
+        test("TC-e408a0ff-1873-49ab-8f51-d7ca57065fee 태그의 루틴은 완료되지 않은 목록과 완료된 목록을 따로 받는다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next()
+                val now = Arb.secondPrecisionInstant().next()
+                val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val unfinished = Arb.routineSummary().next().let { summary -> summary.copy(routine = summary.routine.copy(isFinished = false, isDeleted = false)) }
+                val finished = Arb.routineSummary().next().let { summary -> summary.copy(routine = summary.routine.copy(isFinished = true, isDeleted = false)) }
+                val pageTagRoutineUseCase = mockk<PageTagRoutineUseCase>()
+                val pageFinishedTagRoutineUseCase = mockk<PageFinishedTagRoutineUseCase>()
+                val clock = mockk<Clock>()
+                every { pageTagRoutineUseCase(parameter = PageTagRoutineUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, today = today)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(unfinished))))
+                every { pageFinishedTagRoutineUseCase(parameter = PageFinishedTagRoutineUseCase.Parameter(tagId = tagId, today = today)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(finished))))
+                every { clock.now() } returns now
+                val action = tagItemAppActionOf(pageTagRoutineUseCase, pageFinishedTagRoutineUseCase, clock)
+
+                action.routineList(tagId = tagId.toString(), scope = null, cursor = null) shouldBe
+                    AppActionPage(items = listOf(unfinished.toAppActionRoutine(today = today)), nextCursor = null)
+                action.routineFinishedList(tagId = tagId.toString(), cursor = null) shouldBe
+                    AppActionPage(items = listOf(finished.toAppActionRoutine(today = today)), nextCursor = null)
+            }
+        }
+
+        test("연락처 목록은 연락처 정렬을, 곡 목록은 곡 정렬을 받는다") {
+            runTest {
+                val tagId = Arb.kotlinUuid().next().toString()
+                val action = tagItemAppActionOf()
+
+                shouldThrow<AppActionException.InvalidArgument> { action.contactList(tagId = tagId, scope = null, sort = "title", cursor = null) }.message shouldBe
+                    "'sort' must be one of name, recently_updated."
+                shouldThrow<AppActionException.InvalidArgument> { action.musicList(tagId = tagId, scope = null, sort = "name", cursor = null) }.message shouldBe
+                    "'sort' must be one of title, recently_updated."
             }
         }
 

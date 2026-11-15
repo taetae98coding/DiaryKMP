@@ -21,7 +21,8 @@ struct AddChecklistItemIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
-        let changedCount = try await appAction { try await DiaryChecklistAppAction.shared.itemAdd(checklistId: checklist.id, content: content) }
+        _ = try await ChecklistEntityQuery.require(checklistId: checklist.id)
+        let changedCount = try await appAction { try await DiaryChecklistItemAppAction.shared.add(checklistId: checklist.id, content: content) }
         return .result(
             value: Int(changedCount),
             dialog: AppIntentResultDialog.changed(count: changedCount, changed: LocalizedStringResource("Added the checklist item.", table: "AppIntentChecklist"))
@@ -41,7 +42,8 @@ struct CheckChecklistItemIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
-        let changedCount = try await appAction { try await DiaryChecklistAppAction.shared.itemCheck(itemId: item.itemId) }
+        try await ChecklistEntityQuery.requireChecklist(of: item)
+        let changedCount = try await appAction { try await DiaryChecklistItemAppAction.shared.check(itemId: item.itemId) }
         return .result(
             value: Int(changedCount),
             dialog: AppIntentResultDialog.changed(count: changedCount, changed: LocalizedStringResource("Checked.", table: "AppIntentChecklist"))
@@ -61,7 +63,8 @@ struct UncheckChecklistItemIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
-        let changedCount = try await appAction { try await DiaryChecklistAppAction.shared.itemUncheck(itemId: item.itemId) }
+        try await ChecklistEntityQuery.requireChecklist(of: item)
+        let changedCount = try await appAction { try await DiaryChecklistItemAppAction.shared.uncheck(itemId: item.itemId) }
         return .result(
             value: Int(changedCount),
             dialog: AppIntentResultDialog.changed(count: changedCount, changed: LocalizedStringResource("Unchecked.", table: "AppIntentChecklist"))
@@ -83,7 +86,8 @@ struct DeleteChecklistItemIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
-        let changedCount = try await appAction { try await DiaryChecklistAppAction.shared.itemDelete(itemId: item.itemId) }
+        try await ChecklistEntityQuery.requireChecklist(of: item)
+        let changedCount = try await appAction { try await DiaryChecklistItemAppAction.shared.delete(itemId: item.itemId) }
         return .result(
             value: Int(changedCount),
             dialog: AppIntentResultDialog.changed(count: changedCount, changed: LocalizedStringResource("Deleted the checklist item.", table: "AppIntentChecklist"))

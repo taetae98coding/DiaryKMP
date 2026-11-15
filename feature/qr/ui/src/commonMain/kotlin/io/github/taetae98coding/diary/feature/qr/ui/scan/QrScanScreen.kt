@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 internal fun QrScanScreen(
     navigateUp: () -> Unit,
     navigateUpWithValue: (String) -> Unit,
+    cameraPreviewContent: QrScanCameraPreviewContent,
     modifier: Modifier = Modifier,
 ) {
     val currentNavigateUpWithValue by rememberUpdatedState(navigateUpWithValue)
@@ -27,6 +28,7 @@ internal fun QrScanScreen(
                 }
             }
         },
+        cameraPreviewContent = cameraPreviewContent,
         modifier = modifier,
     )
 }

@@ -27,6 +27,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -53,8 +54,8 @@ class MemoAddScreenRetentionTest {
 
     @Test
     fun `TC-57275378-6577-4ed4-8418-78a8eb3f56b0 화면이 다시 만들어져 복원되어도 입력한 제목, 설명, 컬러, 기간을 유지한다`() {
-        val title = "title-${Arb.string().next()}"
-        val description = "description-${Arb.string().next()}"
+        val title = "title-${Arb.nonBlankString().next()}"
+        val description = "description-${Arb.nonBlankString().next()}"
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toDefaultDisplayText()
         val viewModels = screenTestViewModel()
         val restorationTester = StateRestorationTester(composeRule)
@@ -84,8 +85,8 @@ class MemoAddScreenRetentionTest {
 
     @Test
     fun `TC-91c79196-39ac-4ba8-964f-0e6c4f20ba85 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
-        val title = "title-${Arb.string().next()}"
-        val description = "description-${Arb.string().next()}"
+        val title = "title-${Arb.nonBlankString().next()}"
+        val description = "description-${Arb.nonBlankString().next()}"
         val addMemoUseCase = mockk<AddMemoUseCase>()
         coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val viewModels = screenTestRealViewModel(addMemoUseCase = addMemoUseCase)
@@ -154,6 +155,8 @@ private fun TestMemoAddScreen(viewModels: MemoAddScreenViewModels) {
         navigateToPlaceAdd = {},
         navigateToPlaceDetail = {},
         navigateToGeminiSetting = {},
+        initialTitle = "",
+        initialDescription = "",
         initialDateTime = null,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
         isStandalone = true,

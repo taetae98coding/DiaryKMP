@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.core.share.ShareAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
@@ -18,6 +19,7 @@ import kotlin.uuid.Uuid
 internal fun WebDetailTopBar(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
+    isShareVisible: Boolean = false,
     uiStateProvider: () -> WebDetailUiState = { WebDetailUiState.Loading },
 ) {
     val uiState = uiStateProvider()
@@ -40,6 +42,9 @@ internal fun WebDetailTopBar(
         },
         actions = {
             if (uiState is WebDetailUiState.Content) {
+                if (isShareVisible) {
+                    ShareAction(onClick = { onEvent(WebDetailScaffoldEvent.ClickShare) })
+                }
                 IconAction(
                     icon = DiaryTopBarIcon.OPEN_IN_NEW,
                     contentDescription = openInNewContentDescription,
@@ -62,6 +67,7 @@ private fun WebDetailTopBarPreview() {
     DiaryTheme {
         WebDetailTopBar(
             onEvent = {},
+            isShareVisible = true,
             uiStateProvider = { WebDetailUiState.Content(id = Uuid.NIL, detail = previewWebDetail()) },
         )
     }

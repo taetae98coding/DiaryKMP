@@ -245,7 +245,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-5282a1f8-8c3c-4dd2-b017-585e42c532b0 저장된 태그 연결과 대표 태그를 상태에 채운다") {
+        test("TC-5282a1f8-8c3c-4dd2-b017-585e42c532b0 TC-e8ce9bf6-f96f-4874-aff8-8ce848811e79 저장된 태그 연결과 대표 태그를 상태에 채운다") {
             runTest(mainDispatcher) {
                 val workTag = tag()
                 val exerciseTag = tag()
@@ -317,7 +317,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-5b370c4c-d285-41ba-965b-da7e6ecf8c95 TC-8a88520a-5d49-4adb-abcc-d21a05f7ead8 연결된 완료된 태그를 선택 목록에 함께 담는다") {
+        test("TC-5b370c4c-d285-41ba-965b-da7e6ecf8c95 TC-8a88520a-5d49-4adb-abcc-d21a05f7ead8 연결된 완료된 태그를 선택한 것으로 표시한다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag(title = FIRST_TAG_TITLE).copy(isFinished = false)
                 val finishedTag = tag(title = SECOND_TAG_TITLE).copy(isFinished = true)
@@ -447,6 +447,34 @@ class MemoTagViewModelTest : FunSpec() {
         applyDelayTests()
         blankQueryTests()
         duplicateRequestTests()
+        searchFailureTests()
+    }
+
+    private fun searchFailureTests() {
+        test("TC-02face70-57f7-427e-8efb-51cb18d0b37d 검색어를 바꿔 다시 조회하다 실패하면 이전 태그를 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val tagList = List(2) { tag() }
+                val id = Arb.kotlinUuid().next()
+                val pageMemoSelectableTagUseCase = mockk<PageMemoSelectableTagUseCase>()
+                every {
+                    pageMemoSelectableTagUseCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = ""))
+                } returns flowOf(Result.success(PagingData.from(tagList)))
+                every {
+                    pageMemoSelectableTagUseCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = SEARCH_QUERY))
+                } returns flowOf(Result.failure(IllegalStateException()))
+                val viewModel = viewModel(id = id, pageMemoSelectableTagUseCase = pageMemoSelectableTagUseCase)
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
+
+                    viewModel.updateQuery(SEARCH_QUERY)
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
     }
 
     private fun searchTests() {

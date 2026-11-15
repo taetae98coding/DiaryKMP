@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncPendingRepository
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.BehaviorSpec
@@ -26,7 +27,7 @@ class FindSyncPendingUseCaseTest :
                     listOf(true, false).forEach { isSessionValid ->
                         val account = Arb.accountUser().next().copy(isSessionValid = isSessionValid)
                         val getAccountUseCase = mockk<GetAccountUseCase>()
-                        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+                        every { getAccountUseCase() } returns flowOf(Result.success(account))
                         val repository = mockk<AccountSyncPendingRepository>()
                         every { repository.find(account = account) } returns flowOf(true)
                         val useCase =
@@ -35,7 +36,7 @@ class FindSyncPendingUseCaseTest :
                                 accountSyncPendingRepository = repository,
                             )
 
-                        useCase(parameter = Unit).test {
+                        useCase().test {
                             withClue("isSessionValid=$isSessionValid") { awaitItem().shouldBeSuccess(true) }
                             awaitComplete()
                         }
@@ -47,7 +48,7 @@ class FindSyncPendingUseCaseTest :
                 Then("TC-4ee2634b-a9fe-41a7-8f9c-5db073eae4fe 확인된 계정으로 기기 저장소를 한 번 조회한다") {
                     val account = Arb.accountUser().next()
                     val getAccountUseCase = mockk<GetAccountUseCase>()
-                    every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+                    every { getAccountUseCase() } returns flowOf(Result.success(account))
                     val repository = mockk<AccountSyncPendingRepository>()
                     every { repository.find(account = account) } returns flowOf(true)
                     val useCase =
@@ -56,7 +57,7 @@ class FindSyncPendingUseCaseTest :
                             accountSyncPendingRepository = repository,
                         )
 
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess(true)
                         awaitComplete()
                     }
@@ -69,7 +70,7 @@ class FindSyncPendingUseCaseTest :
         Given("사용자 계정에 업로드 대기 항목이 없다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = mockk<AccountSyncPendingRepository>()
             every { repository.find(account = account) } returns flowOf(false)
             val useCase =
@@ -80,7 +81,7 @@ class FindSyncPendingUseCaseTest :
 
             When("업로드 대기 여부를 조회한다") {
                 Then("대기 항목이 없다고 알린다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess(false)
                         awaitComplete()
                     }
@@ -91,7 +92,7 @@ class FindSyncPendingUseCaseTest :
         Given("기기 저장소의 업로드 대기 여부가 바뀐다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val repository = mockk<AccountSyncPendingRepository>()
             every { repository.find(account = account) } returns flowOf(true, false)
             val useCase =
@@ -102,7 +103,7 @@ class FindSyncPendingUseCaseTest :
 
             When("업로드 대기 여부를 조회한다") {
                 Then("바뀐 값을 이어서 알린다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess(true)
                         awaitItem().shouldBeSuccess(false)
                         awaitComplete()
@@ -114,7 +115,7 @@ class FindSyncPendingUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val repository = mockk<AccountSyncPendingRepository>()
             val useCase =
                 FindSyncPendingUseCase(
@@ -124,7 +125,7 @@ class FindSyncPendingUseCaseTest :
 
             When("업로드 대기 여부를 조회한다") {
                 Then("계정 조회 실패를 전달하고 기기 저장소를 조회하지 않는다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeFailure() shouldBeSameInstanceAs throwable
                         awaitComplete()
                     }

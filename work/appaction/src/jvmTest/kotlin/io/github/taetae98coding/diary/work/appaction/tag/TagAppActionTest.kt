@@ -116,7 +116,7 @@ class TagAppActionTest :
 
         test("태그 하나를 연결한 하위 태그와 함께 돌려준다") {
             runTest {
-                val tag = Arb.tag().next()
+                val tag = Arb.tag().next().copy(isDeleted = false)
                 val linkedTagList = Arb.list(Arb.tag(), 0..3).next()
                 val findTagUseCase = mockk<FindTagUseCase>()
                 val getLinkedTagUseCase = mockk<GetLinkedTagUseCase>()
@@ -232,7 +232,7 @@ class TagAppActionTest :
 
         test("고칠 값을 담지 않은 항목은 지금 값을 유지하고 고친 수를 돌려준다") {
             runTest {
-                val tag = Arb.tag().next()
+                val tag = Arb.tag().next().copy(isDeleted = false)
                 val title = Arb.nonBlankString().next()
                 val changedCount = Arb.int(0..1).next()
                 val findTagUseCase = mockk<FindTagUseCase>()
@@ -248,7 +248,7 @@ class TagAppActionTest :
 
         test("빈 이모지를 담으면 이모지를 지우고, 색을 담으면 불투명한 그 색으로 고친다") {
             runTest {
-                val tag = Arb.tag().next()
+                val tag = Arb.tag().next().copy(isDeleted = false)
                 val color = Arb.tagDetail().next().color
                 val findTagUseCase = mockk<FindTagUseCase>()
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
@@ -309,6 +309,30 @@ class TagAppActionTest :
                 val action = tagAppActionOf(deleteTagUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.delete(tagId = Arb.kotlinUuid().next().toString()) }.message shouldBe "IllegalStateException: $message"
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 태그의 상세는 없는 태그와 같이 null을 돌려준다") {
+            runTest {
+                val tag = Arb.tag().next().copy(isDeleted = true)
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(parameter = tag.id) } returns flowOf(Result.success(tag))
+                val action = tagAppActionOf(findTagUseCase)
+
+                action.get(tagId = tag.id.toString()) shouldBe null
+            }
+        }
+
+        test("삭제된 태그도 포함하는 조회는 삭제된 태그를 돌려준다") {
+            runTest {
+                val tag = Arb.tag().next().copy(isDeleted = true)
+                val findTagUseCase = mockk<FindTagUseCase>()
+                val getLinkedTagUseCase = mockk<GetLinkedTagUseCase>()
+                every { findTagUseCase(parameter = tag.id) } returns flowOf(Result.success(tag))
+                every { getLinkedTagUseCase(parameter = tag.id) } returns flowOf(Result.success(emptyList()))
+                val action = tagAppActionOf(findTagUseCase, getLinkedTagUseCase)
+
+                action.getIncludingDeleted(tagId = tag.id.toString())?.tag?.id shouldBe tag.id.toString()
             }
         }
     })

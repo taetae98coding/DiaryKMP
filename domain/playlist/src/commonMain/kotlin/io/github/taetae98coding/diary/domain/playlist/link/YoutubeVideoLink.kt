@@ -67,6 +67,6 @@ internal data class YoutubeLinkParts(
         get() = host == YOUTU_BE_HOST
 }
 
-private fun String.isYoutubeVideoLink(): Boolean = toYoutubeLinkPartsOrNull() != null
+public fun String.isYoutubeVideoLink(): Boolean = toYoutubeLinkPartsOrNull() != null
 
 private fun String.isYoutubeHost(): Boolean = this == YOUTUBE_HOST || this == YOUTU_BE_HOST || endsWith(".$YOUTUBE_HOST")

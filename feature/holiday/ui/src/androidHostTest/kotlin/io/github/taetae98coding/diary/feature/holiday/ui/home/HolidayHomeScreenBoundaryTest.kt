@@ -60,7 +60,6 @@ class HolidayHomeScreenBoundaryTest {
 
     private val targetYear = mutableStateOf<Int?>(null)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -226,7 +225,7 @@ class HolidayHomeScreenBoundaryTest {
             lifecycleOwner = { lifecycleOwner },
             restorationTester = restorationTester,
         )
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
         composeRule.onAllNodesWithContentDescription(DEFAULT_LOADING_DESCRIPTION).fetchSemanticsNodes().isEmpty() shouldBe true
         val completion = CompletableDeferred<Result<List<Holiday>>>()
         coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
@@ -237,7 +236,7 @@ class HolidayHomeScreenBoundaryTest {
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
         composeRule.onAllNodesWithContentDescription(DEFAULT_LOADING_DESCRIPTION).fetchSemanticsNodes().isEmpty() shouldBe true
     }
 
@@ -345,7 +344,7 @@ class HolidayHomeScreenBoundaryTest {
         leaveAndReturn(lifecycleOwner = lifecycleOwner)
 
         composeRule.onNodeWithText(description).assertDoesNotExist()
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
     }
 
     // 다른 화면이나 다른 앱으로 가면 화면이 멈췄다가, 돌아오면 다시 시작된다.

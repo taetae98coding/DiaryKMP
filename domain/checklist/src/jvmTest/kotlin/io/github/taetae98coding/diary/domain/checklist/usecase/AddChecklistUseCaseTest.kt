@@ -104,7 +104,7 @@ class AddChecklistUseCaseTest :
             val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
 
             When("체크리스트 추가를 요청한다") {
-                Then("TC-9f688659-42f2-4c32-9e31-fea6de2793a3 TC-3129cb06-b235-4b73-9eda-c22b94336451 고른 태그를 그대로 새 체크리스트의 연결로 넘긴다") {
+                Then("TC-9f688659-42f2-4c32-9e31-fea6de2793a3 TC-a388b486-45c1-4ad0-bec2-ea1d46d75d3b 고른 태그를 그대로 새 체크리스트의 연결로 넘긴다") {
                     val context = AddContext(account = Arb.accountUser().next())
 
                     context

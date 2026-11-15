@@ -9,6 +9,7 @@ import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
@@ -52,7 +53,7 @@ internal class TagHomeViewModel(
     val effect: Flow<TagListEffect> = tagActions.effect
 
     val filterUiState: StateFlow<TagHomeScaffoldFilterUiState> =
-        getTopLevelTagFilterUseCase(parameter = Unit)
+        getTopLevelTagFilterUseCase()
             .map { result -> TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = result.getOrDefault(false)) }
             .stateIn(
                 scope = viewModelScope,

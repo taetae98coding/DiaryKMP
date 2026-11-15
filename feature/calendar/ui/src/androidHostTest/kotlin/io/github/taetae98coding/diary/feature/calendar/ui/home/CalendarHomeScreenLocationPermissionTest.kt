@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
@@ -188,7 +189,7 @@ class CalendarHomeScreenLocationPermissionTest {
     fun `TC-a8603e91-fddb-42e4-bc82-3b2aee66db3e 권한 허용 시점에 날씨 동기화가 진행 중이면 그 동기화를 멈추고 다시 동기화한다`() {
         var isFetchCancelled = false
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-        coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers {
+        coEvery { fetchCurrentWeatherUseCase() } coAnswers {
             try {
                 awaitCancellation()
             } finally {
@@ -196,9 +197,9 @@ class CalendarHomeScreenLocationPermissionTest {
             }
         }
         val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
-        coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } returns Result.success(Unit)
+        coEvery { refreshCurrentWeatherUseCase() } returns Result.success(Unit)
         val getCurrentCalendarWeatherUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
-        every { getCurrentCalendarWeatherUseCase(parameter = Unit) } returns flowOf(Result.success(CalendarWeatherReport()))
+        every { getCurrentCalendarWeatherUseCase() } returns flowOf(Result.success(CalendarWeatherReport()))
         val weatherViewModel =
             CalendarHomeWeatherViewModel(
                 fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
@@ -213,8 +214,8 @@ class CalendarHomeScreenLocationPermissionTest {
         )
         composeRule.waitForIdle()
 
-        coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
-        coVerify(exactly = 1) { refreshCurrentWeatherUseCase(parameter = Unit) }
+        coVerify(exactly = 1) { fetchCurrentWeatherUseCase() }
+        coVerify(exactly = 1) { refreshCurrentWeatherUseCase() }
         isFetchCancelled shouldBe true
     }
 

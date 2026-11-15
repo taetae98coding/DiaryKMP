@@ -19,6 +19,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.mockk
 import kotlin.uuid.Uuid
 
 class ContactMemoFinishedListNavigationTest :
@@ -132,7 +133,7 @@ class ContactMemoFinishedListNavigationTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { contactEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { contactEntry(backStack = NavBackStack(*backStack.toTypedArray()), contentSharerFactory = mockk()) }
 
             return provider(key).metadata
         }

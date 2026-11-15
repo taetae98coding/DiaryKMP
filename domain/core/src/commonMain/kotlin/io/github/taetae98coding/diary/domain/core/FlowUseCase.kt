@@ -18,3 +18,5 @@ public abstract class FlowUseCase<in Parameter, out Output> {
 
     protected abstract fun execute(parameter: Parameter): Flow<Result<Output>>
 }
+
+public operator fun <Output> FlowUseCase<Unit, Output>.invoke(): Flow<Result<Output>> = invoke(parameter = Unit)

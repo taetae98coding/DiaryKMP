@@ -120,6 +120,7 @@ class WebDetailScreenMemoReturnTest {
                         webViewModel = memoScreenWebViewModel(),
                         pageViewModel = memoScreenPageViewModel(),
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }

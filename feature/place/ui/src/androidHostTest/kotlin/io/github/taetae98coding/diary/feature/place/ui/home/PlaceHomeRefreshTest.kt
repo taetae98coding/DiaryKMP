@@ -23,6 +23,7 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
@@ -109,9 +110,9 @@ class PlaceHomeRefreshTest {
         }
         val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
         // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.
-        every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
+        every { getDefaultMapProviderUseCase() } returns emptyFlow()
         val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-        coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
+        coEvery { fetchCurrentLocationUseCase() } returns Result.failure(IllegalStateException(Arb.string().next()))
         val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
         every { getPlaceListUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
         val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()

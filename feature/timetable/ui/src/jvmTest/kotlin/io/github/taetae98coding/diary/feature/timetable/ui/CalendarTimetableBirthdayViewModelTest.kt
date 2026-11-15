@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.feature.timetable.ui
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.lunar.LunarDate
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -27,7 +27,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
-import kotlin.uuid.Uuid
 
 class CalendarTimetableBirthdayViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -68,7 +67,7 @@ class CalendarTimetableBirthdayViewModelTest : FunSpec() {
 
         test("조회한 생일을 그대로 제공한다") {
             runTest(mainDispatcher) {
-                val birthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = Arb.nonBlankString().next(), nameQualifier = "", date = day(day = 24))
+                val birthday = Arb.calendarContactBirthday().next().copy(date = day(day = 24))
                 val getUseCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { getUseCase(parameter = any()) } returns flowOf(Result.success(listOf(birthday)))
                 val viewModel = birthdayViewModel(getCalendarContactBirthdayUseCase = getUseCase)
@@ -140,6 +139,52 @@ class CalendarTimetableBirthdayViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { fetchUseCase(parameter = 2026) }
+            }
+        }
+
+        test("TC-be95b91e-9ca3-440d-9274-d27da918cfec 음력 자료 동기화가 진행 중이어도 날짜가 바뀌면 바뀐 날짜의 대상 연도를 요청한다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<List<LunarDate>>>()
+                val fetchUseCase = mockk<FetchLunarUseCase>()
+                coEvery { fetchUseCase(parameter = any()) } coAnswers { completion.await() }
+                val viewModel = birthdayViewModel(fetchLunarUseCase = fetchUseCase)
+                val year = Arb.int(2000..2100).next()
+                val july15 = LocalDate(year = year, month = 7, day = 15)
+                val july15InNextYear = LocalDate(year = year + 1, month = 7, day = 15)
+
+                viewModel.fetch(dateRange = july15..july15)
+                advanceUntilIdle()
+                coVerify(exactly = 1) { fetchUseCase(parameter = year) }
+                coVerify(exactly = 0) { fetchUseCase(parameter = year + 1) }
+
+                viewModel.fetch(dateRange = july15InNextYear..july15InNextYear)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchUseCase(parameter = year + 1) }
+
+                completion.complete(Result.success(emptyList()))
+                advanceUntilIdle()
+            }
+        }
+
+        test("TC-48c2991a-f012-48a5-8552-5c1b04d08b7d 한 대상 연도의 음력 자료 동기화가 진행 중이어도 다른 대상 연도를 요청한다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<List<LunarDate>>>()
+                val fetchUseCase = mockk<FetchLunarUseCase>()
+                val year = Arb.int(2000..2100).next()
+                val lastDay = LocalDate(year = year, month = 12, day = 31)
+                coEvery { fetchUseCase(parameter = year) } coAnswers { completion.await() }
+                coEvery { fetchUseCase(parameter = year + 1) } returns Result.success(emptyList())
+                val viewModel = birthdayViewModel(fetchLunarUseCase = fetchUseCase)
+
+                viewModel.fetch(dateRange = lastDay..lastDay)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchUseCase(parameter = year) }
+                coVerify(exactly = 1) { fetchUseCase(parameter = year + 1) }
+
+                completion.complete(Result.success(emptyList()))
+                advanceUntilIdle()
             }
         }
 

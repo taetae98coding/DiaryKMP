@@ -19,3 +19,37 @@ public fun String.encodeUriComponent(): String =
     }
 
 private fun Char.isUnreserved(): Boolean = this in 'A'..'Z' || this in 'a'..'z' || this in '0'..'9' || this in UNRESERVED
+
+public fun String.decodeUriComponent(): String = decodeHexEscapes(marker = '%')
+
+public fun String.decodeQuotedPrintable(): String = decodeHexEscapes(marker = '=')
+
+// 표식과 16진수는 모두 ASCII라 UTF-8 바이트 단위로 다뤄도 다른 글자를 쪼개지 않는다.
+private fun String.decodeHexEscapes(marker: Char): String {
+    val source = encodeToByteArray()
+    val target = ByteArray(source.size)
+    val markerByte = marker.code.toByte()
+    var size = 0
+    var index = 0
+    while (index < source.size) {
+        val code = if (source[index] == markerByte) source.hexCodeOrNull(start = index + 1) else null
+        if (code != null) {
+            target[size] = code.toByte()
+            index += 1 + PERCENT_LENGTH
+        } else {
+            target[size] = source[index]
+            index += 1
+        }
+        size += 1
+    }
+    return target.decodeToString(endIndex = size)
+}
+
+private fun ByteArray.hexCodeOrNull(start: Int): Int? {
+    val high = getOrNull(start)?.hexDigitOrNull()
+    val low = getOrNull(start + 1)?.hexDigitOrNull()
+
+    return if (high == null || low == null) null else high * PERCENT_RADIX + low
+}
+
+private fun Byte.hexDigitOrNull(): Int? = toInt().toChar().digitToIntOrNull(radix = PERCENT_RADIX)

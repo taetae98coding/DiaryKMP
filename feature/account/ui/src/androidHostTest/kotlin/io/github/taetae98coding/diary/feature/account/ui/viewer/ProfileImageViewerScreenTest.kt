@@ -2,15 +2,25 @@
 
 package io.github.taetae98coding.diary.feature.account.ui.viewer
 
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pinch
 import coil3.ColorImage
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -149,6 +159,65 @@ class ProfileImageViewerScreenTest {
         composeRule.onNodeWithContentDescription(DEFAULT_IMAGE_DESCRIPTION).assertExists()
     }
 
+    @Test
+    fun `TC-7db52307-a554-4264-8902-45ff770f4bfe 화면이 재생성되면 배율은 처음 상태로 돌아간다`() {
+        lateinit var zoomState: ProfileImageViewerZoomState
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            DiaryTheme {
+                val state = rememberProfileImageViewerZoomState()
+
+                SideEffect { zoomState = state }
+                ProfileImageViewerScaffold(onEvent = {}, imageUrl = readyUrl, zoomState = state)
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_IMAGE_DESCRIPTION).performTouchInput { zoomIn() }
+        composeRule.runOnIdle { (zoomState.scale > ProfileImageViewerZoomState.MIN_SCALE) shouldBe true }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { zoomState.scale shouldBe ProfileImageViewerZoomState.MIN_SCALE }
+        composeRule.onNodeWithContentDescription(DEFAULT_IMAGE_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-01f222b8-7b37-4983-8aff-712da3961761 불러오는 중이거나 불러오지 못한 동안에는 확대되지 않는다`() {
+        val current = mutableStateOf(readyUrl)
+        val zoomStateMap = mutableMapOf<String, ProfileImageViewerZoomState>()
+        composeRule.setContent {
+            DiaryTheme {
+                key(current.value) {
+                    val state = rememberProfileImageViewerZoomState()
+
+                    SideEffect { zoomStateMap[current.value] = state }
+                    ProfileImageViewerScaffold(
+                        onEvent = {},
+                        imageUrl = current.value,
+                        modifier = Modifier.testTag(SCAFFOLD_TAG),
+                        zoomState = state,
+                    )
+                }
+            }
+        }
+
+        // 같은 조작이 불러온 이미지에서는 확대하는지 먼저 확인한다.
+        listOf(readyUrl, loadingUrl, errorUrl).forEach { imageUrl ->
+            composeRule.runOnIdle { current.value = imageUrl }
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithTag(SCAFFOLD_TAG).performTouchInput { zoomIn() }
+            composeRule.waitForIdle()
+        }
+
+        composeRule.runOnIdle {
+            (zoomStateMap.getValue(readyUrl).scale > ProfileImageViewerZoomState.MIN_SCALE) shouldBe true
+            zoomStateMap.getValue(loadingUrl).scale shouldBe ProfileImageViewerZoomState.MIN_SCALE
+            zoomStateMap.getValue(errorUrl).scale shouldBe ProfileImageViewerZoomState.MIN_SCALE
+        }
+    }
+
     private fun setScreen(
         imageUrl: String,
         navigateUp: () -> Unit = {},
@@ -165,7 +234,18 @@ class ProfileImageViewerScreenTest {
         const val DEFAULT_IMAGE_DESCRIPTION = "Profile image"
         const val DEFAULT_FAILED_MESSAGE = "Couldn't load the image."
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        const val SCAFFOLD_TAG = "ProfileImageViewerScaffold"
     }
+}
+
+// 화면 가운데에서 두 손가락을 벌린다.
+private fun TouchInjectionScope.zoomIn() {
+    pinch(
+        start0 = center - Offset(x = width / 8F, y = 0F),
+        end0 = center - Offset(x = width / 3F, y = 0F),
+        start1 = center + Offset(x = width / 8F, y = 0F),
+        end1 = center + Offset(x = width / 3F, y = 0F),
+    )
 }
 
 private fun imageUrl(): String = "https://example.com/${Arb.kotlinUuid().next()}.jpg"

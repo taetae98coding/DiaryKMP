@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDayDetail
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.ddayAddInput
 import io.github.taetae98coding.diary.domain.dday.exception.DDayRepeatBlankException
@@ -17,6 +18,7 @@ import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -75,7 +77,7 @@ class DDayDetailDDayUseCaseTest :
                         coVerify(exactly = 0) { context.repository.upsert(account = any(), dday = any(), tagIdSet = any()) }
                     }
 
-                    Then("TC-439ff23c-cd9a-42eb-9348-dcbfb47a7fc4 저장한 뒤 동기화를 한 번 요청한다") {
+                    Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-439ff23c-cd9a-42eb-9348-dcbfb47a7fc4 저장한 뒤 동기화를 한 번 요청한다") {
                         coVerifyOrder {
                             context.repository.updateDetail(account = any(), ddayId = any(), detail = any(), updatedAt = any())
                             context.requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -130,15 +132,21 @@ class DDayDetailDDayUseCaseTest :
                 }
             }
 
-            When("숫자가 비어 있는 간격이 있는 채 수정한다") {
-                val context = DetailContext()
-                val input = Arb.ddayAddInput().next().copy(repeatList = listOf(DDayRepeatInput(null, DDayRepeatUnit.YEAR)))
-                val result = context.updateUseCase(parameter = UpdateDDayUseCase.Parameter(id = context.stored.id, input = input))
+            listOf(
+                "제목을 입력하고" to Arb.nonBlankString().next(),
+                "제목을 비우고" to "",
+                "제목을 공백만으로 두고" to "   ",
+            ).forEach { (name, title) ->
+                When("$name 숫자가 비어 있는 간격이 있는 채 수정한다") {
+                    val context = DetailContext()
+                    val input = Arb.ddayAddInput().next().copy(title = title, repeatList = listOf(DDayRepeatInput(null, DDayRepeatUnit.YEAR)))
+                    val result = context.updateUseCase(parameter = UpdateDDayUseCase.Parameter(id = context.stored.id, input = input))
 
-                Then("TC-55d21aa4-9b96-4c9b-be03-ffc5326d5277 아무 내용도 수정하지 않고 반복 간격 미입력으로 거절한다") {
-                    result.shouldBeFailure().shouldBeInstanceOf<DDayRepeatBlankException>()
-                    coVerify(exactly = 0) { context.repository.updateDetail(account = any(), ddayId = any(), detail = any(), updatedAt = any()) }
-                    coVerify(exactly = 0) { context.requestSyncUseCase(parameter = any()) }
+                    Then("TC-55d21aa4-9b96-4c9b-be03-ffc5326d5277 아무 내용도 수정하지 않고 반복 간격 미입력으로 거절한다") {
+                        result.shouldBeFailure().shouldBeInstanceOf<DDayRepeatBlankException>()
+                        coVerify(exactly = 0) { context.repository.updateDetail(account = any(), ddayId = any(), detail = any(), updatedAt = any()) }
+                        coVerify(exactly = 0) { context.requestSyncUseCase(parameter = any()) }
+                    }
                 }
             }
 
@@ -154,7 +162,7 @@ class DDayDetailDDayUseCaseTest :
                     coVerify(exactly = 0) { context.repository.updateDetail(account = any(), ddayId = any(), detail = any(), updatedAt = any()) }
                 }
 
-                Then("TC-439ff23c-cd9a-42eb-9348-dcbfb47a7fc4 삭제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-439ff23c-cd9a-42eb-9348-dcbfb47a7fc4 삭제를 저장한 뒤 동기화를 한 번 요청한다") {
                     coVerifyOrder {
                         context.repository.updateDeleted(account = any(), ddayId = any(), isDeleted = any(), updatedAt = any())
                         context.requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -271,7 +279,7 @@ private class DetailContext(
 
     private val getAccountUseCase: GetAccountUseCase =
         mockk<GetAccountUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns flowOf(accountResult)
+            every { useCase() } returns flowOf(accountResult)
         }
 
     private val clock: Clock = mockk<Clock>().also { clock -> every { clock.now() } returns now }

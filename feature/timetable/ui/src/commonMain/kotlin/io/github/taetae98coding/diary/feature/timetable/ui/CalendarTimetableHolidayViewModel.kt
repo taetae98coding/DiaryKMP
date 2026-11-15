@@ -45,18 +45,17 @@ internal class CalendarTimetableHolidayViewModel(
 
         this.yearList.value = yearList
 
-        val fetchYearList = yearList.filter { year -> fetchingYearSet.add(year) }
-        if (fetchYearList.isEmpty()) return
-
-        viewModelScope.launch {
-            fetchYearList.forEach { year ->
-                try {
-                    fetchHolidayUseCase(parameter = year)
-                } finally {
-                    fetchingYearSet.remove(year)
+        yearList
+            .filter { year -> fetchingYearSet.add(year) }
+            .forEach { year ->
+                viewModelScope.launch {
+                    try {
+                        fetchHolidayUseCase(parameter = year)
+                    } finally {
+                        fetchingYearSet.remove(year)
+                    }
                 }
             }
-        }
     }
 
     private fun getHolidayList(yearList: List<Int>): Flow<List<Holiday>> {

@@ -10,7 +10,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +30,7 @@ class ChecklistCardTest {
 
     @Test
     fun `카드 폭보다 긴 진행 글은 전체 글을 접근성에 제공하고 시간이 지나면 그려지는 위치가 바뀐다`() {
-        val summary = testChecklistSummary(checkedCount = Int.MAX_VALUE, totalCount = Int.MAX_VALUE)
+        val summary = Arb.checklistSummary(checkedCount = Int.MAX_VALUE, totalCount = Int.MAX_VALUE).next()
         val progressText = "${summary.checkedCount}/${summary.totalCount}"
         composeRule.mainClock.autoAdvance = false
         setCard(summary)

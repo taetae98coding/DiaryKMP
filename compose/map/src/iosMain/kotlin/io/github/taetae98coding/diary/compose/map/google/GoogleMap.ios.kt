@@ -12,6 +12,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.viewinterop.UIKitView
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.PinMarkerImageFactory
+import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.permission.rememberIsPermissionGranted
 import io.github.taetae98coding.diary.core.permission.Permission
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -20,11 +22,12 @@ import swiftPMImport.DiaryKmp.compose.compose.map.GMSMapViewDelegateProtocol
 import kotlin.uuid.Uuid
 
 @Composable
-internal actual fun GoogleMap(
-    modifier: Modifier,
-    state: DiaryMapState,
-    onSpotClick: ((DiaryMapCoordinate) -> Unit)?,
-    onPinClick: ((Uuid) -> Unit)?,
+internal fun GoogleMap(
+    pinMarkerImageFactory: PinMarkerImageFactory,
+    modifier: Modifier = Modifier,
+    state: DiaryMapState = rememberDiaryMapState(),
+    onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
+    onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     val mapDelegate: GMSMapViewDelegateProtocol =
         remember(state, onSpotClick, onPinClick) {
@@ -42,6 +45,7 @@ internal actual fun GoogleMap(
         state = state,
     )
     GoogleMapPinMarkersEffect(
+        pinMarkerImageFactory = pinMarkerImageFactory,
         mapView = mapView,
         state = state,
         isPinSelectable = onPinClick != null,

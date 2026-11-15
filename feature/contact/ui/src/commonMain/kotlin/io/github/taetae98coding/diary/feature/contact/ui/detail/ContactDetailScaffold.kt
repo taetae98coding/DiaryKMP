@@ -45,6 +45,7 @@ internal fun ContactDetailScaffold(
     uiStateProvider: () -> ContactDetailUiState = { ContactDetailUiState.Loading },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
     componentVisibleProvider: () -> ContactDetailScaffoldComponentVisible = { ContactDetailScaffoldComponentVisible() },
+    isShareSupported: Boolean = false,
     tabFloatingActionButton: @Composable (ContactDetailTab) -> Unit,
     tabContent: @Composable (ContactDetailTab) -> Unit,
 ) {
@@ -55,6 +56,7 @@ internal fun ContactDetailScaffold(
                 onEvent = onEvent,
                 uiStateProvider = uiStateProvider,
                 componentVisibleProvider = componentVisibleProvider,
+                isShareSupported = isShareSupported,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },

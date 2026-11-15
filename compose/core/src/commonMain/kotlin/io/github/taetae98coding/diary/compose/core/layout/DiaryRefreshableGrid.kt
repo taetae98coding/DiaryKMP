@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
@@ -34,7 +35,7 @@ public fun DiaryRefreshableGrid(
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(DiaryRefreshableGridDefaults.COLUMN_COUNT),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().systemScroll(state) { state.animateScrollToItem(0) },
             state = state,
             contentPadding = DiaryRefreshableGridDefaults.contentPadding(bottomPadding = bottomPadding),
             horizontalArrangement = DiaryRefreshableGridDefaults.ItemArrangement,

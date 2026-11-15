@@ -15,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
+import io.github.taetae98coding.diary.compose.core.share.ContentSharer
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
@@ -108,6 +109,29 @@ class PlaceDetailMapDisplayedTest {
     }
 
     @Test
+    fun `TC-feafcf73-daab-4274-94ad-a7310523a3b3 Google 지도로 바꾸면 Google 웹 지도 링크를 공유한다`() {
+        val contentSharer = testContentSharer()
+        val id = Uuid.random()
+        val detail = placeDetail()
+        setPlaceDetailScreen(id = id, uiState = MutableStateFlow(mapDisplayedContent(id = id, detail = detail)), contentSharer = contentSharer)
+        composeRule.runOnIdle { map.firstScope().state.provider shouldBe DiaryMapProvider.NAVER }
+
+        composeRule.onNode(hasText(DEFAULT_GOOGLE_LABEL) and hasAnyAncestor(hasContentDescription(DEFAULT_MAP_DESCRIPTION))).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHARE_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        val sharedText = composeRule.sharedText(contentSharer = contentSharer)
+        sharedText.lines().last() shouldBe
+            externalMapWebUri(
+                provider = DiaryMapProvider.GOOGLE,
+                coordinate = detail.coordinate.toDiaryMapCoordinate(),
+                title = detail.title,
+                address = detail.address,
+            )
+    }
+
+    @Test
     fun `TC-744926fc-9b16-4d87-bd7e-6bd123f904d1 좌표가 성립하지 않는 채 수정을 실행해도 지도가 보고 있는 위치를 옮기지 않는다`() {
         val savedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val id = Uuid.random()
@@ -175,10 +199,13 @@ class PlaceDetailMapDisplayedTest {
         uiState: MutableStateFlow<PlaceDetailUiState>,
         uriHandler: UriHandler = mockk(relaxed = true),
         viewModel: PlaceDetailViewModel = screenTestViewModel(uiState = uiState),
+        contentSharer: ContentSharer = testContentSharer(),
     ) {
         preparePlaceDetailTabViewModels()
 
-        composeRule.setContent { PlaceDetailScreenContent(id = id, uiState = uiState, uriHandler = uriHandler, viewModel = viewModel) }
+        composeRule.setContent {
+            PlaceDetailScreenContent(id = id, uiState = uiState, uriHandler = uriHandler, viewModel = viewModel, contentSharer = contentSharer)
+        }
         composeRule.waitForIdle()
     }
 
@@ -188,6 +215,7 @@ class PlaceDetailMapDisplayedTest {
         uiState: MutableStateFlow<PlaceDetailUiState>,
         uriHandler: UriHandler,
         viewModel: PlaceDetailViewModel = screenTestViewModel(uiState = uiState),
+        contentSharer: ContentSharer = testContentSharer(),
     ) {
         CompositionLocalProvider(
             LocalUriHandler provides uriHandler,
@@ -206,6 +234,7 @@ class PlaceDetailMapDisplayedTest {
                     navigateUp = {},
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = contentSharerFactoryOf(contentSharer = contentSharer),
                 )
             }
         }

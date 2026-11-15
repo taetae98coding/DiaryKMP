@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLink
+import io.github.taetae98coding.diary.app.shared.share.shareAddDeepLinkOf
+import io.github.taetae98coding.diary.app.shared.share.shareContentOf
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import org.koin.mp.KoinPlatform
 
@@ -13,11 +15,21 @@ public object DiaryDeepLink {
         get() = ScreenDeepLink.NOTIFICATION_DATA_KEY
 
     public fun open(deepLink: String) {
-        appDeepLink.open(deepLink = deepLink, isLaunch = false)
+        openScreen(deepLink = deepLink, isLaunch = false)
     }
 
     // 앱을 새로 시작하며 받은 주소를 연다. 보던 화면이 남아 있지 않은 것을 장면 연결 시점의 Swift만 알 수 있다.
     public fun openOnLaunch(deepLink: String) {
-        appDeepLink.open(deepLink = deepLink, isLaunch = true)
+        openScreen(deepLink = deepLink, isLaunch = true)
+    }
+
+    // 공유 확장이 넘긴 공유 원문은 앱이 판정해 내용을 채운 추가 화면의 주소로 바꿔 연다.
+    private fun openScreen(
+        deepLink: String,
+        isLaunch: Boolean,
+    ) {
+        val screenDeepLink = shareContentOf(deepLink)?.let(::shareAddDeepLinkOf) ?: deepLink
+
+        appDeepLink.open(deepLink = screenDeepLink, isLaunch = isLaunch)
     }
 }

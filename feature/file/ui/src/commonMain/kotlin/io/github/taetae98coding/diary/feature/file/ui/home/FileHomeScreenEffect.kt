@@ -43,6 +43,13 @@ internal fun FileHomeScreenEffect(
 ) {
     var isScrollToTopPending by rememberSaveable { mutableStateOf(false) }
     var refreshBefore by remember { mutableStateOf<FileHomeRefreshSnapshot?>(null) }
+    var isFirstLoadSettled by remember(filePagingItems) { mutableStateOf(false) }
+    var isRefreshAgainPending by remember(filePagingItems) { mutableStateOf(false) }
+
+    LaunchedEffect(filePagingItems) {
+        snapshotFlow { filePagingItems.loadState.refresh }.first { refresh -> refresh !is LoadState.Loading }
+        isFirstLoadSettled = true
+    }
 
     UploadFileEffect(
         uploadViewModel = uploadViewModel,
@@ -53,6 +60,8 @@ internal fun FileHomeScreenEffect(
         onSucceeded = {
             refreshBefore = filePagingItems.refreshSnapshot()
             filePagingItems.refresh()
+            // 첫 불러오기가 끝나기 전에는 목록이 아직 불러오기를 시작하지 않았을 수 있고, 그때의 다시 불러오기 요청은 버려진다.
+            if (!isFirstLoadSettled) isRefreshAgainPending = true
             isScrollToTopPending = true
         },
     )
@@ -62,6 +71,7 @@ internal fun FileHomeScreenEffect(
             listState = listState,
             filePagingItems = filePagingItems,
             refreshBeforeProvider = { refreshBefore },
+            consumeRefreshAgain = { isRefreshAgainPending.also { isRefreshAgainPending = false } },
             onFinished = {
                 refreshBefore = null
                 isScrollToTopPending = false
@@ -125,13 +135,22 @@ private fun ScrollToTopAfterRefreshEffect(
     listState: LazyListState,
     filePagingItems: LazyPagingItems<DiaryFile>,
     refreshBeforeProvider: () -> FileHomeRefreshSnapshot?,
+    consumeRefreshAgain: () -> Boolean,
     onFinished: () -> Unit,
 ) {
+    val latestConsumeRefreshAgain by rememberUpdatedState(consumeRefreshAgain)
     val latestOnFinished by rememberUpdatedState(onFinished)
 
     LaunchedEffect(listState, filePagingItems) {
         val refreshBefore = refreshBeforeProvider() ?: filePagingItems.refreshSnapshot()
-        val refresh = filePagingItems.awaitRefreshSettled(refreshBefore = refreshBefore)
+        var refresh = filePagingItems.awaitRefreshSettled(refreshBefore = refreshBefore)
+
+        if (latestConsumeRefreshAgain()) {
+            val settled = filePagingItems.refreshSnapshot()
+
+            filePagingItems.refresh()
+            refresh = filePagingItems.awaitRefreshSettled(refreshBefore = settled)
+        }
 
         if (refresh is LoadState.NotLoading) listState.scrollToItem(index = 0)
         latestOnFinished()

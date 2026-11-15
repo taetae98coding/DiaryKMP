@@ -14,15 +14,20 @@ import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.spyk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
@@ -65,6 +70,11 @@ class AccountPlaceLocalDataSourceImplTest :
         }
 
         suspend fun pagedPlaces(accountId: Uuid): List<PlaceLocalEntity> = dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).pagedPlaces()
+
+        suspend fun placesInBounds(accountId: Uuid): List<PlaceLocalEntity> =
+            dataSource
+                .get(accountId = accountId, south = 37.0, north = 38.0, west = 126.0, east = 128.0, sort = ListSortLocalEntity.DEFAULT)
+                .first()
 
         test("TC-2d22c977-b558-4b32-a782-4f02fc6424ae TC-86767f8a-3cb1-4141-8e6e-7722524480b9 삭제되지 않은 계정의 장소만 제목 오름차순으로 페이지 조회된다") {
             val accountId = Arb.kotlinUuid().next()
@@ -200,17 +210,24 @@ class AccountPlaceLocalDataSourceImplTest :
 
         test("TC-eb4fb10f-822e-4eeb-b84b-58a1e6a1fc6b 검색어는 제목·설명·주소 중 하나 이상을 포함하는 장소만 남긴다") {
             val accountId = Arb.kotlinUuid().next()
-            val titlePlace = place(title = "Riverside").withDetail(description = "", address = "")
+            val koreanTitlePlace = place(title = "한강 공원", latitude = 37.5, longitude = 127.0).withDetail(description = "", address = "")
+            val otherCoordinatePlace = place(title = "한강 공원", latitude = 35.1, longitude = 129.0).withDetail(description = "", address = "")
+            val englishTitlePlace = place(title = "Cafe Seoul").withDetail(description = "", address = "")
             val descriptionPlace = place(title = "AlphaPlace").withDetail(description = "주차 가능", address = "")
             val addressPlace = place(title = "BetaPlace").withDetail(description = "", address = "서울 성수동")
             val otherPlace = place(title = "GammaPlace").withDetail(description = "", address = "")
-            placeTransaction.upsert(accountId = accountId, placeList = listOf(titlePlace, descriptionPlace, addressPlace, otherPlace), placeTagList = emptyList())
+            val placeList = listOf(koreanTitlePlace, otherCoordinatePlace, englishTitlePlace, descriptionPlace, addressPlace, otherPlace)
+            placeTransaction.upsert(accountId = accountId, placeList = placeList, placeTagList = emptyList())
 
-            dataSource.page(accountId = accountId, query = "river", sort = ListSortLocalEntity.DEFAULT).pagedPlaces() shouldBe listOf(titlePlace)
-            dataSource.page(accountId = accountId, query = "주차", sort = ListSortLocalEntity.DEFAULT).pagedPlaces() shouldBe listOf(descriptionPlace)
-            dataSource.page(accountId = accountId, query = "성수동", sort = ListSortLocalEntity.DEFAULT).pagedPlaces() shouldBe listOf(addressPlace)
-            dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).pagedPlaces() shouldBe
-                listOf(descriptionPlace, addressPlace, otherPlace, titlePlace)
+            suspend fun search(query: String): List<PlaceLocalEntity> = dataSource.page(accountId = accountId, query = query, sort = ListSortLocalEntity.DEFAULT).pagedPlaces()
+
+            search(query = "한강") shouldContainExactlyInAnyOrder listOf(koreanTitlePlace, otherCoordinatePlace)
+            search(query = "cafe") shouldBe listOf(englishTitlePlace)
+            search(query = "주차") shouldBe listOf(descriptionPlace)
+            search(query = "성수동") shouldBe listOf(addressPlace)
+            // 좌표만 다른 장소도 검색어를 제목·설명·주소에 담지 않으면 빠진다.
+            search(query = "사무실").shouldBeEmpty()
+            search(query = "") shouldContainExactlyInAnyOrder placeList
         }
 
         test("TC-a8fc4651-8728-4757-89f6-d821dda8cf04 검색어를 만족하는 장소가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
@@ -413,6 +430,45 @@ class AccountPlaceLocalDataSourceImplTest :
 
                 cancelAndIgnoreRemainingEvents()
             }
+        }
+
+        test("TC-8bd860be-42e9-430d-9e57-fde0e84eb556 실행 취소를 저장하면 그 장소가 노출 기준에 따라 다시 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val place = place(latitude = 37.5, longitude = 127.0)
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+            placeTransaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            placesInBounds(accountId = accountId).shouldBeEmpty()
+            pagedPlaces(accountId = accountId).shouldBeEmpty()
+            val restoredAt = Arb.secondPrecisionInstant().next()
+
+            placeTransaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = false, updatedAt = restoredAt)
+
+            val restored = place.copy(updatedAt = restoredAt)
+            pagedPlaces(accountId = accountId) shouldBe listOf(restored)
+            placesInBounds(accountId = accountId) shouldBe listOf(restored)
+            dataSource
+                .get(accountId = accountId, south = 10.0, north = 11.0, west = 126.0, east = 128.0, sort = ListSortLocalEntity.DEFAULT)
+                .first()
+                .shouldBeEmpty()
+        }
+
+        test("TC-75e3d19c-8ade-4dc0-bd76-b8e12c4b39fb 실행 취소의 저장에 실패하면 그 장소가 다시 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val place = place(latitude = 37.5, longitude = 127.0)
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+            placeTransaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            val failingDao = spyk(database.accountPlaceDao())
+            coEvery { failingDao.markPending(accountId = any(), placeId = any()) } throws IllegalStateException("save failed")
+            val failingDatabase = spyk(database)
+            every { failingDatabase.accountPlaceDao() } returns failingDao
+            val failingTransaction = AccountPlaceTransactionImpl(database = failingDatabase)
+
+            shouldThrow<IllegalStateException> {
+                failingTransaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
+            }
+
+            placesInBounds(accountId = accountId).shouldBeEmpty()
+            pagedPlaces(accountId = accountId).shouldBeEmpty()
         }
     }) {
     public companion object {

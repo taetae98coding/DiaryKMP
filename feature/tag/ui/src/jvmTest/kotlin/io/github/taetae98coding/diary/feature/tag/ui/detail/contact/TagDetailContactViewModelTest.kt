@@ -59,7 +59,7 @@ class TagDetailContactViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-abaecd8e-df2a-4d8f-aa27-07fbf75f288e TC-2410a5de-600f-4b03-acea-5a08ebced30b 상세 대상 태그로 조회한 연락처 목록을 순서 그대로 전달한다") {
+        test("TC-abaecd8e-df2a-4d8f-aa27-07fbf75f288e 상세 대상 태그로 조회한 연락처 목록을 순서 그대로 전달한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
                 val itemList = List(3) { item() }
@@ -117,7 +117,7 @@ class TagDetailContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-8544fcb0-883c-48ea-9d50-9643ddad53b8 정렬을 바꾸면 고른 기준으로 다시 조회한다") {
+        test("정렬을 바꾸면 고른 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
                 val defaultList = List(2) { item() }

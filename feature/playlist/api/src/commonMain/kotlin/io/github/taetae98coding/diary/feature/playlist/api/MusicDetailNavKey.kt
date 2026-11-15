@@ -7,6 +7,7 @@ import kotlin.uuid.Uuid
 @Serializable
 public data class MusicDetailNavKey(
     val id: Uuid,
+    val isStandalone: Boolean = false,
 ) : ScreenNavKey {
     override val screenName: String get() = "MusicDetail"
 }

@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
-import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -12,10 +12,8 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
@@ -23,14 +21,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.datetime.LocalDate
 
 class FetchHolidayUseCaseTest :
     BehaviorSpec({
         Given("공휴일 동기화가 성공하도록 준비되어 있다") {
             val year = Arb.int().next()
             val repository = mockk<HolidayRepository>()
-            val holidayList = listOf(holiday())
+            val holidayList = listOf(Arb.holiday().next())
             coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } returns holidayList
             val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
 
@@ -137,19 +134,4 @@ private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
     DiaryLogger.add(delegate = delegate)
 
     return reportList
-}
-
-private fun holiday(): Holiday {
-    val start =
-        LocalDate(
-            year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-            month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-            day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-        )
-
-    return Holiday(
-        name = Arb.string().next(),
-        isHoliday = Arb.boolean().next(),
-        dateRange = start..start,
-    )
 }

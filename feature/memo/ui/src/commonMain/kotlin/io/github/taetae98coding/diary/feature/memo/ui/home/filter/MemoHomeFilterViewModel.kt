@@ -7,6 +7,7 @@ import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectMemoFilterTagUseCase
@@ -46,8 +47,8 @@ internal class MemoHomeFilterViewModel(
 
     val uiState: StateFlow<MemoHomeFilterUiState> =
         combine(
-            getMemoFilterUseCase(parameter = Unit),
-            getMemoExistenceFilterUseCase(parameter = Unit),
+            getMemoFilterUseCase(),
+            getMemoExistenceFilterUseCase(),
         ) { tagListResult, existenceResult ->
             MemoHomeFilterUiState(
                 selectedTagIdSet =
@@ -100,7 +101,7 @@ internal class MemoHomeFilterViewModel(
 
         viewModelScope.launch {
             try {
-                unselectAllMemoFilterTagUseCase(parameter = Unit)
+                unselectAllMemoFilterTagUseCase()
             } finally {
                 isUnselectAllTagInProgress = false
             }

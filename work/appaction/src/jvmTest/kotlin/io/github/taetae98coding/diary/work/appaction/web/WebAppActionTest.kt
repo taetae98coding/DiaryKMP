@@ -34,7 +34,10 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDateTime
+import io.github.taetae98coding.diary.work.appaction.memo.memoListAppActionOf
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
+import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -95,10 +98,10 @@ class WebAppActionTest :
             }
         }
 
-        test("웹 하나를 요청 헤더, 연결된 태그와 함께 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 웹 하나를 요청 헤더, 연결된 태그와 함께 돌려준다") {
             runTest {
-                val web = Arb.web().next()
-                val tagList = Arb.list(Arb.tag(), 0..3).next()
+                val web = Arb.web().next().copy(isDeleted = false)
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 val findWebUseCase = mockk<FindWebUseCase>()
                 val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findWebUseCase(parameter = web.id) } returns flowOf(Result.success(web))
@@ -140,11 +143,12 @@ class WebAppActionTest :
                 val findWebUseCase = mockk<FindWebUseCase>()
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()
                 val pageFinishedWebMemoUseCase = mockk<PageFinishedWebMemoUseCase>()
-                val action = webAppActionOf(findWebUseCase, restoreWebUseCase, pageFinishedWebMemoUseCase)
+                val action = webAppActionOf(findWebUseCase, restoreWebUseCase)
+                val memoListAction = memoListAppActionOf(pageFinishedWebMemoUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.get(webId = "not-id") }.message shouldBe "'webId' must be an id."
                 shouldThrow<AppActionException.InvalidArgument> { action.restore(webId = "not-id") }.message shouldBe "'webId' must be an id."
-                shouldThrow<AppActionException.InvalidArgument> { action.memoFinishedList(webId = "not-id", sort = null, cursor = null) }.message shouldBe "'webId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { memoListAction.webFinishedList(webId = "not-id", sort = null, cursor = null) }.message shouldBe "'webId' must be an id."
                 verify(exactly = 0) { findWebUseCase(parameter = any()) }
                 verify(exactly = 0) { pageFinishedWebMemoUseCase(parameter = any()) }
                 coVerify(exactly = 0) { restoreWebUseCase(parameter = any()) }
@@ -159,11 +163,11 @@ class WebAppActionTest :
                 val pageFinishedWebMemoUseCase = mockk<PageFinishedWebMemoUseCase>()
                 every { pageWebMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
                 every { pageFinishedWebMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
-                val action = webAppActionOf(pageWebMemoUseCase, pageFinishedWebMemoUseCase)
+                val action = memoListAppActionOf(pageWebMemoUseCase, pageFinishedWebMemoUseCase)
                 val expected = AppActionPage(items = memoList.map { memo -> memo.expected() }, nextCursor = null)
 
-                action.memoList(webId = webId.toString(), sort = "recently_updated", cursor = null) shouldBe expected
-                action.memoFinishedList(webId = webId.toString(), sort = null, cursor = null) shouldBe expected
+                action.webList(webId = webId.toString(), sort = "recently_updated", cursor = null) shouldBe expected
+                action.webFinishedList(webId = webId.toString(), sort = null, cursor = null) shouldBe expected
 
                 verify(exactly = 1) { pageWebMemoUseCase(parameter = PageWebMemoUseCase.Parameter(webId = webId, sort = ListSort.RECENTLY_UPDATED)) }
                 verify(exactly = 1) { pageFinishedWebMemoUseCase(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) }
@@ -205,6 +209,29 @@ class WebAppActionTest :
                             ),
                         tagIdSet = tagIdList.toSet(),
                     )
+            }
+        }
+
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddWebUseCase.Parameter>()
+                val addWebUseCase = mockk<AddWebUseCase>()
+                coEvery { addWebUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = webAppActionOf(addWebUseCase)
+
+                val result =
+                    action.add(
+                        title = Arb.nonBlankString().next(),
+                        url = Arb.nonBlankString().next(),
+                        description = null,
+                        headers = emptyList(),
+                        tagIds = tagIdSet.map { tagId -> tagId.toString() },
+                    )
+
+                result shouldBe AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
             }
         }
 
@@ -251,7 +278,7 @@ class WebAppActionTest :
 
         test("고칠 값을 담지 않은 항목과 헤더는 지금 값을 유지하고 고친 수를 돌려준다") {
             runTest {
-                val web = Arb.web().next()
+                val web = Arb.web().next().copy(isDeleted = false)
                 val title = Arb.nonBlankString().next()
                 val changedCount = Arb.int(0..1).next()
                 val findWebUseCase = mockk<FindWebUseCase>()
@@ -267,7 +294,7 @@ class WebAppActionTest :
 
         test("헤더를 담으면 지금 헤더를 모두 바꾸고, 빈 목록이면 모두 지운다") {
             runTest {
-                val web = Arb.web().next()
+                val web = Arb.web().next().copy(isDeleted = false)
                 val headerName = Arb.alphanumericString(prefix = "Header").next()
                 val headerValue = Arb.alphanumericString(prefix = "Value").next()
                 val findWebUseCase = mockk<FindWebUseCase>()
@@ -314,7 +341,7 @@ class WebAppActionTest :
             }
         }
 
-        test("태그 연결과 해제는 웹 종류로 요청하고 완료를 돌려준다") {
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결과 해제는 웹 종류로 요청하고 완료를 돌려준다") {
             runTest {
                 val webId = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
@@ -322,10 +349,10 @@ class WebAppActionTest :
                 val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
                 coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val action = webAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
+                val action = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
 
-                action.tagAdd(webId = webId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
-                action.tagRemove(webId = webId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.add(kind = AppActionEntityTagKind.WEB, entityId = webId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.remove(kind = AppActionEntityTagKind.WEB, entityId = webId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
 
                 coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = webId, tagId = tagId)) }
                 coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = webId, tagId = tagId)) }
@@ -337,11 +364,35 @@ class WebAppActionTest :
                 val message = Arb.nonBlankString().next()
                 val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
                 coEvery { addEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException(message))
-                val action = webAppActionOf(addEntityTagUseCase)
+                val action = entityTagAppActionOf(addEntityTagUseCase)
 
                 shouldThrow<AppActionException.Failure> {
-                    action.tagAdd(webId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
+                    action.add(kind = AppActionEntityTagKind.WEB, entityId = Arb.kotlinUuid().next().toString(), tagId = Arb.kotlinUuid().next().toString())
                 }.message shouldBe "IllegalStateException: $message"
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 웹의 상세는 없는 웹과 같이 null을 돌려준다") {
+            runTest {
+                val web = Arb.web().next().copy(isDeleted = true)
+                val findWebUseCase = mockk<FindWebUseCase>()
+                every { findWebUseCase(parameter = web.id) } returns flowOf(Result.success(web))
+                val action = webAppActionOf(findWebUseCase)
+
+                action.get(webId = web.id.toString()) shouldBe null
+            }
+        }
+
+        test("삭제된 웹도 포함하는 조회는 삭제된 웹를 돌려준다") {
+            runTest {
+                val web = Arb.web().next().copy(isDeleted = true)
+                val findWebUseCase = mockk<FindWebUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findWebUseCase(parameter = web.id) } returns flowOf(Result.success(web))
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = web.id)) } returns flowOf(Result.success(emptyList()))
+                val action = webAppActionOf(findWebUseCase, getEntityTagUseCase)
+
+                action.getIncludingDeleted(webId = web.id.toString())?.web?.id shouldBe web.id.toString()
             }
         }
     })

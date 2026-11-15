@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEnt
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import kotlinx.coroutines.flow.Flow
@@ -30,4 +31,6 @@ public interface SpotlightLocalDataSource {
     public fun getMusicList(accountId: Uuid): Flow<List<MusicLocalEntity>>
 
     public fun getDDayList(accountId: Uuid): Flow<List<DDayLocalEntity>>
+
+    public fun getRoutineList(accountId: Uuid): Flow<List<RoutineLocalEntity>>
 }

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.GeminiSettingLocalDataSource
+import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.McpSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -29,6 +30,17 @@ class SettingRestartTest :
             val restartedDirectory = restartedDirectory(directory = directory, name = DataStoreModule.GEMINI_SETTING_NAME)
 
             createSettingKoin(restartedDirectory).get<GeminiSettingLocalDataSource>().get().first() shouldBe setting
+        }
+
+        test("TC-817a1a4b-353c-4ed9-88a7-1e9c63be23b3 다시 시작해도 저장한 연결 사용 설정을 제공한다") {
+            listOf(true, false).forEach { isEnabled ->
+                val directory = createTempDirectory("diary-setting")
+                createSettingKoin(directory).get<McpSettingLocalDataSource>().upsertEnabled(isEnabled = isEnabled)
+
+                val restartedDirectory = restartedDirectory(directory = directory, name = DataStoreModule.MCP_SETTING_NAME)
+
+                createSettingKoin(restartedDirectory).get<McpSettingLocalDataSource>().getEnabled().first() shouldBe isEnabled
+            }
         }
     })
 

@@ -18,6 +18,7 @@ import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
 import kotlin.uuid.Uuid
 
@@ -48,6 +49,7 @@ private fun metadataOf(
             memoEntry(
                 backStack = NavBackStack(*backStack.toTypedArray()),
                 homeReselectEvent = emptyFlow(),
+                contentSharerFactory = mockk(),
             )
         }
 

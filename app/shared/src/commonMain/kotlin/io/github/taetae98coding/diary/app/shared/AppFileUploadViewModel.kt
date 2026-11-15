@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.ReconcileFileUploadUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +21,7 @@ internal class AppFileUploadViewModel(
     private val reconcileFileUploadUseCase: ReconcileFileUploadUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<AppFileUploadUiState> =
-        getAccountUseCase(parameter = Unit)
+        getAccountUseCase()
             .mapNotNull { result -> result.getOrNull() }
             .map { account -> AppFileUploadUiState.Confirmed(account = account) }
             .stateIn(

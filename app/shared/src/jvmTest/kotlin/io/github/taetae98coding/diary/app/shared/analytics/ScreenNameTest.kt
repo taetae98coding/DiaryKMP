@@ -43,6 +43,9 @@ import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineFinishedListNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
@@ -58,6 +61,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagRoutineFinishedListNavKey
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
@@ -133,10 +137,13 @@ class ScreenNameTest :
                     ProfileImageViewerNavKey(imageUrl = imageUrl),
                     QrAddNavKey(initialTagId = id, requestKey = id),
                     QrDetailNavKey(id = id),
+                    RoutineAddNavKey(initialTagId = id, requestKey = id),
+                    RoutineDetailNavKey(id = id),
                     SearchHomeNavKey(initialType = SearchHomeType.TAG),
                     TagAddNavKey(requestKey = id),
                     TagDetailNavKey(id = id),
                     TagMemoFinishedListNavKey(tagId = id),
+                    TagRoutineFinishedListNavKey(tagId = id),
                     WebAddNavKey(initialTagId = id, requestKey = id),
                     WebDetailNavKey(id = id),
                     WebMemoFinishedListNavKey(webId = id),
@@ -163,7 +170,9 @@ class ScreenNameTest :
     }) {
     public companion object {
         // 화면 이름은 Google Analytics 4로 나가는 계약이므로 스펙이 정한 값을 그대로 적는다.
-        private fun screenNameByNavKey(): Map<ScreenNavKey, String> =
+        private fun screenNameByNavKey(): Map<ScreenNavKey, String> = screenNameByNavKeyBeforeMusic() + screenNameByNavKeyFromMusic()
+
+        private fun screenNameByNavKeyBeforeMusic(): Map<ScreenNavKey, String> =
             mapOf(
                 CalendarHomeNavKey to "CalendarHome",
                 CalendarHomeFilterNavKey to "CalendarHomeFilter",
@@ -190,6 +199,10 @@ class ScreenNameTest :
                 MemoHomeNavKey to "MemoHome",
                 MemoHomeFilterNavKey to "MemoHomeFilter",
                 MoreHomeNavKey to "MoreHome",
+            )
+
+        private fun screenNameByNavKeyFromMusic(): Map<ScreenNavKey, String> =
+            mapOf(
                 MusicAddNavKey() to "MusicAdd",
                 MusicDetailNavKey(id = Arb.kotlinUuid().next()) to "MusicDetail",
                 PlaceAddNavKey() to "PlaceAdd",
@@ -204,8 +217,11 @@ class ScreenNameTest :
                 QrDetailNavKey(id = Arb.kotlinUuid().next()) to "QrDetail",
                 QrHomeNavKey to "QrHome",
                 QrScanNavKey to "QrScan",
-                RoutineAddNavKey to "RoutineAdd",
+                RoutineAddNavKey() to "RoutineAdd",
+                RoutineDetailNavKey(id = Arb.kotlinUuid().next()) to "RoutineDetail",
+                RoutineFinishedListNavKey to "RoutineFinishedList",
                 RoutineHomeNavKey to "RoutineHome",
+                RoutineHomeFilterNavKey to "RoutineHomeFilter",
                 SearchHomeNavKey() to "SearchHome",
                 SettingFileNavKey to "SettingFile",
                 SettingGeminiNavKey to "SettingGemini",
@@ -219,6 +235,7 @@ class ScreenNameTest :
                 TagHomeNavKey to "TagHome",
                 TagHomeFilterNavKey to "TagHomeFilter",
                 TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()) to "TagMemoFinishedList",
+                TagRoutineFinishedListNavKey(tagId = Arb.kotlinUuid().next()) to "TagRoutineFinishedList",
                 WebAddNavKey() to "WebAdd",
                 WebDetailNavKey(id = Arb.kotlinUuid().next()) to "WebDetail",
                 WebHomeNavKey to "WebHome",
@@ -241,6 +258,8 @@ class ScreenNameTest :
                 DDayAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to DDayAddNavKey(),
                 MusicAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to MusicAddNavKey(),
                 QrAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to QrAddNavKey(),
+                RoutineAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to RoutineAddNavKey(),
+                RoutineDetailNavKey(id = Arb.kotlinUuid().next()) to RoutineDetailNavKey(id = Arb.kotlinUuid().next()),
                 MemoAddNavKey(primaryTagId = Arb.kotlinUuid().next(), initialContactId = Arb.kotlinUuid().next()) to MemoAddNavKey(),
                 ProfileImageViewerNavKey(imageUrl = "https://example.com/${Arb.kotlinUuid().next()}.jpg") to
                     ProfileImageViewerNavKey(imageUrl = "https://example.com/${Arb.kotlinUuid().next()}.jpg"),
@@ -254,6 +273,7 @@ class ScreenNameTest :
                 TagAddNavKey(requestKey = Arb.kotlinUuid().next()) to TagAddNavKey(),
                 TagDetailNavKey(id = Arb.kotlinUuid().next()) to TagDetailNavKey(id = Arb.kotlinUuid().next()),
                 TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()) to TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()),
+                TagRoutineFinishedListNavKey(tagId = Arb.kotlinUuid().next()) to TagRoutineFinishedListNavKey(tagId = Arb.kotlinUuid().next()),
                 WebAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to WebAddNavKey(),
                 WebDetailNavKey(id = Arb.kotlinUuid().next()) to WebDetailNavKey(id = Arb.kotlinUuid().next()),
                 WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()) to WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()),

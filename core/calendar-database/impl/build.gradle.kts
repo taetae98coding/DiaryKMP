@@ -13,6 +13,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         jvmMain {
             dependencies {
                 implementation(projects.library.applicationSupport)

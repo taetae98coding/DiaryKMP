@@ -2,10 +2,13 @@ package io.github.taetae98coding.diary.work.appaction.appfunction.contact
 
 import androidx.appfunctions.AppFunctionSerializable
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionContact
+import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.toAppFunctionContact
+import io.github.taetae98coding.diary.work.appaction.appfunction.item.toAppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContact
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactBirthday
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactDetail
+import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactDetailWithTags
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 
 /** The birthday of a contact. */
@@ -56,6 +59,17 @@ public data class AppFunctionContactPage(
     /** Pass this value as cursor to read the next page. Absent on the last page. */
     val nextCursor: String?,
 )
+
+/** A contact with all its details and its linked tags. */
+@AppFunctionSerializable(isDescribedByKDoc = true)
+public data class AppFunctionContactDetailWithTags(
+    /** The contact with all its details. */
+    val contact: AppFunctionContactDetail,
+    /** Tags linked to the contact. */
+    val tags: List<AppFunctionTag>,
+)
+
+internal fun AppActionContactDetailWithTags.toAppFunctionContactDetailWithTags(): AppFunctionContactDetailWithTags = AppFunctionContactDetailWithTags(contact = contact.toAppFunctionContactDetail(), tags = tags.map { tag -> tag.toAppFunctionTag() })
 
 internal fun AppActionContactDetail.toAppFunctionContactDetail(): AppFunctionContactDetail =
     AppFunctionContactDetail(

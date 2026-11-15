@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.DeleteDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
@@ -163,11 +164,11 @@ class DDayHomeViewModelTest : FunSpec() {
         restoreDDayUseCase: RestoreDDayUseCase = mockk(),
     ): DDayHomeViewModel {
         val pageDDayUseCase = mockk<PageDDayUseCase>()
-        every { pageDDayUseCase(parameter = Unit) } returns pageFlow
+        every { pageDDayUseCase() } returns pageFlow
         val getDDayFilterUseCase = mockk<GetDDayFilterUseCase>()
-        every { getDDayFilterUseCase(parameter = Unit) } returns filterFlow
+        every { getDDayFilterUseCase() } returns filterFlow
         val getDDayFilterTagIdUseCase = mockk<GetDDayFilterTagIdUseCase>()
-        every { getDDayFilterTagIdUseCase(parameter = Unit) } returns filterTagIdFlow
+        every { getDDayFilterTagIdUseCase() } returns filterTagIdFlow
 
         return DDayHomeViewModel(
             getDDayFilterUseCase = getDDayFilterUseCase,

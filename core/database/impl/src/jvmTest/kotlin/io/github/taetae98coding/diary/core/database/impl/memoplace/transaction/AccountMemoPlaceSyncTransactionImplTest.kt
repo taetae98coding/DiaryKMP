@@ -164,15 +164,22 @@ class AccountMemoPlaceSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO_PLACE) shouldBe 5L
         }
 
-        test("TC-84a29c64-490b-482a-acab-32fae5dbba26 내려받기는 업로드 대기 여부를 바꾸지 않는다") {
-            val accountId = Arb.kotlinUuid().next()
-            val local = memoPlace(updatedAt = Instant.fromEpochMilliseconds(2_000))
-            val remote = local.copy(updatedAt = Instant.fromEpochMilliseconds(3_000))
-            insertWithSyncState(accountId, local, isDirty = true)
+        listOf(
+            "늦음" to Instant.fromEpochMilliseconds(3_000),
+            "같음" to Instant.fromEpochMilliseconds(2_000),
+            "이른" to Instant.fromEpochMilliseconds(1_000),
+        ).forEach { (label, remoteUpdatedAt) ->
+            test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
 
-            transaction.upsert(accountId = accountId, memoPlaceList = listOf(remote), cursor = 5L)
+                val accountId = Arb.kotlinUuid().next()
+                val local = memoPlace(updatedAt = Instant.fromEpochMilliseconds(2_000))
+                val remote = local.copy(updatedAt = remoteUpdatedAt)
+                insertWithSyncState(accountId, local, isDirty = true)
 
-            isPending(accountId = accountId, memoPlace = local) shouldBe true
+                transaction.upsert(accountId = accountId, memoPlaceList = listOf(remote), cursor = 5L)
+
+                isPending(accountId = accountId, memoPlace = local) shouldBe true
+            }
         }
 
         test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {

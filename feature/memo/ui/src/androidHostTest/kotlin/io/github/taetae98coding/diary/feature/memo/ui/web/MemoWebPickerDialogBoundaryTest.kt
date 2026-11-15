@@ -2,7 +2,12 @@ package io.github.taetae98coding.diary.feature.memo.ui.web
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
@@ -84,6 +89,30 @@ class MemoWebPickerDialogBoundaryTest {
         composeRule.webDialogNodeWithText(WEB_QUERY).assertExists()
         awaitDialogTextCount(text = WIKI_WEB_TITLE, count = 1)
         awaitDialogTextCount(text = DOCS_WEB_TITLE, count = 0)
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 화면을 다시 구성한다.
+    @Test
+    fun `TC-fcbf47e6-ccc0-484b-a87d-56d5418cb238 목록이 열린 채 앱을 종료하고 새로 진입하면 목록이 닫힌 상태로 시작한다`() {
+        val webList = listOf(testWeb(title = WIKI_WEB_TITLE), testWeb(title = DOCS_WEB_TITLE))
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel = remember { viewModel(webList = webList, queryList = mutableListOf<String>().also(requestedQueryList::add)) }
+                WebPickerDialogHost(viewModel = viewModel)
+            }
+        }
+        openDialogAndSearch()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        dialogState.isVisible shouldBe false
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+
+        composeRule.runOnIdle { dialogState.show() }
+        awaitDialogTextCount(text = DOCS_WEB_TITLE, count = 1)
+        composeRule.webDialogSearchField().assert(hasText(""))
     }
 
     @Composable

@@ -79,7 +79,6 @@ class DDayListDetailNavigationTest {
     private val backStack: NavBackStack<ScreenNavKey>
         get() = environment.backStack
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -743,7 +742,6 @@ class DDayListDetailNavigationTest {
 
     private fun descriptionInput(): SemanticsNodeInteraction = composeRule.onAllNodes(hasSetTextAction())[1]
 
-    // 디데이 추가에 제목, 기준일, 반복 간격을 적고, 필요하면 종료일과 태그도 고른다.
     private fun fillPlaceholder(fillEndDateAndTag: Boolean) {
         titleInput().performTextInput(PLACEHOLDER_TITLE)
         pickDate(currentText = TODAY_TEXT, date = PLACEHOLDER_BASE_DATE)
@@ -775,7 +773,6 @@ class DDayListDetailNavigationTest {
         }
     }
 
-    // 처음 상태의 디데이 추가는 제목과 설명이 비고, 기준일이 오늘이며, 나머지 입력이 `직접 입력` 값이고 고른 태그가 없다.
     private fun assertAddInitial() {
         titleInput().editableText() shouldBe ""
         descriptionInput().editableText() shouldBe ""

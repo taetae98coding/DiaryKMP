@@ -862,6 +862,8 @@
   | 일정 | `BEGIN:VCALENDAR⏎BEGIN:VEVENT⏎SUMMARY:회의⏎DTSTART;TZID=Asia/Seoul:20260927T140000⏎DTEND;TZID=Asia/Seoul:20260927T153000⏎END:VEVENT⏎END:VCALENDAR` | 일정 제목 `회의`, 기간 2026년 9월 27일 오후 2시부터 오후 3시 30분까지 |
   | 일정 | `BEGIN:VEVENT⏎SUMMARY:여행⏎DTSTART;VALUE=DATE:20260927⏎DTEND;VALUE=DATE:20260929⏎END:VEVENT` | 일정 제목 `여행`, 기간 2026년 9월 27일부터 9월 28일까지 종일 |
   | 일정 | `BEGIN:VEVENT⏎SUMMARY:메모⏎DESCRIPTION:a⏎ b⏎END:VEVENT` | 일정 제목 `메모`, 설명 `ab`, 기간 사용을 끈 상태 |
+  | 일정 | `BEGIN:VEVENT⏎SUMMARY:여행⏎DTSTART:20260927⏎DTEND:20260929⏎END:VEVENT` | 일정 제목 `여행`, 기간 2026년 9월 27일부터 9월 28일까지 종일 |
+  | 일정 | `BEGIN:VEVENT⏎BEGIN:VALARM⏎SUMMARY:알림 제목⏎DESCRIPTION:Reminder⏎END:VALARM⏎SUMMARY:회의⏎END:VEVENT` | 일정 제목 `회의`, 설명 비어 있음 |
 
 ### TC-2c00e7e0-3192-4dec-9045-e969bea5c5f5: 그 포맷의 값에서 입력을 고치면 그 입력에 해당하는 부분만 바꾼다
 
@@ -892,6 +894,7 @@
   | SMS | `SMSTO:010:hi` | 메시지를 비움 | `SMSTO:010` |
   | 일정 | `BEGIN:VEVENT⏎SUMMARY:a⏎RRULE:FREQ=WEEKLY⏎END:VEVENT` | 장소 `L` | `BEGIN:VEVENT⏎SUMMARY:a⏎RRULE:FREQ=WEEKLY⏎LOCATION:L⏎END:VEVENT` |
   | 일정 | `BEGIN:VEVENT⏎SUMMARY:a⏎DTSTART:20260927T140000⏎DTEND:20260927T150000⏎END:VEVENT` | 기간 사용을 끔 | `BEGIN:VEVENT⏎SUMMARY:a⏎END:VEVENT` |
+  | 일정 | `BEGIN:VEVENT⏎SUMMARY:a⏎BEGIN:VALARM⏎DESCRIPTION:Reminder⏎END:VALARM⏎END:VEVENT` | 설명 `d` | `BEGIN:VEVENT⏎SUMMARY:a⏎BEGIN:VALARM⏎DESCRIPTION:Reminder⏎END:VALARM⏎DESCRIPTION:d⏎END:VEVENT` |
 
 ### TC-0ceb6056-2071-4632-8c39-17cb6cf8774c: 일정 기간을 고치면 종일 여부가 같을 때 시간대 표기를 그대로 둔다
 
@@ -946,6 +949,13 @@
   | --- |
   | 화면이 재생성됨 |
   | 시스템이 앱을 되살리며 이 화면을 다시 보여 줌 |
+
+### TC-570fc7c4-fb6e-4878-a5d5-a0c83b9fd6da: 연결 대상으로 표시하는 태그는 연결할 수 있는 태그와 같다
+
+- 근거: `domain > 태그 선택과 추가 성립 조건`
+- Given: QrAdd 화면에서 태그 하나를 연결 대상으로 골랐다.
+- When: 그 태그가 완료되거나 삭제된다.
+- Then: 태그 입력에서 그 태그가 제외된 것으로 표시된다.
 
 ### TC-0611bb28-ba5b-452d-b95f-091a87244599: 태그를 하나도 연결하지 않아도 QR을 추가할 수 있다
 

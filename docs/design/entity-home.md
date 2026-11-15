@@ -4,7 +4,9 @@
 
 이 문서는 `더보기`에서 이어지고, 항목을 2열 카드 격자로 보여 주며, 카드에서 삭제만 제공하는 항목 목록 화면들이 함께 쓰는 화면 구조, 추가 버튼, 카드 조작, 삭제 스와이프, 자리 표시·빈 상태·새로고침 표현, 격자와 시스템 영역, 단축키와 공통 문구를 소유한다. 상단 바의 제목과 동작 버튼, 정렬 줄을 두는지, 카드 내용과 격자 종류(고정·지그재그), 자리 표시 카드의 비움 형태, 빈 상태 아이콘과 문구, 화면에만 있는 표현은 각 화면 문서가 정한다.
 
-완료 여부를 가진 [MemoHome 목록](./memo-home.md)과 [TagHome 목록](./tag-home.md), 보기 모드를 가진 [PlaceHome 화면](./place-home.md), 목록을 서버에서 불러오는 [FileHome 화면](./file-home.md), 노출하는 항목이 없는 [RoutineHome 화면](./routine-home.md)은 이 문서를 따르지 않는다.
+완료 여부를 가진 [MemoHome 목록](./memo-home.md)과 [TagHome 목록](./tag-home.md), 보기 모드를 가진 [PlaceHome 화면](./place-home.md), 목록을 서버에서 불러오는 [FileHome 화면](./file-home.md)은 이 문서를 따르지 않는다.
+
+주요 목적지이고 목록 보기와 달력 보기를 가지며 완료 여부가 있는 루틴을 보여 주는 [RoutineHome 화면](./routine-home.md)은 목록 보기에서 이 문서의 `추가 버튼`, `카드`, `자리 표시`, `빈 상태`, `새로고침`, `키보드 단축키`만 따르고, `화면 구조`, `삭제 스와이프`와 `격자와 적응형 배치`는 따르지 않는다.
 
 ## 화면 구조
 
@@ -84,6 +86,7 @@
 - [DDayHome 화면 디자인](./dday-home.md)
 - [PlaylistHome 화면 디자인](./playlist-home.md)
 - [QrHome 화면 디자인](./qr-home.md)
+- [RoutineHome 화면 디자인](./routine-home.md): 목록 보기에서 추가 버튼, 카드, 자리 표시, 빈 상태, 새로고침, 키보드 단축키만 따른다
 - [WebHome 화면 디자인](./web-home.md)
 - [TagDetail 웹 탭 디자인](./tag-detail-web.md): 삭제 스와이프만 따른다
 - [TagDetail 연락처 탭 디자인](./tag-detail-contact.md): 삭제 스와이프만 따른다

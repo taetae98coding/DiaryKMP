@@ -4,7 +4,7 @@ package io.github.taetae98coding.diary.feature.account.ui.profileimage
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.file.FileUri
-import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
+import io.github.taetae98coding.diary.core.testing.image.imageCropRegion
 import io.github.taetae98coding.diary.domain.account.usecase.ChangeProfileImageUseCase
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -47,7 +47,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
                 coEvery { useCase(any()) } coAnswers { Result.success(completion.await()) }
                 val viewModel = ProfileImageEditViewModel(changeProfileImageUseCase = useCase)
 
-                viewModel.changeProfileImage(uri = fileUri(), cropRegion = cropRegion())
+                viewModel.changeProfileImage(uri = fileUri(), cropRegion = Arb.imageCropRegion().next())
                 runCurrent()
 
                 viewModel.uiState.value.isInProgress
@@ -68,9 +68,9 @@ class ProfileImageEditViewModelTest : FunSpec() {
                 coEvery { useCase(any()) } coAnswers { Result.success(completion.await()) }
                 val viewModel = ProfileImageEditViewModel(changeProfileImageUseCase = useCase)
 
-                viewModel.changeProfileImage(uri = fileUri(), cropRegion = cropRegion())
+                viewModel.changeProfileImage(uri = fileUri(), cropRegion = Arb.imageCropRegion().next())
                 runCurrent()
-                viewModel.changeProfileImage(uri = fileUri(), cropRegion = cropRegion())
+                viewModel.changeProfileImage(uri = fileUri(), cropRegion = Arb.imageCropRegion().next())
                 runCurrent()
                 completion.complete(Unit)
                 advanceUntilIdle()
@@ -86,7 +86,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
                 val viewModel = ProfileImageEditViewModel(changeProfileImageUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.changeProfileImage(uri = fileUri(), cropRegion = cropRegion())
+                    viewModel.changeProfileImage(uri = fileUri(), cropRegion = Arb.imageCropRegion().next())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ProfileImageEditEffect.ChangeSucceeded
@@ -102,14 +102,14 @@ class ProfileImageEditViewModelTest : FunSpec() {
                 val viewModel = ProfileImageEditViewModel(changeProfileImageUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.changeProfileImage(uri = fileUri(), cropRegion = cropRegion())
+                    viewModel.changeProfileImage(uri = fileUri(), cropRegion = Arb.imageCropRegion().next())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ProfileImageEditEffect.ChangeFailed
                     viewModel.uiState.value.isInProgress
                         .shouldBeFalse()
 
-                    viewModel.changeProfileImage(uri = fileUri(), cropRegion = cropRegion())
+                    viewModel.changeProfileImage(uri = fileUri(), cropRegion = Arb.imageCropRegion().next())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ProfileImageEditEffect.ChangeFailed
@@ -121,7 +121,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
         test("TC-43d7c75f-d9f1-4c4a-93c8-8c391112198e 사진의 위치와 남길 영역을 그대로 담아 반영을 요청한다") {
             runTest(mainDispatcher) {
                 val uri = fileUri()
-                val cropRegion = cropRegion()
+                val cropRegion = Arb.imageCropRegion().next()
                 val useCase = mockk<ChangeProfileImageUseCase>()
                 coEvery { useCase(any()) } returns Result.success(Unit)
                 val viewModel = ProfileImageEditViewModel(changeProfileImageUseCase = useCase)
@@ -136,7 +136,5 @@ class ProfileImageEditViewModelTest : FunSpec() {
 
     public companion object {
         private fun fileUri(): FileUri = FileUri("content://photo/${Arb.string().next()}")
-
-        private fun cropRegion(): ImageCropRegion = ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F)
     }
 }

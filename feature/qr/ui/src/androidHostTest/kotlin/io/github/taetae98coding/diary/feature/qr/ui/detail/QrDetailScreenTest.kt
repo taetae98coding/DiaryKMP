@@ -67,9 +67,13 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.AndroidQrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
+import io.github.taetae98coding.diary.feature.qr.ui.testContentSharerFactory
+import io.github.taetae98coding.diary.feature.qr.ui.testQrCodePngEncoder
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -95,7 +99,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "ko-w480dp-h1200dp")
@@ -154,7 +157,7 @@ class QrDetailScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(LOADING).assertExists()
-        composeRule.buttonNameList() shouldBe listOf(NAVIGATE_UP)
+        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP)
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
     }
 
@@ -166,7 +169,7 @@ class QrDetailScreenTest {
 
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(2)
         // 태그 입력의 추가 칩은 내용 설명 대신 글자로 이름을 드러내므로 이름 없는 버튼 하나로 센다.
-        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB, "") + INFO_INPUT_CONTROL_LIST
+        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, SHARE, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB, "") + INFO_INPUT_CONTROL_LIST
         composeRule.onNodeWithText(TAG_INPUT_LABEL).assertExists()
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.waitForIdle()
@@ -827,7 +830,7 @@ class QrDetailScreenTest {
 
     // 다른 QR을 조회한 것처럼 식별자를 바꿔 입력을 저장된 내용으로 다시 채운다.
     private fun FakeViewModel.reload(detail: QrDetail) {
-        composeRule.runOnIdle { uiState.value = QrDetailUiState.Content(id = Uuid.random(), detail = detail) }
+        composeRule.runOnIdle { uiState.value = QrDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail) }
         composeRule.waitForIdle()
     }
 
@@ -850,6 +853,9 @@ class QrDetailScreenTest {
                     navigateUp = navigateUp,
                     navigateToScan = navigateToScan,
                     permissionManager = rememberPermissionManager(),
+                    qrActionLauncherFactory = remember { AndroidQrActionLauncherFactory() },
+                    contentSharerFactory = remember { testContentSharerFactory() },
+                    qrCodePngEncoder = remember { testQrCodePngEncoder() },
                     resultEventBus = resultEventBus,
                     componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                     qrViewModel = viewModel,
@@ -875,7 +881,7 @@ class QrDetailScreenTest {
     private class FakeViewModel(
         detail: QrDetail = Arb.qrDetail().next(),
     ) {
-        val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = Uuid.random(), detail = detail))
+        val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail))
         val effect = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel: QrDetailViewModel =
             mockk<QrDetailViewModel>(relaxed = true).apply {
@@ -905,6 +911,7 @@ class QrDetailScreenTest {
         const val REFLECT_DELAY_MILLIS = 200L
 
         const val NAVIGATE_UP = "뒤로가기"
+        const val SHARE = "공유"
         const val UNDO = "되돌리기"
         const val SCAN = "QR 스캔"
         const val DELETE = "QR 삭제"

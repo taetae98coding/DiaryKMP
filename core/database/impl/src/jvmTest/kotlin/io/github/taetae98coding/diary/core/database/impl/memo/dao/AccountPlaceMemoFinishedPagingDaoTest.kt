@@ -397,7 +397,7 @@ class AccountPlaceMemoFinishedPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-235ef526-ec6e-465b-a139-06d9cb2573a4 다시 시작·삭제와 각 실행 취소는 메모 상태와 수정 시각을 바꾸고 장소 연결은 그대로 둔다") {
+        test("TC-235ef526-ec6e-465b-a139-06d9cb2573a4 TC-ede2d580-39fb-4af7-8d88-5bdc60bfbc58 다시 시작·삭제와 각 실행 취소는 메모 상태와 수정 시각을 바꾸고 장소 연결은 그대로 둔다") {
             val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo(isFinished = true, isDeleted = false)

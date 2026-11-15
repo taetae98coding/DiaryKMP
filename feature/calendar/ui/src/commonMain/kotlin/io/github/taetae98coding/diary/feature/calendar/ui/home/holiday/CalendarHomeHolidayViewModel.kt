@@ -59,8 +59,8 @@ internal class CalendarHomeHolidayViewModel(
         if (yearList.isEmpty()) return
 
         fetchingYearSet.update { yearSet -> yearSet + yearList }
-        viewModelScope.launch {
-            yearList.forEach { year ->
+        yearList.forEach { year ->
+            viewModelScope.launch {
                 try {
                     fetchHolidayUseCase(parameter = year)
                 } finally {

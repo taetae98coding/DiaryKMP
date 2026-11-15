@@ -6,9 +6,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
+import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.ui.form.handleWebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebAddFormState
 import kotlin.uuid.Uuid
@@ -20,12 +22,13 @@ internal fun WebAddScreen(
     navigateToTagDetail: (Uuid) -> Unit,
     tagAddRequestKey: Uuid,
     addedResultRequestKey: Uuid?,
+    initialDetail: WebDetail,
     componentVisibleProvider: () -> WebAddScaffoldComponentVisible,
     addViewModel: WebAddViewModel,
     tagViewModel: EntityAddTagViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val state = rememberWebAddFormState()
+    val state = rememberWebAddFormState(initialDetail = initialDetail)
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
@@ -72,3 +75,5 @@ internal fun WebAddScreen(
         componentVisibleProvider = componentVisibleProvider,
     )
 }
+
+internal fun WebAddNavKey.initialDetail(): WebDetail = WebDetail.EMPTY.copy(title = initialTitle, url = initialUrl)

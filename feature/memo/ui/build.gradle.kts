@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.convention.feature.ui)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {

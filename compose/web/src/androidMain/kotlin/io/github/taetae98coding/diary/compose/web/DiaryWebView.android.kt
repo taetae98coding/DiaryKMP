@@ -19,7 +19,6 @@ public actual fun DiaryWebView(
     AndroidView(
         factory = { context ->
             WebView(context).apply {
-                // Android WebView는 기본으로 스크립트를 실행하지 않고 사이트 저장 공간도 쓰지 않는다.
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
             }
@@ -39,7 +38,6 @@ internal actual fun DiaryUrlWebView(
     AndroidView(
         factory = { context ->
             WebView(context).apply {
-                // Android WebView는 기본으로 스크립트를 실행하지 않고 사이트 저장 공간도 쓰지 않는다.
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
             }

@@ -16,7 +16,7 @@ struct ChecklistEntity: AppEntity {
     @Property(title: LocalizedStringResource("Description", table: "AppIntentCore"))
     var checklistDescription: String
 
-    // 체크한 수와 전체 수는 목록 결과에만, 항목은 상세 결과에만 있다.
+    // 체크한 수와 전체 수는 목록 결과에만, 항목과 연결된 태그는 상세 결과에만 있다.
     @Property(title: LocalizedStringResource("Checked Count", table: "AppIntentCore"))
     var checkedCount: Int?
 
@@ -25,6 +25,9 @@ struct ChecklistEntity: AppEntity {
 
     @Property(title: LocalizedStringResource("Items", table: "AppIntentCore"))
     var items: [ChecklistItemEntity]
+
+    @Property(title: LocalizedStringResource("Tags", table: "AppIntentCore"))
+    var tags: [TagEntity]
 
     @Property(title: LocalizedStringResource("Created", table: "AppIntentCore"))
     var createdAt: Date
@@ -39,6 +42,7 @@ struct ChecklistEntity: AppEntity {
         checkedCount = Int(summary.checkedCount)
         totalCount = Int(summary.totalCount)
         items = []
+        tags = []
         createdAt = Date(epochMillis: summary.createdAtEpochMillis)
         updatedAt = Date(epochMillis: summary.updatedAtEpochMillis)
     }
@@ -50,6 +54,7 @@ struct ChecklistEntity: AppEntity {
         checkedCount = nil
         totalCount = nil
         items = detail.items.map { item in ChecklistItemEntity(checklistId: detail.checklist.id, item: item) }
+        tags = detail.tags.map(TagEntity.init(tag:))
         createdAt = Date(epochMillis: detail.checklist.createdAtEpochMillis)
         updatedAt = Date(epochMillis: detail.checklist.updatedAtEpochMillis)
     }
@@ -102,6 +107,10 @@ struct ChecklistItemEntity: AppEntity {
 
     nonisolated var itemId: String {
         ChecklistItemEntityID(rawValue: id)?.itemId ?? id
+    }
+
+    nonisolated var checklistId: String? {
+        ChecklistItemEntityID(rawValue: id)?.checklistId
     }
 
     var displayRepresentation: DisplayRepresentation {

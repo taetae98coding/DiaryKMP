@@ -21,9 +21,23 @@ class McpToolRegistryTest :
         test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 대상마다 조회 기능과 추가, 수정, 삭제, 되돌리기 기능이 있다") {
             val nameList = createRegistry().toolList.map { tool -> tool.name }
 
-            listOf("memo", "tag", "place", "web", "contact", "checklist", "qr", "music", "dday").forEach { entity ->
+            listOf("memo", "tag", "place", "web", "contact", "checklist", "qr", "music", "dday", "routine").forEach { entity ->
                 nameList shouldContainAll listOf("list", "get", "add", "update", "delete", "restore").map { action -> "${entity}_$action" }
             }
+        }
+
+        test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 태그를 연결하는 대상마다 태그 연결과 해제 기능이 있다") {
+            val nameList = createRegistry().toolList.map { tool -> tool.name }
+
+            listOf("memo", "place", "web", "contact", "checklist", "qr", "music", "dday", "routine").forEach { entity ->
+                nameList shouldContainAll listOf("${entity}_tag_add", "${entity}_tag_remove")
+            }
+        }
+
+        test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 태그 상세의 탭마다 태그에 연결된 항목 목록 기능이 있다") {
+            val nameList = createRegistry().toolList.map { tool -> tool.name }
+
+            nameList shouldContainAll listOf("memo", "web", "place", "contact", "checklist", "music", "qr", "dday", "routine").map { item -> "tag_${item}_list" } + listOf("tag_memo_finished_list", "tag_routine_finished_list")
         }
 
         test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 검색, 캘린더, 공휴일, 음력 조회 기능이 있다") {
@@ -36,6 +50,7 @@ class McpToolRegistryTest :
                     "search_place",
                     "search_web",
                     "search_dday",
+                    "search_routine",
                     "calendar_memo_list",
                     "calendar_birthday_list",
                     "calendar_dday_list",

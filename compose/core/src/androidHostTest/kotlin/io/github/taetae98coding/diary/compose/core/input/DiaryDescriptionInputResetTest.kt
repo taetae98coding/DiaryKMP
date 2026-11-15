@@ -21,18 +21,13 @@ class DiaryDescriptionInputResetTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `미리보기를 보던 중 빈 설명으로 새로 채우면 입력 페이지로 돌아간다`() {
-        val (state, scope) = setDiaryDescriptionInput(initialText = MARKDOWN_SOURCE)
-        composeRule.runOnIdle { state.swipeState.currentValue shouldBe DiaryDescriptionInputPage.Preview }
+    fun `TC-fd252e7c-f64a-4edf-b776-6a3a0f14be8b 미리보기를 보던 중 빈 설명으로 새로 채우면 입력 페이지로 돌아간다`() {
+        assertResetToInputPage(text = "")
+    }
 
-        composeRule.runOnIdle { scope.launch { state.reset() } }
-        composeRule.waitForIdle()
-
-        composeRule.runOnIdle {
-            state.text.toString() shouldBe ""
-            state.swipeState.currentValue shouldBe DiaryDescriptionInputPage.Input
-        }
-        composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()
+    @Test
+    fun `TC-fd252e7c-f64a-4edf-b776-6a3a0f14be8b 미리보기를 보던 중 공백뿐인 설명으로 새로 채우면 입력 페이지로 돌아간다`() {
+        assertResetToInputPage(text = BLANK_TEXT)
     }
 
     @Test
@@ -47,6 +42,21 @@ class DiaryDescriptionInputResetTest {
             state.swipeState.currentValue shouldBe DiaryDescriptionInputPage.Preview
         }
         composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    private fun assertResetToInputPage(text: String) {
+        val (state, scope) = setDiaryDescriptionInput(initialText = MARKDOWN_SOURCE)
+        composeRule.runOnIdle { state.swipeState.currentValue shouldBe DiaryDescriptionInputPage.Preview }
+        composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.runOnIdle { scope.launch { state.reset(text = text) } }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            state.text.toString() shouldBe text
+            state.swipeState.currentValue shouldBe DiaryDescriptionInputPage.Input
+        }
+        composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()
     }
 
     private fun setDiaryDescriptionInput(initialText: String): Pair<DiaryDescriptionInputState, CoroutineScope> {
@@ -68,6 +78,7 @@ class DiaryDescriptionInputResetTest {
 
     private companion object {
         private const val MARKDOWN_SOURCE = "# MarkdownHeading"
+        private const val BLANK_TEXT = " \n "
         private const val INPUT_TAB_DESCRIPTION = "Input"
         private const val PREVIEW_TAB_DESCRIPTION = "Preview"
     }

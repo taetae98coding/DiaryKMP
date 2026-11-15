@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.work.appaction.core.appActionDateEpochMill
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
 import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
 import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDay
+import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayDetail
 import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayOverflowPolicyValue
 import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayStatusValue
 import io.github.taetae98coding.diary.work.appaction.dday.DDayAppAction
@@ -58,10 +59,9 @@ public object DiaryDDayAppAction {
         return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
     }
 
-    public suspend fun get(ddayId: String): DiaryAppActionDDayDetail? =
-        ddayAppAction().get(ddayId = ddayId)?.let { detail ->
-            DiaryAppActionDDayDetail(dday = detail.dday.toDiary(), tags = detail.tags.map { tag -> tag.toDiary() })
-        }
+    public suspend fun get(ddayId: String): DiaryAppActionDDayDetail? = ddayAppAction().get(ddayId = ddayId)?.toDiary()
+
+    public suspend fun getIncludingDeleted(ddayId: String): DiaryAppActionDDayDetail? = ddayAppAction().getIncludingDeleted(ddayId = ddayId)?.toDiary()
 
     public suspend fun add(
         title: String,
@@ -116,19 +116,11 @@ public object DiaryDDayAppAction {
     public suspend fun delete(ddayId: String): Int = ddayAppAction().delete(ddayId = ddayId).changedCount
 
     public suspend fun restore(ddayId: String): Int = ddayAppAction().restore(ddayId = ddayId).changedCount
-
-    public suspend fun tagAdd(
-        ddayId: String,
-        tagId: String,
-    ): Boolean = ddayAppAction().tagAdd(ddayId = ddayId, tagId = tagId).done
-
-    public suspend fun tagRemove(
-        ddayId: String,
-        tagId: String,
-    ): Boolean = ddayAppAction().tagRemove(ddayId = ddayId, tagId = tagId).done
 }
 
 private fun ddayAppAction(): DDayAppAction = diaryAppAction()
+
+private fun AppActionDDayDetail.toDiary(): DiaryAppActionDDayDetail = DiaryAppActionDDayDetail(dday = dday.toDiary(), tags = tags.map { tag -> tag.toDiary() })
 
 internal fun AppActionDDay.toDiary(): DiaryAppActionDDay =
     DiaryAppActionDDay(

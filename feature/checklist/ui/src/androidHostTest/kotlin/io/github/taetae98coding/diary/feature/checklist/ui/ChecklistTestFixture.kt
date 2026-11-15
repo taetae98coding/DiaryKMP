@@ -19,24 +19,9 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
-import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
-
-internal fun testChecklistSummary(
-    titlePrefix: String = "",
-    checkedCount: Int = 1,
-    totalCount: Int = 3,
-): ChecklistSummary {
-    val detail = Arb.checklistDetail().next()
-
-    return ChecklistSummary(
-        checklist = Arb.checklist(isDeleted = false, detail = detail.copy(title = titlePrefix + detail.title)).next(),
-        checkedCount = checkedCount,
-        totalCount = totalCount,
-    )
-}
 
 internal fun checklistPagingDataOf(summaryList: List<ChecklistSummary>): PagingData<ChecklistSummary> =
     PagingData.from(

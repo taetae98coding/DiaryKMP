@@ -21,6 +21,9 @@ import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPla
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qrtag.entity.AccountQrTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routine.entity.AccountRoutineLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routinerecord.entity.AccountRoutineRecordLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routinetag.entity.AccountRoutineTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
@@ -135,12 +138,27 @@ private val pendingWriterMap: Map<String, PendingWriter> =
                 AccountDDayTagLocalEntity(accountId = accountId, ddayId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
+        "루틴" to { database, accountId, isDirty ->
+            database.accountRoutineSyncDao().upsert(
+                AccountRoutineLocalEntity(accountId = accountId, routineId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
+        "루틴와 태그의 연결" to { database, accountId, isDirty ->
+            database.accountRoutineTagSyncDao().upsert(
+                AccountRoutineTagLocalEntity(accountId = accountId, routineId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
+        "루틴 기록" to { database, accountId, isDirty ->
+            database.accountRoutineRecordSyncDao().upsert(
+                AccountRoutineRecordLocalEntity(accountId = accountId, routineRecordId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
     )
 
 class SyncPendingLocalDataSourceImplTest :
     FunSpec({
-        test("업로드 대기 확인이 동기화 대상 스물두 종류를 모두 다룬다") {
-            pendingWriterMap.size shouldBe 22
+        test("업로드 대기 확인이 동기화 대상 스물다섯 종류를 모두 다룬다") {
+            pendingWriterMap.size shouldBe 25
         }
 
         lateinit var database: DiaryDatabase
@@ -159,7 +177,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 스물두 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 스물다섯 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = Arb.kotlinUuid().next()
 

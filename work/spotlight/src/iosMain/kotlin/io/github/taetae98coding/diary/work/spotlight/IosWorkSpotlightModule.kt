@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.spotlight
 import io.github.taetae98coding.diary.core.database.api.spotlight.datasource.SpotlightLocalDataSource
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.library.coroutines.scope.workCoroutineScope
+import io.github.taetae98coding.diary.work.spotlight.di.SpotlightScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Configuration

@@ -22,6 +22,8 @@
 
 메모의 연락처 입력에서 진입한 ContactAdd 화면과 ContactDetail 화면도 이 배치에 참여하지 않고 단독으로 표시한다. 진입 흐름은 [메모 연락처 입력 컴포넌트 스펙](./memo-contact-input.md)의 `연락처 추가 이동`과 `연락처 상세 이동`을 따른다.
 
+TagDetail 연락처 탭에서 진입한 ContactAdd 화면과 ContactDetail 화면도 이 배치에 참여하지 않고 단독으로 표시한다. 진입 흐름은 [ContactAdd 화면 스펙](./contact-add.md)의 `진입과 입력`과 [ContactDetail 화면 스펙](./contact-detail.md)의 `진입과 내용`을, 단독 표시의 기준은 [TagDetail 화면 스펙](./tag-detail.md)의 `목록 탭 공통`을 따른다.
+
 상세 영역의 ContactDetail 메모 탭에서 진입한 MemoAdd 화면과 MemoDetail 화면도 이 배치에 참여하지 않고 단독으로 표시한다. 같은 메모 탭에서 진입한 ContactMemoFinishedList 화면도 이 배치에 참여하지 않으며, 그 화면의 배치는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)을 따른다. 세 화면에서 뒤로가면 상세 영역에는 메모 탭이 선택된 같은 연락처의 상세가 남아 있으며, 그 기준은 [ContactDetail 메모 탭 스펙](./contact-detail-memo.md)의 `단독 표시와 돌아오기`를 따른다.
 
 ### 뒤로가기

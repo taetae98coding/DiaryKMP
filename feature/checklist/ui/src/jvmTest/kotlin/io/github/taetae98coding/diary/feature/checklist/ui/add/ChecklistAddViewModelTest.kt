@@ -134,7 +134,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-3129cb06-b235-4b73-9eda-c22b94336451 고른 태그를 새 체크리스트와 함께 추가하도록 넘긴다") {
+        test("TC-a388b486-45c1-4ad0-bec2-ea1d46d75d3b 고른 태그를 새 체크리스트와 함께 추가하도록 넘긴다") {
             runTest(mainDispatcher) {
                 val parameter = parameter().copy(tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next()))
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()

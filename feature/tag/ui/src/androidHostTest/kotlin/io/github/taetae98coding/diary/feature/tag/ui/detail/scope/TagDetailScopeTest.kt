@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail.scope
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
@@ -14,11 +17,15 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CHECKLIST_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CONTACT_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DDAY_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_FINISH_BUTTON_DESCRIPTION
@@ -26,6 +33,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DES
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MUSIC_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_QR_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_ROUTINE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_WEB_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffold
@@ -135,6 +143,8 @@ class TagDetailScopeTest {
             DEFAULT_CHECKLIST_TAB_DESCRIPTION,
             DEFAULT_MUSIC_TAB_DESCRIPTION,
             DEFAULT_QR_TAB_DESCRIPTION,
+            DEFAULT_DDAY_TAB_DESCRIPTION,
+            DEFAULT_ROUTINE_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             composeRule.onNodeWithContentDescription(tabDescription).performScrollTo().performClick()
             composeRule.waitForIdle()
@@ -223,6 +233,52 @@ class TagDetailScopeTest {
         composeRule.runOnIdle { scopeState.scope shouldBe TagScope.SELF }
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_SELF_LABEL).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-e58a5c84-bea3-4c47-b205-f53da902e523 백그라운드에 다녀와도 고른 표시 범위가 유지된다`() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                TagDetailScopeTestScaffold(scopeState = rememberTagDetailScopeState())
+            }
+        }
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).assertIsNotSelected()
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키로 화면을 다시 구성한다.
+    @Test
+    fun `TC-c63a8493-76a6-41d6-b07f-8d269e98a310 앱을 다시 실행하면 표시 범위가 초기화된다`() {
+        val launchCount = mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount.intValue) {
+                TagDetailScopeTestScaffold(scopeState = rememberTagDetailScopeState())
+            }
+        }
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { launchCount.intValue += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).assertIsNotSelected()
     }
 
     @Test

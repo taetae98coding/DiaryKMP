@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -31,14 +32,14 @@ class PageFileUseCaseTest :
             val account = Arb.accountUser().next()
             val fileList = List(2) { Arb.diaryFile().next() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val fileRepository = mockk<FileRepository>()
             every { fileRepository.page() } returns flowOf(PagingData.from(fileList))
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("파일 목록을 페이지로 조회한다") {
                 Then("불러오는 중인 빈 목록 다음에 서버에서 불러온 파일을 페이지로 전달한다") {
-                    val pagingDataList = useCase(parameter = Unit).take(2)
+                    val pagingDataList = useCase().take(2)
 
                     flowOf(pagingDataList.first().shouldBeSuccess()).asSnapshot().shouldBeEmpty()
                     flowOf(pagingDataList.last().shouldBeSuccess()).asSnapshot() shouldBe fileList
@@ -48,13 +49,13 @@ class PageFileUseCaseTest :
 
         Given("게스트 상태다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             val fileRepository = mockk<FileRepository>()
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("파일 목록을 페이지로 조회한다") {
                 Then("TC-2e7619f5-e91c-4918-b683-b02dd5e0f339 서버에 요청하지 않고 빈 목록을 전달한다") {
-                    val pagingData = useCase(parameter = Unit).first().shouldBeSuccess()
+                    val pagingData = useCase().first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot().shouldBeEmpty()
                     verify(exactly = 0) { fileRepository.page() }
@@ -69,14 +70,14 @@ class PageFileUseCaseTest :
             val fileListB = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(accountA))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val fileRepository = mockk<FileRepository>()
             every { fileRepository.page() } returns flowOf(PagingData.from(fileListA)) andThen flowOf(PagingData.from(fileListB))
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("계정이 계정 B로 바뀐다") {
                 Then("TC-093a77f7-1e9e-4ea6-9d9d-f418f6fee728 계정 A의 파일 대신 불러오는 중인 빈 목록을 보낸 뒤 계정 B의 파일을 처음부터 다시 불러온다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem()
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileListA
 
@@ -97,12 +98,12 @@ class PageFileUseCaseTest :
                     listOf(true, false).forEach { isSessionValid ->
                         val account = Arb.accountUser().next().copy(isSessionValid = isSessionValid)
                         val getAccountUseCase = mockk<GetAccountUseCase>()
-                        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+                        every { getAccountUseCase() } returns flowOf(Result.success(account))
                         val fileRepository = mockk<FileRepository>()
                         every { fileRepository.page() } returns flowOf(PagingData.empty())
                         val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
-                        useCase(parameter = Unit).take(2).last().shouldBeSuccess()
+                        useCase().take(2).last().shouldBeSuccess()
 
                         verify(exactly = 1) { fileRepository.page() }
                     }
@@ -114,14 +115,14 @@ class PageFileUseCaseTest :
             val account = Arb.accountUser().next().copy(isSessionValid = true)
             val accountFlow = MutableStateFlow(Result.success<Account>(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val fileRepository = mockk<FileRepository>()
             every { fileRepository.page() } answers { flowOf(PagingData.empty()) }
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("같은 계정의 세션 갱신 여부만 바뀐다") {
                 Then("TC-36b33f55-05ef-4d86-bcb7-21d7f00ee51a 목록을 다시 불러오지 않는다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem()
                         awaitItem()
                         accountFlow.value = Result.success(account.copy(isSessionValid = false))
@@ -139,14 +140,14 @@ class PageFileUseCaseTest :
             val fileList = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val fileRepository = mockk<FileRepository>()
             every { fileRepository.page() } returns flowOf(PagingData.from(fileList))
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("계정 상태를 확인하지 못했다가 다시 계정 A의 사용자로 확인된다") {
                 Then("TC-ebdf6ffc-9d03-4d2f-8ca0-0bd02cf8e9b6 목록을 다시 요청하지 않고 이전에 불러온 목록을 그대로 둔다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem()
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
 
@@ -167,14 +168,14 @@ class PageFileUseCaseTest :
             val fileList = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(Account.Guest))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val fileRepository = mockk<FileRepository>()
             every { fileRepository.page() } returns flowOf(PagingData.from(fileList))
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("계정 상태가 사용자로 바뀐다") {
                 Then("TC-cce0fe3f-3e69-41d7-906b-c03ce2110e67 불러오는 중인 빈 목록 다음에 그 계정의 파일을 처음부터 불러온다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot().shouldBeEmpty()
                         verify(exactly = 0) { fileRepository.page() }
 
@@ -194,14 +195,14 @@ class PageFileUseCaseTest :
             val fileList = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val fileRepository = mockk<FileRepository>()
             every { fileRepository.page() } returns flowOf(PagingData.from(fileList))
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("다시 계정 A의 사용자가 된다") {
                 Then("TC-8179e973-096f-4660-8c93-3c27ca946b5d 목록을 처음부터 다시 불러온다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem()
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
 

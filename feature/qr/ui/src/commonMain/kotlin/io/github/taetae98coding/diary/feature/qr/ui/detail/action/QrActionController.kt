@@ -30,8 +30,8 @@ internal class QrActionController(
 }
 
 @Composable
-internal fun rememberQrActionController(): QrActionController {
-    val launcher = rememberQrActionLauncher()
+internal fun rememberQrActionController(launcherFactory: QrActionLauncherFactory): QrActionController {
+    val launcher = launcherFactory.rememberQrActionLauncher()
     val failedMessage = stringResource(Res.string.qr_action_failed_message)
 
     return remember(launcher, failedMessage) { QrActionController(launcher = launcher, failedMessage = failedMessage) }

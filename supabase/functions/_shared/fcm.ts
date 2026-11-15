@@ -1,7 +1,5 @@
 import { fetchGoogleAccessToken, readFirebaseServiceAccount } from "./google-service-account.ts";
 
-// FCM HTTP v1로 알림을 보낸다. 인증은 Firebase 서비스 계정 키로 받은 Google OAuth 토큰을 쓴다.
-
 const FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 
 // 메시지 대상은 설치 ID(fid)나 이전 방식의 등록 토큰(token) 중 하나만 담는다.

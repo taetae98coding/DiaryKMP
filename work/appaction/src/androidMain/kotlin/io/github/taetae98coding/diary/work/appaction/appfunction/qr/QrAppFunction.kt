@@ -12,13 +12,14 @@ internal class QrAppFunction(
 ) {
     suspend fun list(cursor: String?): AppFunctionQrPage = appFunctionCall { qrAppAction.list(cursor = cursor).toAppFunctionQrPage() }
 
-    suspend fun get(qrId: String): AppFunctionQr? = appFunctionCall { qrAppAction.get(qrId = qrId)?.toAppFunctionQr() }
+    suspend fun get(qrId: String): AppFunctionQrDetail? = appFunctionCall { qrAppAction.get(qrId = qrId)?.toAppFunctionQrDetail() }
 
     suspend fun add(
         title: String,
         description: String?,
         value: String,
-    ): AppFunctionId = appFunctionCall { qrAppAction.add(title = title, description = description, value = value).toAppFunctionId() }
+        tagIds: List<String>,
+    ): AppFunctionId = appFunctionCall { qrAppAction.add(title = title, description = description, value = value, tagIds = tagIds).toAppFunctionId() }
 
     suspend fun update(
         qrId: String,

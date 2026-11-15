@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.database.impl.dday.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
 import io.github.taetae98coding.diary.core.testing.checklist.checklistDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
@@ -22,6 +23,8 @@ import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -30,7 +33,7 @@ import io.kotest.property.arbitrary.next
 import io.mockk.every
 import kotlin.uuid.Uuid
 
-// 일곱 종류를 같은 시나리오로 확인하도록 종류마다 항목 저장, 테이블 이름, 테스트 케이스 ID를 묶는다.
+// 여덟 종류를 같은 시나리오로 확인하도록 종류마다 항목 저장, 테이블 이름, 테스트 케이스 ID를 묶는다.
 internal class EntityTagKindCase(
     val kind: EntityTagKindLocalEntity,
     val label: String,
@@ -412,6 +415,57 @@ internal val entityTagKindCaseList: List<EntityTagKindCase> =
                     accountId = accountId,
                     ddayId = entityId,
                     detail = Arb.ddayDetailLocalEntity().next(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                )
+            },
+        ),
+        EntityTagKindCase(
+            kind = EntityTagKindLocalEntity.ROUTINE,
+            label = "루틴",
+            entityTable = "routine",
+            accountEntityTable = "account_routine",
+            linkTable = "routine_tag",
+            accountLinkTable = "account_routine_tag",
+            failAccountLinkDao = { database -> every { database.accountRoutineTagDao() } throws IllegalStateException("save failed") },
+            tcMap =
+                tcMap(
+                    "TC-820f5a37-ea3c-4805-8346-b402d4d65ad1",
+                    "TC-3abaa6ea-df79-4d9a-89a6-ab79d5bf4d8f",
+                    "TC-8ae088a8-feaf-4f96-a17a-5f9f8a9d470c",
+                    "TC-83de310f-d91e-4bc9-a237-b50d56ebb0b1",
+                    "TC-136a9b1a-1c64-44d1-b074-1fb5fa534578",
+                    "TC-f8a974f4-1000-4a60-a69e-868c15e9c7ed",
+                    "TC-747f59be-c69c-4272-9157-15f6d7164c9c",
+                    "TC-33a4005a-b371-40ae-b0d1-ba5da781a590",
+                    "TC-a66971a3-f8ff-47fe-b0d4-15115e62938d",
+                    "TC-ea5924a9-5a06-47ee-9048-91253da99598",
+                    "TC-e9891117-ab9d-4443-a4f6-8b79011d0583",
+                    "TC-919c4fef-14ad-4783-9a5a-f9118665d086",
+                    "TC-6f5ac356-c029-496a-b917-a8158699c5e1",
+                    "TC-e882b4d6-8f51-4e5a-b8ae-3911258664c7",
+                    "TC-8e8b0b8b-3172-45c9-b762-d032f394af1c",
+                    "TC-df756085-4808-4bed-9ea3-babfbef611f2",
+                    "TC-7481e86b-8994-4e0b-9bda-045a3ff0bf2b",
+                    "TC-b47ae447-c72a-4d42-a319-d644676cf2c9",
+                    "TC-93b28777-8d2e-4e5c-84c4-35df8dc62855",
+                ),
+            upsertEntity = { database, accountId, entityId, entityTagList ->
+                val entity = Arb.routineLocalEntity().next().copy(id = entityId, isFinished = false, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+                AccountRoutineTransactionImpl(database = database).upsert(accountId = accountId, routine = entity, routineTagList = entityTagList)
+            },
+            updateDeletedEntity = { database, accountId, entityId, isDeleted ->
+                AccountRoutineTransactionImpl(database = database).updateDeleted(
+                    accountId = accountId,
+                    routineId = entityId,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                )
+            },
+            updateDetailEntity = { database, accountId, entityId ->
+                AccountRoutineTransactionImpl(database = database).updateDetail(
+                    accountId = accountId,
+                    routineId = entityId,
+                    detail = Arb.routineDetailLocalEntity().next(),
                     updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             },

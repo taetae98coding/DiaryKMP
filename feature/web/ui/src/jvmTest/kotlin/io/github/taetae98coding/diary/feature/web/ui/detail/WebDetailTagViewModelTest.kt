@@ -186,7 +186,7 @@ class WebDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-be36a7a4-1f17-455f-b5bf-edbbb2ccb0ba 같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+        test("같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()

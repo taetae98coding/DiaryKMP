@@ -44,6 +44,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.screenTestViewMo
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.setContactDetailScreen
 import io.github.taetae98coding.diary.feature.contact.ui.detail.testContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 import io.kotest.matchers.shouldBe
@@ -166,6 +167,7 @@ class ContactDetailTabTest {
         restorationTester.setContent {
             ContactDetailScreenTestHost {
                 ContactDetailScreen(
+                    contentSharerFactory = testContentSharerFactory(),
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
@@ -211,6 +213,7 @@ class ContactDetailTabTest {
             ContactDetailScreenTestHost {
                 if (isShown) {
                     ContactDetailScreen(
+                        contentSharerFactory = testContentSharerFactory(),
                         navigateUp = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
@@ -245,6 +248,7 @@ class ContactDetailTabTest {
         composeRule.setContent {
             ContactDetailScreenTestHost {
                 ContactDetailScreen(
+                    contentSharerFactory = testContentSharerFactory(),
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},

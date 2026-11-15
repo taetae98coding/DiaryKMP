@@ -56,6 +56,18 @@ class MemoHomeScreenReselectTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(memoTitle(index = 0)).assertIsDisplayed()
+        composeRule.onNodeWithText(memoTitle(index = 1)).assertIsDisplayed()
+        val firstTop =
+            composeRule
+                .onNodeWithText(memoTitle(index = 0))
+                .fetchSemanticsNode()
+                .positionInRoot.y
+        val secondTop =
+            composeRule
+                .onNodeWithText(memoTitle(index = 1))
+                .fetchSemanticsNode()
+                .positionInRoot.y
+        (firstTop < secondTop) shouldBe true
     }
 
     @Test

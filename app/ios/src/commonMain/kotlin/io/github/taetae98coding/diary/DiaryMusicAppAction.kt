@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
 import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
 import io.github.taetae98coding.diary.work.appaction.music.AppActionMusic
+import io.github.taetae98coding.diary.work.appaction.music.AppActionMusicDetail
 import io.github.taetae98coding.diary.work.appaction.music.MusicAppAction
 import io.github.taetae98coding.diary.work.appaction.music.filterBySearchQuery
 
@@ -13,6 +14,11 @@ public data class DiaryAppActionMusic(
     val link: String,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+)
+
+public data class DiaryAppActionMusicDetail(
+    val music: DiaryAppActionMusic,
+    val tags: List<DiaryAppActionTag>,
 )
 
 public data class DiaryAppActionMusicPage(
@@ -36,13 +42,16 @@ public object DiaryMusicAppAction {
             .filterBySearchQuery(query = query)
             .map { music -> music.toDiary() }
 
-    public suspend fun get(musicId: String): DiaryAppActionMusic? = musicAppAction().get(musicId = musicId)?.toDiary()
+    public suspend fun get(musicId: String): DiaryAppActionMusicDetail? = musicAppAction().get(musicId = musicId)?.toDiary()
+
+    public suspend fun getIncludingDeleted(musicId: String): DiaryAppActionMusicDetail? = musicAppAction().getIncludingDeleted(musicId = musicId)?.toDiary()
 
     public suspend fun add(
         title: String,
         artist: String?,
         link: String?,
-    ): String = musicAppAction().add(title = title, artist = artist, link = link).id
+        tagIds: List<String>,
+    ): String = musicAppAction().add(title = title, artist = artist, link = link, tagIds = tagIds).id
 
     public suspend fun update(
         musicId: String,
@@ -58,7 +67,9 @@ public object DiaryMusicAppAction {
 
 private fun musicAppAction(): MusicAppAction = diaryAppAction()
 
-private fun AppActionMusic.toDiary(): DiaryAppActionMusic =
+private fun AppActionMusicDetail.toDiary(): DiaryAppActionMusicDetail = DiaryAppActionMusicDetail(music = music.toDiary(), tags = tags.map { tag -> tag.toDiary() })
+
+internal fun AppActionMusic.toDiary(): DiaryAppActionMusic =
     DiaryAppActionMusic(
         id = id,
         title = title,

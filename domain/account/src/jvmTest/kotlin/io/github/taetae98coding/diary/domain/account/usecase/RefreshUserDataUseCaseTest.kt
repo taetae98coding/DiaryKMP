@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.account.usecase
 
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -33,7 +34,7 @@ class RefreshUserDataUseCaseTest :
             val useCase = RefreshUserDataUseCase(getAccountUseCase = getAccountUseCase(Result.success(userAccount())), userDataRepository = repository)
 
             When("사용자 정보 다시 확인을 시작한다") {
-                val result = useCase(Unit)
+                val result = useCase()
 
                 Then("TC-30e7cfcf-7076-4ad9-b152-4c228f4d17d8 저장된 사용자 정보를 다시 받는 요청이 한 번 이루어지고 성공이 전달된다") {
                     result.shouldBeSuccess()
@@ -52,7 +53,7 @@ class RefreshUserDataUseCaseTest :
                 val useCase = RefreshUserDataUseCase(getAccountUseCase = getAccountUseCase(accountResult), userDataRepository = repository)
 
                 When("사용자 정보 다시 확인을 시작한다") {
-                    val result = useCase(Unit)
+                    val result = useCase()
 
                     Then("TC-680f56fb-e443-4367-a3bb-5d70337e5047 $name 저장된 사용자 정보를 다시 받는 요청이 이루어지지 않는다") {
                         result.shouldBeSuccess()
@@ -66,13 +67,13 @@ class RefreshUserDataUseCaseTest :
             val repository = mockk<UserDataRepository>()
             coEvery { repository.refresh() } just runs
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(Unit) } returns flow { awaitCancellation() }
+            every { getAccountUseCase() } returns flow { awaitCancellation() }
             val useCase = RefreshUserDataUseCase(getAccountUseCase = getAccountUseCase, userDataRepository = repository)
 
             When("사용자 정보 다시 확인을 시작한다") {
                 Then("TC-680f56fb-e443-4367-a3bb-5d70337e5047 아직 받지 못함 저장된 사용자 정보를 다시 받는 요청이 이루어지지 않는다") {
                     runTest {
-                        backgroundScope.launch { useCase(Unit) }
+                        backgroundScope.launch { useCase() }
                         advanceUntilIdle()
 
                         coVerify(exactly = 0) { repository.refresh() }
@@ -91,13 +92,13 @@ class RefreshUserDataUseCaseTest :
                 coEvery { repository.refresh() } just runs
                 val accountResult = CompletableDeferred<Result<Account>>()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
-                every { getAccountUseCase(Unit) } returns flow { emit(accountResult.await()) }
+                every { getAccountUseCase() } returns flow { emit(accountResult.await()) }
                 val useCase = RefreshUserDataUseCase(getAccountUseCase = getAccountUseCase, userDataRepository = repository)
 
                 When("기다리던 계정 정보 확인이 $name") {
                     Then("TC-b40b7f0d-6dca-439d-96e1-cd6eb03e3aa1 $name 저장된 사용자 정보를 다시 받는 요청이 ${expectedRefreshCount}번 이루어진다") {
                         runTest {
-                            val refresh = backgroundScope.launch { useCase(Unit) }
+                            val refresh = backgroundScope.launch { useCase() }
                             advanceUntilIdle()
                             coVerify(exactly = 0) { repository.refresh() }
 
@@ -117,7 +118,7 @@ class RefreshUserDataUseCaseTest :
             val useCase = RefreshUserDataUseCase(getAccountUseCase = getAccountUseCase(Result.success(userAccount())), userDataRepository = repository)
 
             When("사용자 정보 다시 확인을 시작한다") {
-                val result = useCase(Unit)
+                val result = useCase()
 
                 Then("TC-1b93af08-c181-480d-a9bb-6477302074c7 실패가 그대로 전달된다") {
                     result.shouldBeFailure()
@@ -136,7 +137,7 @@ class RefreshUserDataUseCaseTest :
 
         private fun getAccountUseCase(result: Result<Account>): GetAccountUseCase =
             mockk<GetAccountUseCase>().also { useCase ->
-                every { useCase(Unit) } returns flowOf(result)
+                every { useCase() } returns flowOf(result)
             }
     }
 }

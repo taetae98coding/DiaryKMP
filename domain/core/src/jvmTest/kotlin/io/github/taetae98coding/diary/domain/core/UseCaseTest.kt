@@ -117,7 +117,7 @@ class UseCaseTest :
                     val useCase = AwaitCancellationUseCase(onStart = onStart)
 
                     coroutineScope {
-                        val job = launch { useCase(parameter = Unit) }
+                        val job = launch { useCase() }
 
                         onStart.await()
                         job.cancelAndJoin()
@@ -221,13 +221,26 @@ class UseCaseTest :
                     val useCase = ReportingAwaitCancellationUseCase(onStart = onStart)
 
                     coroutineScope {
-                        val job = launch { useCase(parameter = Unit) }
+                        val job = launch { useCase() }
 
                         onStart.await()
                         job.cancelAndJoin()
                     }
 
                     recording.logList.shouldBeEmpty()
+                }
+            }
+        }
+
+        Given("입력이 필요 없는 작업이 값을 돌려주도록 준비되어 있다") {
+            When("입력 없이 실행한다") {
+                Then("작업이 돌려준 값을 성공 결과로 받는다") {
+                    val output = Arb.string().next()
+                    val useCase = UnitParameterUseCase(output = output)
+
+                    val result = useCase()
+
+                    result.shouldBeSuccess() shouldBe output
                 }
             }
         }
@@ -312,6 +325,12 @@ private class AwaitCancellationUseCase(
         onStart.complete(Unit)
         awaitCancellation()
     }
+}
+
+private class UnitParameterUseCase(
+    private val output: String,
+) : UseCase<Unit, String>() {
+    override suspend fun execute(parameter: Unit): String = output
 }
 
 private data class TestReportLog(

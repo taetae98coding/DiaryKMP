@@ -167,16 +167,22 @@ class EntityTagPickerDialogSearchTest {
     @Test
     fun `TC-9448a027-6bf6-4f86-9f4d-a918951e9b5d 검색 결과가 없어도 태그 추가 항목으로 TagAdd 이동을 요청할 수 있다`() {
         var clickAddCount = 0
-        composeRule.setEntityTagPickerDialog(
+        val dialogState = DialogState(isVisible = true)
+        composeRule.setEntityTagPickerDialogHost(
+            dialogState = dialogState,
             tagList = emptyList(),
-            query = WORK_TAG_QUERY,
             onClickAdd = { clickAddCount += 1 },
         )
+        composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
+        composeRule.awaitEntityTagPickerRow(title = DEFAULT_PICKER_SEARCH_EMPTY_TITLE)
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).performClick()
         composeRule.waitForIdle()
 
         clickAddCount shouldBe 1
+        composeRule.runOnIdle { dialogState.isVisible shouldBe false }
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertDoesNotExist()
     }
 
     @Test

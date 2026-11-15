@@ -121,6 +121,7 @@ class ContactDetailScreenMemoReturnTest {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 ContactDetailScreenTestHost {
                     ContactDetailScreen(
+                        contentSharerFactory = testContentSharerFactory(),
                         navigateUp = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},

@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.search.repository.AccountSearchPlaceRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -33,7 +34,7 @@ class SearchPlaceUseCaseTest :
             val placeList = List(2) { place() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchPlaceRepository = mockk<AccountSearchPlaceRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every {
                 accountSearchPlaceRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(placeList))
@@ -62,7 +63,7 @@ class SearchPlaceUseCaseTest :
             val placeList = List(2) { place() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchPlaceRepository = mockk<AccountSearchPlaceRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             every {
                 accountSearchPlaceRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(placeList))
@@ -107,7 +108,7 @@ class SearchPlaceUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountSearchPlaceRepository = mockk<AccountSearchPlaceRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchPlaceUseCase(
                     getAccountUseCase = getAccountUseCase,

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.memo.MemoMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.music.MusicMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.place.PlaceMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.qr.QrMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.routine.RoutineMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.search.SearchMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.TagItemMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.TagLinkMcpToolSet
@@ -31,6 +32,7 @@ internal class McpToolRegistry(
     qrMcpToolSet: QrMcpToolSet,
     musicMcpToolSet: MusicMcpToolSet,
     ddayMcpToolSet: DDayMcpToolSet,
+    routineMcpToolSet: RoutineMcpToolSet,
     searchMcpToolSet: SearchMcpToolSet,
     calendarMcpToolSet: CalendarMcpToolSet,
     lunarMcpToolSet: LunarMcpToolSet,
@@ -49,6 +51,7 @@ internal class McpToolRegistry(
             qrMcpToolSet,
             musicMcpToolSet,
             ddayMcpToolSet,
+            routineMcpToolSet,
             searchMcpToolSet,
             calendarMcpToolSet,
             lunarMcpToolSet,

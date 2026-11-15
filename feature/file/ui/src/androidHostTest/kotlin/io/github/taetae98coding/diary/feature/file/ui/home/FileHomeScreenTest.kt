@@ -45,6 +45,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
@@ -286,9 +287,27 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록에서 올리기에 성공하면 이전 목록을 둔 채 진행 중임을 표시한다`() {
+        val fileList = fileList(count = 5)
         val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
+        val response = CompletableDeferred<List<DiaryFile>>()
+        val server = server()
+        coEvery { server(0) } returns fileList coAndThen { response.await() }
+        val upload = FileUploadMocks()
 
-        assertUploadSucceededReturnsToTop(uploaded = uploaded, prefix = listOf(uploaded), expectedFirst = uploaded)
+        setFileHomeScreen(server = server, upload = upload)
+        startUpload()
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { server(0) }
+        composeRule.onNodeWithText(fileList.first().name).assertExists()
+        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertExists()
+
+        response.complete(listOf(uploaded) + fileList)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertDoesNotExist()
+        assertAbove(upper = uploaded, lower = fileList.first())
     }
 
     @Test
@@ -634,8 +653,37 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-d144a188-a4a5-4b91-8cd3-9c558f8d8d3d 화면을 보고 있지 않을 때 끝난 올리기의 결과는 화면에 들어와도 알리지 않는다`() {
-        assertFinishedWhileAwayIsNotNotified()
+    fun `TC-d144a188-a4a5-4b91-8cd3-9c558f8d8d3d 화면을 보고 있지 않을 때 성공한 올리기는 화면에 들어와도 알리지 않는다`() {
+        assertFinishedWhileAwayIsNotNotified(event = FileUploadEvent.Succeeded(fileId = Arb.diaryFile().next().id))
+    }
+
+    @Test
+    fun `TC-d144a188-a4a5-4b91-8cd3-9c558f8d8d3d 화면을 보고 있지 않을 때 크기 초과로 실패한 올리기는 들어와도 알리지 않는다`() {
+        assertFinishedWhileAwayIsNotNotified(event = FileUploadEvent.TooLarge)
+    }
+
+    @Test
+    fun `TC-d144a188-a4a5-4b91-8cd3-9c558f8d8d3d 화면을 보고 있지 않을 때 그 밖의 이유로 실패한 올리기는 들어와도 알리지 않는다`() {
+        assertFinishedWhileAwayIsNotNotified(event = FileUploadEvent.Failed)
+    }
+
+    @Test
+    fun `TC-995e6ac7-e5b1-4725-a5f8-6801004d989d 화면이 열려 있지 않은 동안 올리기에 성공했으면 들어온 뒤 목록을 다시 불러온다`() {
+        val fileList = fileList(count = 30)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
+        val server = server()
+        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThen (listOf(uploaded) + fileList).take(PAGE_SIZE)
+        val upload = FileUploadMocks()
+        upload.start()
+        upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id))
+
+        setFileHomeScreen(server = server, upload = upload)
+
+        coVerify(exactly = 2) { server(0) }
+        composeRule.onNodeWithText(uploaded.name).assertIsDisplayed()
+        assertAbove(upper = uploaded, lower = fileList.first())
+        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(UPLOAD_TOO_LARGE_MESSAGE).assertDoesNotExist()
     }
 
     @Test
@@ -1054,10 +1102,12 @@ class FileHomeScreenTest {
         composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
     }
 
-    private fun assertFinishedWhileAwayIsNotNotified() {
+    // 화면에 들어오기 전에 올리기를 시작해 결과까지 보낸다. 쌓여 있던 성공이 목록을 한 번 더 요청하는지는 이 케이스의 기대 결과가 아니라 확인하지 않는다.
+    private fun assertFinishedWhileAwayIsNotNotified(event: FileUploadEvent) {
         val file = Arb.diaryFile().next()
         val upload = FileUploadMocks()
-        upload.finishWithoutEvent()
+        upload.start()
+        upload.finish(event = event)
 
         setFileHomeScreen(server = server(pageList = listOf(listOf(file))), upload = upload)
 
@@ -1402,9 +1452,9 @@ class FileHomeScreenTest {
         updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
     ): FileHomeTestScreen {
         val getUpdatedFileUseCase = mockk<GetUpdatedFileUseCase>()
-        every { getUpdatedFileUseCase(parameter = Unit) } returns updated.map { fileMap -> Result.success(fileMap) }
+        every { getUpdatedFileUseCase() } returns updated.map { fileMap -> Result.success(fileMap) }
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
         val uploadViewModel = upload.viewModel()
 
         lastUpload = upload
@@ -1532,17 +1582,17 @@ private class FileUploadMocks {
 
     private val getFileUploadStateUseCase: GetFileUploadStateUseCase =
         mockk<GetFileUploadStateUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns state.map { value -> Result.success(value) }
+            every { useCase() } returns state.map { value -> Result.success(value) }
         }
 
     private val getFileUploadEventUseCase: GetFileUploadEventUseCase =
         mockk<GetFileUploadEventUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns eventFlow.map { event -> Result.success(event) }
+            every { useCase() } returns eventFlow.map { event -> Result.success(event) }
         }
 
     private val getFileUploadSucceededEventUseCase: GetFileUploadSucceededEventUseCase =
         mockk<GetFileUploadSucceededEventUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns succeededChannel.receiveAsFlow().map { event -> Result.success(event) }
+            every { useCase() } returns succeededChannel.receiveAsFlow().map { event -> Result.success(event) }
         }
 
     fun start() {
@@ -1570,7 +1620,7 @@ private class FileUploadMocks {
 // 테스트가 계정을 바꿀 때 보여 줄 목록의 흐름도 함께 바꾼다.
 private fun pageFileUseCase(paging: Flow<Flow<PagingData<DiaryFile>>>): PageFileUseCase {
     val useCase = mockk<PageFileUseCase>()
-    every { useCase(parameter = Unit) } returns paging.flatMapLatest { pagingData -> pagingData }.map { pagingData -> Result.success(pagingData) }
+    every { useCase() } returns paging.flatMapLatest { pagingData -> pagingData }.map { pagingData -> Result.success(pagingData) }
     return useCase
 }
 

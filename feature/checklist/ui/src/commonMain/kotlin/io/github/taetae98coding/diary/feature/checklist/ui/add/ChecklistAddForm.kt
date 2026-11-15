@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
@@ -27,6 +28,7 @@ internal fun ChecklistAddForm(
     Column(
         modifier =
             modifier
+                .systemScroll(state.scrollState) { state.scrollState.animateScrollTo(0) }
                 .verticalScroll(state.scrollState)
                 .padding(
                     start = DiaryTheme.dimens.screenHorizontalPadding,

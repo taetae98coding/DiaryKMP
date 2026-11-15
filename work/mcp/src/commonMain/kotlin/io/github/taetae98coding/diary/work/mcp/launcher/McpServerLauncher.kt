@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.mcp.launcher
 
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.mcp.usecase.RunMcpServerUseCase
 import io.github.taetae98coding.diary.work.mcp.di.McpScope
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +19,6 @@ public class McpServerLauncher internal constructor(
         if (isLaunched) return
         isLaunched = true
 
-        scope.launch { runMcpServerUseCase(parameter = Unit) }
+        scope.launch { runMcpServerUseCase() }
     }
 }

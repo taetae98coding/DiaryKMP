@@ -16,7 +16,6 @@ internal class AccountCalendarMemoLocalDataSourceImpl(
         accountId: Uuid,
         dateRange: LocalDateRange,
     ): Flow<List<CalendarMemoLocalEntity>> =
-        // DAO는 기간 타입을 바인딩할 수 없어 시작일과 종료일로 나눠 넘긴다.
         database.accountCalendarMemoDao().get(
             accountId = accountId,
             start = dateRange.start,

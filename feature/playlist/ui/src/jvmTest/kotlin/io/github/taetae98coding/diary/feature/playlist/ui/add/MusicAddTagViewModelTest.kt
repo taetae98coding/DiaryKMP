@@ -17,7 +17,9 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -112,6 +114,33 @@ class MusicAddTagViewModelTest : FunSpec() {
                         cancelAndIgnoreRemainingEvents()
                     }
                     viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                }
+            }
+        }
+
+        test("TC-a3d83b22-b123-44fd-b130-9b77672f92fb 고른 태그 조회에서 빠진 태그는 제외된 것으로 표시한다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val selectedTagList = MutableStateFlow(listOf(tag))
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = setOf(tag.id)) } returns selectedTagList.map { tagList -> Result.success(tagList) }
+                every { getSelectedTagUseCase(parameter = emptySet()) } returns flowOf(Result.success(emptyList()))
+                val viewModel =
+                    EntityAddTagViewModel(
+                        initialTagId = null,
+                        pageTagUseCase = mockk<PageTagUseCase>(relaxed = true),
+                        getSelectedTagUseCase = getSelectedTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    viewModel.add(tagId = tag.id)
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+
+                    selectedTagList.value = emptyList()
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
                 }
             }
         }

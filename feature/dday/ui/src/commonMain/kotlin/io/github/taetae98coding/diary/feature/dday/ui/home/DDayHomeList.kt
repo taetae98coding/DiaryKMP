@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,12 +19,12 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.DDayIcon
 import io.github.taetae98coding.diary.compose.core.icon.FilterIcon
+import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDayListEvent
 import io.github.taetae98coding.diary.compose.dday.DDayListState
@@ -69,17 +67,13 @@ internal fun DDayHomeList(
         modifier = modifier,
     ) { isEmpty ->
         if (isEmpty) {
-            DiaryPullToRefreshBox(
-                isRefreshingProvider = isRefreshingProvider,
+            DiaryRefreshableEmptyBox(
                 onRefresh = { onEvent(DDayHomeScaffoldEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),
+                isRefreshingProvider = isRefreshingProvider,
             ) {
                 DDayHomeEmpty(
-                    // 당김 새로고침은 중첩 스크롤로만 시작되므로 스크롤할 내용이 없어도 verticalScroll을 둔다.
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
+                    modifier = Modifier.fillMaxSize(),
                     isFilterAppliedProvider = { filterUiStateProvider().isApplied },
                 )
             }
@@ -122,14 +116,12 @@ private fun DDayHomeEmpty(
         if (isFilterApplied) {
             DiaryEmptyBox(
                 title = stringResource(Res.string.dday_home_filtered_empty_title),
-                modifier = Modifier.fillMaxSize(),
                 description = stringResource(Res.string.dday_home_filtered_empty_description),
                 icon = { FilterIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
             )
         } else {
             DiaryEmptyBox(
                 title = stringResource(Res.string.dday_home_empty_title),
-                modifier = Modifier.fillMaxSize(),
                 description = stringResource(Res.string.dday_home_empty_description),
                 icon = { DDayIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
             )

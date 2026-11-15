@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.more.ui.home.account
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -43,7 +44,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
         test("TC-307a01f7-d920-4a94-b0b4-cae3a7982b65 로그인한 사용자 정보가 없으면 게스트 상태로 표시한다") {
             runTest(mainDispatcher) {
                 val getAccountUseCase = mockk<GetAccountUseCase>()
-                every { getAccountUseCase(Unit) } returns flowOf(Result.success<Account>(Account.Guest))
+                every { getAccountUseCase() } returns flowOf(Result.success<Account>(Account.Guest))
                 val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
 
                 viewModel.uiState.test {
@@ -65,7 +66,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
                         isSessionValid = Arb.boolean().next(),
                     )
                 val getAccountUseCase = mockk<GetAccountUseCase>()
-                every { getAccountUseCase(Unit) } returns flowOf(Result.success<Account>(account))
+                every { getAccountUseCase() } returns flowOf(Result.success<Account>(account))
                 val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
 
                 viewModel.uiState.test {
@@ -85,7 +86,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
 
                 accountFlows.forEach { accountFlow ->
                     val getAccountUseCase = mockk<GetAccountUseCase>()
-                    every { getAccountUseCase(Unit) } returns accountFlow
+                    every { getAccountUseCase() } returns accountFlow
                     val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
 
                     viewModel.uiState.test {
@@ -113,7 +114,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
                 caseList.forEach { case ->
                     val accountFlow = MutableStateFlow(Result.success(case.before))
                     val getAccountUseCase = mockk<GetAccountUseCase>()
-                    every { getAccountUseCase(Unit) } returns accountFlow
+                    every { getAccountUseCase() } returns accountFlow
                     val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
 
                     viewModel.uiState.test {

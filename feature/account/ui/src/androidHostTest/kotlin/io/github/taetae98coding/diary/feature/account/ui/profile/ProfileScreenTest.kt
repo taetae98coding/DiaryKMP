@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.testing.authentication.appleAuthoriza
 import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
 import io.github.taetae98coding.diary.domain.account.usecase.CheckAppleReauthenticationRequiredUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.DeleteAccountUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -70,6 +71,8 @@ class ProfileScreenTest {
         (changeTop < deleteTop) shouldBe true
         composeRule.onNodeWithText(CHANGE_LABEL).assertIsEnabled()
         composeRule.onNodeWithText(DELETE_LABEL).assertIsEnabled()
+        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(FAILED_MESSAGE).assertDoesNotExist()
     }
 
     @Test
@@ -358,6 +361,39 @@ class ProfileScreenTest {
     }
 
     @Test
+    fun `TC-ff12655f-9d05-45d5-941d-052f02a957c2 탈퇴를 다시 고른 뒤 끝난 첫 흐름의 인가 코드는 받지 않는다`() {
+        val firstAuthorization = Arb.appleAuthorization().next()
+        val secondAuthorization = Arb.appleAuthorization().next()
+        val first = CompletableDeferred<AppleSignInResult>()
+        val second = CompletableDeferred<AppleSignInResult>()
+        val secondCheck = CompletableDeferred<Result<Boolean>>()
+        val fixture = Fixture(isAppleReauthenticationRequired = true)
+        coEvery { fixture.checkUseCase() } returns Result.success(true) coAndThen { secondCheck.await() }
+        coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { first.await() } coAndThen { second.await() }
+        setScreen(fixture)
+
+        confirmDelete()
+        composeRule.onNodeWithText(CONFIRM_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { first.complete(signInResult(authorization = firstAuthorization)) }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
+        composeRule.onNodeWithText(CONFIRM_TITLE).assertExists()
+        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertExists()
+
+        composeRule.runOnIdle { secondCheck.complete(Result.success(true)) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertDoesNotExist()
+        composeRule.runOnIdle { second.complete(signInResult(authorization = secondAuthorization)) }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { fixture.appleCredentialsManager.signIn() }
+        coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = firstAuthorization) }
+        coVerify(exactly = 1) { fixture.deleteAccountUseCase(parameter = secondAuthorization) }
+    }
+
+    @Test
     fun `TC-fdf51fd0-26c2-4877-a583-b9a9166aeecf Apple 재인증 중 취소로 닫으면 흐름을 끝내고 탈퇴하지 않는다`() {
         assertDismissDuringReauthenticationEndsFlow { composeRule.onNodeWithText(CANCEL_LABEL).performClick() }
     }
@@ -403,6 +439,28 @@ class ProfileScreenTest {
     }
 
     @Test
+    fun `TC-c94e0258-ad3d-4541-af01-4070488bca25 확인 다이얼로그는 화면이 재생성되어도 열림과 닫힘을 유지한다`() {
+        val fixture = Fixture()
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent { ProfileContent(fixture) }
+        composeRule.onNodeWithText(DELETE_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CONFIRM_TITLE).assertExists()
+
+        composeRule.onNodeWithText(CANCEL_LABEL).performClick()
+        composeRule.waitForIdle()
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CONFIRM_TITLE).assertDoesNotExist()
+        coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
+    }
+
+    @Test
     fun `TC-fe336a0c-9832-488a-901e-eade609d22e5 Apple 재인증 중 화면이 재생성되면 흐름을 중단하고 탈퇴 대기로 돌아간다`() {
         val pending = CompletableDeferred<AppleSignInResult>()
         val fixture = Fixture(isAppleReauthenticationRequired = true)
@@ -427,7 +485,7 @@ class ProfileScreenTest {
     fun `TC-c6f65655-042d-482c-8e05-bc07a3289ec6 판단 중 재생성되어도 재인증이 필요하면 재인증을 시작한다`() {
         val checkResult = CompletableDeferred<Result<Boolean>>()
         val fixture = Fixture(isAppleReauthenticationRequired = true)
-        coEvery { fixture.checkUseCase(parameter = Unit) } coAnswers { checkResult.await() }
+        coEvery { fixture.checkUseCase() } coAnswers { checkResult.await() }
         coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { CompletableDeferred<AppleSignInResult>().await() }
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ProfileContent(fixture) }
@@ -448,7 +506,7 @@ class ProfileScreenTest {
     fun `TC-c6f65655-042d-482c-8e05-bc07a3289ec6 판단 중 재생성되어도 재인증이 필요 없으면 진행 중을 유지하고 한 번만 요청한다`() {
         val checkResult = CompletableDeferred<Result<Boolean>>()
         val fixture = Fixture()
-        coEvery { fixture.checkUseCase(parameter = Unit) } coAnswers { checkResult.await() }
+        coEvery { fixture.checkUseCase() } coAnswers { checkResult.await() }
         coEvery { fixture.deleteAccountUseCase(parameter = any()) } coAnswers { CompletableDeferred<Result<Unit>>().await() }
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ProfileContent(fixture) }
@@ -608,8 +666,8 @@ private class Fixture(
     val checkUseCase: CheckAppleReauthenticationRequiredUseCase = mockk()
 
     init {
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
-        coEvery { checkUseCase(parameter = Unit) } returns
+        every { getAccountUseCase() } returns accountFlow
+        coEvery { checkUseCase() } returns
             if (isAppleReauthenticationCheckFailed) {
                 Result.failure(IllegalStateException("check"))
             } else {

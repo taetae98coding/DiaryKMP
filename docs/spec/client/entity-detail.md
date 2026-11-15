@@ -253,5 +253,6 @@
 - [MusicDetail 화면 스펙](./music-detail.md)
 - [PlaceDetail 화면 스펙](./place-detail.md)
 - [QrDetail 화면 스펙](./qr-detail.md)
+- [RoutineDetail 화면 스펙](./routine-detail.md)
 - [TagDetail 화면 스펙](./tag-detail.md)
 - [WebDetail 화면 스펙](./web-detail.md)

@@ -1,14 +1,10 @@
 package io.github.taetae98coding.diary.work.appaction.appfunction.web
 
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
-import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.appFunctionCall
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionChangedCount
-import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionId
-import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoPage
-import io.github.taetae98coding.diary.work.appaction.appfunction.memo.toAppFunctionMemoPage
 import io.github.taetae98coding.diary.work.appaction.web.WebAppAction
 
 internal class WebAppFunction(
@@ -20,18 +16,6 @@ internal class WebAppFunction(
     ): AppFunctionWebPage = appFunctionCall { webAppAction.list(sort = sort, cursor = cursor).toAppFunctionWebPage() }
 
     suspend fun get(webId: String): AppFunctionWebDetail? = appFunctionCall { webAppAction.get(webId = webId)?.toAppFunctionWebDetail() }
-
-    suspend fun memoList(
-        webId: String,
-        sort: String?,
-        cursor: String?,
-    ): AppFunctionMemoPage = appFunctionCall { webAppAction.memoList(webId = webId, sort = sort, cursor = cursor).toAppFunctionMemoPage() }
-
-    suspend fun memoFinishedList(
-        webId: String,
-        sort: String?,
-        cursor: String?,
-    ): AppFunctionMemoPage = appFunctionCall { webAppAction.memoFinishedList(webId = webId, sort = sort, cursor = cursor).toAppFunctionMemoPage() }
 
     suspend fun add(
         title: String,
@@ -52,14 +36,4 @@ internal class WebAppFunction(
     suspend fun delete(webId: String): AppFunctionChangedCount = appFunctionCall { webAppAction.delete(webId = webId).toAppFunctionChangedCount() }
 
     suspend fun restore(webId: String): AppFunctionChangedCount = appFunctionCall { webAppAction.restore(webId = webId).toAppFunctionChangedCount() }
-
-    suspend fun tagAdd(
-        webId: String,
-        tagId: String,
-    ): AppFunctionDone = appFunctionCall { webAppAction.tagAdd(webId = webId, tagId = tagId).toAppFunctionDone() }
-
-    suspend fun tagRemove(
-        webId: String,
-        tagId: String,
-    ): AppFunctionDone = appFunctionCall { webAppAction.tagRemove(webId = webId, tagId = tagId).toAppFunctionDone() }
 }

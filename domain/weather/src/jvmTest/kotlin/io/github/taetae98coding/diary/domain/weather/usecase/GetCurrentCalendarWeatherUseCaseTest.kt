@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
 import io.github.taetae98coding.diary.core.testing.weather.weather
 import io.github.taetae98coding.diary.core.testing.weather.weatherCondition
 import io.github.taetae98coding.diary.core.testing.weather.weatherTemperature
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -60,7 +61,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
                 )
 
             When("캘린더 날짜별 날씨를 관찰한다") {
-                val actual = useCase(parameter = Unit).first().shouldBeSuccess().weatherList
+                val actual = useCase().first().shouldBeSuccess().weatherList
 
                 Then("날짜와 시각 순서로 모든 날씨를 묶어 제공한다") {
                     actual.map { calendarWeather -> calendarWeather.date } shouldBe listOf(firstDate, secondDate)
@@ -89,7 +90,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 val actual =
-                    useCase(parameter = Unit)
+                    useCase()
                         .first()
                         .shouldBeSuccess()
                         .weatherList
@@ -127,7 +128,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 val actual =
-                    useCase(parameter = Unit)
+                    useCase()
                         .first()
                         .shouldBeSuccess()
                         .weatherList
@@ -152,7 +153,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 val actual =
-                    useCase(parameter = Unit)
+                    useCase()
                         .first()
                         .shouldBeSuccess()
                         .weatherList
@@ -172,7 +173,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 Then("빈 목록과 빈 지역명을 제공한다") {
-                    val actual = useCase(parameter = Unit).first().shouldBeSuccess()
+                    val actual = useCase().first().shouldBeSuccess()
 
                     actual.weatherList shouldBe emptyList()
                     actual.locationName shouldBe ""
@@ -187,7 +188,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 Then("날짜별 날씨와 같은 항목으로 지역명을 함께 제공한다") {
-                    val actual = useCase(parameter = Unit).first().shouldBeSuccess()
+                    val actual = useCase().first().shouldBeSuccess()
 
                     actual.weatherList.single().weatherList shouldBe listOf(current)
                     actual.locationName shouldBe locationName
@@ -214,7 +215,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 val actual =
-                    useCase(parameter = Unit)
+                    useCase()
                         .first()
                         .shouldBeSuccess()
                         .weatherList
@@ -241,7 +242,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
                 When("캘린더 날짜별 날씨를 관찰한다") {
                     val actual =
-                        useCase(parameter = Unit)
+                        useCase()
                             .first()
                             .shouldBeSuccess()
                             .weatherList
@@ -272,7 +273,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
                 )
 
             When("캘린더 날짜별 날씨를 관찰한다") {
-                val actual = useCase(parameter = Unit).first().shouldBeSuccess().weatherList
+                val actual = useCase().first().shouldBeSuccess().weatherList
 
                 Then("하루 시작이 빠진 날짜는 온도 표시를 제공하지 않고 하루 전체가 들어온 날짜는 최저·최고 기온을 제공한다") {
                     actual.single { calendarWeather -> calendarWeather.date.day == 2 }.temperature shouldBe
@@ -292,7 +293,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             val useCase = useCase(listOf(lateForecast, current, earlyForecast))
 
             When("캘린더 날짜별 날씨를 관찰한다") {
-                val actual = useCase(parameter = Unit).first().shouldBeSuccess().weatherList
+                val actual = useCase().first().shouldBeSuccess().weatherList
 
                 Then("온도 표시가 없는 날짜도 날짜 순서로 남고 날씨 정보를 시각 순서대로 제공한다") {
                     actual.map { calendarWeather -> calendarWeather.date.day } shouldBe listOf(1, 2)
@@ -320,7 +321,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 val actual =
-                    useCase(parameter = Unit)
+                    useCase()
                         .first()
                         .shouldBeSuccess()
                         .weatherList
@@ -347,7 +348,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             val current = currentWeather(day = 1, hour = 6)
 
             When("저장된 날씨가 새 동기화 결과로 바뀐다") {
-                useCase(parameter = Unit).test {
+                useCase().test {
                     awaitItem().shouldBeSuccess().weatherList shouldBe emptyList()
 
                     weatherState.value = weatherReport(weatherList = listOf(current))
@@ -386,7 +387,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
             When("캘린더 날짜별 날씨를 관찰한다") {
                 Then("실패 원인을 그대로 제공한다") {
-                    useCase(parameter = Unit).first().shouldBeFailure() shouldBeSameInstanceAs failure
+                    useCase().first().shouldBeFailure() shouldBeSameInstanceAs failure
                 }
             }
         }

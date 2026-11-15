@@ -318,7 +318,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-a2c71837-5d51-4d47-986b-1aeffc65e620 TC-6f63c6a1-5218-42f2-8910-ff66d9bbc2a0 TC-729f3b16-d41f-495c-9073-6c52554ab482 TC-8b030e9d-b400-494a-b80d-348edf2757f5 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
+        test("TC-6f63c6a1-5218-42f2-8910-ff66d9bbc2a0 TC-729f3b16-d41f-495c-9073-6c52554ab482 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
             runTest(mainDispatcher) {
                 val webPage = Arb.webPage().next()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()

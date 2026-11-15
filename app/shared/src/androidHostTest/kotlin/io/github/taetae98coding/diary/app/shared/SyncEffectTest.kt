@@ -9,6 +9,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -94,7 +95,7 @@ class SyncEffectTest {
     fun `TC-c016ece6-0cdf-4afc-a776-f3fe741d3821 TC-f7816008-73c9-4079-a740-e4e695b0de94 앱 화면이 다시 만들어지면 같은 계정이어도 진행을 표시할 동기화를 한 번 다시 요청한다`() {
         val account = Arb.accountUser().next().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+        every { getAccountUseCase() } returns flowOf(Result.success(account))
         val requestSyncUseCase = mockk<RequestSyncUseCase>()
         coEvery { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) } returns Result.success(Unit)
         val viewModel =

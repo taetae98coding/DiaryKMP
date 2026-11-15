@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatSetOrNull
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
@@ -20,13 +21,16 @@ import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
 import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
+import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -49,9 +53,9 @@ class DDayAppActionTest :
     FunSpec({
         test("목록은 오늘로 계산한 남은 날과 채운 기간을 담아 MCP와 같은 항목을 돌려준다") {
             runTest {
-                val dday = Arb.dday().next().copy(detail = Arb.ddayDetail(baseDate = LocalDate(2026, 4, 29)).next())
+                val dday = Arb.dday().next().copy(isDeleted = false, detail = Arb.ddayDetail(baseDate = LocalDate(2026, 4, 29)).next())
                 val pageDDayUseCase = mockk<PageDDayUseCase>()
-                every { pageDDayUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(listOf(dday))))
+                every { pageDDayUseCase() } returns flowOf(Result.success(PagingData.from(listOf(dday))))
                 val action = ddayAppActionOf(pageDDayUseCase, clockAt(date = LocalDate(2026, 3, 20)))
 
                 action.list(cursor = null) shouldBe
@@ -62,11 +66,11 @@ class DDayAppActionTest :
             }
         }
 
-        test("상세는 연결된 태그와 함께 돌려주고, 당일이면 상태만 담고, 없는 디데이는 null을 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 상세는 연결된 태그와 함께 돌려주고, 당일이면 상태만 담고, 없는 디데이는 null을 돌려준다") {
             runTest {
-                val dday = Arb.dday().next().copy(detail = Arb.ddayDetail(baseDate = LocalDate(2026, 3, 20)).next())
+                val dday = Arb.dday().next().copy(isDeleted = false, detail = Arb.ddayDetail(baseDate = LocalDate(2026, 3, 20)).next())
                 val missingId = Arb.kotlinUuid().next()
-                val tagList = Arb.list(Arb.tag(), 0..3).next()
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 val findDDayUseCase = mockk<FindDDayUseCase>()
                 val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findDDayUseCase(parameter = dday.id) } returns flowOf(Result.success(dday))
@@ -98,7 +102,7 @@ class DDayAppActionTest :
         test("결과의 반복 간격은 일, 개월, 년 순서로 12의 배수인 개월을 년으로 적는다") {
             runTest {
                 val repeats = setOf(DateTimeUnit.MonthBased(months = 24), DateTimeUnit.DayBased(days = 100), DateTimeUnit.MonthBased(months = 18))
-                val dday = Arb.dday().next().copy(detail = Arb.ddayDetail(baseDate = LocalDate(2026, 1, 1), repeats = repeats).next())
+                val dday = Arb.dday().next().copy(isDeleted = false, detail = Arb.ddayDetail(baseDate = LocalDate(2026, 1, 1), repeats = repeats).next())
                 val findDDayUseCase = mockk<FindDDayUseCase>()
                 val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
                 every { findDDayUseCase(parameter = dday.id) } returns flowOf(Result.success(dday))
@@ -170,6 +174,33 @@ class DDayAppActionTest :
             }
         }
 
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddDDayUseCase.Parameter>()
+                val addDDayUseCase = mockk<AddDDayUseCase>()
+                coEvery { addDDayUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = ddayAppActionOf(addDDayUseCase, clockAt(date = Arb.kotlinxLocalDate().next()))
+
+                val result =
+                    action.add(
+                        title = Arb.nonBlankString().next(),
+                        description = null,
+                        color = null,
+                        baseDate = null,
+                        countsBaseDay = null,
+                        repeats = emptyList(),
+                        endDate = null,
+                        overflowPolicy = null,
+                        tagIds = tagIdSet.map { tagId -> tagId.toString() },
+                    )
+
+                result shouldBe AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
         test("받을 수 없는 값은 앱 기능을 실행하지 않고 MCP와 같은 메시지로 알린다") {
             runTest {
                 val addDDayUseCase = mockk<AddDDayUseCase>()
@@ -197,7 +228,7 @@ class DDayAppActionTest :
         test("수정은 담은 값만 바꾸고, 종료일 지우기가 종료일보다 앞서며, 반복 간격을 담지 않으면 그대로 둔다") {
             runTest {
                 val stored =
-                    Arb.dday().next().let { dday ->
+                    Arb.dday().next().copy(isDeleted = false).let { dday ->
                         dday.copy(
                             detail =
                                 Arb
@@ -238,7 +269,7 @@ class DDayAppActionTest :
 
         test("수정할 디데이가 없으면 바뀐 수 0을, 종료일이 기준일보다 앞이 되면 실패를 알리고 앱 기능을 실행하지 않는다") {
             runTest {
-                val stored = Arb.dday().next().copy(detail = Arb.ddayDetail(baseDate = LocalDate(2026, 1, 1), endDate = LocalDate(2026, 12, 31)).next())
+                val stored = Arb.dday().next().copy(isDeleted = false, detail = Arb.ddayDetail(baseDate = LocalDate(2026, 1, 1), endDate = LocalDate(2026, 12, 31)).next())
                 val missingId = Arb.kotlinUuid().next()
                 val findDDayUseCase = mockk<FindDDayUseCase>()
                 val updateDDayUseCase = mockk<UpdateDDayUseCase>()
@@ -276,7 +307,7 @@ class DDayAppActionTest :
             }
         }
 
-        test("삭제·되돌리기는 바뀐 수를, 태그 연결·해제는 디데이 종류로 넘겨 완료를 돌려준다") {
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 삭제·되돌리기는 바뀐 수를, 태그 연결·해제는 디데이 종류로 넘겨 완료를 돌려준다") {
             runTest {
                 val ddayId = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
@@ -289,16 +320,17 @@ class DDayAppActionTest :
                 coEvery { restoreDDayUseCase(parameter = ddayId) } returns Result.success(changedCount)
                 coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val action = ddayAppActionOf(deleteDDayUseCase, restoreDDayUseCase, addEntityTagUseCase, removeEntityTagUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+                val action = ddayAppActionOf(deleteDDayUseCase, restoreDDayUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+                val tagAction = entityTagAppActionOf(addEntityTagUseCase, removeEntityTagUseCase)
 
                 action.delete(ddayId = ddayId.toString()) shouldBe AppActionChangedCount(changedCount = changedCount)
                 action.restore(ddayId = ddayId.toString()) shouldBe AppActionChangedCount(changedCount = changedCount)
-                action.tagAdd(ddayId = ddayId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
-                action.tagRemove(ddayId = ddayId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                tagAction.add(kind = AppActionEntityTagKind.DDAY, entityId = ddayId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                tagAction.remove(kind = AppActionEntityTagKind.DDAY, entityId = ddayId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
 
                 coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = ddayId, tagId = tagId)) }
                 coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = ddayId, tagId = tagId)) }
-                shouldThrow<AppActionException.InvalidArgument> { action.tagAdd(ddayId = ddayId.toString(), tagId = "not-id") }.message shouldBe "'tagId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { tagAction.add(kind = AppActionEntityTagKind.DDAY, entityId = ddayId.toString(), tagId = "not-id") }.message shouldBe "'tagId' must be an id."
             }
         }
 
@@ -321,6 +353,30 @@ class DDayAppActionTest :
 
         test("달력에 없는 날짜 처리 목록은 모든 처리를 한 번씩 담는다") {
             appActionDDayOverflowPolicyList shouldContainExactlyInAnyOrder DDayOverflowPolicy.entries
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 디데이의 상세는 없는 디데이와 같이 null을 돌려준다") {
+            runTest {
+                val dday = Arb.dday().next().copy(isDeleted = true)
+                val findDDayUseCase = mockk<FindDDayUseCase>()
+                every { findDDayUseCase(parameter = dday.id) } returns flowOf(Result.success(dday))
+                val action = ddayAppActionOf(findDDayUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+
+                action.get(ddayId = dday.id.toString()) shouldBe null
+            }
+        }
+
+        test("삭제된 디데이도 포함하는 조회는 삭제된 디데이를 돌려준다") {
+            runTest {
+                val dday = Arb.dday().next().copy(isDeleted = true)
+                val findDDayUseCase = mockk<FindDDayUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                every { findDDayUseCase(parameter = dday.id) } returns flowOf(Result.success(dday))
+                every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = dday.id)) } returns flowOf(Result.success(emptyList()))
+                val action = ddayAppActionOf(findDDayUseCase, getEntityTagUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+
+                action.getIncludingDeleted(ddayId = dday.id.toString())?.dday?.id shouldBe dday.id.toString()
+            }
         }
     })
 

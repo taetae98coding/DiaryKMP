@@ -14,6 +14,7 @@
 - [목록 빈 상태 디자인](./list-empty-state.md)
 - [목록 정렬 디자인](./list-sort.md)
 - [새로고침 디자인](./sync-refresh.md)
+- [RoutineHome 화면 디자인](./routine-home.md)
 - [페이지 조회 목록의 자리 표시 디자인](./paged-list-placeholder.md)
 - [메모 장소 카드 디자인](./memo-place-card.md)
 

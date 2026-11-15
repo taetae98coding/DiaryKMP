@@ -8,15 +8,16 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.RestoreChecklistUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
@@ -54,7 +55,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
 
         test("TC-5458d371-b068-4e29-b8b4-0b48ef52c120 조회한 체크리스트 페이지를 진행 정도와 함께 그대로 노출한다") {
             runTest(mainDispatcher) {
-                val summaryList = listOf(summary(), summary())
+                val summaryList = listOf(Arb.checklistSummary().next(), Arb.checklistSummary().next())
                 val viewModel = viewModel(pageChecklistUseCase = pageChecklistUseCase(summaryListFlow = flowOf(Result.success(summaryList))))
 
                 flowOf(viewModel.checklistPagingData.first()).asSnapshot() shouldBe summaryList
@@ -72,8 +73,8 @@ class ChecklistHomeViewModelTest : FunSpec() {
 
         test("TC-9d075582-e4a5-464d-b83b-2ad2a4e23669 체크리스트를 추가하면 별도 조작 없이 그 체크리스트가 든 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val existing = summary()
-                val added = summary()
+                val existing = Arb.checklistSummary().next()
+                val added = Arb.checklistSummary().next()
                 val summaryListFlow = MutableStateFlow(Result.success(listOf(existing)))
                 val viewModel = viewModel(pageChecklistUseCase = pageChecklistUseCase(summaryListFlow = summaryListFlow))
 
@@ -90,7 +91,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
 
         test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 체크 항목이 바뀌면 진행 정도가 바뀐 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val before = summary()
+                val before = Arb.checklistSummary().next()
                 val after = before.copy(checkedCount = before.checkedCount + 1, totalCount = before.totalCount + 1)
                 val summaryListFlow = MutableStateFlow(Result.success(listOf(before)))
                 val viewModel = viewModel(pageChecklistUseCase = pageChecklistUseCase(summaryListFlow = summaryListFlow))
@@ -212,18 +213,6 @@ class ChecklistHomeViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private const val MAX_COUNT = 50
-
-        private fun summary(): ChecklistSummary {
-            val totalCount = Arb.int().next().mod(MAX_COUNT)
-
-            return ChecklistSummary(
-                checklist = Arb.checklist(isDeleted = false).next(),
-                checkedCount = Arb.int().next().mod(totalCount + 1),
-                totalCount = totalCount,
-            )
-        }
-
         private fun viewModel(
             pageChecklistUseCase: PageChecklistUseCase = pageChecklistUseCase(summaryListFlow = flowOf(Result.success(emptyList()))),
             deleteChecklistUseCase: DeleteChecklistUseCase = mockk(),
@@ -237,7 +226,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
 
         private fun pageChecklistUseCase(summaryListFlow: Flow<Result<List<ChecklistSummary>>>): PageChecklistUseCase {
             val pageChecklistUseCase = mockk<PageChecklistUseCase>()
-            every { pageChecklistUseCase(parameter = Unit) } returns
+            every { pageChecklistUseCase() } returns
                 summaryListFlow.map { result -> result.map { summaryList -> PagingData.from(summaryList) } }
 
             return pageChecklistUseCase

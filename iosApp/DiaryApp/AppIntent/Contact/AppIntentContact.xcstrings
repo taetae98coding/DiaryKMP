@@ -547,19 +547,19 @@
         }
       }
     },
-    "Gets all details of a contact.": {
+    "Gets all details of a contact with its linked tags.": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gets all details of a contact."
-          }
-        },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "연락처 하나의 모든 정보를 가져옵니다."
+            "value": "연락처 하나의 모든 정보를 연결된 태그와 함께 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets all details of a contact with its linked tags."
           }
         }
       }
@@ -611,6 +611,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "연락처에 연결된, 완료하지 않은 메모를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Link ${tag} to ${contact}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${contact}에 ${tag} 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${tag} to ${contact}"
+          }
+        }
+      }
+    },
+    "Link Tag to Contact": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연락처에 태그 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Tag to Contact"
+          }
+        }
+      }
+    },
+    "Links a tag to a contact.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연락처에 태그를 연결합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a tag to a contact."
           }
         }
       }
@@ -768,6 +819,40 @@
         }
       }
     },
+    "Tag to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Link"
+          }
+        }
+      }
+    },
+    "Tag to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Unlink"
+          }
+        }
+      }
+    },
     "Unfavorite ${contact}": {
       "extractionState": "manual",
       "localizations": {
@@ -798,6 +883,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "연락처 즐겨찾기 해제"
+          }
+        }
+      }
+    },
+    "Unlink ${tag} from ${contact}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${contact}에서 ${tag} 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${tag} from ${contact}"
+          }
+        }
+      }
+    },
+    "Unlink Tag from Contact": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연락처에서 태그 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Tag from Contact"
+          }
+        }
+      }
+    },
+    "Unlinks a tag from a contact.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연락처에서 태그 연결을 해제합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a tag from a contact."
           }
         }
       }

@@ -2,12 +2,13 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.account.Account
-import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
-import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
+import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountCalendarMemoRepository
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
@@ -15,8 +16,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.every
@@ -27,20 +26,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.plus
 
 class GetCalendarMemoUseCaseTest :
     BehaviorSpec({
         Given("TC-87a0f67b-2959-4c4e-b84a-b7d286bb96aa: 두 계정에 각각 다른 메모가 저장되어 있고 현재 계정은 첫 번째 계정이다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val account = Arb.accountUser().next()
             val otherAccount = Arb.accountUser().next()
-            val memoList = listOf(calendarMemo(), calendarMemo())
-            val otherMemoList = listOf(calendarMemo())
+            val memoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
+            val otherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(memoList)
             every { accountCalendarMemoRepository.get(account = otherAccount, dateRange = dateRange) } returns flowOf(otherMemoList)
@@ -66,13 +64,13 @@ class GetCalendarMemoUseCaseTest :
         }
 
         Given("TC-a945cd58-5fd4-405c-b911-535a1e2dba26: 서로 겹치지 않는 두 기간에 각각 다른 메모가 저장되어 있다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val otherDateRange = nextDateRange(dateRange)
             val account = Arb.accountUser().next()
-            val memoList = listOf(calendarMemo(), calendarMemo())
-            val otherMemoList = listOf(calendarMemo())
+            val memoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
+            val otherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(memoList)
             every { accountCalendarMemoRepository.get(account = account, dateRange = otherDateRange) } returns flowOf(otherMemoList)
@@ -94,14 +92,14 @@ class GetCalendarMemoUseCaseTest :
         }
 
         Given("TC-bae1ca94-d997-4332-bedf-a2bdcb02cdce: 제목이 `기존 제목`인 메모를 표시 대상 기간으로 조회해 결과를 계속 관찰하고 있다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val account = Arb.accountUser().next()
-            val memo = calendarMemo().copy(title = "기존 제목 ${Arb.string().next()}")
+            val memo = Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next().copy(title = "기존 제목 ${Arb.string().next()}")
             val memoList = listOf(memo)
             val changedMemoList = listOf(memo.copy(title = "새 제목 ${Arb.string().next()}"))
             val memoListFlow = MutableStateFlow(memoList)
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns memoListFlow
             val useCase =
@@ -125,14 +123,14 @@ class GetCalendarMemoUseCaseTest :
         }
 
         Given("TC-c3675d26-ef37-4c62-9e27-2c722cd1a084: 두 계정에 각각 메모가 저장되어 있고 첫 번째 계정으로 조회해 결과를 계속 관찰하고 있다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val account = Arb.accountUser().next()
             val otherAccount = Arb.accountUser().next()
-            val memoList = listOf(calendarMemo())
-            val otherMemoList = listOf(calendarMemo(), calendarMemo())
+            val memoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
+            val otherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(memoList)
             every { accountCalendarMemoRepository.get(account = otherAccount, dateRange = dateRange) } returns flowOf(otherMemoList)
@@ -157,10 +155,10 @@ class GetCalendarMemoUseCaseTest :
         }
 
         Given("TC-e65c5ed2-5545-4355-aa68-1e7e9136faa7: 표시 대상 기간과 겹치는 메모가 없다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flowOf(emptyList())
             val useCase =
@@ -179,11 +177,11 @@ class GetCalendarMemoUseCaseTest :
         }
 
         Given("TC-d7ee70ee-72ec-4c00-97b6-d91436f70c67: 캘린더 메모 조회가 실패하도록 준비되어 있다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val account = Arb.accountUser().next()
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns flow { throw failure }
             val useCase =
@@ -205,10 +203,10 @@ class GetCalendarMemoUseCaseTest :
         }
 
         Given("TC-4af4f5ed-781c-4da1-b40b-50ba823c903e: 현재 사용자 계정 확인이 실패하도록 준비되어 있다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>(relaxed = true)
             val useCase =
                 GetCalendarMemoUseCase(
@@ -229,18 +227,18 @@ class GetCalendarMemoUseCaseTest :
         }
 
         Given("계정이 바뀐 뒤에도 이전 계정의 메모 변경이 이어지는 상황이 준비되어 있다") {
-            val dateRange = randomDateRange()
+            val dateRange = Arb.localDateRange().next()
             val account = Arb.accountUser().next()
             val otherAccount = Arb.accountUser().next()
-            val memoList = listOf(calendarMemo())
-            val changedMemoList = listOf(calendarMemo(), calendarMemo())
-            val otherMemoList = listOf(calendarMemo())
-            val changedOtherMemoList = listOf(calendarMemo(), calendarMemo(), calendarMemo())
+            val memoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
+            val changedMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
+            val otherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
+            val changedOtherMemoList = listOf(Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next(), Arb.calendarMemo(dateTime = Arb.memoDateTimeAllDay().next()).next())
             val memoListFlow = MutableStateFlow(memoList)
             val otherMemoListFlow = MutableStateFlow(otherMemoList)
             val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             val accountCalendarMemoRepository = mockk<AccountCalendarMemoRepository>()
             every { accountCalendarMemoRepository.get(account = account, dateRange = dateRange) } returns memoListFlow
             every { accountCalendarMemoRepository.get(account = otherAccount, dateRange = dateRange) } returns otherMemoListFlow
@@ -270,33 +268,8 @@ class GetCalendarMemoUseCaseTest :
         }
     })
 
-private fun calendarMemo(): CalendarMemo {
-    val start = randomDate()
-
-    return CalendarMemo(
-        id = Arb.kotlinUuid().next(),
-        title = Arb.string().next(),
-        color = Arb.long().next(),
-        dateTime =
-            MemoDateTime.AllDay(dateRange = start..start),
-    )
-}
-
-private fun randomDateRange(): LocalDateRange {
-    val start = randomDate()
-
-    return start..start.plus(6, DateTimeUnit.DAY)
-}
-
 private fun nextDateRange(dateRange: LocalDateRange): LocalDateRange {
     val start = dateRange.endInclusive.plus(1, DateTimeUnit.DAY)
 
     return start..start.plus(6, DateTimeUnit.DAY)
 }
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

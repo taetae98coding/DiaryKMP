@@ -20,12 +20,13 @@ import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectCalendarFilterTagUseCase
@@ -54,8 +55,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -76,7 +75,7 @@ class CalendarHomeScreenTagSelectTest {
         setCalendarHomeScreenWithFilter(
             birthdayList =
                 listOf(
-                    CalendarContactBirthday(contactId = Uuid.random(), name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8)),
+                    Arb.calendarContactBirthday().next().copy(name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8)),
                 ),
         )
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
@@ -133,7 +132,7 @@ class CalendarHomeScreenTagSelectTest {
         holidayList: List<Holiday> = emptyList(),
         weatherReport: CalendarWeatherReport = CalendarWeatherReport(),
     ) {
-        val getCalendarFilterUseCase = getCalendarFilterUseCase()
+        val getCalendarFilterUseCase = stubGetCalendarFilterUseCase()
         val filterViewModel = filterViewModel(getCalendarFilterUseCase = getCalendarFilterUseCase)
         val memoViewModel =
             CalendarHomeMemoViewModel(
@@ -183,9 +182,9 @@ class CalendarHomeScreenTagSelectTest {
         }
     }
 
-    private fun getCalendarFilterUseCase(): GetCalendarFilterUseCase =
+    private fun stubGetCalendarFilterUseCase(): GetCalendarFilterUseCase =
         mockk<GetCalendarFilterUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns selectedTagListFlow.map { tagList -> Result.success(tagList) }
+            every { useCase() } returns selectedTagListFlow.map { tagList -> Result.success(tagList) }
         }
 
     private fun filterViewModel(getCalendarFilterUseCase: GetCalendarFilterUseCase): CalendarHomeFilterViewModel {

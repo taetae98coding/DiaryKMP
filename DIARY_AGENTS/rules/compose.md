@@ -6,27 +6,19 @@
 
 **Screen 컴포저블은 `modifier` 외에 기본값을 두지 않는다.** 진입점마다 무엇이 주입되는지가 선언에 드러나야 하고, `koinViewModel()`처럼 호출부 문맥이 필요한 값이 컴포저블 안에 숨지 않아야 한다.
 
-**Scaffold 이하 컴포저블은 표현에 관한 파라미터에 모두 기본값을 둔다.**
+**Scaffold 이하 컴포저블은 표현에 관한 파라미터에 모두 기본값을 둔다.** preview와 테스트가 보여주려는 상태만 넘기게 하기 위해서다.
 
 | 파라미터 | 기본값 |
 | --- | --- |
-| `modifier` | `Modifier` |
 | `rememberXxx()` 팩토리가 있는 state 홀더 | 그 팩토리 호출 |
-| UI state provider | 기본값으로 생성한 state를 반환하는 람다 |
-| sealed UI state provider | 초기 상태(`Loading`, `Idle`)를 반환하는 람다 |
+| UI state provider | 기본값으로 생성한 state를 반환하는 람다. sealed UI state면 초기 상태(`Loading`, `Idle`) |
 | nullable 콜백 | `null` |
 | `Boolean` 플래그 | 비활성·기본 표현에 해당하는 값 |
 | 목록·`Flow`·`LazyPagingItems` | 비어 있는 값 |
 
 기본값으로 표현할 수 없는 도메인 데이터(식별자, 모델, 조회 결과)와 ViewModel, 내용을 채우는 `@Composable` trailing 슬롯은 필수로 남긴다.
 
-`expect` 컴포저블은 `expect` 선언에만 기본값을 두고, `actual` 선언은 기본값 없이 같은 파라미터 순서를 따른다.
-
-**선언 순서는 `필수 파라미터` → `modifier` → `나머지 선택 파라미터` → `trailing 슬롯`이다.**
-
-**호출부는 기본값과 같은 값을 다시 넘기지 않는다.** preview는 보여주려는 상태만 넘긴다.
-
-✅ 권장 예시:
+선언 순서는 `필수 파라미터` → `modifier` → `나머지 선택 파라미터` → `trailing 슬롯`이다. 호출부는 기본값과 같은 값을 다시 넘기지 않는다.
 
 ```kotlin
 @Composable
@@ -34,16 +26,18 @@ internal fun MemoHomeScreen(
     navigateToAdd: () -> Unit,
     componentVisibleProvider: () -> MemoHomeScaffoldComponentVisible,
     memoViewModel: MemoHomeViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 )
 
 @Composable
 internal fun MemoHomeScaffold(
     onEvent: (MemoHomeScaffoldEvent) -> Unit,
+    onMemoListEvent: (MemoListEvent) -> Unit,
     modifier: Modifier = Modifier,
     memoListState: MemoListState = rememberMemoListState(),
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
-    memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
 )
 ```
 
@@ -59,107 +53,36 @@ internal fun MemoHomeScaffold(
 - 홀더에 없는 값. ViewModel이 노출해 `collectAsStateWithLifecycle`로 얻은 UI state와 거기에서 파생한 값이 그렇다.
 - 홀더의 프로퍼티를 가공해 넘기는 값. 목록의 각 항목이 선택되었는지 같은 값이 그렇다.
 
-홀더를 받은 컴포저블은 본문에서 필요한 프로퍼티만 읽는다. `xxxProvider`를 받은 컴포저블은 본문에서 한 번 호출해 지역 변수로 두고 쓴다. 호출부는 `xxxProvider = { state.value }`처럼 읽는 코드를 람다에 담고, 람다 밖에서 미리 읽지 않는다. 홀더를 넘기면서 그 프로퍼티를 값으로도 함께 넘기지 않는다.
+홀더를 받은 컴포저블은 본문에서 필요한 프로퍼티만 읽는다. `xxxProvider`를 받은 컴포저블은 본문에서 한 번 호출해 지역 변수로 두고 쓴다. 호출부는 `xxxProvider = { state.value }`처럼 읽는 코드를 람다에 담고, 람다 밖에서 미리 읽지 않는다. 홀더를 넘기면서 그 프로퍼티를 값으로도 함께 넘기지 않는다(`state = state`와 `isSheetVisible = state.sheetState.isVisible`을 함께 넘기면 그 한 줄 때문에 호출부가 다시 구성된다).
 
 다음은 값으로 그대로 넘긴다.
 
 - 그 값이 바뀌면 어차피 그 컴포저블 전체가 다시 그려져야 하는 경우. 예: `DiaryCrossfade`의 `targetState`, `when` 분기의 대상
 - 호출부가 state가 아닌 상수나 파라미터를 넘기는 경우
-- 그리기나 배치에만 쓰는 값. `그리기·배치 단계로 미루기`를 따른다.
-
-⚠️ 비권장 예시:
 
 ```kotlin
-@Composable
-private fun WideContent(
-    state: WebDetailScaffoldState,
-    uiStateProvider: () -> WebDetailUiState,
-) {
-    Row {
-        WebDetailForm()
-        // 표시 방식과 URL을 본문에서 읽으므로 둘 중 하나만 바뀌어도 형제인 폼까지 다시 구성된다.
-        WebDetailPage(
-            viewMode = state.viewMode,
-            url = uiStateProvider().urlOrEmpty(),
-        )
-    }
-}
-
-@Composable
-internal fun WebDetailScaffold(state: WebDetailScaffoldState) {
-    WebDetailViewModeBottomSheetHost(
-        onEvent = onEvent,
-        state = state,
-        // 홀더를 넘기고도 표시 여부를 값으로 또 넘긴다. 이 한 줄 때문에 Scaffold가 다시 구성된다.
-        isSheetVisible = state.viewModeSheetState.isVisible,
-    )
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-@Composable
-private fun WideContent(
-    state: WebDetailScaffoldState,
-    uiStateProvider: () -> WebDetailUiState,
-) {
-    Row {
-        WebDetailForm()
-        WebDetailPage(
-            // 표시 방식은 홀더가 소유하므로 홀더를 넘긴다.
-            state = state,
-            // 조회 결과의 URL은 어느 홀더에도 없으므로 provider로 넘긴다.
-            urlProvider = { uiStateProvider().urlOrEmpty() },
-        )
-    }
-}
+WebDetailPage(
+    // 표시 방식은 홀더가 소유하므로 홀더를 넘긴다.
+    state = state,
+    // 조회 결과의 URL은 어느 홀더에도 없으므로 provider로 넘긴다.
+    urlProvider = { uiStateProvider().urlOrEmpty() },
+)
 ```
 
 무엇을 읽을지는 `자주 바뀌는 state의 파생 값`이 정한다.
 
 ### 그리기·배치 단계로 미루기
 
-**값을 그리기나 배치에만 쓰면 composition에서 읽지 않고 `offset { }`, `graphicsLayer { }`, `drawBehind { }` 같은 람다 Modifier 안에서 읽는다.** ([state reads](https://developer.android.com/develop/ui/compose/phases#state-reads))
+값을 그리기나 배치에만 쓰면 composition에서 읽지 않고 람다 Modifier 안에서 읽는다. ([state reads](https://developer.android.com/develop/ui/compose/phases#state-reads))
 
-**Modifier 확장 함수를 만들 때는 읽은 값이 아니라 state 홀더를 파라미터로 받는다.** 색이나 크기처럼 state가 아닌 값은 그대로 값으로 받는다.
-
-⚠️ 비권장 예시:
+**Modifier 확장 함수를 만들 때는 읽은 값이 아니라 state 홀더를 파라미터로 받는다.** 값으로 받으면 람다 Modifier를 써도 호출부가 composition에서 읽게 된다. 색이나 크기처럼 state가 아닌 값은 그대로 값으로 받는다.
 
 ```kotlin
-// 호출부가 composition에서 읽으므로 선택 범위가 바뀌면 그 주 전체가 다시 구성된다.
-modifier.calendarSelectBackground(
-    yearMonth = yearMonth,
-    weekOfMonth = weekOfMonth,
-    dateRange = selectState.dateRange,
-    color = CalendarDefaults.selectBackgroundColor(),
-)
-
-internal fun Modifier.calendarSelectBackground(
-    yearMonth: YearMonth,
-    weekOfMonth: Int,
-    dateRange: LocalDateRange?,
-    color: Color,
-): Modifier =
-    drawBehind {
-        if (dateRange == null) return@drawBehind
-        drawRect(color = color, topLeft = ..., size = ...)
-    }
-```
-
-✅ 권장 예시:
-
-```kotlin
-// 선택 범위를 그리기 단계에서 읽으므로 선택이 바뀌어도 다시 그리기만 한다.
-internal fun Modifier.calendarSelectBackground(
-    yearMonth: YearMonth,
-    weekOfMonth: Int,
-    state: CalendarSelectState,
-    color: Color,
-): Modifier =
+// dateRange: LocalDateRange?가 아니라 홀더를 받아 그리기 단계에서 읽는다.
+internal fun Modifier.calendarSelectBackground(state: CalendarSelectState, color: Color, /* ... */): Modifier =
     drawBehind {
         val dateRange = state.dateRange ?: return@drawBehind
-        drawRect(color = color, topLeft = ..., size = ...)
+        // ...
     }
 ```
 
@@ -169,27 +92,6 @@ internal fun Modifier.calendarSelectBackground(
 
 **state 변화를 계기로 부수 효과를 실행할 때는 그 값을 composition에서 읽어 `LaunchedEffect`의 key로 넘기지 않고, `snapshotFlow`로 코루틴 안에서 읽는다.** key에는 state 홀더와 ViewModel처럼 Effect 자체가 다시 시작되어야 할 때만 바뀌는 것을 둔다.
 
-⚠️ 비권장 예시:
-
-```kotlin
-@Composable
-private fun LoadWebPageEffect(
-    pageViewModel: WebDetailPageViewModel,
-    state: WebDetailScaffoldState,
-) {
-    // composition에서 읽으므로 표시 방식이 바뀔 때마다 다시 구성되고 코루틴이 다시 뜬다.
-    val viewMode = state.viewMode
-
-    LaunchedEffect(pageViewModel, viewMode) {
-        if (viewMode == WebDetailViewMode.RESPONSE) {
-            pageViewModel.load()
-        }
-    }
-}
-```
-
-✅ 권장 예시:
-
 ```kotlin
 LaunchedEffect(state, pageViewModel) {
     snapshotFlow { state.viewMode }
@@ -198,71 +100,22 @@ LaunchedEffect(state, pageViewModel) {
 }
 ```
 
-다음은 값을 key로 둔다.
-
-- 읽을 state가 없고 진입과 이탈 자체가 계기인 경우. `LaunchedEffect(Unit)`과 `LifecycleEventEffect`가 그렇다.
-- 값이 바뀌면 진행 중이던 작업을 취소하고 새 값으로 다시 시작해야 하는 경우. `snapshotFlow { }.collectLatest { }`로도 같은 결과를 내므로, 취소 경계가 코루틴 전체인 편이 읽기 쉬울 때만 key를 쓴다.
+값을 key로 두는 것은 값이 바뀌면 진행 중이던 작업을 취소하고 새 값으로 다시 시작해야 하고, 취소 경계가 코루틴 전체인 편이 `snapshotFlow { }.collectLatest { }`보다 읽기 쉬울 때뿐이다.
 
 ViewModel의 `Flow<XxxEffect>`를 받는 방향은 `UI Effect 수집`을 따른다.
 
 ## 표시 여부는 호출부가 정한다
 
-**컴포넌트는 자기 자신을 그릴지를 파라미터로 받지 않는다.** `isVisible`, `isVisibleProvider`를 받아 본문을 비우거나 `DiaryScaleVisibility`로 자신을 감추지 않고, 호출부가 `if`나 `DiaryScaleVisibility`로 컴포넌트를 감싼다.
+**컴포넌트는 자기 자신을 그릴지를 파라미터로 받지 않는다.** `isVisible`, `isVisibleProvider`를 받아 본문을 비우거나 `DiaryScaleVisibility`로 자신을 감추지 않고, 호출부가 `if`나 `DiaryScaleVisibility`로 컴포넌트를 감싼다. 컴포넌트가 받으면 호출부에서 그려지는지가 보이지 않는다.
 
 **호출부 본문에서 표시 여부를 읽으면 `state 읽기 지연`을 어기게 될 때는 `XxxHost` 컴포저블로 감싼다.** Host는 표시 여부를 state 홀더나 provider로 받아 자기 본문에서 읽고, 보일 때만 컴포넌트를 호출한다(`DiaryListSortBottomSheetHost`, `DiaryDatePickerDialogHost`). Scaffold의 `floatingActionButton`이나 상단 바의 `actions`처럼 따로 다시 구성되는 슬롯 람다 안에서는 Host 없이 그 람다 안에서 읽어도 된다.
 
-**컴포넌트의 일부만 감춰야 하면 컴포넌트에 부분 표시 플래그를 더하지 않고, Host가 감추지 않는 부분만 따로 그린다.**
+**컴포넌트의 일부만 감춰야 하면 컴포넌트에 부분 표시 플래그를 더하지 않고, Host가 감추지 않는 부분만 따로 그린다.** `DiaryListSortBarHost`는 정렬 컨트롤을 감출 때 끝 쪽 컨트롤만 `DiaryListSortBarTrailing`으로 그린다.
 
 다음은 이 규칙의 대상이 아니다.
 
 - 부모 컴포저블이 자식의 표시 여부를 정하는 것(Scaffold가 `componentVisibleProvider`로 떠 있는 버튼을 넣을지, 상단 바가 뒤로가기 버튼을 넣을지). 단, 그 결정으로 부모 자신이 통째로 비면 대상이 된다.
 - `DiaryScaleVisibility`, `DiaryScaleFadeVisibility`처럼 표시 전환 자체가 역할인 래퍼.
-
-⚠️ 비권장 예시:
-
-```kotlin
-@Composable
-internal fun MemoGeminiButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    // 버튼이 자기 표시 여부를 받는다. 호출부에서는 버튼이 그려지는지 보이지 않는다.
-    isVisibleProvider: () -> Boolean = { false },
-) {
-    if (!isVisibleProvider()) return
-
-    IconButton(onClick = onClick, modifier = modifier) { ... }
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-@Composable
-internal fun MemoGeminiButtonHost(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    isVisibleProvider: () -> Boolean = { false },
-) {
-    if (!isVisibleProvider()) return
-
-    MemoGeminiButton(onClick = onClick, modifier = modifier)
-}
-
-// 일부만 감추는 경우: 정렬 컨트롤을 감춰도 끝 쪽 컨트롤은 남긴다.
-@Composable
-public fun DiaryListSortBarHost(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    isSortVisibleProvider: () -> Boolean = { true },
-    trailing: @Composable (() -> Unit)? = null,
-) {
-    if (isSortVisibleProvider()) {
-        DiaryListSortBar(onClick = onClick, modifier = modifier, trailing = trailing)
-    } else if (trailing != null) {
-        DiaryListSortBarTrailing(modifier = modifier, trailing = trailing)
-    }
-}
-```
 
 ## ViewModel 파라미터 이름
 
@@ -277,30 +130,9 @@ Screen 안의 private Effect 컴포저블은 ViewModel을 하나만 받더라도
 
 Scaffold처럼 사용자 상호작용이 있는 화면 컴포저블은 상호작용마다 개별 콜백 파라미터를 나열하지 않고, sealed interface로 선언한 Event와 단일 `onEvent` 콜백으로 전달한다.
 
-- Event 타입은 `XxxScaffoldEvent`처럼 컴포저블 이름을 접두사로 하는 sealed interface로 선언하고, 각 상호작용을 `data object` 또는 `data class`로 표현한다.
+- Event 타입은 `XxxScaffoldEvent`처럼 컴포저블 이름을 접두사로 한다.
 - Event에는 처리에 필요한 최소 데이터만 담는다. 모델 전체 대신 식별자(id)처럼 처리 측이 실제로 사용하는 값만 전달한다.
 - Event의 해석(내비게이션, ViewModel 호출)은 Screen 컴포저블에서 `when` 분기로 처리한다.
-
-✅ 권장 예시:
-
-```kotlin
-internal sealed interface MemoHomeScaffoldEvent {
-    data object ClickAdd : MemoHomeScaffoldEvent
-
-    data class ClickMemo(
-        val id: Uuid,
-    ) : MemoHomeScaffoldEvent
-}
-
-MemoHomeScaffold(
-    onEvent = { event ->
-        when (event) {
-            is MemoHomeScaffoldEvent.ClickAdd -> navigateToAdd()
-            is MemoHomeScaffoldEvent.ClickMemo -> navigateToDetail(event.id)
-        }
-    },
-)
-```
 
 ### 재사용 컴포저블의 Event
 
@@ -310,39 +142,10 @@ MemoHomeScaffold(
 - 다이얼로그의 표시 여부를 Host 컴포저블이 소유하면 `onDismissRequest`는 Event에 넣지 않고 파라미터로 남긴다.
 - 처리에 필요한 값을 그 컴포저블이 모르면 `xxxProvider: () -> T` 파라미터로 받아 Event를 만들 때 읽는다. 상위에서 Event를 다시 감싸 값을 채우지 않는다.
 
-**Scaffold가 그런 컴포저블을 쓰면 자기 `XxxScaffoldEvent`와 섞지 않고 `onEvent`, `onXxxEvent`를 따로 받아 그대로 넘긴다.** Scaffold는 Event를 번역하지 않고, 해석은 Screen이 각 Event별 핸들러에서 한다. 여러 Scaffold가 같은 컴포저블을 쓰면 해석에 ViewModel이 필요 없는 핸들러는 그 컴포저블과 같은 패키지에 두고 함께 쓴다.
-
-⚠️ 비권장 예시:
+**Scaffold가 그런 컴포저블을 쓰면 자기 `XxxScaffoldEvent`와 섞지 않고 `onEvent`, `onXxxEvent`를 따로 받아 그대로 넘긴다.** Scaffold는 하위 컴포저블의 Event를 자기 Event로 번역하지 않고, 해석은 Screen이 각 Event별 핸들러에서 한다. 여러 Scaffold가 같은 컴포저블을 쓰면 해석에 ViewModel이 필요 없는 핸들러는 그 컴포저블과 같은 패키지에 두고 함께 쓴다.
 
 ```kotlin
-// Scaffold가 하위 컴포저블의 상호작용을 자기 Event로 번역한다.
-MemoTagPickerDialogHost(
-    dialogState = state.tagPickerDialogState,
-    onTagSelect = { id -> onEvent(MemoAddScaffoldEvent.Tag.Select(id = id)) },
-    onTagUnselect = { id -> onEvent(MemoAddScaffoldEvent.Tag.Unselect(id = id)) },
-    onPrimaryTagSelect = { id -> onEvent(MemoAddScaffoldEvent.Tag.SelectPrimary(id = id)) },
-    onPrimaryTagUnselect = { onEvent(MemoAddScaffoldEvent.Tag.UnselectPrimary) },
-    onTagAdd = { onEvent(MemoAddScaffoldEvent.Tag.MoveToAdd) },
-    onQueryChange = { query -> onEvent(MemoAddScaffoldEvent.Tag.ChangeQuery(query = query)) },
-)
-```
-
-✅ 권장 예시:
-
-```kotlin
-@Composable
-internal fun MemoAddScaffold(
-    onEvent: (MemoAddScaffoldEvent) -> Unit,
-    onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    MemoTagPickerDialogHost(
-        dialogState = state.tagPickerDialogState,
-        onEvent = onTagPickerEvent,
-    )
-}
-
-// Screen
+// Scaffold: MemoTagPickerDialogHost(dialogState = state.tagPickerDialogState, onEvent = onTagPickerEvent)
 MemoAddScaffold(
     onEvent = { event -> handleMemoAddEvent(event = event, ...) },
     onTagPickerEvent = { event -> handleMemoAddTagPickerEvent(event = event, ...) },
@@ -353,25 +156,9 @@ MemoAddScaffold(
 
 ViewModel이 노출하는 one-shot Effect(`Flow<XxxEffect>`)를 UI에서 수집할 때는 다음을 따른다.
 
-- Effect 수집 로직은 화면 컴포저블 본문에 두지 않고, 의도가 드러나는 이름의 별도 컴포저블 함수로 분리한다.
+- Effect 수집 로직은 화면 컴포저블 본문에 두지 않고, 의도가 드러나는 이름의 별도 컴포저블 함수(`LoginHomeScreenEffect`)로 분리한다.
 - Effect를 수집할 때는 `compose:core`의 `CollectEffect(effect) { value -> ... }`를 쓴다. 라이프사이클 인지 수집은 `CollectEffect`가 소유하므로 `flowWithLifecycle`을 직접 이어 붙이지 않는다.
 - 값이 바뀔 때 작업을 실행하는 트리거 `StateFlow`([viewmodel.md](viewmodel.md)의 `노출하는 Flow`)도 `CollectEffect`로 수집한다. 넘기는 Flow가 바뀌면 수집을 다시 시작하므로 `filterIsInstance()` 같은 연산자를 컴포저블 본문에서 이어 붙이지 않고 `onEffect`에서 UiState를 구분한다.
-
-✅ 권장 예시:
-
-```kotlin
-@Composable
-private fun SignInEffect(
-    navigateUp: () -> Unit,
-    effect: Flow<LoginHomeEffect> = emptyFlow(),
-) {
-    CollectEffect(effect) { value ->
-        when (value) {
-            is LoginHomeEffect.SignInSucceeded -> navigateUp()
-        }
-    }
-}
-```
 
 ## 생명주기는 호출자가 소유한다
 
@@ -391,29 +178,23 @@ CameraX의 `bindToLifecycle(owner, ...)`처럼 플랫폼 API가 `LifecycleOwner`
 
 ## Preview
 
-**UI를 그리는 컴포저블에는 Preview를 하나 이상 둔다.**
+**UI를 그리는 `public`, `internal` 컴포저블에는 Preview를 하나 이상 둔다.** `private` 컴포저블은 필수가 아니지만, 표현이 상태에 따라 갈리면 둔다.
 
-- `public`, `internal` 컴포저블에는 Preview를 반드시 하나 이상 둔다.
-- `private` 컴포저블은 필수가 아니지만, 표현이 상태에 따라 갈리면 두는 것이 좋다.
 - Preview 함수는 대상과 같은 파일에 `private`으로 두고 이름을 `대상이름Preview`로 한다.
-- 화면 단위는 `@ScreenPreview`, 그 이하 표현 단위는 `@ComponentPreview`를 붙이고 본문을 `DiaryTheme`으로 감싼다.
-- 아이콘 하나만 그리는 컴포저블은 `compose:core`의 `@IconPreview`를 붙인 단일 Preview로 두고, 본문은 `DiaryTheme`으로 감싼다.
+- 화면 단위는 `@ScreenPreview`, 그 이하 표현 단위는 `@ComponentPreview`, 아이콘 하나만 그리는 컴포저블은 `@IconPreview`(모두 `compose:core`)를 붙이고 본문을 `DiaryTheme`으로 감싼다.
 
 ### Preview를 두지 않는 컴포저블
 
 다음은 UI를 그리지 않으므로 Preview를 두지 않는다.
 
-- **Screen**: ViewModel과 내비게이션을 Scaffold에 연결하는 배선이다.
+- **Screen**: ViewModel과 내비게이션을 Scaffold에 연결하는 배선이다. 대신 Scaffold에는 Preview를 반드시 둔다.
 - **Content**: Scaffold 슬롯 안에서 자기 ViewModel을 얻어 표현 컴포저블에 연결하는 배선이다.
-- **Effect**: 부수 효과만 수행하고 아무것도 그리지 않는다.
-- **`rememberXxx` 팩토리**: state를 만들어 반환할 뿐 아무것도 그리지 않는다.
+- **Effect**, **`rememberXxx` 팩토리**: 아무것도 그리지 않는다.
 
 Content를 빼는 것은 다음 둘을 모두 만족할 때만이다. 하나라도 어긋나면 Preview를 둔다.
 
 - 자기 ViewModel을 직접 얻는다. Screen이 주입해 주는 것을 받기만 하면 Content가 아니다.
 - 자기 자신은 아무것도 그리지 않고 Preview가 있는 표현 컴포저블에 전부 위임한다. 레이아웃, 여백, 분기 표현이 Content 본문에 있으면 안 된다.
-
-**대신 Scaffold에는 Preview를 반드시 둔다.** Content가 위임하는 표현 컴포저블에도 Preview를 둔다.
 
 ### 상태별 Preview는 @PreviewParameter로 공급
 
@@ -426,92 +207,11 @@ Content를 빼는 것은 다음 둘을 모두 만족할 때만이다. 하나라�
 
 Provider의 `values`에 넣을 도메인 모델은 Preview마다 새로 만들지 않고 모듈의 Preview 팩토리 파일에 `previewXxx()` 팩토리로 두고 함께 쓴다. 파일 이름은 `feature:*:ui` 모듈은 `PreviewModel.kt`, `compose:*` 모듈은 `Preview<모듈명>.kt`(예: `PreviewMemo.kt`)다.
 
-⚠️ 비권장 예시:
-
-```kotlin
-@ScreenPreview
-@Composable
-private fun MemoAddScaffoldPreview() {
-    DiaryTheme {
-        MemoAddScaffold(onEvent = {})
-    }
-}
-
-// 상태 하나가 늘 때마다 본문이 그대로 복제된다.
-@ScreenPreview
-@Composable
-private fun MemoAddScaffoldInProgressPreview() {
-    DiaryTheme {
-        MemoAddScaffold(
-            onEvent = {},
-            uiStateProvider = { MemoAddUiState(isInProgress = true) },
-        )
-    }
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-private class MemoDetailUiStatePreviewParameter : PreviewParameterProvider<MemoDetailUiState> {
-    override val values: Sequence<MemoDetailUiState> =
-        sequenceOf(
-            MemoDetailUiState.Loading,
-            MemoDetailUiState.Content(id = Uuid.NIL, detail = MemoDetail.EMPTY.copy(title = "메모 제목"), isFinished = false),
-        )
-}
-
-@ScreenPreview
-@Composable
-private fun MemoDetailScaffoldPreview(
-    @PreviewParameter(MemoDetailUiStatePreviewParameter::class) uiState: MemoDetailUiState,
-) {
-    val detail = (uiState as? MemoDetailUiState.Content)?.detail ?: MemoDetail.EMPTY
-
-    DiaryTheme {
-        MemoDetailScaffold(
-            onEvent = {},
-            uiStateProvider = { uiState },
-            state = rememberMemoDetailFormState(initialDetail = detail),
-        )
-    }
-}
-```
-
 ## 권한 관리자 공유
 
-**한 Screen에서 `rememberPermissionManager()`는 한 번만 호출하고, 그 인스턴스를 권한 요청과 허용 여부 조회에 함께 넘긴다.** 호출한 자리마다 새 인스턴스가 생기므로, 요청과 조회가 다른 인스턴스를 쓰면 요청 결과가 조회 쪽 `isGranted`에 반영되지 않는다.
+**한 Screen에서 `rememberPermissionManager()`는 한 번만 호출하고, 그 인스턴스를 권한 요청과 허용 여부 조회(`rememberIsPermissionGranted(permission, permissionManager)`)에 함께 넘긴다.** 호출한 자리마다 새 인스턴스가 생기므로, 요청과 조회가 다른 인스턴스를 쓰면 요청 결과가 조회 쪽 `isGranted`에 반영되지 않는다.
 
 Screen이 만든 인스턴스는 파라미터로 내려보낸다. 요청과 조회를 함께 쓰는 컴포저블은 `PermissionManager`를 파라미터로 받고, 기본값에만 `rememberPermissionManager()`를 둔다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-@Composable
-internal fun PlaceHomeScreen() {
-    // 조회가 자기 인스턴스를 만든다.
-    val isGranted = rememberIsPermissionGranted(Permission.LOCATION)
-    // 요청이 또 다른 인스턴스를 만든다. 허용을 받아도 위의 isGranted는 그대로다.
-    val permissionManager = rememberPermissionManager()
-    val scope = rememberCoroutineScope()
-
-    DiaryMap(isMyLocationEnabled = isGranted)
-    Button(onClick = { scope.launch { permissionManager.request(Permission.LOCATION) } })
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-@Composable
-internal fun PlaceHomeScreen(permissionManager: PermissionManager) {
-    val isGranted = rememberIsPermissionGranted(Permission.LOCATION, permissionManager)
-    val scope = rememberCoroutineScope()
-
-    DiaryMap(isMyLocationEnabled = isGranted)
-    Button(onClick = { scope.launch { permissionManager.request(Permission.LOCATION) } })
-}
-```
 
 ## 테스트를 위한 슬롯·파라미터 금지
 
@@ -521,60 +221,20 @@ internal fun PlaceHomeScreen(permissionManager: PermissionManager) {
 
 1. 검증할 규칙을 담은 부분을 의도가 드러나는 이름의 컴포저블이나 함수로 분리하고 그것을 직접 테스트한다. 기다림, 재실행 판정, 조건 분기처럼 표현이 아닌 규칙은 Effect 컴포저블로 분리한다.
 2. 분리한 조각을 `internal`로 두어 같은 모듈의 테스트가 직접 구성하게 한다. 파라미터를 늘리지 않는다.
-3. 지도, 웹 표시 수단, 카메라 미리보기처럼 플랫폼 표시 요소를 그리는 부분 때문에 화면을 구성할 수 없으면, 그 부분이 `플랫폼별 표현은 Override로 바꿔 끼운다`의 Override로 그려지는지 확인하고 테스트에서 그 CompositionLocal에 대체 구현을 넣는다. Override는 운영에서 플랫폼별 구현을 바꿔 끼우는 경계라 테스트를 위한 슬롯이 아니다. 대체 구현으로 판정하는 것은 그 경계 바깥의 결과뿐이며, 경계 안쪽(실제 렌더링, 플랫폼 입력 처리, 플랫폼이 정하는 생명주기)의 결과는 대체 구현으로 판정하지 않는다.
+3. 지도, 웹 표시 수단, 카메라 미리보기처럼 플랫폼 표시 요소를 그리는 부분 때문에 화면을 구성할 수 없으면, 그 부분이 `플랫폼별 표현은 Override로 바꿔 끼운다`의 Override로 그려지는지 확인하고 테스트에서 그 CompositionLocal(`LocalDiaryMapContentOverride` 등)에 대체 구현을 넣는다. Override는 운영에서 플랫폼별 구현을 바꿔 끼우는 경계라 테스트를 위한 슬롯이 아니다. 대체 구현으로 판정하는 것은 그 경계 바깥의 결과뿐이며, 경계 안쪽(실제 렌더링, 플랫폼 입력 처리, 플랫폼이 정하는 생명주기)의 결과는 대체 구현으로 판정하지 않는다.
 4. 그래도 결정적으로 자동화할 수 없으면 자동화하지 않는다. 테스트 케이스 문서에 `작성하지 않는 이유`를 남기고, 통과시키려고 운영 코드의 구조를 바꾸지 않는다. 테스트만을 위해 새 Override를 만들지 않는다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-@Composable
-internal fun PlaceSearchDialog(
-    state: PlaceSearchDialogState,
-    // 운영 호출자는 하나뿐이고 항상 기본값을 쓴다. 테스트에서 지도를 빈 Box로 바꾸려고 연 슬롯이다.
-    map: @Composable () -> Unit = { PlaceSearchMap(state = state) },
-)
-```
-
-✅ 권장 예시:
-
-```kotlin
-// 지도는 운영에서 플랫폼 구현을 바꿔 끼우는 LocalDiaryMapContentOverride로 그려지므로, 테스트는 파라미터를 열지 않고 그 경계에 대체 구현을 넣는다.
-composeRule.setContent {
-    CompositionLocalProvider(LocalDiaryMapContentOverride provides testMap) {
-        PlaceSearchDialog(state = state)
-    }
-}
-```
 
 ## 플랫폼별 표현은 Override로 바꿔 끼운다
 
-**플랫폼마다 다른 표현으로 그리는 공통 컴포넌트와 플랫폼 표시 요소를 그리는 컴포넌트는 Material3의 Component Override API와 같은 모양으로 둔다.** `expect`/`actual`이나 전역 레지스트리로 갈라 두면 첫 composition 전에 세팅되었는지에 기대게 되고, 테스트와 Preview에서 바꿔 끼울 수 없다.
+**플랫폼마다 다른 표현으로 그리는 공통 컴포넌트와 플랫폼 표시 요소를 그리는 컴포넌트는 Material3의 Component Override API와 같은 모양으로 둔다(`DiaryFloatingActionButtonOverride`가 기준 구현이다).** `expect`/`actual`이나 전역 레지스트리로 갈라 두면 첫 composition 전에 세팅되었는지에 기대게 되고, 테스트와 Preview에서 바꿔 끼울 수 없다.
 
-- `commonMain`에 `XxxOverride` 인터페이스(`@Composable fun XxxOverrideScope.Xxx()`)와 `XxxOverrideScope`(`internal constructor`), 기본 구현 `object`, `staticCompositionLocalOf`로 만든 `LocalXxxOverride`를 같은 패키지에 둔다. 기본 구현은 Android·데스크톱·웹의 표현(`MaterialXxxOverride`)이나 실제 플랫폼 구현(`PlatformXxxOverride`)이다.
+- `commonMain`에 `XxxOverride` 인터페이스(`@Composable fun XxxOverrideScope.Xxx()`)와 `XxxOverrideScope`(`internal constructor`), 기본 구현, `staticCompositionLocalOf`로 만든 `LocalXxxOverride`를 같은 패키지에 둔다. 기본 구현은 Android·데스크톱·웹의 표현(`MaterialXxxOverride`)이나 실제 플랫폼 구현(`PlatformXxxOverride`)이다.
 - 공개 컴포저블은 받은 파라미터로 Scope를 만들어 `with(LocalXxxOverride.current) { scope.Xxx() }`로 그리고, 그 밖의 일은 하지 않는다.
 - iOS 구현은 `iosMain`의 `UiKitXxxOverride`로 두고, iOS Compose 루트에서 `ProvideUiKitComponentOverrides`가 한 번에 제공한다. 화면 코드는 플랫폼을 분기하지 않는다.
 - Scope에는 모든 구현이 그리는 데 필요한 값만 둔다. 테스트에서만 읽는 값을 Scope에 더하지 않는다.
-- 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니며 `expect`/`actual`을 쓴다.
-- 플랫폼별 표현을 두는 공통 컴포넌트는 [플랫폼별 컴포넌트 표현 범위](../../docs/design/platform-presentation.md)의 허용 목록(떠 있는 동작 버튼, 상단 바의 뒤로가기 버튼·동작 버튼·검색 입력)에 있는 것뿐이다. 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3 컴포넌트를 그대로 쓰고 Override를 만들지 않는다. 새 컴포넌트에 플랫폼별 표현이 필요하면 그 문서의 목록에 먼저 더한다. 지도처럼 플랫폼 표시 요소를 그리는 컴포넌트는 이 목록과 관계없이 Override로 둔다.
-
-✅ 권장 예시:
-
-```kotlin
-public interface DiaryFloatingActionButtonOverride {
-    @Composable
-    public fun DiaryFloatingActionButtonOverrideScope.FloatingActionButton()
-}
-
-public val LocalDiaryFloatingActionButtonOverride: ProvidableCompositionLocal<DiaryFloatingActionButtonOverride> =
-    staticCompositionLocalOf { MaterialDiaryFloatingActionButtonOverride }
-
-@Composable
-internal fun DiaryFloatingActionButton(onClick: () -> Unit, /* ... */ modifier: Modifier = Modifier) {
-    val scope = DiaryFloatingActionButtonOverrideScope(onClick = onClick, /* ... */ modifier = modifier)
-
-    with(LocalDiaryFloatingActionButtonOverride.current) { scope.FloatingActionButton() }
-}
-```
+- 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니다. Composable이 만드는 보조 class는 [di.md](di.md)의 `XxxFactory`로, 그 밖의 갈래는 `expect`/`actual`로 나눈다.
+- 플랫폼 구현이 dispatcher나 서버 같은 Koin 의존을 가지면(지도) 그 구현은 의존을 생성자로 받는 class로 두고, `App` 루트가 `AppDependencies`로 받아 제공한다. 한 feature 안에서만 쓰는 표시 요소(QR 카메라 미리보기)는 Override 대신 [di.md](di.md)의 `XxxContent`로 등록 클래스가 주입받는다. 그 플랫폼의 `PlatformXxxOverride` 기본값은 제공이 빠졌음을 알리는 구현으로 둔다([di.md](di.md)의 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`).
+- 플랫폼별 표현을 두는 공통 컴포넌트는 [플랫폼별 컴포넌트 표현 범위](../../docs/design/platform-presentation.md)의 허용 목록에 있는 것뿐이다. 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3 컴포넌트를 그대로 쓰고 Override를 만들지 않는다. 새 컴포넌트에 플랫폼별 표현이 필요하면 그 문서의 목록에 먼저 더한다. 지도처럼 플랫폼 표시 요소를 그리는 컴포넌트는 이 목록과 관계없이 Override로 둔다.
 
 ## Recomposition Loop (Cyclic Phase Dependency) 금지
 
@@ -585,15 +245,13 @@ internal fun DiaryFloatingActionButton(onClick: () -> Unit, /* ... */ modifier: 
 
 ## 시스템 영역 회피는 Scaffold inset이 맡는다
 
-**화면 단위의 시스템 영역 회피는 `Scaffold`의 `contentWindowInsets`와 `innerPadding`이 맡는다.** `innerPadding`에는 상단·하단 바 높이가, `contentWindowInsets`에는 떠 있는 버튼과 스낵바 자리가 들어 있다.
+**화면 단위의 시스템 영역 회피는 `Scaffold`의 `contentWindowInsets`와 `innerPadding`이 맡는다.**
 
 **소프트 키보드를 여는 입력이 있는 화면은 `contentWindowInsets`에 `DiaryScaffoldDefaults.contentWindowInsets`를 넘겨 본문 전체를 키보드 위로 줄인다.** `ScaffoldDefaults.contentWindowInsets`는 키보드를 포함하지 않는다. 떠 있는 버튼, `FloatingActionButtonMenu`, `snackbarHost` 슬롯의 스낵바도 본문과 함께 키보드 위로 올라간다. 슬롯 안에서 `imePadding()`처럼 inset을 다시 읽지 않는다. 조상이 소비하지 않은 시스템 내비게이션 바 높이가 한 번 더 빠진다.
 
 **가로 시스템 영역은 `AppNavigation`이 `NavDisplay`에 `Modifier.navigationHorizontalInsetsPadding()`으로 한 번 피하고 소비한다.** 목록·상세 배치처럼 화면 여럿이 가로로 나란히 놓이면 각 화면의 `Scaffold`가 같은 가로 inset을 따로 피해 시작 쪽이 아닌 화면의 본문이 그만큼 밀린다. iPad의 탭 사이드바는 사이드바 너비를 시작 쪽 safe area로 보고하므로 상세 영역이 사이드바 너비만큼 밀렸다. 화면은 `DiaryScaffoldDefaults.contentWindowInsets`를 그대로 쓰고 가로 inset을 따로 피하거나 소비하지 않는다.
 
-**`Modifier.fitInside(WindowInsetsRulers.Xxx.current)`는 본문 일부만 시스템 영역을 피하고 나머지는 그대로 두어야 할 때만 쓴다.** 예: 소프트 키보드가 열릴 때 결과 영역만 줄이고 상단 바와 탭 행은 키보드와 관계없이 제자리에 두는 경우. 여러 영역을 함께 피할 때는 `WindowInsetsRulers.innermostOf(...)`로 묶고, 붙이는 노드는 `fillMaxSize`나 `weight`처럼 앞선 modifier나 부모가 크기를 정한 자리에 둔다.
-
-- 판단 기준: https://developer.android.com/develop/ui/compose/system/evaluate-rulers
+**`Modifier.fitInside(WindowInsetsRulers.Xxx.current)`는 본문 일부만 시스템 영역을 피하고 나머지는 그대로 두어야 할 때만 쓴다.** 예: 소프트 키보드가 열릴 때 결과 영역만 줄이고 상단 바와 탭 행은 키보드와 관계없이 제자리에 두는 경우. 여러 영역을 함께 피할 때는 `RectRulers.innermostOf(...)`로 묶고, 붙이는 노드는 `fillMaxSize`나 `weight`처럼 앞선 modifier나 부모가 크기를 정한 자리에 둔다. ([WindowInsetsRulers](https://developer.android.com/develop/ui/compose/system/evaluate-rulers))
 
 rulers는 배치 단계에서만 값을 주므로 다음을 품는 영역에는 쓰지 않고 `DiaryScaffoldDefaults.contentWindowInsets`나 `innerPadding`을 쓴다.
 
@@ -606,51 +264,27 @@ rulers는 배치 단계에서만 값을 주므로 다음을 품는 영역에는 
 
 Robolectric 테스트에서는 `ViewCompat.dispatchApplyWindowInsets`를 `LocalView.current.rootView`에 보내 `WindowInsets`와 rulers를 함께 갱신한다. rulers의 inset은 `AndroidComposeView`의 부모가 받는다.
 
-⚠️ 비권장 예시:
+## 화면 본문은 맨 위로 돌아가기에 반응한다
 
-```kotlin
-Scaffold(topBar = { ... }) { innerPadding ->
-    // 조상이 소비하지 않은 시스템 내비게이션 바 높이까지 한 번 더 빠진다.
-    Content(modifier = Modifier.padding(innerPadding).imePadding())
-}
-```
+**화면 본문의 세로 스크롤 컨테이너에는 `compose:core`의 `Modifier.systemScroll(state) { state.animateScrollToItem(0) }`를 붙인다.** iOS에서 상태 표시줄을 누르면 실행되고 다른 플랫폼에서는 아무 일도 하지 않는다. 대상과 돌아가는 자리는 [맨 위로 돌아가기 스펙](../../docs/spec/client/scroll-to-top.md)이 정한다.
 
-✅ 권장 예시:
-
-```kotlin
-Scaffold(
-    topBar = { ... },
-    contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
-) { innerPadding ->
-    Content(modifier = Modifier.padding(innerPadding))
-}
-```
+- iOS는 스크롤 영역의 자리와 맨 위 여부를 보고 한 번에 하나를 골라 돌린다. 이 modifier는 붙은 노드의 자리와 `state`의 맨 위 여부를 iOS에 그대로 알린다. 그래서 `verticalScroll`을 쓰는 본문에서는 `verticalScroll`보다 앞에 붙여, 스크롤되는 내용이 아니라 보이는 영역의 자리를 알리게 한다.
+- `DiaryRefreshableGrid`, `DiaryRefreshableStaggeredGrid`, `DiaryInputColumn`, `MemoList`는 안에서 붙이므로 이 컴포넌트를 쓰는 화면은 다시 붙이지 않는다.
+- 본문 안이나 곁의 작은 스크롤 영역에는 붙이지 않는다. 다이얼로그와 Bottom Sheet 안에서는 붙여도 반응하지 않는다. iOS 구현이 화면 위에 창이 떠 있는 동안에는 실행하지 않기 때문이다.
 
 ## 자주 바뀌는 state의 파생 값
 
 **자주 바뀌는 state(`TextFieldState.text`, 스크롤·드래그 오프셋, 애니메이션 진행값)를 드물게 바뀌는 값으로 줄여 composition에서 읽으면 `derivedStateOf`로 감싼다.**
 
-- **상태 홀더가 그 값을 소유하면 홀더 안에서 `by derivedStateOf`로 선언한다.** 따로 `remember`로 감싸지 않는다.
-- **홀더 밖에서 만드는 지역 파생 값은 `remember(...) { derivedStateOf { ... } }`로 감싼다.**
-
-✅ 권장 예시:
-
-```kotlin
-@Stable
-internal class SearchHomeScaffoldState(
-    val queryState: TextFieldState,
-) {
-    // 지우기 버튼은 있음과 없음만 오가므로 글자마다 다시 그리지 않는다.
-    val hasQuery: Boolean by derivedStateOf { queryState.text.isNotEmpty() }
-}
-```
+- **상태 홀더가 그 값을 소유하면 홀더 안에서 `by derivedStateOf`로 선언한다**(`PlaceSearchDialogState.hasQuery`). 따로 `remember`로 감싸지 않는다.
+- 홀더 밖에서 만드는 지역 파생 값은 `remember(...) { derivedStateOf { ... } }`로 감싼다.
 
 ## 시각 속성은 Style, 동작과 배치는 Modifier
 
 **자체 컴포넌트의 한 노드에 시각 속성이 둘 이상 모이거나 시각 속성이 상태에 따라 달라지면 `Modifier.background`, `clip`, `padding`, `graphicsLayer`, `drawBehind`를 이어 붙이지 않고 `Modifier.styleable { }` 한 블록으로 선언한다.** 실험적 API이므로 파일 상단에 `@file:OptIn(ExperimentalFoundationStyleApi::class)`를 둔다.
 
-- 판단 기준: https://developer.android.com/develop/ui/compose/styles/styles-vs-modifiers
 - 이 버전에서 쓸 수 있는 속성과 되지 않는 것은 [Compose Styles API 조사](../../docs/reference/compose-styles.md)가 소유한다.
+- 공식 문서는 속성 정의를 디자인 시스템 계층으로 옮기는 재설계가 진행 중이라 [Styles 가이드](https://developer.android.com/develop/ui/compose/styles/styles-vs-modifiers)의 본문을 내렸고, Compose 1.13에서도 실험적 API로 남는다(2026-11 확인). Compose 버전을 올릴 때 API 모양이 바뀌었는지 먼저 확인하고 이 절과 조사 문서를 함께 고친다.
 
 Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 투명도, 변형처럼 그 노드 자신의 보이는 속성이다. 다음은 Modifier로 남긴다.
 
@@ -668,31 +302,11 @@ Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 투�
 
 **`DiaryTheme.colorScheme`처럼 `@Composable` getter로만 읽는 값은 composition에서 지역 변수로 읽어 블록에 캡처한다.** 반대로 state 홀더의 값은 블록 밖에서 읽어 넘기지 않고 블록 안에서 읽는다.
 
-**상태에 따라 달라지는 시각 속성은 `MutableStyleState`와 상태 블록으로 선언한다.** 활성 여부는 `rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }`로 넘기고 `disabled { }` 안에 비활성 표현을 둔다. 누름·호버·초점 표현이 필요하면 같은 `InteractionSource`를 `clickable`과 `rememberUpdatedStyleState`에 함께 넘긴다. 상태 사이의 전환은 디자인 문서가 정한 경우에만 `animate { }`로 감싼다.
+**상태에 따라 달라지는 시각 속성은 상태 블록으로 선언한다.** 활성 여부는 `rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }`로 넘기고 `disabled { }` 안에 비활성 표현을 둔다. 누름·호버·초점 표현이 필요하면 같은 `InteractionSource`를 `clickable`과 `rememberUpdatedStyleState`에 함께 넘긴다. 상태 사이의 전환은 디자인 문서가 정한 경우에만 `animate { }`로 감싼다.
 
 **[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:core`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `StyleScope` 확장 함수로 둔다. 예외로, 묶음이 `Shape`나 `Color` 하나라 `Style` 값으로 담을 수 없으면 `DiaryStyles`에 두지 않고 그 묶음을 쓰는 컴포넌트 모듈의 `XxxDefaults`에 두며 `컴포넌트 디자인 값은 XxxDefaults`를 따른다. `선택 배경`은 `CalendarDefaults.selectBackgroundColor()`와 `SELECT_BACKGROUND_ALPHA`, `캘린더 아이템 모양`은 `CalendarDefaults.itemShape`가 그 예다. 코드가 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
 
 **컴포넌트에 `style: Style` 파라미터는 다른 모양을 요구하는 두 번째 호출자가 생길 때 연다.** 기본값은 `Style`로 두고, 컴포넌트 안에서 `Modifier.styleable(styleState, 기본 Style, style)`처럼 기본 Style 뒤에 붙여 호출자가 속성 단위로 덮어쓰게 한다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-Text(
-    text = text,
-    modifier =
-        modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(color = color)
-            .basicMarquee(iterations = Int.MAX_VALUE)
-            .padding(1.dp),
-)
-
-DiaryFlexBox(
-    modifier = modifier.graphicsLayer { alpha = if (isEnabled) 1F else DISABLED_ALPHA },
-)
-```
-
-✅ 권장 예시:
 
 ```kotlin
 @file:OptIn(ExperimentalFoundationStyleApi::class)
@@ -712,7 +326,7 @@ Text(
 val styleState = rememberUpdatedStyleState(interactionSource = null) { it.isEnabled = isEnabled }
 
 DiaryFlexBox(
-    modifier = modifier.styleable(styleState) { disabled { alpha(DISABLED_ALPHA) } },
+    modifier = modifier.styleable(styleState) { disabled { dimmed() } },
 )
 
 Row(
@@ -721,26 +335,13 @@ Row(
             .selectable(selected = isSelected, onClick = onClick, role = Role.RadioButton)
             .styleable(style = DiaryTheme.styles.bottomSheetRow),
 )
-
-val shape = MaterialTheme.shapes.medium
-
-Column(
-    modifier =
-        modifier
-            .styleable {
-                shape(shape)
-                clip()
-                // state 홀더의 값은 블록 안에서 읽는다.
-                background(state.color)
-            }.clickable(onClick = dialogState::show),
-)
 ```
 
 ## 컴포넌트 디자인 값은 XxxDefaults
 
-**디자인 문서에 자기 절이 있는 컴포넌트는 그 절이 정한 크기, 간격, 모양, 불투명도, 줄 수 같은 값을 `XxxDefaults` 객체 하나에 모은다.** 이름은 컴포넌트 이름에 `Defaults`를 붙이고, 프로퍼티 이름은 디자인 문서의 표현과 맞춘다. 파일마다 `private val`로 흩어 두지 않는다.
+**디자인 문서에 자기 절이 있는 컴포넌트는 그 절이 정한 크기, 간격, 모양, 불투명도, 줄 수 같은 값을 `XxxDefaults` 객체 하나에 모은다(`CalendarBarTextDefaults`).** 이름은 컴포넌트 이름에 `Defaults`를 붙이고, 프로퍼티 이름은 디자인 문서의 표현과 맞춘다. 파일마다 `private val`로 흩어 두지 않는다.
 
-- 여러 모듈이 쓰는 `compose:*` 컴포넌트는 `public object`, 한 feature 안에서만 쓰는 컴포넌트는 `internal object`로 두고, 컴포넌트와 같은 패키지의 `XxxDefaults.kt`에 둔다.
+- 여러 모듈이 쓰는 `compose:*` 컴포넌트는 `public object`, 한 모듈 안에서만 쓰는 컴포넌트는 `internal object`로 두고, 컴포넌트와 같은 패키지의 `XxxDefaults.kt`에 둔다.
 - `Dp`, `TextUnit`, `Shape`처럼 객체인 값은 PascalCase 프로퍼티(`CornerSize`)로, `Int`, `Float`인 값은 `const val`과 SCREAMING_SNAKE_CASE(`MAX_HEIGHT_IN_LINES`)로 둔다.
 - 컴포지션에서만 얻을 수 있는 값(`MaterialShapes`의 `toShape()`, 테마 색)은 `@Composable` getter로 둔다. 속성이 둘 이상 모인 컴포넌트 전용 묶음은 `Style` 값으로 둘 수 있다.
 - [공통 여백과 간격](../../docs/design/dimens.md)과 [공통 스타일](../../docs/design/styles.md)이 이름 붙인 값과 뜻이 같으면 Defaults에 숫자를 다시 두지 않고 `DiaryTheme.dimens`, `DiaryTheme.styles`를 그대로 쓴다.
@@ -748,26 +349,13 @@ Column(
 - 테스트는 Defaults를 기대값으로 쓰지 않고 디자인 문서의 숫자를 그대로 적는다.
 - Preview의 예시 크기와 벡터 아이콘 경로의 숫자는 대상이 아니다.
 
-⚠️ 비권장 예시:
+## 클릭 동작의 접근성 이름
 
-```kotlin
-private val TitleCornerSize = 12.dp
-private val TitleHorizontalPadding = 8.dp
-private val TitleVerticalPadding = 4.dp
-```
-
-✅ 권장 예시:
-
-```kotlin
-internal object CalendarHomeYearMonthTitleDefaults {
-    val CornerSize: Dp = 12.dp
-    val HorizontalPadding: Dp = 8.dp
-}
-```
+컴포넌트가 이미 가진 클릭 동작에 접근성 이름만 붙일 때는 `Modifier.semantics { onClick(label = ..., action = null) }`로 `action`을 비워 둔다. `action`을 넘기면 컴포넌트의 클릭 동작을 덮어쓴다.
 
 ## 아이콘은 Material Symbols Rounded를 Kotlin `ImageVector`로 옮긴다
 
-**아이콘은 [Google Fonts의 Material Symbols](https://fonts.google.com/icons)에서 `Rounded` 스타일로 내려받은 Android XML을 `compose:core`의 `DiaryIcons.<PascalCase 이름>` Kotlin 파일로 옮겨 두고, `compose:core`의 아이콘 컴포저블이 감싼다.** Material Icons 라이브러리(`material-icons-core`, `material-icons-extended`)는 더 이상 유지되지 않으므로 의존하지 않는다. `composeResources/drawable`에 두지 않는다. 리소스는 실행 중에 XML을 읽어 파싱하고, 웹에서는 비동기로 읽혀 첫 프레임에 아이콘이 빌 수 있다.
+**아이콘은 [Google Fonts의 Material Symbols](https://fonts.google.com/icons)에서 `Rounded` 스타일로 내려받은 Android XML을 `compose:core`의 `DiaryIcons.<PascalCase 이름>` Kotlin 파일로 옮겨 두고, `compose:core`의 아이콘 컴포저블이 감싼다(`ArrowBack.kt`와 `NavigateUpIcon`이 기준 구현이다).** Material Icons 라이브러리(`material-icons-core`, `material-icons-extended`)는 [더 이상 유지되지 않으므로](https://developer.android.com/develop/ui/compose/graphics/images/material) 의존하지 않는다. `composeResources/drawable`에 두지 않는다. 리소스는 실행 중에 XML을 읽어 파싱하고, 웹에서는 비동기로 읽혀 첫 프레임에 아이콘이 빌 수 있다.
 
 - 스타일은 `Rounded`, 나머지 축은 기본값(Weight 400, Grade 0, Optical size 24)으로 둔 XML을 받는다. 파일과 프로퍼티 이름은 옛 Material Icons 이름(`clear`, `place`, `error_outline`)이 아니라 Material Symbols의 현재 이름(`close`, `location_on`, `error`)을 PascalCase로 쓴다(`location_on` → `DiaryIcons.LocationOn`, `LocationOn.kt`).
 - Fill 축은 기본값 0으로 둔다. 선택·활성 상태를 채운 모양으로 구분하는 짝의 채운 쪽(즐겨찾기 별)과 채운 도형 자체가 뜻인 아이콘(swipe 자리표시 원)만 Fill 1을 쓰고, 이름 끝에 `Fill`을 붙인다(`Star`와 `StarFill`).
@@ -775,48 +363,3 @@ internal object CalendarHomeYearMonthTitleDefaults {
 - 벡터는 처음 읽을 때 한 번만 만들도록 `by lazy`로 선언한다.
 - 화면과 컴포넌트는 `compose:core`의 `XxxIcon` 컴포저블을 쓴다. `DiaryIcons`의 아이콘은 기본으로 `internal`로 두어 `compose:core` 안에서만 쓰인다. 다른 모듈이 벡터 자체를 넘겨야 할 때만(예: iOS `UITab`이 `UIImage`를 요구하는 탭 아이콘) 그 프로퍼티를 `public`으로 둔다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`).
 - Google, Apple처럼 브랜드 가이드가 모양과 색을 정하는 로고는 Material Symbols가 아니므로 각 `XxxIcon` 파일 안에서 `ImageVector.Builder`로 직접 그린다.
-
-```kotlin
-internal val DiaryIcons.ArrowBack: ImageVector by lazy {
-    ImageVector
-        .Builder(
-            name = "DiaryIcons.ArrowBack",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 960.0f,
-            viewportHeight = 960.0f,
-            autoMirror = true,
-        ).apply {
-            path(fill = SolidColor(Color.Black)) {
-                moveTo(313.0f, 520.0f)
-                // ...
-                close()
-            }
-        }.build()
-}
-```
-
-⚠️ 비권장 예시:
-
-```kotlin
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-
-Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = contentDescription)
-```
-
-✅ 권장 예시:
-
-```kotlin
-@Composable
-public fun NavigateUpIcon(
-    modifier: Modifier = Modifier,
-    contentDescription: String? = null,
-) {
-    Icon(
-        imageVector = DiaryIcons.ArrowBack,
-        contentDescription = contentDescription,
-        modifier = modifier,
-    )
-}
-```

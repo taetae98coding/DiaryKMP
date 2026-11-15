@@ -10,6 +10,8 @@ internal sealed interface WebDetailScaffoldEvent {
 
     data object ClickUpdate : WebDetailScaffoldEvent
 
+    data object ClickShare : WebDetailScaffoldEvent
+
     data object ClickOpenInNew : WebDetailScaffoldEvent
 
     data object ClickDelete : WebDetailScaffoldEvent

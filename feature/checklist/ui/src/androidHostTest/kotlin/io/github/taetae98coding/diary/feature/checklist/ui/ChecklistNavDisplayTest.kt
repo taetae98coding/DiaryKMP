@@ -34,6 +34,7 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
@@ -85,7 +86,6 @@ class ChecklistNavDisplayTest {
     private var detailEffect: ChecklistDetailEffect? = null
     private var homeSummaryList: List<ChecklistSummary> = emptyList()
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -99,7 +99,7 @@ class ChecklistNavDisplayTest {
 
     @Test
     fun `TC-d3047469-1345-4506-aa74-4099ec6046b5 목록의 체크리스트를 선택하면 그 체크리스트의 ChecklistDetail 화면으로 이동한다`() {
-        val summaryList = listOf(testChecklistSummary(), testChecklistSummary())
+        val summaryList = listOf(Arb.checklistSummary().next(), Arb.checklistSummary().next())
         setNavDisplay(summaryList = summaryList)
         waitUntilDisplayed(summaryList.last())
 
@@ -208,7 +208,7 @@ class ChecklistNavDisplayTest {
 
     @Test
     fun `TC-95a0e2bf-e1e2-4e69-b3d1-77f9eaa4ee7d TC-57ac8395-6eb7-4e2d-836d-f1de6a7e4b3e 상세에서 삭제하면 ChecklistHome으로 돌아가고 삭제 안내와 실행 취소를 표시하지 않는다`() {
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         detailEffect = ChecklistDetailEffect.DeleteSucceeded
         setNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)
@@ -225,7 +225,7 @@ class ChecklistNavDisplayTest {
 
     @Test
     fun `TC-fbda84ec-5ff3-4745-a058-3891d59f1884 상세에서 뒤로가면 반영하지 않은 내용을 저장하지 않고 ChecklistHome 화면으로 돌아간다`() {
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         setNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)
         composeRule.onNode(card(summary)).performClick()
@@ -244,7 +244,7 @@ class ChecklistNavDisplayTest {
 
     @Test
     fun `TC-546a404f-b57e-4a88-9208-f2208d629640 화면을 떠났다가 다시 들어오면 저장된 내용과 처음 정렬로 다시 시작한다`() {
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         setNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)
         composeRule.onNode(card(summary)).performClick()
@@ -270,7 +270,7 @@ class ChecklistNavDisplayTest {
 
     @Test
     fun `TC-2ec43fc0-bb37-4d14-b8aa-993e3e6c24b3 앱을 다시 실행해 진입하면 저장된 내용과 처음 정렬로 시작한다`() {
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         backStack.add(ChecklistDetailNavKey(id = summary.checklist.id))
 
         setNavDisplay(summaryList = listOf(summary))
@@ -283,7 +283,7 @@ class ChecklistNavDisplayTest {
 
     @Test
     fun `TC-5b496990-a97c-4c7b-9525-8335ca0ae0c5 TC-9651b990-c556-4289-9daa-2391ba3ae2c2 ChecklistHome과 ChecklistDetail 진입만으로는 서버와 맞추지 않는다`() {
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         setNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)
 
@@ -341,7 +341,6 @@ class ChecklistNavDisplayTest {
 
     @Composable
     private fun NavDisplayTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -429,14 +428,14 @@ class ChecklistNavDisplayTest {
 
         fun positionSummaryList(): List<ChecklistSummary> =
             List(POSITION_COUNT) { index ->
-                testChecklistSummary(titlePrefix = "${index.toString().padStart(length = 2, padChar = '0')}-")
+                Arb.checklistSummary(titlePrefix = "${index.toString().padStart(length = 2, padChar = '0')}-").next()
             }
 
         fun item(content: String): ChecklistItem = Arb.checklistItem(isChecked = false, isDeleted = false, content = content).next()
     }
 }
 
-// 체크리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 체크리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object ChecklistNavDisplayMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

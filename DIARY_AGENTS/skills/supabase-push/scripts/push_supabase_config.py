@@ -45,10 +45,16 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         description="Push Diary Supabase config without persisting credentials."
     )
     parser.add_argument("--flavor", required=True, choices=("dev", "real"))
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--dry-run",
         action="store_true",
         help="validate inputs and print a redacted summary without calling Supabase",
+    )
+    mode.add_argument(
+        "--diff",
+        action="store_true",
+        help="run the read-only `supabase config diff` with the same environment instead of pushing",
     )
     return parser.parse_args(argv)
 
@@ -333,7 +339,7 @@ def main(argv: Sequence[str]) -> int:
             "--workdir",
             str(root),
             "config",
-            "push",
+            "diff" if args.diff else "push",
             "--project-ref",
             project_ref,
         )

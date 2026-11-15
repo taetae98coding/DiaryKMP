@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -41,7 +42,11 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.plus
 import kotlin.uuid.Uuid
 
 class MemoFinishedListViewModelTest : FunSpec() {
@@ -220,6 +225,53 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-3699fead-e7af-4daf-b0a4-98de4ba4e490 시작 날짜가 다른 메모 묶음마다 그 날짜의 헤더를 둔다") {
+            runTest(mainDispatcher) {
+                val firstDate = Arb.kotlinxLocalDate().next()
+                val secondDate = firstDate.plus(1, DateTimeUnit.DAY)
+                val firstMemo = memoOf(dateTime = MemoDateTime.AllDay(dateRange = firstDate..firstDate))
+                val secondMemo = memoOf(dateTime = MemoDateTime.AllDay(dateRange = secondDate..secondDate))
+                val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(firstMemo, secondMemo))))
+                val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase)
+
+                viewModel.memoPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe
+                        listOf(
+                            MemoListItem.DateHeader(date = firstDate),
+                            MemoListItem.Content(memo = firstMemo),
+                            MemoListItem.DateHeader(date = secondDate),
+                            MemoListItem.Content(memo = secondMemo),
+                        )
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-8068ed89-cbd3-49ee-bcc2-d877c3d6c82f 시작 날짜가 같고 시작 시각이 다른 메모들에는 날짜 헤더를 하나만 둔다") {
+            runTest(mainDispatcher) {
+                val date = Arb.kotlinxLocalDate().next()
+                val morningMemo =
+                    memoOf(dateTime = MemoDateTime.DateTime(start = LocalDateTime(date, LocalTime(9, 0)), endInclusive = LocalDateTime(date, LocalTime(10, 0))))
+                val afternoonMemo =
+                    memoOf(dateTime = MemoDateTime.DateTime(start = LocalDateTime(date, LocalTime(13, 0)), endInclusive = LocalDateTime(date, LocalTime(14, 0))))
+                val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns
+                    flowOf(Result.success(PagingData.from(listOf(morningMemo, afternoonMemo))))
+                val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase)
+
+                viewModel.memoPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe
+                        listOf(
+                            MemoListItem.DateHeader(date = date),
+                            MemoListItem.Content(memo = morningMemo),
+                            MemoListItem.Content(memo = afternoonMemo),
+                        )
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-d798dbeb-65ec-4aec-ad4f-17fe699c5c1e 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val memo =
@@ -301,6 +353,8 @@ class MemoFinishedListViewModelTest : FunSpec() {
     }
 
     public companion object {
+        private fun memoOf(dateTime: MemoDateTime): Memo = Arb.memo().next().let { memo -> memo.copy(detail = memo.detail.copy(dateTime = dateTime)) }
+
         private fun viewModel(
             pageFinishedMemoUseCase: PageFinishedMemoUseCase = finishedMemoUseCase(),
             restartMemoUseCase: RestartMemoUseCase = mockk(),

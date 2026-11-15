@@ -2,7 +2,9 @@
 
 기준 스펙: [태그 필터 스펙](../spec/client/tag-filter.md)
 
-이 문서는 MemoHome 목록, CalendarHome 화면과 DDayHome 화면이 함께 사용하는 태그 필터의 표현과 조작을 다룬다. 필터 아이콘 버튼을 어디에 두는지와 Bottom Sheet 아래에 무엇이 남는지는 화면마다 다르므로 [MemoHome 목록 디자인](./memo-home.md)의 `필터 진입`, [CalendarHome 디자인](./calendar-home.md)의 `태그 필터 진입`과 [DDayHome 화면 디자인](./dday-home.md)의 `필터 진입`에서 다룬다.
+이 문서는 MemoHome 목록, CalendarHome 화면, DDayHome 화면과 RoutineHome 화면이 함께 사용하는 태그 필터의 표현과 조작을 다룬다. 필터 아이콘 버튼을 어디에 두는지와 Bottom Sheet 아래에 무엇이 남는지는 화면마다 다르므로 [MemoHome 목록 디자인](./memo-home.md)의 `필터 진입`, [CalendarHome 디자인](./calendar-home.md)의 `태그 필터 진입`, [DDayHome 화면 디자인](./dday-home.md)의 `필터 진입`과 [RoutineHome 화면 디자인](./routine-home.md)의 `필터 진입`에서 다룬다. RoutineHome은 목록 보기와 달력 보기가 같은 필터 버튼과 같은 선택을 함께 쓴다.
+
+RoutineHome의 Bottom Sheet는 태그 필터와 함께 보기 범위를 담으므로, 제목과 영역 구성, 스크롤 범위, 필터 아이콘 버튼의 이름은 [RoutineHome 화면 디자인](./routine-home.md)의 `필터 Bottom Sheet 구성`이 소유한다. 이 문서의 규칙 중 `필터 적용 상태`, 태그 칩의 표현과 선택 조작, `태그 추가 칩`, `선택 전체 해제 버튼`만 그 화면에 적용된다.
 
 MemoHome의 Bottom Sheet는 태그 필터와 함께 유무 필터를 담으므로, 제목과 영역 구성, 스크롤 범위, 필터 아이콘 버튼의 문구는 [MemoHome 목록 디자인](./memo-home.md)이 소유한다. 이 문서의 규칙 중 태그 칩의 표현과 선택 조작, `태그 추가 칩`, `선택 전체 해제 버튼`만 그 화면에 적용되며, 그 화면에서 태그 필터가 적용되지 않는 동안의 표현은 [MemoHome 목록 디자인](./memo-home.md)이 소유한다.
 

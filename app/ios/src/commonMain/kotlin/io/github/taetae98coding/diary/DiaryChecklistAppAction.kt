@@ -1,10 +1,12 @@
 package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklist
+import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistDetail
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistItem
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistItemSortValue
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistSummary
 import io.github.taetae98coding.diary.work.appaction.checklist.ChecklistAppAction
+import io.github.taetae98coding.diary.work.appaction.checklist.ChecklistItemAppAction
 import io.github.taetae98coding.diary.work.appaction.checklist.filterBySearchQuery
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
 import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
@@ -53,6 +55,7 @@ public data class DiaryAppActionChecklistItemInChecklist(
 public data class DiaryAppActionChecklistDetail(
     val checklist: DiaryAppActionChecklist,
     val items: List<DiaryAppActionChecklistItem>,
+    val tags: List<DiaryAppActionTag>,
 )
 
 public object DiaryChecklistAppAction {
@@ -65,16 +68,19 @@ public object DiaryChecklistAppAction {
     public suspend fun get(
         checklistId: String,
         itemSort: DiaryAppActionChecklistItemSort?,
-    ): DiaryAppActionChecklistDetail? =
-        checklistAppAction().get(checklistId = checklistId, itemSort = itemSort?.toValue())?.let { detail ->
-            DiaryAppActionChecklistDetail(checklist = detail.checklist.toDiary(), items = detail.items.map { item -> item.toDiary() })
-        }
+    ): DiaryAppActionChecklistDetail? = checklistAppAction().get(checklistId = checklistId, itemSort = itemSort?.toValue())?.toDiary()
+
+    public suspend fun getIncludingDeleted(
+        checklistId: String,
+        itemSort: DiaryAppActionChecklistItemSort?,
+    ): DiaryAppActionChecklistDetail? = checklistAppAction().getIncludingDeleted(checklistId = checklistId, itemSort = itemSort?.toValue())?.toDiary()
 
     public suspend fun add(
         title: String,
         checklistDescription: String?,
         items: List<String>,
-    ): String = checklistAppAction().add(title = title, description = checklistDescription, items = items).id
+        tagIds: List<String>,
+    ): String = checklistAppAction().add(title = title, description = checklistDescription, items = items, tagIds = tagIds).id
 
     public suspend fun update(
         checklistId: String,
@@ -87,17 +93,19 @@ public object DiaryChecklistAppAction {
     public suspend fun delete(checklistId: String): Int = checklistAppAction().delete(checklistId = checklistId).changedCount
 
     public suspend fun restore(checklistId: String): Int = checklistAppAction().restore(checklistId = checklistId).changedCount
+}
 
-    public suspend fun itemAdd(
+public object DiaryChecklistItemAppAction {
+    public suspend fun add(
         checklistId: String,
         content: String,
-    ): Int = checklistAppAction().itemAdd(checklistId = checklistId, content = content).changedCount
+    ): Int = checklistItemAppAction().add(checklistId = checklistId, content = content).changedCount
 
-    public suspend fun itemCheck(itemId: String): Int = checklistAppAction().itemCheck(itemId = itemId).changedCount
+    public suspend fun check(itemId: String): Int = checklistItemAppAction().check(itemId = itemId).changedCount
 
-    public suspend fun itemUncheck(itemId: String): Int = checklistAppAction().itemUncheck(itemId = itemId).changedCount
+    public suspend fun uncheck(itemId: String): Int = checklistItemAppAction().uncheck(itemId = itemId).changedCount
 
-    public suspend fun itemDelete(itemId: String): Int = checklistAppAction().itemDelete(itemId = itemId).changedCount
+    public suspend fun delete(itemId: String): Int = checklistItemAppAction().delete(itemId = itemId).changedCount
 }
 
 // 검색 동작이 없어 체크리스트와 항목 선택 목록의 검색 칸이 쓴다.
@@ -121,6 +129,8 @@ public object DiaryChecklistSearchAppAction {
 
 private fun checklistAppAction(): ChecklistAppAction = diaryAppAction()
 
+private fun checklistItemAppAction(): ChecklistItemAppAction = diaryAppAction()
+
 private suspend fun searchPageChecklistList(): List<AppActionChecklistSummary> = readNumberedPage(pageNumber = SEARCH_PAGE_NUMBER) { cursor -> checklistAppAction().list(cursor = cursor) }.items
 
 private fun DiaryAppActionChecklistItemSort.toValue(): String =
@@ -129,7 +139,14 @@ private fun DiaryAppActionChecklistItemSort.toValue(): String =
         DiaryAppActionChecklistItemSort.UNCHECKED_FIRST -> AppActionChecklistItemSortValue.UNCHECKED_FIRST
     }
 
-private fun AppActionChecklistSummary.toDiary(): DiaryAppActionChecklistSummary =
+private fun AppActionChecklistDetail.toDiary(): DiaryAppActionChecklistDetail =
+    DiaryAppActionChecklistDetail(
+        checklist = checklist.toDiary(),
+        items = items.map { item -> item.toDiary() },
+        tags = tags.map { tag -> tag.toDiary() },
+    )
+
+internal fun AppActionChecklistSummary.toDiary(): DiaryAppActionChecklistSummary =
     DiaryAppActionChecklistSummary(
         id = id,
         title = title,

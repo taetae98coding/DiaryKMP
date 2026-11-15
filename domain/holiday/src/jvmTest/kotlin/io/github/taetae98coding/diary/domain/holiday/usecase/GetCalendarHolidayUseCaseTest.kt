@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -133,7 +134,7 @@ class GetCalendarHolidayUseCaseTest :
 
         // 2026년 2월 6일은 금요일이므로 금요일부터 일요일까지 쉬는 날 사흘이 이어져 황금연휴가 된다.
         Given("TC-8d52ec80-8f44-46a8-8b24-c5e8763c13b5 황금연휴에 포함되는 공휴일을 숨김으로 골랐다") {
-            val lunarNewYear = holiday(name = LUNAR_NEW_YEAR_NAME, start = LocalDate(year = 2026, month = Month.FEBRUARY, day = 6))
+            val lunarNewYear = holiday(name = LUNAR_NEW_YEAR_NAME, isHoliday = true, start = LocalDate(year = 2026, month = Month.FEBRUARY, day = 6))
             val holidayRepository = holidayRepositoryByStartYear(listOf(lunarNewYear))
             val calendarHolidayUseCase =
                 getCalendarHolidayUseCase(
@@ -200,23 +201,19 @@ private fun holidayRepositoryByStartYear(holidayList: List<Holiday>): HolidayRep
 
 private fun holiday(
     name: String,
-    isHoliday: Boolean = true,
-    start: LocalDate = randomDate(),
-): Holiday =
-    Holiday(
+    isHoliday: Boolean? = null,
+    start: LocalDate? = null,
+): Holiday {
+    val holiday = Arb.holiday().next()
+
+    return holiday.copy(
         name = name,
-        isHoliday = isHoliday,
-        dateRange = start..start,
+        isHoliday = isHoliday ?: holiday.isHoliday,
+        dateRange = start?.let { date -> date..date } ?: holiday.dateRange,
     )
+}
 
 private fun july(
     year: Int,
     day: Int,
 ): LocalDate = LocalDate(year = year, month = Month.JULY, day = day)
-
-private fun randomDate(): LocalDate =
-    LocalDate(
-        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
-        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
-        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
-    )

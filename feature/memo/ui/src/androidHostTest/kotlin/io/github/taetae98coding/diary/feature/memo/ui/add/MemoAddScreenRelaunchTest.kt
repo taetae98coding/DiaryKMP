@@ -116,6 +116,8 @@ class MemoAddScreenRelaunchTest {
                         navigateToPlaceAdd = { addNavigationCount += 1 },
                         navigateToPlaceDetail = {},
                         navigateToGeminiSetting = {},
+                        initialTitle = "",
+                        initialDescription = "",
                         initialDateTime = null,
                         componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                         isStandalone = true,

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -109,7 +110,7 @@ class GetPlaceListUseCaseTest :
 
         private fun getAccountUseCase(account: Result<Account>): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
-            every { useCase(parameter = Unit) } returns flowOf(account)
+            every { useCase() } returns flowOf(account)
 
             return useCase
         }

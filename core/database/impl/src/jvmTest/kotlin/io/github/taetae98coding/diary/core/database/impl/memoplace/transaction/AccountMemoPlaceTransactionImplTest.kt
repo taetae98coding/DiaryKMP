@@ -528,7 +528,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptPlace)
         }
 
-        test("TC-50a1b7a6-7503-4a16-999b-2bd5f30f5ece 장소 연결은 장소 목록의 노출과 순서를 바꾸지 않는다") {
+        test("TC-50a1b7a6-7503-4a16-999b-2bd5f30f5ece 장소 연결은 장소 목록과 지도 핀의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = Arb.kotlinUuid().next()
                 val memo = Arb.memoLocalEntity().next()
@@ -543,7 +543,16 @@ class AccountMemoPlaceTransactionImplTest :
                         .page(accountId = accountId, query = "", sort = "title")
                         .loadAll()
 
-                placeList.map { place -> place.id } shouldBe listOf(linkedPlace, unlinkedPlace).sortedBy { place -> place.detail.title }.map { place -> place.id }
+                val expectedIdList = listOf(linkedPlace, unlinkedPlace).sortedBy { place -> place.detail.title }.map { place -> place.id }
+                // 지도 핀은 보이는 영역 기준으로 조회한다. 두 장소가 모두 들어오도록 전체 영역을 준다.
+                val pinPlaceList =
+                    database
+                        .accountPlaceDao()
+                        .get(accountId = accountId, south = -90.0, north = 90.0, west = -180.0, east = 180.0, sort = "title")
+                        .first()
+
+                placeList.map { place -> place.id } shouldBe expectedIdList
+                pinPlaceList.map { place -> place.id } shouldBe expectedIdList
             }
         }
 

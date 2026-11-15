@@ -29,6 +29,7 @@ import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
@@ -221,6 +222,34 @@ class PlaceDetailTagInputTest {
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
         composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
         composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+    }
+
+    @Test
+    fun `TC-fd3cf2dd-efa7-4184-9b1c-c3f5c8a47a99 수정을 처리하는 동안에도 태그 연결과 해제를 요청한다`() {
+        assertLinkAndUnlinkRequested(uiState = content(isUpdateInProgress = true))
+    }
+
+    @Test
+    fun `TC-fd3cf2dd-efa7-4184-9b1c-c3f5c8a47a99 삭제를 처리하는 동안에도 태그 연결과 해제를 요청한다`() {
+        assertLinkAndUnlinkRequested(uiState = content(isDeleteInProgress = true))
+    }
+
+    private fun assertLinkAndUnlinkRequested(uiState: PlaceDetailUiState.Content) {
+        val linkedTag = placeTestTag(title = LINKED_TAG_TITLE)
+        val selectableTag = placeTestTag(title = SELECTABLE_TAG_TITLE)
+        val tagViewModel = detailTagScreenTestViewModel(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag, selectableTag))
+        composeRule.setPlaceDetailScreen(
+            viewModel = screenTestViewModel(uiState = MutableStateFlow(uiState)),
+            tagViewModel = tagViewModel,
+        )
+        composeRule.waitForIdle()
+
+        linkTag(title = SELECTABLE_TAG_TITLE)
+        composeRule.onNode(hasText(LINKED_TAG_TITLE) and isToggleable()).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { tagViewModel.add(tagId = selectableTag.id) }
+        verify(exactly = 1) { tagViewModel.remove(tagId = linkedTag.id) }
     }
 
     private fun unlinkTag(title: String) {

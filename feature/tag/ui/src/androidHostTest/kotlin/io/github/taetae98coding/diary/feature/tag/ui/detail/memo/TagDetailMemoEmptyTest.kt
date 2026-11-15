@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail.memo
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -136,14 +137,25 @@ class TagDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-60299940-63b4-4e9f-9009-f9a8a9d20489 대상 태그를 조회하지 못해도 메모 추가와 완료된 메모 확인을 실행할 수 있다`() {
+    fun `TC-60299940-63b4-4e9f-9009-f9a8a9d20489 대상 태그를 조회하지 못해도 메모를 표시하고 추가와 완료된 메모 확인을 실행한다`() {
+        var navigateToMemoAddCount = 0
+        var navigateToMemoFinishedListCount = 0
         setScreenOnMemoTab(
-            memoPagingData = loadedEmptyPagingData(),
+            memoPagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = LISTED_MEMO_TITLE)))),
             uiState = TagDetailUiState.Loading,
+            navigateToMemoAdd = { navigateToMemoAddCount += 1 },
+            navigateToMemoFinishedList = { navigateToMemoFinishedListCount += 1 },
         )
 
-        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertExists()
-        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_BUTTON_LABEL).assertExists()
+        composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(LISTED_MEMO_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText(LISTED_MEMO_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_BUTTON_LABEL).performClick()
+
+        navigateToMemoAddCount shouldBe 1
+        navigateToMemoFinishedListCount shouldBe 1
     }
 
     private fun setMemoTab(

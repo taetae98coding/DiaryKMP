@@ -10,7 +10,6 @@ import kotlin.uuid.Uuid
 
 @Dao
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
-// 표시 범위 안 태그는 재귀 CTE로 모은다. UNION이 이미 담은 태그를 걸러 내므로 연결이 순환해도 조회가 끝난다.
 internal interface AccountTagMusicDao {
     @Query(
         """

@@ -6,10 +6,15 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.routine.ui.loadedRoutinePagingData
+import io.github.taetae98coding.diary.feature.routine.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,6 +26,11 @@ import org.robolectric.annotation.Config
 class RoutineHomeScaffoldRefreshTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 빈 상태 안내를 표시하는 화면을 당기면 새로고침을 요청한다`() {
@@ -63,14 +73,19 @@ class RoutineHomeScaffoldRefreshTest {
         uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         onEvent: (RoutineHomeScaffoldEvent) -> Unit = {},
     ) {
+        val pagingDataFlow = MutableStateFlow(loadedRoutinePagingData())
+
         composeRule.setContent {
             DiaryTheme {
                 RoutineHomeScaffold(
                     onEvent = onEvent,
-                    uiStateProvider = uiStateProvider,
+                    onRoutineListEvent = {},
+                    routinePagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                    syncUiStateProvider = uiStateProvider,
                 )
             }
         }
+        composeRule.waitForIdle()
     }
 
     private companion object {

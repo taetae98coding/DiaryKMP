@@ -3,33 +3,38 @@ package io.github.taetae98coding.diary.feature.contact.ui.form
 import androidx.compose.foundation.text.input.TextFieldState
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 
 class ContactBirthdayInputStateTest :
     FunSpec({
         test("TC-f9703b6d-e2ce-49a0-8f26-62e04f62ce88 생일을 고르면 달력 구분이 양력으로 시작한다") {
+            val date = Arb.kotlinxLocalDate().next()
             val state = ContactBirthdayInputState(birthday = null)
 
-            state.selectDate(FIRST_DATE)
+            state.selectDate(date)
 
-            state.birthday shouldBe ContactBirthday(date = FIRST_DATE, calendar = ContactBirthdayCalendar.SOLAR)
+            state.birthday shouldBe ContactBirthday(date = date, calendar = ContactBirthdayCalendar.SOLAR)
         }
 
         test("TC-2ec1bd13-5fec-4878-a5d0-20b3897acdf8 고른 생일의 달력 구분을 바꿀 수 있다") {
             calendarChangeCaseList.forEach { (current, selected) ->
-                val state = ContactBirthdayInputState(birthday = ContactBirthday(date = FIRST_DATE, calendar = current))
+                val date = Arb.kotlinxLocalDate().next()
+                val state = ContactBirthdayInputState(birthday = ContactBirthday(date = date, calendar = current))
 
                 state.selectCalendar(selected)
 
-                state.birthday shouldBe ContactBirthday(date = FIRST_DATE, calendar = selected)
+                state.birthday shouldBe ContactBirthday(date = date, calendar = selected)
             }
         }
 
         test("TC-34577e79-b042-4b35-a57c-cb9844ce4715 생일을 지우면 달력 구분도 함께 사라진다") {
-            val state = ContactBirthdayInputState(birthday = ContactBirthday(date = FIRST_DATE, calendar = ContactBirthdayCalendar.LUNAR))
+            val state = ContactBirthdayInputState(birthday = ContactBirthday(date = Arb.kotlinxLocalDate().next(), calendar = ContactBirthdayCalendar.LUNAR))
 
             state.clear()
 
@@ -37,20 +42,22 @@ class ContactBirthdayInputStateTest :
         }
 
         test("TC-ea8e375a-09fd-4c7f-b252-34e5728b6f27 생일을 지운 뒤 다시 고르면 달력 구분이 양력으로 시작한다") {
-            val state = ContactBirthdayInputState(birthday = ContactBirthday(date = FIRST_DATE, calendar = ContactBirthdayCalendar.LUNAR))
+            val reselected = Arb.kotlinxLocalDate().next()
+            val state = ContactBirthdayInputState(birthday = ContactBirthday(date = Arb.kotlinxLocalDate().next(), calendar = ContactBirthdayCalendar.LUNAR))
 
             state.clear()
-            state.selectDate(SECOND_DATE)
+            state.selectDate(reselected)
 
-            state.birthday shouldBe ContactBirthday(date = SECOND_DATE, calendar = ContactBirthdayCalendar.SOLAR)
+            state.birthday shouldBe ContactBirthday(date = reselected, calendar = ContactBirthdayCalendar.SOLAR)
         }
 
         test("TC-13b450a4-db32-4a85-ad4b-f8d6102a596c 생일 날짜만 다시 골라도 달력 구분은 유지된다") {
-            val state = ContactBirthdayInputState(birthday = ContactBirthday(date = FIRST_DATE, calendar = ContactBirthdayCalendar.LUNAR))
+            val reselected = Arb.kotlinxLocalDate().next()
+            val state = ContactBirthdayInputState(birthday = ContactBirthday(date = Arb.kotlinxLocalDate().next(), calendar = ContactBirthdayCalendar.LUNAR))
 
-            state.selectDate(SECOND_DATE)
+            state.selectDate(reselected)
 
-            state.birthday shouldBe ContactBirthday(date = SECOND_DATE, calendar = ContactBirthdayCalendar.LUNAR)
+            state.birthday shouldBe ContactBirthday(date = reselected, calendar = ContactBirthdayCalendar.LUNAR)
         }
 
         test("TC-740164fd-5d79-4e55-92c2-c031d227546e 생일을 고르면 태어난 연도가 생일의 연도로 채워진다") {
@@ -110,8 +117,6 @@ class ContactBirthdayInputStateTest :
         }
     }) {
     public companion object {
-        private val FIRST_DATE: LocalDate = LocalDate(year = 1998, month = 5, day = 12)
-        private val SECOND_DATE: LocalDate = LocalDate(year = 1994, month = 3, day = 21)
         private val BIRTHDAY_1990: LocalDate = LocalDate(year = 1990, month = 5, day = 5)
         private val BIRTHDAY_1992: LocalDate = LocalDate(year = 1992, month = 3, day = 1)
         private const val OTHER_BIRTH_YEAR = "1985"

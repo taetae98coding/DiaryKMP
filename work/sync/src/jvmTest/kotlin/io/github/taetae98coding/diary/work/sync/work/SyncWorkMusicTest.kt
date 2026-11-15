@@ -116,7 +116,7 @@ class SyncWorkMusicTest :
             coVerify(exactly = 3) { context.musicRemoteDataSource.push(any()) }
         }
 
-        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 곡 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 곡 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = musicPulls(usnList = listOf(4L, 6L))
             val secondPullList = musicPulls(usnList = listOf(9L))
@@ -144,10 +144,11 @@ class SyncWorkMusicTest :
             coVerify(exactly = 3) { context.musicRemoteDataSource.pull(any()) }
         }
 
-        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 곡만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 곡만 업로드한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            val context = context(accountId = accountId)
+            val musicList = musics(size = 1)
+            val context = context(accountId = accountId, musicList = musicList)
             coEvery {
                 context.musicSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns musics(size = 1)
@@ -155,12 +156,12 @@ class SyncWorkMusicTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.musicSyncLocalDataSource.readPendingList(accountId = accountId)
+                context.musicRemoteDataSource.push(musicList.map { music -> music.toRemote() })
             }
+            coVerify(exactly = 1) { context.musicRemoteDataSource.push(any()) }
             coVerify(exactly = 0) {
                 context.musicSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
-            coVerify(exactly = 0) { context.musicRemoteDataSource.push(any()) }
         }
     }) {
     public companion object {

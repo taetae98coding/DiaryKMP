@@ -28,6 +28,7 @@ import io.github.taetae98coding.diary.core.database.impl.memofilter.datasource.M
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
@@ -436,7 +437,17 @@ class AccountMemoContactTransactionImplTest :
             val contact = contact()
             val tag = tag()
             tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
-            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
+            contactTransaction.upsert(
+                accountId = accountId,
+                contactList = listOf(contact),
+                contactTagList = listOf(Arb.entityTagLocalEntity().next().copy(entityId = contact.id, tagId = tag.id, isDeleted = false)),
+            )
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+                memoContactList = listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo)),
+            )
 
             val memoList =
                 database
@@ -445,6 +456,34 @@ class AccountMemoContactTransactionImplTest :
                     .loadAll()
 
             memoList.shouldBeEmpty()
+            database
+                .accountTagContactDao()
+                .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF.queryValue, sort = "name")
+                .loadAll()
+                .map { item -> item.contact.id } shouldBe listOf(contact.id)
+        }
+
+        test("TC-fef077bf-827b-48aa-bab8-cf24d3aff9e6 메모 연결은 태그로 연락처를 조회한 결과를 바꾸지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo().visible().copy(primaryTagId = null)
+            val contact = contact()
+            val tag = tag()
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = listOf(memoTag(memoId = memo.id, tagId = tag.id, memo = memo)),
+                memoContactList = listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo)),
+            )
+
+            val contactList =
+                database
+                    .accountTagContactDao()
+                    .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF.queryValue, sort = "name")
+                    .loadAll()
+
+            contactList.shouldBeEmpty()
         }
 
         test("TC-9f81d250-1601-4769-8fa8-b8dde0a57866 연결된 연락처의 이름은 메모 검색에 쓰이지 않는다") {

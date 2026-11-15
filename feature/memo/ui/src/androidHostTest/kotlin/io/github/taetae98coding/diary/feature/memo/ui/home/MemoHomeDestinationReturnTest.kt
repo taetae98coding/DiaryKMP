@@ -40,6 +40,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestContentSharerFactory
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
@@ -83,7 +84,6 @@ class MemoHomeDestinationReturnTest {
         resetAndroidUiDispatcher()
     }
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -134,7 +134,6 @@ class MemoHomeDestinationReturnTest {
             }
 
         composeRule.setContent {
-            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
             val viewModelStoreOwner =
                 remember {
                     object : ViewModelStoreOwner {
@@ -164,7 +163,7 @@ class MemoHomeDestinationReturnTest {
                                 entryProvider =
                                     entryProvider {
                                         entry<DestinationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
                                     },
                             )
                         }

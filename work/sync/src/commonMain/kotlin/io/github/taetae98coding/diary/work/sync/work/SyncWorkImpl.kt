@@ -3,7 +3,9 @@ package io.github.taetae98coding.diary.work.sync.work
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
@@ -20,6 +22,7 @@ import kotlin.uuid.Uuid
 @Factory
 internal class SyncWorkImpl(
     private val getAccountUseCase: GetAccountUseCase,
+    private val supabaseAuth: SupabaseAuth,
     private val prepareSyncUseCase: PrepareSyncUseCase,
     private val tagSyncWork: TagSyncWork,
     private val placeSyncWork: PlaceSyncWork,
@@ -30,6 +33,8 @@ internal class SyncWorkImpl(
     private val checklistSyncWork: ChecklistSyncWork,
     private val checklistItemSyncWork: ChecklistItemSyncWork,
     private val ddaySyncWork: DDaySyncWork,
+    private val routineSyncWork: RoutineSyncWork,
+    private val routineRecordSyncWork: RoutineRecordSyncWork,
     private val memoSyncWork: MemoSyncWork,
     private val memoTagSyncWork: MemoTagSyncWork,
     private val memoPlaceSyncWork: MemoPlaceSyncWork,
@@ -55,8 +60,10 @@ internal class SyncWorkImpl(
         accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())
     }
 
-    private suspend fun awaitConfirmedAccount(): Account =
-        getAccountUseCase(parameter = Unit)
+    private suspend fun awaitConfirmedAccount(): Account {
+        refreshStoppedSession()
+
+        return getAccountUseCase()
             .map { result -> result.getOrThrow() }
             .first { account ->
                 when (account) {
@@ -64,6 +71,18 @@ internal class SyncWorkImpl(
                     is Account.User -> account.isSessionValid
                 }
             }
+    }
+
+    // 갱신에 실패해도 다시 시도하지 않고, 세션이 갱신될 때까지 기다리는 기존 판단에 맡긴다.
+    private suspend fun refreshStoppedSession() {
+        try {
+            supabaseAuth.refreshStoppedSession()
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (_: Throwable) {
+            Unit
+        }
+    }
 
     private suspend fun push(accountId: Uuid) {
         supervisorScope {
@@ -74,24 +93,14 @@ internal class SyncWorkImpl(
             val music = async { musicSyncWork.push(accountId = accountId) }
             val qr = async { qrSyncWork.push(accountId = accountId) }
             val checklist = async { checklistSyncWork.push(accountId = accountId) }
-            val checklistItem =
-                async {
-                    checklist.await()
-                    checklistItemSyncWork.push(accountId = accountId)
-                }
+            val checklistItem = pushAfter(prerequisite = checklist) { checklistItemSyncWork.push(accountId = accountId) }
             val dday = async { ddaySyncWork.push(accountId = accountId) }
-            val memo =
-                async {
-                    tag.await()
-                    memoSyncWork.push(accountId = accountId)
-                }
+            val routine = async { routineSyncWork.push(accountId = accountId) }
+            val routineRecord = pushAfter(prerequisite = routine) { routineRecordSyncWork.push(accountId = accountId) }
+            val memo = pushAfter(prerequisite = tag) { memoSyncWork.push(accountId = accountId) }
             val memoLinkList =
                 pushMemoLink(accountId = accountId, tag = tag, memo = memo, place = place, web = web, contact = contact)
-            val tagLink =
-                async {
-                    tag.await()
-                    tagLinkSyncWork.push(accountId = accountId)
-                }
+            val tagLink = pushAfter(prerequisite = tag) { tagLinkSyncWork.push(accountId = accountId) }
             val entityTagList =
                 EntityTagKindLocalEntity.entries.map { kind ->
                     val entity =
@@ -103,6 +112,7 @@ internal class SyncWorkImpl(
                             EntityTagKindLocalEntity.MUSIC -> music
                             EntityTagKindLocalEntity.QR -> qr
                             EntityTagKindLocalEntity.DDAY -> dday
+                            EntityTagKindLocalEntity.ROUTINE -> routine
                         }
 
                     pushEntityTag(accountId = accountId, kind = kind, tag = tag, entity = entity)
@@ -119,12 +129,23 @@ internal class SyncWorkImpl(
                     checklist,
                     checklistItem,
                     dday,
+                    routine,
+                    routineRecord,
                     memo,
                     tagLink,
                 ) + memoLinkList + entityTagList
             ).awaitAllCatching()
         }
     }
+
+    private fun CoroutineScope.pushAfter(
+        prerequisite: Deferred<Unit>,
+        push: suspend () -> Unit,
+    ): Deferred<Unit> =
+        async {
+            prerequisite.await()
+            push()
+        }
 
     @Suppress("LongParameterList")
     private fun CoroutineScope.pushMemoLink(
@@ -187,6 +208,8 @@ internal class SyncWorkImpl(
                 async { checklistSyncWork.pull(accountId = accountId) },
                 async { checklistItemSyncWork.pull(accountId = accountId) },
                 async { ddaySyncWork.pull(accountId = accountId) },
+                async { routineSyncWork.pull(accountId = accountId) },
+                async { routineRecordSyncWork.pull(accountId = accountId) },
                 async { memoSyncWork.pull(accountId = accountId) },
                 async { memoTagSyncWork.pull(accountId = accountId) },
                 async { memoPlaceSyncWork.pull(accountId = accountId) },

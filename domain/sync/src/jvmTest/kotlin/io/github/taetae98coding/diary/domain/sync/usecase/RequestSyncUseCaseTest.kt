@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.sync.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncManager
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.kotest.core.spec.style.BehaviorSpec
@@ -31,7 +32,7 @@ class RequestSyncUseCaseTest :
         Given("로그인 세션이 인증된 사용자 계정이 있다") {
             val account = Arb.accountUser().next().copy(isSessionValid = true)
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
 
             When("메모나 태그에 변경이 발생해 동기화를 요청한다") {
                 Then("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 데이터 변경 계기면 확인된 사용자 계정으로 진행을 보고하지 않는 동기화가 한 번 요청된다") {
@@ -90,7 +91,7 @@ class RequestSyncUseCaseTest :
         Given("로그인 세션이 인증되지 않은 사용자 계정이 있다") {
             val account = Arb.accountUser().next().copy(isSessionValid = false)
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val syncManager = mockk<SyncManager>(relaxed = true)
             val useCase =
                 requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
@@ -116,7 +117,7 @@ class RequestSyncUseCaseTest :
 
         Given("계정이 게스트 상태다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             val syncManager = mockk<SyncManager>(relaxed = true)
             val useCase =
                 requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
@@ -136,6 +137,7 @@ class RequestSyncUseCaseTest :
                         "TC-fbf49960-d768-4bea-bc33-740469a525b7",
                         "TC-94764581-fbce-4dbc-9cc0-a28ccf406f27",
                         "TC-448de895-ec55-4a6f-8a8a-e4ca87b5d5f0",
+                        "TC-54110044-b9ea-4ff2-b2c1-29777056471f",
                     ).joinToString(separator = " ", postfix = " 동기화가 요청되지 않는다"),
                 ) {
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -155,7 +157,7 @@ class RequestSyncUseCaseTest :
             }
 
             When("사용자가 화면을 당겨 새로고침을 요청한다") {
-                Then("TC-3b111d97-65d8-466f-9f19-c16776baaf75 TC-3133b1a9-6ea0-47a7-871f-623da1d0c0cf 계정 데이터 서버 동기화가 요청되지 않아 진행 표시 대상도 없다") {
+                Then("TC-3b111d97-65d8-466f-9f19-c16776baaf75 TC-3133b1a9-6ea0-47a7-871f-623da1d0c0cf TC-2b48371b-6d28-4d10-865d-ebcb77162a89 계정 데이터 서버 동기화가 요청되지 않아 진행 표시 대상도 없다") {
                     val result = useCase(parameter = SyncTrigger.USER_REQUESTED)
 
                     result.shouldBeSuccess(Unit)
@@ -166,7 +168,7 @@ class RequestSyncUseCaseTest :
 
         Given("로그아웃되어 인증된 계정이 없어졌다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             val syncManager = mockk<SyncManager>(relaxed = true)
             val useCase =
                 requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
@@ -184,7 +186,7 @@ class RequestSyncUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val syncManager = mockk<SyncManager>(relaxed = true)
             val useCase =
                 requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)

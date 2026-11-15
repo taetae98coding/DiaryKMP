@@ -9,5 +9,7 @@ public interface GoogleCredentialsManager {
     public suspend fun signIn(): GoogleCredential
 }
 
-@Composable
-public expect fun rememberGoogleCredentialsManager(): GoogleCredentialsManager
+public interface GoogleCredentialsManagerFactory {
+    @Composable
+    public fun rememberGoogleCredentialsManager(): GoogleCredentialsManager
+}

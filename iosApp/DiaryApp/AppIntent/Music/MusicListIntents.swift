@@ -34,7 +34,7 @@ struct MusicListIntent: AppIntent {
 
 struct MusicDetailIntent: AppIntent {
     static let title = LocalizedStringResource("Get Song Details", table: "AppIntentMusic")
-    static let description = IntentDescription(LocalizedStringResource("Gets a song in the playlist.", table: "AppIntentMusic"))
+    static let description = IntentDescription(LocalizedStringResource("Gets a song in the playlist with its linked tags.", table: "AppIntentMusic"))
 
     @Parameter(title: LocalizedStringResource("Song", table: "AppIntentMusic"))
     var song: MusicEntity

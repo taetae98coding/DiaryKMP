@@ -8,18 +8,26 @@ import androidx.appfunctions.testing.AppFunctionTestRule
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFunctionMusic
+import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFunctionMusicDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.music.AppFunctionMusicPage
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
 import io.github.taetae98coding.diary.work.appaction.music.AppActionMusic
+import io.github.taetae98coding.diary.work.appaction.music.AppActionMusicDetail
 import io.github.taetae98coding.diary.work.appaction.music.MusicAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.EntityTagAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -52,12 +60,20 @@ class MusicAppFunctionServiceTest {
     val appFunctionTestRule = AppFunctionTestRule(context)
 
     private val musicAppAction = mockk<MusicAppAction>()
+    private val entityTagAppAction = mockk<EntityTagAppAction>()
 
     private lateinit var tester: AppFunctionServiceTester
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { musicAppAction } }) }
+        startKoin {
+            modules(
+                module {
+                    single { musicAppAction }
+                    single { entityTagAppAction }
+                },
+            )
+        }
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
     }
 
@@ -70,7 +86,7 @@ class MusicAppFunctionServiceTest {
     fun `곡 동작을 모두 제공한다`() =
         runBlocking<Unit> {
             tester.functionNameList().filter { name -> name.startsWith("music") } shouldContainExactlyInAnyOrder
-                listOf(MUSIC_LIST, MUSIC_GET, MUSIC_ADD, MUSIC_UPDATE, MUSIC_DELETE, MUSIC_RESTORE)
+                listOf(MUSIC_LIST, MUSIC_GET, MUSIC_ADD, MUSIC_UPDATE, MUSIC_DELETE, MUSIC_RESTORE, MUSIC_TAG_ADD, MUSIC_TAG_REMOVE)
         }
 
     @Test
@@ -87,14 +103,15 @@ class MusicAppFunctionServiceTest {
         }
 
     @Test
-    fun `곡 조회는 곡을 돌려주고 없으면 값이 없는 결과를 돌려준다`() =
+    fun `TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 곡 조회는 연결된 태그와 함께 돌려주고 없으면 값이 없는 결과를 돌려준다`() =
         runBlocking<Unit> {
             val music = arbAppActionMusic()
+            val tag = Arb.appActionTag().next()
             val missingId = Arb.kotlinUuid().next().toString()
-            coEvery { musicAppAction.get(musicId = music.id) } returns music
+            coEvery { musicAppAction.get(musicId = music.id) } returns AppActionMusicDetail(music = music, tags = listOf(tag))
             coEvery { musicAppAction.get(musicId = missingId) } returns null
 
-            tester.execute(name = MUSIC_GET) { setString(MUSIC_ID, music.id) }.returnValueAs<AppFunctionMusic>() shouldBe music.expected()
+            tester.execute(name = MUSIC_GET) { setString(MUSIC_ID, music.id) }.returnValueAs<AppFunctionMusicDetail>() shouldBe AppFunctionMusicDetail(music = music.expected(), tags = listOf(tag.expectedTag()))
             tester
                 .execute(name = MUSIC_GET) { setString(MUSIC_ID, missingId) }
                 .shouldBeInstanceOf<ExecuteAppFunctionResponse.Success>()
@@ -103,21 +120,23 @@ class MusicAppFunctionServiceTest {
         }
 
     @Test
-    fun `곡 추가는 받은 값을 공통 동작에 넘기고 id를 돌려준다`() =
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 곡 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
         runBlocking<Unit> {
             val title = Arb.nonBlankString().next()
             val link = Arb.string().next()
+            val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
             val addedId = Arb.kotlinUuid().next().toString()
-            coEvery { musicAppAction.add(title = any(), artist = any(), link = any()) } returns AppActionId(id = addedId)
+            coEvery { musicAppAction.add(title = any(), artist = any(), link = any(), tagIds = any()) } returns AppActionId(id = addedId)
 
             val response =
                 tester.execute(name = MUSIC_ADD) {
                     setString("title", title)
                     setString("link", link)
+                    setStringList("tagIds", tagIdList)
                 }
 
             response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
-            coVerify(exactly = 1) { musicAppAction.add(title = title, artist = null, link = link) }
+            coVerify(exactly = 1) { musicAppAction.add(title = title, artist = null, link = link, tagIds = tagIdList) }
         }
 
     @Test
@@ -142,12 +161,37 @@ class MusicAppFunctionServiceTest {
         }
 
     @Test
+    fun `TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 곡 태그 연결과 해제는 완료를 돌려준다`() =
+        runBlocking<Unit> {
+            val musicId = Arb.kotlinUuid().next().toString()
+            val tagId = Arb.kotlinUuid().next().toString()
+            coEvery { entityTagAppAction.add(kind = AppActionEntityTagKind.MUSIC, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.remove(kind = AppActionEntityTagKind.MUSIC, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+
+            val addResponse =
+                tester.execute(name = MUSIC_TAG_ADD) {
+                    setString(MUSIC_ID, musicId)
+                    setString("tagId", tagId)
+                }
+            val removeResponse =
+                tester.execute(name = MUSIC_TAG_REMOVE) {
+                    setString(MUSIC_ID, musicId)
+                    setString("tagId", tagId)
+                }
+
+            addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { entityTagAppAction.add(kind = AppActionEntityTagKind.MUSIC, entityId = musicId, tagId = tagId) }
+            coVerify(exactly = 1) { entityTagAppAction.remove(kind = AppActionEntityTagKind.MUSIC, entityId = musicId, tagId = tagId) }
+        }
+
+    @Test
     fun `인자 오류는 잘못된 인자 실패로, 앱 기능 실패는 앱 실패로 같은 메시지를 알린다`() =
         runBlocking<Unit> {
             val invalidMessage = Arb.nonBlankString().next()
             val failureMessage = Arb.nonBlankString().next()
             coEvery { musicAppAction.list(sort = any(), cursor = any()) } throws AppActionException.InvalidArgument(message = invalidMessage)
-            coEvery { musicAppAction.add(title = any(), artist = any(), link = any()) } throws AppActionException.Failure(message = failureMessage)
+            coEvery { musicAppAction.add(title = any(), artist = any(), link = any(), tagIds = any()) } throws AppActionException.Failure(message = failureMessage)
 
             val invalidError = tester.execute(name = MUSIC_LIST) { setString("cursor", "abc") }.shouldBeInstanceOf<ExecuteAppFunctionResponse.Error>().error
             val failureError = tester.execute(name = MUSIC_ADD) { setString("title", Arb.nonBlankString().next()) }.shouldBeInstanceOf<ExecuteAppFunctionResponse.Error>().error
@@ -165,6 +209,8 @@ private const val MUSIC_ADD = "musicAdd"
 private const val MUSIC_UPDATE = "musicUpdate"
 private const val MUSIC_DELETE = "musicDelete"
 private const val MUSIC_RESTORE = "musicRestore"
+private const val MUSIC_TAG_ADD = "musicTagAdd"
+private const val MUSIC_TAG_REMOVE = "musicTagRemove"
 private const val MUSIC_ID = "musicId"
 
 private fun arbAppActionMusic(): AppActionMusic =

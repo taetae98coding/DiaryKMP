@@ -18,7 +18,9 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_PICKER_ADD_LABEL
@@ -41,9 +43,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.sendContactAddedResult
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -101,6 +105,8 @@ private fun ComposeContentTestRule.setMemoAddScreenForContact(
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
                 navigateToGeminiSetting = {},
+                initialTitle = "",
+                initialDescription = "",
                 initialDateTime = null,
                 componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                 isStandalone = true,
@@ -177,6 +183,50 @@ class MemoAddScreenContactTest {
 
         contactAddCount shouldBe 0
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-7468b5e8-aafb-4cdf-b63f-cbd10c563375 연락처 조회 기능이 실패해도 추가 항목이 목록을 연다`() {
+        val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
+        every { pageMemoSelectableContactUseCase(parameter = any()) } returns MutableStateFlow(Result.failure(IllegalStateException("page failed")))
+        val getSelectedContactUseCase = mockk<GetSelectedContactUseCase>()
+        every { getSelectedContactUseCase(parameter = any()) } returns MutableStateFlow(Result.success(emptyList()))
+        var contactAddCount = 0
+        composeRule.setMemoAddScreenForContact(
+            viewModels =
+                screenTestRealViewModel().copy(
+                    contactViewModel =
+                        MemoAddContactViewModel(
+                            initialContactId = null,
+                            pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase,
+                            getSelectedContactUseCase = getSelectedContactUseCase,
+                        ),
+                ),
+            navigateToContactAdd = { contactAddCount += 1 },
+        )
+        composeRule.waitForIdle()
+
+        composeRule.openContactPicker()
+
+        contactAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-e391cd0b-84df-4b61-8b0d-e01359f7ed7c 처음 불러오지 못한 채 연 목록에는 오류 안내나 재시도 동작이 없다`() {
+        composeRule.setMemoAddScreenForContact(viewModels = screenTestViewModel(contactPagingData = MutableStateFlow(refreshFailedContactPagingData())))
+
+        composeRule.openContactPicker()
+
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
+        // 오류 안내나 재시도 항목이 없으므로 목록 영역에는 아무 항목도 없다.
+        composeRule
+            .contactPickerList()
+            .fetchSemanticsNode()
+            .children
+            .shouldBeEmpty()
+        composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_ADD_LABEL).assertExists()
     }
 
     @Test

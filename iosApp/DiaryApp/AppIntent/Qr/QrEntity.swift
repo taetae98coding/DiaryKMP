@@ -25,13 +25,26 @@ struct QrEntity: AppEntity {
     @Property(title: LocalizedStringResource("Updated", table: "AppIntentCore"))
     var updatedAt: Date
 
+    // 목록 결과에는 데스크톱 연결과 같이 연결된 태그가 없으므로, 태그는 상세 결과에서만 채워진다.
+    @Property(title: LocalizedStringResource("Tags", table: "AppIntentCore"))
+    var tags: [TagEntity]
+
     init(qr: DiaryAppActionQr) {
+        self.init(qr: qr, tags: [])
+    }
+
+    init(detail: DiaryAppActionQrDetail) {
+        self.init(qr: detail.qr, tags: detail.tags)
+    }
+
+    private init(qr: DiaryAppActionQr, tags: [DiaryAppActionTag]) {
         id = qr.id
         title = qr.title
         qrDescription = qr.qrDescription
         value = qr.value
         createdAt = Date(epochMillis: qr.createdAtEpochMillis)
         updatedAt = Date(epochMillis: qr.updatedAtEpochMillis)
+        self.tags = tags.map(TagEntity.init(tag:))
     }
 
     var displayRepresentation: DisplayRepresentation {
@@ -44,11 +57,12 @@ struct QrEntity: AppEntity {
 }
 
 struct QrEntityQuery: EntityStringQuery {
+    // ‘삭제한 QR 되돌리기’에 넘긴 항목을 다시 찾을 수 있게 삭제된 항목도 찾는다.
     func entities(for identifiers: [QrEntity.ID]) async throws -> [QrEntity] {
         var entityList: [QrEntity] = []
         for identifier in identifiers {
-            if let qr = try await appAction({ try await DiaryQrAppAction.shared.get(qrId: identifier) }) {
-                entityList.append(QrEntity(qr: qr))
+            if let detail = try await appAction({ try await DiaryQrAppAction.shared.getIncludingDeleted(qrId: identifier) }) {
+                entityList.append(QrEntity(detail: detail))
             }
         }
         return entityList
@@ -62,10 +76,11 @@ struct QrEntityQuery: EntityStringQuery {
         try await appAction { try await DiaryQrAppAction.shared.list(pageNumber: AppIntentPage.number(nil)) }.items.map(QrEntity.init(qr:))
     }
 
+    // 상세와 추가 결과는 데스크톱 연결과 같이 삭제된 항목을 없는 항목으로 다룬다.
     static func require(qrId: String) async throws -> QrEntity {
-        guard let qr = try await QrEntityQuery().entities(for: [qrId]).first else {
+        guard let detail = try await appAction({ try await DiaryQrAppAction.shared.get(qrId: qrId) }) else {
             throw AppIntentError.notFound(LocalizedStringResource("Couldn't find the QR code.", table: "AppIntentQr"))
         }
-        return qr
+        return QrEntity(detail: detail)
     }
 }

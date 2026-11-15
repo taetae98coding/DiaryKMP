@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.repository.AccountQrRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
@@ -25,7 +26,7 @@ class FindQrUseCaseTest :
             val account = Arb.accountUser().next()
             val qr = Arb.qr(isDeleted = true).next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             every { accountQrRepository.find(account = account, qrId = qr.id) } returns flowOf(qr)
             val useCase = FindQrUseCase(getAccountUseCase = getAccountUseCase, accountQrRepository = accountQrRepository)
@@ -44,7 +45,7 @@ class FindQrUseCaseTest :
             val account = Arb.accountUser().next()
             val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             every { accountQrRepository.find(account = account, qrId = id) } returns flowOf(null)
             val useCase = FindQrUseCase(getAccountUseCase = getAccountUseCase, accountQrRepository = accountQrRepository)
@@ -62,7 +63,7 @@ class FindQrUseCaseTest :
         Given("현재 계정을 확인할 수 없다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val useCase = FindQrUseCase(getAccountUseCase = getAccountUseCase, accountQrRepository = mockk())
 
             When("QR을 찾는다") {

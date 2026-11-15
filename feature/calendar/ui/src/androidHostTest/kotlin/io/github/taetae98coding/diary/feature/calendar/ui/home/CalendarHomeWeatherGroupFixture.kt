@@ -13,13 +13,14 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.every
@@ -42,9 +43,6 @@ internal object CalendarHomeWeatherGroupFixture {
 
     val JULY_2026: YearMonth = YearMonth(year = 2026, month = Month.JULY)
 
-    private const val MEMO_COLOR = 0xFF0000FF
-
-    /** 7월 12일(일)의 날씨. 같은 주의 월요일 날씨는 [mondayWeather]다. */
     fun sundayWeather(): CalendarWeather =
         weather(
             date = july(day = 12),
@@ -65,13 +63,7 @@ internal object CalendarHomeWeatherGroupFixture {
         title: String,
         start: LocalDate,
         endInclusive: LocalDate,
-    ): CalendarMemo =
-        CalendarMemo(
-            id = Arb.kotlinUuid().next(),
-            title = title,
-            color = MEMO_COLOR,
-            dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
-        )
+    ): CalendarMemo = Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive), title = title).next()
 
     fun holiday(dateRange: LocalDateRange = july(day = 18)..july(day = 18)): Holiday =
         Holiday(
@@ -80,13 +72,7 @@ internal object CalendarHomeWeatherGroupFixture {
             dateRange = dateRange,
         )
 
-    fun birthday(date: LocalDate): CalendarContactBirthday =
-        CalendarContactBirthday(
-            contactId = Arb.kotlinUuid().next(),
-            name = BIRTHDAY_NAME,
-            nameQualifier = "",
-            date = date,
-        )
+    fun birthday(date: LocalDate): CalendarContactBirthday = Arb.calendarContactBirthday().next().copy(name = BIRTHDAY_NAME, nameQualifier = "", date = date)
 
     fun dday(date: LocalDate): CalendarDDay = Arb.calendarDDay().next().copy(title = DDAY_TITLE, date = date, label = CalendarDDayLabel.BaseDay)
 

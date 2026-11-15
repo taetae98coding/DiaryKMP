@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInvalidException
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
@@ -40,7 +41,7 @@ class UpdatePlaceUseCaseTest :
             val detailSlot = slot<PlaceDetail>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val findPlaceUseCase = mockk<FindPlaceUseCase>()
             every { findPlaceUseCase(id) } returns flowOf(Result.success(place(id = id, title = savedTitle)))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
@@ -211,7 +212,7 @@ class UpdatePlaceUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val findPlaceUseCase = mockk<FindPlaceUseCase>()
             val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
             val useCase =
@@ -247,7 +248,7 @@ class UpdatePlaceUseCaseTest :
             val detailSlot = slot<PlaceDetail>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val findPlaceUseCase = mockk<FindPlaceUseCase>()
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery {
@@ -304,7 +305,7 @@ class UpdatePlaceUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val findPlaceUseCase = mockk<FindPlaceUseCase>()
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery {

@@ -16,6 +16,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import kotlinx.coroutines.flow.first
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -117,5 +118,21 @@ class AccountChecklistItemLocalDataSourceImplTest :
             dataSource.get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.ADDED).test {
                 awaitItem() shouldBe emptyList()
             }
+        }
+
+        test("항목 하나는 삭제 여부와 관계없이 담고, 없거나 다른 계정과만 연결된 항목은 담지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+            val otherAccountChecklist = Arb.localChecklist(isDeleted = false).next()
+            val saved = item(checklistId = checklist.id, isChecked = false, createdAtSeconds = 1)
+            val deleted = item(checklistId = checklist.id, isChecked = true, createdAtSeconds = 2, isDeleted = true)
+            val otherAccountItem = item(checklistId = otherAccountChecklist.id, isChecked = false, createdAtSeconds = 1)
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(saved, deleted), checklistTagList = emptyList())
+            checklistTransaction.upsert(accountId = Arb.kotlinUuid().next(), checklist = otherAccountChecklist, itemList = listOf(otherAccountItem), checklistTagList = emptyList())
+
+            dataSource.find(accountId = accountId, itemId = saved.id).first() shouldBe saved
+            dataSource.find(accountId = accountId, itemId = deleted.id).first() shouldBe deleted
+            dataSource.find(accountId = accountId, itemId = otherAccountItem.id).first() shouldBe null
+            dataSource.find(accountId = accountId, itemId = Arb.kotlinUuid().next()).first() shouldBe null
         }
     })

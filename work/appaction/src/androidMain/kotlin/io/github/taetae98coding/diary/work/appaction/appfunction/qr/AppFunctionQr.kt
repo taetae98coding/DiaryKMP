@@ -1,8 +1,11 @@
 package io.github.taetae98coding.diary.work.appaction.appfunction.qr
 
 import androidx.appfunctions.AppFunctionSerializable
+import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionTag
+import io.github.taetae98coding.diary.work.appaction.appfunction.item.toAppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.qr.AppActionQr
+import io.github.taetae98coding.diary.work.appaction.qr.AppActionQrDetail
 
 /** A saved QR code. */
 @AppFunctionSerializable(isDescribedByKDoc = true)
@@ -19,6 +22,15 @@ public data class AppFunctionQr(
     val createdAt: String,
     /** When the QR was last updated, in ISO-8601. */
     val updatedAt: String,
+)
+
+/** A saved QR code with its linked tags. */
+@AppFunctionSerializable(isDescribedByKDoc = true)
+public data class AppFunctionQrDetail(
+    /** The QR code. */
+    val qr: AppFunctionQr,
+    /** Tags linked to the QR code. */
+    val tags: List<AppFunctionTag>,
 )
 
 /** One page of QR codes. */
@@ -41,3 +53,5 @@ internal fun AppActionQr.toAppFunctionQr(): AppFunctionQr =
     )
 
 internal fun AppActionPage<AppActionQr>.toAppFunctionQrPage(): AppFunctionQrPage = AppFunctionQrPage(items = items.map { qr -> qr.toAppFunctionQr() }, nextCursor = nextCursor)
+
+internal fun AppActionQrDetail.toAppFunctionQrDetail(): AppFunctionQrDetail = AppFunctionQrDetail(qr = qr.toAppFunctionQr(), tags = tags.map { tag -> tag.toAppFunctionTag() })

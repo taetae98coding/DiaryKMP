@@ -12,4 +12,5 @@ public enum class EntityTagKindLocalEntity(
     MUSIC(SyncKindLocalEntity.MUSIC_TAG),
     QR(SyncKindLocalEntity.QR_TAG),
     DDAY(SyncKindLocalEntity.DDAY_TAG),
+    ROUTINE(SyncKindLocalEntity.ROUTINE_TAG),
 }

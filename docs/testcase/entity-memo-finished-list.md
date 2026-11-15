@@ -120,6 +120,13 @@
 | PlaceDetail | PlaceMemoFinishedList |
 | WebDetail | WebMemoFinishedList |
 
+### TC-34a36e6f-64d0-4e70-81bd-e2b5fc867b8f: 항목 목록과 함께 표시되던 상세에서 이동했으면 뒤로갔을 때 그 배치로 돌아간다
+
+- 근거: `feature > 진입과 이동`
+- Given: 목록과 상세를 함께 사용할 수 있는 환경에서 ContactHome 목록과 함께 표시된 ContactDetail 화면의 메모 탭에서 ContactMemoFinishedList 화면으로 이동했다.
+- When: 사용자가 뒤로간다.
+- Then: ContactMemoFinishedList 화면이 닫히고 ContactHome 목록과 상세가 다시 함께 표시되며, 상세 영역에는 메모 탭이 선택된 같은 연락처의 ContactDetail이 놓여 있다.
+
 ### TC-1b064e48-363f-48a1-b87e-628749605c2e: 이 화면에서는 메모를 추가할 수 없다
 
 - 근거: `feature > 추가 미제공`

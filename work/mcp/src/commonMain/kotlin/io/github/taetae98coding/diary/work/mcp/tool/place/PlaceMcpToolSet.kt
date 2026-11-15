@@ -2,7 +2,9 @@ package io.github.taetae98coding.diary.work.mcp.tool.place
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedPlaceMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PagePlaceMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
@@ -14,6 +16,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.UpdatePlaceUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -22,25 +25,30 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.changeActive
+import io.github.taetae98coding.diary.work.mcp.tool.isActive
 import io.github.taetae98coding.diary.work.mcp.tool.json.changedCountResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrNull
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrRandom
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorParameter
 import io.github.taetae98coding.diary.work.mcp.tool.json.doneResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.idResult
+import io.github.taetae98coding.diary.work.mcp.tool.json.notDoneResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.sort
 import io.github.taetae98coding.diary.work.mcp.tool.json.sortParameter
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJsonArray
 import io.github.taetae98coding.diary.work.mcp.tool.memo.memoSortList
+import io.github.taetae98coding.diary.work.mcp.tool.pageActive
 import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParameter
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.readActive
 import io.github.taetae98coding.diary.work.mcp.tool.readFirst
+import io.github.taetae98coding.diary.work.mcp.tool.tag.NOT_DONE_DESCRIPTION
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import io.github.taetae98coding.diary.work.mcp.tool.uuidSet
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -71,6 +79,7 @@ internal class PlaceMcpToolSet(
     private val updatePlaceUseCase: UpdatePlaceUseCase,
     private val deletePlaceUseCase: DeletePlaceUseCase,
     private val restorePlaceUseCase: RestorePlaceUseCase,
+    private val findTagUseCase: FindTagUseCase,
     private val addEntityTagUseCase: AddEntityTagUseCase,
     private val removeEntityTagUseCase: RemoveEntityTagUseCase,
 ) : McpToolSet {
@@ -101,7 +110,7 @@ internal class PlaceMcpToolSet(
             },
             McpTool(
                 name = "place_get",
-                description = "Gets one place with its linked tags. Returns null when the place does not exist.",
+                description = "Gets one place with its linked tags. Returns null when the place does not exist or is deleted.",
                 parameterList = listOf(placeIdParameter),
                 kind = McpToolKind.READ,
             ) { arguments -> getPlace(arguments) },
@@ -111,11 +120,12 @@ internal class PlaceMcpToolSet(
                 parameterList = listOf(placeIdParameter, sortParameter(memoSortList), mcpPageCursorParameter),
                 kind = McpToolKind.READ,
             ) { arguments ->
-                pagePlaceMemoUseCase
-                    .readPage(
-                        parameter = PagePlaceMemoUseCase.Parameter(placeId = arguments.uuid(PLACE_ID), sort = arguments.sort(memoSortList)),
-                        offset = arguments.pageOffset(),
-                    ).toJson { memo -> memo.toJson() }
+                val parameter = PagePlaceMemoUseCase.Parameter(placeId = arguments.uuid(PLACE_ID), sort = arguments.sort(memoSortList))
+                val offset = arguments.pageOffset()
+
+                findPlaceUseCase.pageActive(id = parameter.placeId, isDeleted = Place::isDeleted) {
+                    pagePlaceMemoUseCase.readPage(parameter = parameter, offset = offset).toJson { memo -> memo.toJson() }
+                }
             },
             McpTool(
                 name = "place_memo_finished_list",
@@ -123,11 +133,12 @@ internal class PlaceMcpToolSet(
                 parameterList = listOf(placeIdParameter, sortParameter(memoSortList), mcpPageCursorParameter),
                 kind = McpToolKind.READ,
             ) { arguments ->
-                pageFinishedPlaceMemoUseCase
-                    .readPage(
-                        parameter = PageFinishedPlaceMemoUseCase.Parameter(placeId = arguments.uuid(PLACE_ID), sort = arguments.sort(memoSortList)),
-                        offset = arguments.pageOffset(),
-                    ).toJson { memo -> memo.toJson() }
+                val parameter = PageFinishedPlaceMemoUseCase.Parameter(placeId = arguments.uuid(PLACE_ID), sort = arguments.sort(memoSortList))
+                val offset = arguments.pageOffset()
+
+                findPlaceUseCase.pageActive(id = parameter.placeId, isDeleted = Place::isDeleted) {
+                    pageFinishedPlaceMemoUseCase.readPage(parameter = parameter, offset = offset).toJson { memo -> memo.toJson() }
+                }
             },
             McpTool(
                 name = "place_add",
@@ -186,7 +197,7 @@ internal class PlaceMcpToolSet(
                 description = "Deletes a place. Links to memos are kept. Use place_restore with the same id to undo.",
                 parameterList = listOf(placeIdParameter),
                 kind = McpToolKind.DESTRUCTIVE,
-            ) { arguments -> changedCountResult(deletePlaceUseCase(parameter = arguments.uuid(PLACE_ID)).getOrThrow()) },
+            ) { arguments -> findPlaceUseCase.changeActive(id = arguments.uuid(PLACE_ID), isDeleted = Place::isDeleted) { id -> deletePlaceUseCase(parameter = id) } },
             McpTool(
                 name = "place_restore",
                 description = "Restores a deleted place.",
@@ -204,7 +215,7 @@ internal class PlaceMcpToolSet(
     private suspend fun getPlace(arguments: McpToolArguments) =
         run {
             val placeId = arguments.uuid(PLACE_ID)
-            val place = findPlaceUseCase.readFirst(parameter = placeId) ?: return@run JsonNull
+            val place = findPlaceUseCase.readFirst(parameter = placeId)?.takeUnless { place -> place.isDeleted } ?: return@run JsonNull
 
             buildJsonObject {
                 put("place", place.toJson())
@@ -215,7 +226,7 @@ internal class PlaceMcpToolSet(
     private suspend fun updatePlace(arguments: McpToolArguments) =
         run {
             val placeId = arguments.uuid(PLACE_ID)
-            val current = findPlaceUseCase.readFirst(parameter = placeId)?.detail ?: return@run changedCountResult(count = 0)
+            val current = findPlaceUseCase.readActive(id = placeId, isDeleted = Place::isDeleted)?.detail ?: return@run changedCountResult(count = 0)
             val detail =
                 PlaceDetail(
                     title = arguments.stringOrNull(TITLE) ?: current.title,
@@ -239,7 +250,7 @@ internal class PlaceMcpToolSet(
     ): McpTool =
         McpTool(
             name = name,
-            description = description,
+            description = "$description $NOT_DONE_DESCRIPTION",
             parameterList =
                 listOf(
                     placeIdParameter,
@@ -247,7 +258,15 @@ internal class PlaceMcpToolSet(
                 ),
             kind = McpToolKind.WRITE,
         ) { arguments: McpToolArguments ->
-            link(arguments.uuid(PLACE_ID), arguments.uuid("tagId"))
-            doneResult as JsonElement
+            val entityId = arguments.uuid(PLACE_ID)
+            val tagId = arguments.uuid("tagId")
+            val isLinkable = findPlaceUseCase.isActive(id = entityId, isDeleted = Place::isDeleted) && findTagUseCase.isActive(id = tagId, isDeleted = Tag::isDeleted)
+
+            if (isLinkable) {
+                link(entityId, tagId)
+                doneResult
+            } else {
+                notDoneResult
+            }
         }
 }

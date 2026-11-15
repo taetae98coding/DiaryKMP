@@ -29,8 +29,9 @@ internal fun NavBackStack<ScreenNavKey>.navigateUpFromMemoFinishedList() {
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateToCopiedMemo(id: Uuid) {
-    removeLastOrNull()
-    add(MemoDetailNavKey(id))
+    val isStandalone = (removeLastOrNull() as? MemoDetailNavKey)?.isStandalone == true
+
+    add(MemoDetailNavKey(id = id, isStandalone = isStandalone))
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateToWebAddFromMemoWebInput(requestKey: Uuid) {

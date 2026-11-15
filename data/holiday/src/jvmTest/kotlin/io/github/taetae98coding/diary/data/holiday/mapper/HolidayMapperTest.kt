@@ -6,8 +6,8 @@ import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCo
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.data.holiday.holidayLocalEntity
-import io.github.taetae98coding.diary.data.holiday.holidayRemoteEntity
+import io.github.taetae98coding.diary.core.testing.holiday.holidayLocalEntity
+import io.github.taetae98coding.diary.core.testing.holiday.holidayRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

@@ -129,7 +129,7 @@ class WebAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-2355ae81-e9cb-4203-86cb-23b6bbca72f6 TC-ca3c3ae8-e1a0-4f98-942a-f044f063ee8b TC-ef341fba-ece0-44e0-a0a4-21dbeaa96dbb 표시 기준에서 빠진 태그는 제외된 것으로 표시되지만 선택은 남아 있다") {
+        test("TC-2355ae81-e9cb-4203-86cb-23b6bbca72f6 TC-ca3c3ae8-e1a0-4f98-942a-f044f063ee8b 표시 기준에서 빠진 태그는 제외된 것으로 표시되지만 선택은 남아 있다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = emptyList())
@@ -144,7 +144,7 @@ class WebAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-8b85f5ae-dd5e-4598-b6e8-78d9a31ec096 고른 뒤 완료되거나 삭제되어 제외된 것으로 표시된 태그도 연결할 선택에 그대로 남는다") {
+        test("TC-ef341fba-ece0-44e0-a0a4-21dbeaa96dbb TC-8b85f5ae-dd5e-4598-b6e8-78d9a31ec096 고른 뒤 완료되거나 삭제된 태그는 제외된 것으로 표시되고 선택에는 남는다") {
             listOf<(Tag) -> Tag>(
                 { value -> value.copy(isFinished = true) },
                 { value -> value.copy(isDeleted = true) },
@@ -179,6 +179,35 @@ class WebAddTagViewModelTest : FunSpec() {
 
                     viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
                 }
+            }
+        }
+
+        test("TC-2355ae81-e9cb-4203-86cb-23b6bbca72f6 표시되던 태그가 삭제되면 제외된 것으로 표시되고 선택은 남는다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val selectedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(tag)))
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = any()) } returns selectedTagFlow
+                val pageTagUseCase = mockk<PageTagUseCase>()
+                every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList<Tag>())))
+                val viewModel =
+                    EntityAddTagViewModel(
+                        initialTagId = tag.id,
+                        pageTagUseCase = pageTagUseCase,
+                        getSelectedTagUseCase = getSelectedTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+
+                    selectedTagFlow.value = Result.success(emptyList())
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
             }
         }
 

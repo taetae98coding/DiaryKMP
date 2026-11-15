@@ -4,17 +4,24 @@ import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemSortLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.datasource.AccountChecklistLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.datasource.AccountChecklistItemLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.entitytag.datasource.AccountEntityTagLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
+import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -30,6 +37,8 @@ class AccountChecklistTransactionImplTest :
     FunSpec({
         lateinit var database: DiaryDatabase
         lateinit var transaction: AccountChecklistTransactionImpl
+        lateinit var tagTransaction: AccountTagTransactionImpl
+        lateinit var tagDataSource: AccountEntityTagLocalDataSourceImpl
 
         beforeTest {
             database =
@@ -38,11 +47,22 @@ class AccountChecklistTransactionImplTest :
                     .setDriver(BundledSQLiteDriver())
                     .build()
             transaction = AccountChecklistTransactionImpl(database = database)
+            tagTransaction = AccountTagTransactionImpl(database = database)
+            tagDataSource = AccountEntityTagLocalDataSourceImpl(database = database)
         }
 
         afterTest {
             database.close()
         }
+
+        suspend fun linkedTagIdList(
+            accountId: Uuid,
+            checklistId: Uuid,
+        ): List<Uuid> =
+            tagDataSource
+                .getTagList(accountId = accountId, kind = EntityTagKindLocalEntity.CHECKLIST, entityId = checklistId)
+                .first()
+                .map { tag -> tag.id }
 
         test("TC-e0a4bfe4-2f96-43c3-82ba-b5596d4c80c5 TC-6bea336d-5773-4cdf-aae2-688bf1afbeaa TC-0edd72f1-8960-4878-8a28-1bf9a28203a7 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 체크리스트와 체크 항목, 각각의 현재 계정 연결을 업로드 대기 상태로 함께 저장한다") {
             val accountId = Arb.kotlinUuid().next()
@@ -243,6 +263,89 @@ class AccountChecklistTransactionImplTest :
 
             database.findChecklistList() shouldBe listOf(checklist.copy(detail = detail, updatedAt = updatedAt))
         }
+
+        test("TC-9f688659-42f2-4c32-9e31-fea6de2793a3 고른 뒤 완료된 태그도 새 체크리스트와 연결되어 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tag = Arb.tagLocalEntity().next().copy(isFinished = false, isDeleted = false)
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+
+            transaction.upsert(
+                accountId = accountId,
+                checklist = checklist,
+                itemList = emptyList(),
+                checklistTagList = listOf(checklistTag(checklistId = checklist.id, tagId = tag.id)),
+            )
+
+            linkedTagIdList(accountId = accountId, checklistId = checklist.id) shouldBe listOf(tag.id)
+        }
+
+        test("TC-9f688659-42f2-4c32-9e31-fea6de2793a3 고른 뒤 삭제된 태그도 연결되어 삭제를 되돌리면 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tag = Arb.tagLocalEntity().next().copy(isFinished = false, isDeleted = false)
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+
+            transaction.upsert(
+                accountId = accountId,
+                checklist = checklist,
+                itemList = emptyList(),
+                checklistTagList = listOf(checklistTag(checklistId = checklist.id, tagId = tag.id)),
+            )
+
+            linkedTagIdList(accountId = accountId, checklistId = checklist.id).shouldBeEmpty()
+
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
+
+            linkedTagIdList(accountId = accountId, checklistId = checklist.id) shouldBe listOf(tag.id)
+        }
+
+        listOf(
+            TagStateCase(label = "미완료·미삭제", isFinished = false, isDeleted = false, isShown = true),
+            TagStateCase(label = "완료", isFinished = true, isDeleted = false, isShown = true),
+            TagStateCase(label = "삭제", isFinished = false, isDeleted = true, isShown = false),
+        ).forEach { case ->
+            test("TC-e8ebecec-057d-49f1-a3f7-cb5a697ccce9 연결된 태그가 ${case.label} 상태가 되면 조회 여부는 ${case.isShown} 이다") {
+                val accountId = Arb.kotlinUuid().next()
+                val tag = Arb.tagLocalEntity().next().copy(isFinished = false, isDeleted = false)
+                tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+                val checklist = Arb.localChecklist(isDeleted = false).next()
+                transaction.upsert(
+                    accountId = accountId,
+                    checklist = checklist,
+                    itemList = emptyList(),
+                    checklistTagList = listOf(checklistTag(checklistId = checklist.id, tagId = tag.id)),
+                )
+                linkedTagIdList(accountId = accountId, checklistId = checklist.id) shouldBe listOf(tag.id)
+
+                if (case.isFinished) {
+                    tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+                }
+                if (case.isDeleted) {
+                    tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+                }
+
+                linkedTagIdList(accountId = accountId, checklistId = checklist.id) shouldBe if (case.isShown) listOf(tag.id) else emptyList()
+            }
+        }
     })
+
+private class TagStateCase(
+    val label: String,
+    val isFinished: Boolean,
+    val isDeleted: Boolean,
+    val isShown: Boolean,
+)
+
+private fun checklistTag(
+    checklistId: Uuid,
+    tagId: Uuid,
+): EntityTagLocalEntity =
+    Arb
+        .entityTagLocalEntity()
+        .next()
+        .copy(entityId = checklistId, tagId = tagId, isDeleted = false)
 
 private class ChecklistTestException : RuntimeException()

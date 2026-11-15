@@ -9,7 +9,6 @@ import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
@@ -29,12 +28,7 @@ class DiaryMapStateRestorationTest {
     // 화면 재생성과 메모리 정리 뒤 복원은 모두 저장해 둔 상태로 다시 만드는 같은 경계를 지나므로 한 번의 복원으로 함께 확인한다.
     @Test
     fun `TC-ffe3d6a4-1504-4305-b8f8-f39fd2889ecd 화면이 재생성되거나 메모리 정리 뒤 복원하면 지도가 알려온 위치와 확대 수준을 되살린다`() {
-        val camera =
-            DiaryMapCamera(
-                latitude = Arb.int().next() % MAX_LATITUDE / COORDINATE_SCALE,
-                longitude = Arb.int().next() % MAX_LONGITUDE / COORDINATE_SCALE,
-                zoom = (Arb.int().next() % MAX_ZOOM).toDouble().let { zoom -> if (zoom < 0) -zoom else zoom },
-            )
+        val camera = Arb.diaryMapCamera().next()
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: DiaryMapState
 
@@ -55,7 +49,7 @@ class DiaryMapStateRestorationTest {
     // 화면 재생성과 메모리 정리 뒤 복원은 모두 저장해 둔 상태로 다시 만드는 같은 경계를 지나므로 한 번의 복원으로 함께 확인한다.
     @Test
     fun `TC-bd198412-2aed-4d8b-b062-edab46cffd90 화면 재생성이나 메모리 정리 뒤 복원하면 표시하던 지점을 되살린다`() {
-        val spot = fixtureCoordinate()
+        val spot = Arb.diaryMapCoordinate().next()
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: DiaryMapState
 
@@ -93,7 +87,7 @@ class DiaryMapStateRestorationTest {
                 state = rememberDiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             }
         }
-        composeRule.runOnIdle { checkNotNull(state).selectSpot(fixtureCoordinate()) }
+        composeRule.runOnIdle { checkNotNull(state).selectSpot(Arb.diaryMapCoordinate().next()) }
         composeRule.runOnIdle { isVisible = false }
         composeRule.runOnIdle { isVisible = true }
 
@@ -102,7 +96,7 @@ class DiaryMapStateRestorationTest {
 
     @Test
     fun `TC-c028ea8c-215f-448d-a79b-213413eab86e DiaryMap을 새로 시작하면 이전에 보던 지도 위치와 확대 수준을 되살리지 않는다`() {
-        val initialCoordinate = fixtureCoordinate()
+        val initialCoordinate = Arb.diaryMapCoordinate().next()
         var isVisible by mutableStateOf(true)
         var state: DiaryMapState? = null
 
@@ -112,7 +106,7 @@ class DiaryMapStateRestorationTest {
             }
         }
         composeRule.runOnIdle {
-            checkNotNull(state).moveCamera(DiaryMapCamera(latitude = fixtureCoordinate().latitude, longitude = fixtureCoordinate().longitude, zoom = DiaryMapCamera.NEIGHBORHOOD_ZOOM + 2))
+            checkNotNull(state).moveCamera(DiaryMapCamera(latitude = Arb.diaryMapCoordinate().next().latitude, longitude = Arb.diaryMapCoordinate().next().longitude, zoom = DiaryMapCamera.NEIGHBORHOOD_ZOOM + 2))
         }
         composeRule.runOnIdle { isVisible = false }
         composeRule.runOnIdle { isVisible = true }
@@ -125,18 +119,5 @@ class DiaryMapStateRestorationTest {
                     zoom = DiaryMapCamera.NEIGHBORHOOD_ZOOM,
                 )
         }
-    }
-
-    private fun fixtureCoordinate(): DiaryMapCoordinate =
-        DiaryMapCoordinate(
-            latitude = Arb.int().next() % MAX_LATITUDE / COORDINATE_SCALE,
-            longitude = Arb.int().next() % MAX_LONGITUDE / COORDINATE_SCALE,
-        )
-
-    private companion object {
-        private const val MAX_LATITUDE = 900_000
-        private const val MAX_LONGITUDE = 1_800_000
-        private const val MAX_ZOOM = 21
-        private const val COORDINATE_SCALE = 10_000.0
     }
 }

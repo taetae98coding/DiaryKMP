@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -46,7 +47,7 @@ class MoveMemoUseCaseTest :
             val detailSlot = slot<MemoDetail>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -150,7 +151,7 @@ class MoveMemoUseCaseTest :
             val storedMemo = memo(id = memoId, isDeleted = false, isFinished = true)
             val detailSlot = slot<MemoDetail>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -192,7 +193,7 @@ class MoveMemoUseCaseTest :
             val memoId = Arb.kotlinUuid().next()
             val storedMemo = memo(id = memoId, isDeleted = false)
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
                 Result.failure(IllegalStateException(Arb.string().next()))
@@ -241,7 +242,7 @@ class MoveMemoUseCaseTest :
             val memoId = Arb.kotlinUuid().next()
             val storedMemo = memo(id = memoId, isDeleted = true)
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             val findMemoUseCase = mockk<FindMemoUseCase>()
             every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
@@ -276,7 +277,7 @@ class MoveMemoUseCaseTest :
             val account = Arb.accountUser().next()
             val memoId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             val findMemoUseCase = mockk<FindMemoUseCase>()
             every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(null))
@@ -313,7 +314,7 @@ class MoveMemoUseCaseTest :
             val storedMemo = memo(id = memoId, isDeleted = false)
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             val findMemoUseCase = mockk<FindMemoUseCase>()
             every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))

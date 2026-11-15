@@ -11,6 +11,7 @@ internal fun searchAppActionOf(vararg useCaseArray: Any): SearchAppAction {
         searchPlaceUseCase = useCaseList.useCase(),
         searchWebUseCase = useCaseList.useCase(),
         searchDDayUseCase = useCaseList.useCase(),
+        searchRoutineUseCase = useCaseList.useCase(),
         clock = useCaseList.useCase(),
     )
 }

@@ -66,6 +66,27 @@ class TagPickerPagingStateTest : FunSpec() {
             }
         }
 
+        test("TC-c77d6ace-89d5-4b17-8afb-8666391cabb8 검색어를 바꿔 다시 조회하다 실패하면 이전 태그를 남기지 않는다") {
+            runTest {
+                val query = Arb.nonBlankString().next()
+                val tagList = List(2) { Arb.tag().next() }
+                val pageTag = mockk<(String) -> Flow<Result<PagingData<Tag>>>>()
+                every { pageTag("") } returns flowOf(Result.success(PagingData.from(tagList)))
+                every { pageTag(query) } returns flowOf(Result.failure(IllegalStateException()))
+                val state = TagPickerPagingState(pageTag = pageTag)
+
+                state.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
+
+                    state.updateQuery(query = query)
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("조회가 실패하면 빈 목록을 내보낸다") {
             runTest {
                 val pageTag = mockk<(String) -> Flow<Result<PagingData<Tag>>>>()

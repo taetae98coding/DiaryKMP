@@ -21,6 +21,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(projects.domain.share)
                 implementation(projects.logger.crashlytics.api)
                 implementation(libs.androidx.paging.testing)
             }

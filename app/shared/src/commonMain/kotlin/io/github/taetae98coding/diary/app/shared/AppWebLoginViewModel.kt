@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebLoginRestoreState
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebLoginUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.SaveWebLoginUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,7 @@ internal class AppWebLoginViewModel(
 
         viewModelScope.launch {
             try {
-                restoreWebLoginUseCase(parameter = Unit).collect { result ->
+                restoreWebLoginUseCase().collect { result ->
                     session.update { DiaryWebSession(isRestoring = result.getOrNull() == WebLoginRestoreState.RESTORING) }
                 }
             } finally {
@@ -44,7 +45,7 @@ internal class AppWebLoginViewModel(
 
         viewModelScope.launch {
             try {
-                saveWebLoginUseCase(parameter = Unit)
+                saveWebLoginUseCase()
             } finally {
                 isSaving = false
             }

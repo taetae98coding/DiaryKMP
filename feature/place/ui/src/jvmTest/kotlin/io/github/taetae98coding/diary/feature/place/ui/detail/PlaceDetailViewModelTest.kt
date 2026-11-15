@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInvalidException
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
@@ -270,7 +271,7 @@ class PlaceDetailViewModelTest : FunSpec() {
         test("TC-596c6648-c8da-4234-bc45-ba68f29b788c 기본 지도를 읽지 못하면 지도 제공자를 확인하지 않은 상태로 둔다") {
             runTest(mainDispatcher) {
                 val defaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { defaultMapProviderUseCase(Unit) } returns flowOf(Result.failure(IllegalStateException()))
+                every { defaultMapProviderUseCase() } returns flowOf(Result.failure(IllegalStateException()))
                 val viewModel = viewModel(defaultMapProviderUseCase = defaultMapProviderUseCase)
                 collectUiState(viewModel)
                 advanceUntilIdle()
@@ -286,7 +287,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val providerFlow = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val defaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-                every { defaultMapProviderUseCase(Unit) } returns providerFlow
+                every { defaultMapProviderUseCase() } returns providerFlow
                 val viewModel = viewModel(defaultMapProviderUseCase = defaultMapProviderUseCase)
                 collectUiState(viewModel)
                 advanceUntilIdle()
@@ -328,29 +329,43 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-f2eff612-1a42-4908-b9ed-c73d84faea68 대상 장소가 삭제 상태로 바뀌어도 내용 표시 상태를 유지한다") {
+        test("TC-f2eff612-1a42-4908-b9ed-c73d84faea68 대상 장소가 삭제 상태로 바뀌어도 표시 상태가 바뀌지 않고 수정과 삭제를 요청할 수 있다") {
             runTest(mainDispatcher) {
                 val place = place()
+                val editedDetail = detail()
                 val placeFlow = MutableStateFlow(Result.success<Place?>(place))
                 val findPlaceUseCase = mockk<FindPlaceUseCase>()
                 every { findPlaceUseCase(place.id) } returns placeFlow
-                val viewModel = viewModel(id = place.id, findPlaceUseCase = findPlaceUseCase)
+                val updatePlaceUseCase = mockk<UpdatePlaceUseCase>()
+                coEvery { updatePlaceUseCase(any()) } returns Result.success(1)
+                val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
+                coEvery { deletePlaceUseCase(place.id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        id = place.id,
+                        updatePlaceUseCase = updatePlaceUseCase,
+                        deletePlaceUseCase = deletePlaceUseCase,
+                        findPlaceUseCase = findPlaceUseCase,
+                    )
                 collectUiState(viewModel)
                 advanceUntilIdle()
-
-                viewModel.uiState.value.shouldBeInstanceOf<PlaceDetailUiState.Content>()
+                val before = viewModel.uiState.value.shouldBeInstanceOf<PlaceDetailUiState.Content>()
 
                 // 조회는 삭제 여부를 가리지 않으므로 삭제 상태가 되어도 같은 장소가 계속 조회된다.
                 placeFlow.value = Result.success(place.copy(isDeleted = true))
                 advanceUntilIdle()
 
-                viewModel.uiState.value
-                    .shouldBeInstanceOf<PlaceDetailUiState.Content>()
-                    .detail shouldBe place.detail
+                // 표시 상태가 그대로이므로 화면은 입력을 다시 채우지 않고, 수정과 삭제도 처리 중이 아니어서 실행할 수 있다.
+                viewModel.uiState.value shouldBe before
+                viewModel.update(detail = editedDetail)
+                viewModel.delete()
+                advanceUntilIdle()
+                coVerify(exactly = 1) { updatePlaceUseCase(UpdatePlaceUseCase.Parameter(id = place.id, detail = editedDetail)) }
+                coVerify(exactly = 1) { deletePlaceUseCase(place.id) }
             }
         }
 
-        test("TC-de319f84-9bf5-4641-a13b-84dab3f382b5 삭제 상태인 장소로 진입해도 내용 표시 상태가 된다") {
+        test("TC-de319f84-9bf5-4641-a13b-84dab3f382b5 TC-fa086b84-94ef-4d78-a1b4-2dd04e8a8211 삭제 상태인 장소로 진입해도 내용 표시 상태가 된다") {
             runTest(mainDispatcher) {
                 val place = place().copy(isDeleted = true)
                 val viewModel = viewModel(id = place.id, place = place)
@@ -435,7 +450,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             deletePlaceUseCase: DeletePlaceUseCase = mockk(),
             findPlaceUseCase: FindPlaceUseCase = findPlaceUseCase(id = id, place = place),
             defaultProvider: MapProvider = MapProvider.NAVER,
-            defaultMapProviderUseCase: GetDefaultMapProviderUseCase = defaultMapProviderUseCase(provider = defaultProvider),
+            defaultMapProviderUseCase: GetDefaultMapProviderUseCase = stubDefaultMapProviderUseCase(provider = defaultProvider),
         ): PlaceDetailViewModel =
             PlaceDetailViewModel(
                 id = id,
@@ -445,9 +460,9 @@ class PlaceDetailViewModelTest : FunSpec() {
                 getDefaultMapProviderUseCase = defaultMapProviderUseCase,
             )
 
-        private fun defaultMapProviderUseCase(provider: MapProvider = MapProvider.NAVER): GetDefaultMapProviderUseCase =
+        private fun stubDefaultMapProviderUseCase(provider: MapProvider = MapProvider.NAVER): GetDefaultMapProviderUseCase =
             mockk<GetDefaultMapProviderUseCase>().also { useCase ->
-                every { useCase(Unit) } returns flowOf(Result.success(provider))
+                every { useCase() } returns flowOf(Result.success(provider))
             }
 
         private fun findPlaceUseCase(

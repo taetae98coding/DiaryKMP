@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.fileUri
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
@@ -358,9 +359,9 @@ class FileAddViewModelTest : FunSpec() {
         eventChannel: Channel<Result<FileUploadEvent>> = Channel(Channel.UNLIMITED),
     ): FileAddViewModel {
         val getStateUseCase = mockk<GetFileUploadStateUseCase>()
-        every { getStateUseCase(parameter = Unit) } returns stateFlow
+        every { getStateUseCase() } returns stateFlow
         val getEventUseCase = mockk<GetFileUploadEventUseCase>()
-        every { getEventUseCase(parameter = Unit) } returns eventChannel.receiveAsFlow()
+        every { getEventUseCase() } returns eventChannel.receiveAsFlow()
 
         return FileAddViewModel(
             readFileUploadSourceUseCase = readUseCase,

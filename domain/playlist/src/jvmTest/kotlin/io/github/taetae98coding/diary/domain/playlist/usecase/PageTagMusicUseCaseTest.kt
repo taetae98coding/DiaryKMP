@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountTagMusicRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
@@ -34,7 +35,7 @@ class PageTagMusicUseCaseTest :
             val pagingData = PagingData.empty<Music>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagMusicRepository = mockk<AccountTagMusicRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagMusicRepository.page(account = account, tagId = tagId, scope = scope, sort = sort) } returns flowOf(pagingData)
             val useCase = PageTagMusicUseCase(getAccountUseCase = getAccountUseCase, accountTagMusicRepository = accountTagMusicRepository)
 
@@ -57,7 +58,7 @@ class PageTagMusicUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagMusicRepository = mockk<AccountTagMusicRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase = PageTagMusicUseCase(getAccountUseCase = getAccountUseCase, accountTagMusicRepository = accountTagMusicRepository)
 
             When("대상 태그의 음악 페이지를 조회한다") {
@@ -80,7 +81,7 @@ class PageTagMusicUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagMusicRepository = mockk<AccountTagMusicRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountTagMusicRepository.page(account = account, tagId = tagId, scope = scope, sort = sort) } returns flow { throw failure }
             val useCase = PageTagMusicUseCase(getAccountUseCase = getAccountUseCase, accountTagMusicRepository = accountTagMusicRepository)
 

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.work.appaction.core.readNumberedPage
+import io.github.taetae98coding.diary.work.appaction.place.AppActionPlaceDetail
 import io.github.taetae98coding.diary.work.appaction.place.PlaceAppAction
 import io.github.taetae98coding.diary.work.appaction.place.appActionCoordinateText
 
@@ -40,22 +41,9 @@ public object DiaryPlaceAppAction {
                 sort = sort.toSortValue(),
             ).map { place -> place.toDiary() }
 
-    public suspend fun get(placeId: String): DiaryAppActionPlaceDetail? =
-        placeAppAction().get(placeId = placeId)?.let { detail ->
-            DiaryAppActionPlaceDetail(place = detail.place.toDiary(), tags = detail.tags.map { tag -> tag.toDiary() })
-        }
+    public suspend fun get(placeId: String): DiaryAppActionPlaceDetail? = placeAppAction().get(placeId = placeId)?.toDiary()
 
-    public suspend fun memoList(
-        placeId: String,
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionMemoPage = readMemoPage(pageNumber = pageNumber) { cursor -> placeAppAction().memoList(placeId = placeId, sort = sort.toSortValue(), cursor = cursor) }
-
-    public suspend fun memoFinishedList(
-        placeId: String,
-        sort: DiaryAppActionSort?,
-        pageNumber: Int,
-    ): DiaryAppActionMemoPage = readMemoPage(pageNumber = pageNumber) { cursor -> placeAppAction().memoFinishedList(placeId = placeId, sort = sort.toSortValue(), cursor = cursor) }
+    public suspend fun getIncludingDeleted(placeId: String): DiaryAppActionPlaceDetail? = placeAppAction().getIncludingDeleted(placeId = placeId)?.toDiary()
 
     public suspend fun add(
         title: String,
@@ -100,16 +88,8 @@ public object DiaryPlaceAppAction {
     public suspend fun delete(placeId: String): Int = placeAppAction().delete(placeId = placeId).changedCount
 
     public suspend fun restore(placeId: String): Int = placeAppAction().restore(placeId = placeId).changedCount
-
-    public suspend fun tagAdd(
-        placeId: String,
-        tagId: String,
-    ): Boolean = placeAppAction().tagAdd(placeId = placeId, tagId = tagId).done
-
-    public suspend fun tagRemove(
-        placeId: String,
-        tagId: String,
-    ): Boolean = placeAppAction().tagRemove(placeId = placeId, tagId = tagId).done
 }
 
 private fun placeAppAction(): PlaceAppAction = diaryAppAction()
+
+private fun AppActionPlaceDetail.toDiary(): DiaryAppActionPlaceDetail = DiaryAppActionPlaceDetail(place = place.toDiary(), tags = tags.map { tag -> tag.toDiary() })

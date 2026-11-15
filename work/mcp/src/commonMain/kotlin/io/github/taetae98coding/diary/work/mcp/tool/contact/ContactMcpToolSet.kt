@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.mcp.tool.contact
 
+import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
@@ -16,6 +17,11 @@ import io.github.taetae98coding.diary.domain.contact.usecase.UnfavoriteContactUs
 import io.github.taetae98coding.diary.domain.contact.usecase.UpdateContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageContactMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedContactMemoUseCase
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArgumentException
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArguments
@@ -23,21 +29,30 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.changeActive
+import io.github.taetae98coding.diary.work.mcp.tool.isActive
 import io.github.taetae98coding.diary.work.mcp.tool.json.changedCountResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.idResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.sort
 import io.github.taetae98coding.diary.work.mcp.tool.json.sortParameter
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.json.toJsonArray
 import io.github.taetae98coding.diary.work.mcp.tool.localDateOrNull
 import io.github.taetae98coding.diary.work.mcp.tool.memo.memoSortList
+import io.github.taetae98coding.diary.work.mcp.tool.pageActive
 import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParameter
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.readActive
 import io.github.taetae98coding.diary.work.mcp.tool.readFirst
+import io.github.taetae98coding.diary.work.mcp.tool.tag.entityTagToolList
+import io.github.taetae98coding.diary.work.mcp.tool.tag.tagIdsParameter
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
+import io.github.taetae98coding.diary.work.mcp.tool.uuidSet
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.buildJsonObject
 import org.koin.core.annotation.Factory
 
 private const val CONTACT_ID = "contactId"
@@ -45,7 +60,7 @@ private const val DESCRIPTION = "description"
 private const val HOMETOWN = "hometown"
 private const val HOW_WE_MET = "howWeMet"
 
-private val contactSortList: List<ListSort> = listOf(ListSort.NAME, ListSort.RECENTLY_UPDATED)
+internal val contactSortList: List<ListSort> = listOf(ListSort.NAME, ListSort.RECENTLY_UPDATED)
 
 private val contactIdParameter: McpToolParameter =
     McpToolParameter(name = CONTACT_ID, type = McpToolParameterType.STRING, description = "Id of the contact.", isRequired = true)
@@ -54,6 +69,7 @@ private val contactIdParameter: McpToolParameter =
 internal class ContactMcpToolSet(
     private val pageContactUseCase: PageContactUseCase,
     private val findContactUseCase: FindContactUseCase,
+    private val getEntityTagUseCase: GetEntityTagUseCase,
     private val pageContactMemoUseCase: PageContactMemoUseCase,
     private val pageFinishedContactMemoUseCase: PageFinishedContactMemoUseCase,
     private val addContactUseCase: AddContactUseCase,
@@ -62,6 +78,9 @@ internal class ContactMcpToolSet(
     private val unfavoriteContactUseCase: UnfavoriteContactUseCase,
     private val deleteContactUseCase: DeleteContactUseCase,
     private val restoreContactUseCase: RestoreContactUseCase,
+    private val findTagUseCase: FindTagUseCase,
+    private val addEntityTagUseCase: AddEntityTagUseCase,
+    private val removeEntityTagUseCase: RemoveEntityTagUseCase,
 ) : McpToolSet {
     override val toolList: List<McpTool> =
         listOf(
@@ -79,21 +98,22 @@ internal class ContactMcpToolSet(
             },
             McpTool(
                 name = "contact_get",
-                description = "Gets one contact with all its details. Returns null when the contact does not exist.",
+                description = "Gets one contact with all its details and linked tags. Returns null when the contact does not exist or is deleted.",
                 parameterList = listOf(contactIdParameter),
                 kind = McpToolKind.READ,
-            ) { arguments -> findContactUseCase.readFirst(parameter = arguments.uuid(CONTACT_ID))?.toDetailJson() ?: JsonNull },
+            ) { arguments -> getContact(arguments) },
             McpTool(
                 name = "contact_memo_list",
                 description = "Lists unfinished memos linked to a contact that are not deleted.",
                 parameterList = listOf(contactIdParameter, sortParameter(memoSortList), mcpPageCursorParameter),
                 kind = McpToolKind.READ,
             ) { arguments ->
-                pageContactMemoUseCase
-                    .readPage(
-                        parameter = PageContactMemoUseCase.Parameter(contactId = arguments.uuid(CONTACT_ID), sort = arguments.sort(memoSortList)),
-                        offset = arguments.pageOffset(),
-                    ).toJson { memo -> memo.toJson() }
+                val parameter = PageContactMemoUseCase.Parameter(contactId = arguments.uuid(CONTACT_ID), sort = arguments.sort(memoSortList))
+                val offset = arguments.pageOffset()
+
+                findContactUseCase.pageActive(id = parameter.contactId, isDeleted = Contact::isDeleted) {
+                    pageContactMemoUseCase.readPage(parameter = parameter, offset = offset).toJson { memo -> memo.toJson() }
+                }
             },
             McpTool(
                 name = "contact_memo_finished_list",
@@ -101,11 +121,12 @@ internal class ContactMcpToolSet(
                 parameterList = listOf(contactIdParameter, sortParameter(memoSortList), mcpPageCursorParameter),
                 kind = McpToolKind.READ,
             ) { arguments ->
-                pageFinishedContactMemoUseCase
-                    .readPage(
-                        parameter = PageFinishedContactMemoUseCase.Parameter(contactId = arguments.uuid(CONTACT_ID), sort = arguments.sort(memoSortList)),
-                        offset = arguments.pageOffset(),
-                    ).toJson { memo -> memo.toJson() }
+                val parameter = PageFinishedContactMemoUseCase.Parameter(contactId = arguments.uuid(CONTACT_ID), sort = arguments.sort(memoSortList))
+                val offset = arguments.pageOffset()
+
+                findContactUseCase.pageActive(id = parameter.contactId, isDeleted = Contact::isDeleted) {
+                    pageFinishedContactMemoUseCase.readPage(parameter = parameter, offset = offset).toJson { memo -> memo.toJson() }
+                }
             },
             McpTool(
                 name = "contact_add",
@@ -122,6 +143,7 @@ internal class ContactMcpToolSet(
                         McpToolParameter(name = HOMETOWN, type = McpToolParameterType.STRING, description = "Hometown as one line of free text."),
                         McpToolParameter(name = HOW_WE_MET, type = McpToolParameterType.STRING, description = "How the user met the person, as one line of free text."),
                         contactPhoneNumbersParameter,
+                        tagIdsParameter,
                     ),
                 kind = McpToolKind.WRITE,
             ) { arguments -> addContact(arguments) },
@@ -130,7 +152,7 @@ internal class ContactMcpToolSet(
                 description =
                     "Updates the details of a contact. Omitted fields keep their current value. A blank name keeps the current name. " +
                         "Changing only the birthday date keeps its calendar. Removing the birthday also removes the birth year unless a birth year is given. " +
-                        "Favorite is changed with contact_favorite and contact_unfavorite.",
+                        "Favorite is changed with contact_favorite and contact_unfavorite. Tags are changed with contact_tag_add and contact_tag_remove.",
                 parameterList =
                     listOf(
                         contactIdParameter,
@@ -160,26 +182,45 @@ internal class ContactMcpToolSet(
                 description = "Marks a contact as a favorite.",
                 parameterList = listOf(contactIdParameter),
                 kind = McpToolKind.WRITE,
-            ) { arguments -> changedCountResult(favoriteContactUseCase(parameter = arguments.uuid(CONTACT_ID)).getOrThrow()) },
+            ) { arguments -> findContactUseCase.changeActive(id = arguments.uuid(CONTACT_ID), isDeleted = Contact::isDeleted) { id -> favoriteContactUseCase(parameter = id) } },
             McpTool(
                 name = "contact_unfavorite",
                 description = "Removes the favorite mark from a contact.",
                 parameterList = listOf(contactIdParameter),
                 kind = McpToolKind.WRITE,
-            ) { arguments -> changedCountResult(unfavoriteContactUseCase(parameter = arguments.uuid(CONTACT_ID)).getOrThrow()) },
+            ) { arguments -> findContactUseCase.changeActive(id = arguments.uuid(CONTACT_ID), isDeleted = Contact::isDeleted) { id -> unfavoriteContactUseCase(parameter = id) } },
             McpTool(
                 name = "contact_delete",
                 description = "Deletes a contact. Use contact_restore with the same id to undo.",
                 parameterList = listOf(contactIdParameter),
                 kind = McpToolKind.DESTRUCTIVE,
-            ) { arguments -> changedCountResult(deleteContactUseCase(parameter = arguments.uuid(CONTACT_ID)).getOrThrow()) },
+            ) { arguments -> findContactUseCase.changeActive(id = arguments.uuid(CONTACT_ID), isDeleted = Contact::isDeleted) { id -> deleteContactUseCase(parameter = id) } },
             McpTool(
                 name = "contact_restore",
                 description = "Restores a deleted contact.",
                 parameterList = listOf(contactIdParameter),
                 kind = McpToolKind.WRITE,
             ) { arguments -> changedCountResult(restoreContactUseCase(parameter = arguments.uuid(CONTACT_ID)).getOrThrow()) },
-        )
+        ) +
+            entityTagToolList(
+                toolNamePrefix = "contact",
+                entityName = "a contact",
+                kind = EntityTagKind.CONTACT,
+                entityIdParameter = contactIdParameter,
+                findTagUseCase = findTagUseCase,
+                addEntityTagUseCase = addEntityTagUseCase,
+                removeEntityTagUseCase = removeEntityTagUseCase,
+            ) { id -> findContactUseCase.isActive(id = id, isDeleted = Contact::isDeleted) }
+
+    private suspend fun getContact(arguments: McpToolArguments): JsonElement {
+        val contactId = arguments.uuid(CONTACT_ID)
+        val contact = findContactUseCase.readFirst(parameter = contactId)?.takeUnless { contact -> contact.isDeleted } ?: return JsonNull
+
+        return buildJsonObject {
+            put("contact", contact.toDetailJson())
+            put("tags", getEntityTagUseCase.readFirst(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.CONTACT, entityId = contactId)).toJsonArray { tag -> tag.toJson() })
+        }
+    }
 
     private suspend fun addContact(arguments: McpToolArguments): JsonElement {
         val birthdayDate = arguments.localDateOrNull(CONTACT_BIRTHDAY)
@@ -202,12 +243,12 @@ internal class ContactMcpToolSet(
                 phoneNumberList = arguments.stringList(CONTACT_PHONE_NUMBERS).map { number -> ContactPhoneNumber(number = number) },
             )
 
-        return idResult(addContactUseCase(parameter = AddContactUseCase.Parameter(detail = detail, tagIdSet = emptySet())).getOrThrow())
+        return idResult(addContactUseCase(parameter = AddContactUseCase.Parameter(detail = detail, tagIdSet = arguments.uuidSet("tagIds"))).getOrThrow())
     }
 
     private suspend fun updateContact(arguments: McpToolArguments): JsonElement {
         val contactId = arguments.uuid(CONTACT_ID)
-        val current = findContactUseCase.readFirst(parameter = contactId)?.detail ?: return changedCountResult(count = 0)
+        val current = findContactUseCase.readActive(id = contactId, isDeleted = Contact::isDeleted)?.detail ?: return changedCountResult(count = 0)
         val detail = arguments.updatedDetail(current = current)
 
         return changedCountResult(updateContactUseCase(parameter = UpdateContactUseCase.Parameter(id = contactId, detail = detail)).getOrThrow())

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEnt
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -21,6 +22,7 @@ import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoF
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.routine.entity.AccountRoutineLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
@@ -30,6 +32,7 @@ import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.localRoutine
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -147,6 +150,16 @@ class SpotlightDaoTest :
             }
         }
 
+        suspend fun insertRoutine(
+            accountId: Uuid,
+            vararg entityList: RoutineLocalEntity,
+        ) {
+            database.withWriteTransaction {
+                database.routineDao().upsert(entityList.toList())
+                database.accountRoutineDao().upsert(entityList.map { entity -> AccountRoutineLocalEntity(accountId = accountId, routineId = entity.id, isDirty = true) })
+            }
+        }
+
         test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 현재 계정의 삭제되지 않은 메모와 태그를 완료 여부와 목록 필터와 관계없이 돌려준다") {
             val dao = database.spotlightDao()
             val accountId = Arb.kotlinUuid().next()
@@ -227,5 +240,20 @@ class SpotlightDaoTest :
             insertDDay(otherAccountId, otherAccountDDay)
 
             dao.getDDayList(accountId = accountId).first().map { it.id } shouldContainExactlyInAnyOrder listOf(endedDDay.id)
+        }
+
+        test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 루틴은 시작 전이거나 완료되어도 돌려주고 삭제된 루틴과 다른 계정의 루틴은 돌려주지 않는다") {
+            val dao = database.spotlightDao()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val notStartedRoutine = Arb.localRoutine(startDate = LocalDate(2999, 1, 1)).next()
+            val finishedRoutine = Arb.localRoutine(isDeleted = false, isFinished = true).next()
+            val deletedRoutine = Arb.localRoutine(isDeleted = true).next()
+            val otherAccountRoutine = Arb.localRoutine(isDeleted = false).next()
+
+            insertRoutine(accountId, notStartedRoutine, finishedRoutine, deletedRoutine)
+            insertRoutine(otherAccountId, otherAccountRoutine)
+
+            dao.getRoutineList(accountId = accountId).first().map { it.id } shouldContainExactlyInAnyOrder listOf(notStartedRoutine.id, finishedRoutine.id)
         }
     })

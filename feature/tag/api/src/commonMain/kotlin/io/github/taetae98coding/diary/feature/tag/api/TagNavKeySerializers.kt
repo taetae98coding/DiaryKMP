@@ -10,4 +10,5 @@ public fun PolymorphicModuleBuilder<ScreenNavKey>.tagNavKeys() {
     subclass(TagAddNavKey::class, TagAddNavKey.serializer())
     subclass(TagDetailNavKey::class, TagDetailNavKey.serializer())
     subclass(TagMemoFinishedListNavKey::class, TagMemoFinishedListNavKey.serializer())
+    subclass(TagRoutineFinishedListNavKey::class, TagRoutineFinishedListNavKey.serializer())
 }

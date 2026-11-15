@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUploadAccountChangedException
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
@@ -269,7 +270,7 @@ class UploadFileUseCaseTest :
             fileRepository: FileRepository,
         ): UploadFileUseCase {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
 
             return UploadFileUseCase(
                 awaitFileUploadAccountChangeUseCase = AwaitFileUploadAccountChangeUseCase(getAccountUseCase = getAccountUseCase),

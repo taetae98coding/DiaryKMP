@@ -62,9 +62,10 @@ class AccountMemoRepositoryImplTest :
             }
         }
 
-        test("TC-cf31ec56-1107-480f-98f0-73d83cdb95bc 메모 저장은 연결할 태그를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
+        test("TC-cf31ec56-1107-480f-98f0-73d83cdb95bc 메모 저장은 연결할 태그를 저장한 시점의 연결로 변환해 함께 위임한다") {
             val account = Arb.accountUser().next()
-            val memo = memo().toDomain()
+            val now = Arb.secondPrecisionInstant().next()
+            val memo = memo().copy(updatedAt = now, createdAt = now).toDomain()
             val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
@@ -83,8 +84,8 @@ class AccountMemoRepositoryImplTest :
                                 memoTagList.all { memoTag ->
                                     memoTag.memoId == memo.id &&
                                         !memoTag.isDeleted &&
-                                        memoTag.updatedAt == memo.updatedAt &&
-                                        memoTag.createdAt == memo.createdAt
+                                        memoTag.updatedAt == now &&
+                                        memoTag.createdAt == now
                                 }
                         },
                 )
@@ -110,7 +111,7 @@ class AccountMemoRepositoryImplTest :
             }
         }
 
-        test("메모 저장은 연결할 장소를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
+        test("TC-cefb7901-6efe-4374-b3c9-e17dca8df9d7 메모 저장은 연결할 장소를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
             val account = Arb.accountUser().next()
             val memo = memo().toDomain()
             val placeIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
@@ -134,6 +135,50 @@ class AccountMemoRepositoryImplTest :
                                         !memoPlace.isDeleted &&
                                         memoPlace.updatedAt == memo.updatedAt &&
                                         memoPlace.createdAt == memo.createdAt
+                                }
+                        },
+                )
+            }
+        }
+
+        test("TC-0568e479-b1ff-4b27-8d4f-fea43f465175 TC-9c7bd95c-487e-455e-944e-6a97d5782f22 메모 저장은 연결할 웹 항목과 연락처를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
+            val account = Arb.accountUser().next()
+            val memo = memo().toDomain()
+            val webIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+            val contactIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+            val localDataSource = mockk<AccountMemoLocalDataSource>()
+            val transaction = mockk<AccountMemoTransaction>()
+            coEvery {
+                transaction.upsert(accountId = any(), memoList = any(), memoTagList = any(), memoPlaceList = any(), memoWebList = any(), memoContactList = any())
+            } just Runs
+            val repository = AccountMemoRepositoryImpl(accountMemoLocalDataSource = localDataSource, accountMemoTransaction = transaction)
+
+            repository.upsert(account = account, memo = memo, tagIdSet = emptySet(), webIdSet = webIdSet, contactIdSet = contactIdSet)
+
+            coVerify(exactly = 1) {
+                transaction.upsert(
+                    accountId = account.id,
+                    memoList = listOf(memo.toLocal()),
+                    memoTagList = emptyList(),
+                    memoPlaceList = emptyList(),
+                    memoWebList =
+                        match { memoWebList ->
+                            memoWebList.map { memoWeb -> memoWeb.webId }.toSet() == webIdSet &&
+                                memoWebList.all { memoWeb ->
+                                    memoWeb.memoId == memo.id &&
+                                        !memoWeb.isDeleted &&
+                                        memoWeb.updatedAt == memo.updatedAt &&
+                                        memoWeb.createdAt == memo.createdAt
+                                }
+                        },
+                    memoContactList =
+                        match { memoContactList ->
+                            memoContactList.map { memoContact -> memoContact.contactId }.toSet() == contactIdSet &&
+                                memoContactList.all { memoContact ->
+                                    memoContact.memoId == memo.id &&
+                                        !memoContact.isDeleted &&
+                                        memoContact.updatedAt == memo.updatedAt &&
+                                        memoContact.createdAt == memo.createdAt
                                 }
                         },
                 )

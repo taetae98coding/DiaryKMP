@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeScreen
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
@@ -25,12 +26,14 @@ private fun EntryProviderScope<ScreenNavKey>.searchHomeEntry(backStack: NavBackS
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
             navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
+            navigateToRoutineDetail = { id -> backStack.add(RoutineDetailNavKey(id = id, isStandalone = true)) },
             initialType = key.initialType,
             memoViewModel = koinViewModel(),
             tagViewModel = koinViewModel(),
             placeViewModel = koinViewModel(),
             webViewModel = koinViewModel(),
             ddayViewModel = koinViewModel(),
+            routineViewModel = koinViewModel(),
         )
     }
 }

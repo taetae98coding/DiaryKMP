@@ -22,11 +22,13 @@ import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
-import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -42,7 +44,7 @@ class TagDetailChecklistTabTest {
 
     @Test
     fun `TC-d28ab57d-cc71-4cb4-9bea-c381d6657d66 대상 태그와 연결된 체크리스트를 목록에 표시한다`() {
-        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = FIRST_TITLE), tagChecklist(title = SECOND_TITLE))))
+        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next(), Arb.checklistSummary(title = SECOND_TITLE).next())))
 
         composeRule.refreshableList().assertExists()
         composeRule.onAllNodesWithTag(CHECKLIST_CARD_TEST_TAG).assertCountEquals(2)
@@ -72,7 +74,7 @@ class TagDetailChecklistTabTest {
         setChecklistTab(
             pagingData =
                 tagEntityPagingData(
-                    itemList = listOf(tagChecklist(title = FIRST_TITLE)),
+                    itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next()),
                     append = LoadState.Error(IllegalStateException("Append failed")),
                 ),
         )
@@ -85,7 +87,7 @@ class TagDetailChecklistTabTest {
 
     @Test
     fun `TC-93a86f7b-cfec-427e-a3ae-b8169779d557 체크리스트를 선택하면 그 체크리스트의 상세 이동을 요청한다`() {
-        val item = tagChecklist(title = FIRST_TITLE)
+        val item = Arb.checklistSummary(title = FIRST_TITLE).next()
         val eventList = mutableListOf<TagDetailChecklistContentEvent>()
         setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add)
 
@@ -124,7 +126,7 @@ class TagDetailChecklistTabTest {
     fun `TC-08d27cf5-8623-4bf2-af1b-926f422bd9e5 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<TagDetailChecklistContentEvent>()
         setChecklistTab(
-            pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = FIRST_TITLE))),
+            pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next())),
             onEvent = eventList::add,
         )
 
@@ -149,7 +151,7 @@ class TagDetailChecklistTabTest {
     fun `TC-08d27cf5-8623-4bf2-af1b-926f422bd9e5 새로고침이 진행 중이면 진행 표시가 나타나고 끝나면 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setChecklistTab(
-            pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = FIRST_TITLE))),
+            pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next())),
             isRefreshingProvider = { isRefreshing.value },
         )
 
@@ -163,7 +165,7 @@ class TagDetailChecklistTabTest {
 
     @Test
     fun `TC-7e3282b8-98a9-41f0-bee2-7bd0fcbfe608 체크리스트 카드를 삭제 방향으로 밀면 그 체크리스트의 삭제를 전달한다`() {
-        val item = tagChecklist(title = FIRST_TITLE)
+        val item = Arb.checklistSummary(title = FIRST_TITLE).next()
         val eventList = mutableListOf<TagDetailChecklistContentEvent>()
         setChecklistTab(
             pagingData = tagEntityPagingData(itemList = listOf(item)),
@@ -180,7 +182,7 @@ class TagDetailChecklistTabTest {
     fun `TC-46d2b79a-3029-4b06-97f0-0cd9e132e627 체크리스트 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
         val eventList = mutableListOf<TagDetailChecklistContentEvent>()
         setChecklistTab(
-            pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = FIRST_TITLE))),
+            pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next())),
             onEvent = eventList::add,
         )
 
@@ -193,15 +195,17 @@ class TagDetailChecklistTabTest {
 
     @Test
     fun `TC-9b782344-4cc1-433b-a0b5-1ff1537cb462 체크리스트 탭은 정렬 선택을 제공하지 않는다`() {
-        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = FIRST_TITLE))))
+        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next())))
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
     fun `TC-5355fbe4-edb6-4a79-911a-c7504715b547 각 체크리스트의 진행 정도를 표시한다`() {
-        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(tagChecklist(title = FIRST_TITLE))))
+        val item = Arb.checklistSummary(title = FIRST_TITLE).next().copy(checkedCount = 1, totalCount = 3)
+        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(item)))
 
+        composeRule.onNodeWithText(FIRST_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(PROGRESS_TEXT).assertIsDisplayed()
     }
 
@@ -235,6 +239,6 @@ class TagDetailChecklistTabTest {
         const val DEFAULT_RETRY_TEXT = "Retry"
         const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
         const val DEFAULT_SORT_DESCRIPTION = "List sort"
-        const val PROGRESS_TEXT = "1/2"
+        const val PROGRESS_TEXT = "1/3"
     }
 }

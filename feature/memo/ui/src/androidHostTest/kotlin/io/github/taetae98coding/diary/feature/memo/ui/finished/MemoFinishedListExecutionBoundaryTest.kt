@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -16,7 +17,6 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.lifecycle.Lifecycle
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
@@ -80,8 +80,17 @@ class MemoFinishedListExecutionBoundaryTest {
     @Test
     fun `TC-6fc9d134-11ac-4968-8c0c-04e32074aa6e 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다`() {
         val memoList = memoList()
-        val viewModel = screenTestViewModel(memoList = memoList, sort = ListSort.TITLE)
+        val viewModel = screenTestViewModel(memoList = memoList)
         composeRule.setContent { FinishedList(viewModel = viewModel, navigateToDetail = {}) }
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(memoList.first().detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText(DEFAULT_DEFAULT_SORT).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).performClick()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
+        }
         scrollList(memoList)
 
         composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
@@ -147,12 +156,12 @@ class MemoFinishedListExecutionBoundaryTest {
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
     }
 
-    private fun screenTestViewModel(
-        memoList: List<Memo>,
-        sort: ListSort = ListSort.DEFAULT,
-    ): MemoFinishedListViewModel {
+    // 정렬은 기본순으로 시작하고, 화면에서 고른 정렬이 정렬 상태에 반영된다.
+    private fun screenTestViewModel(memoList: List<Memo>): MemoFinishedListViewModel {
         val viewModel = mockk<MemoFinishedListViewModel>(relaxed = true)
-        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = sort))
+        val sortFlow = MutableStateFlow(ListSortUiState())
+        every { viewModel.sortUiState } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         every { viewModel.effect } returns emptyFlow()
         return viewModel
@@ -174,5 +183,7 @@ class MemoFinishedListExecutionBoundaryTest {
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val DEFAULT_DEFAULT_SORT = "Default"
         private const val DEFAULT_TITLE_SORT = "Title"
+        private const val DEFAULT_SORT_DESCRIPTION = "List sort"
+        private const val DEFAULT_SORT_SHEET_TITLE = "Sort"
     }
 }

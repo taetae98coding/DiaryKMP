@@ -70,7 +70,7 @@ class MemoListMcpToolTest :
             }
         }
 
-        test("TC-13865563-40d3-4f3d-a063-b0e955d7ef6f 같은 메모 목록 도구로 다시 요청하면 그때의 목록을 받는다") {
+        test("같은 메모 목록 도구로 다시 요청하면 그때의 목록을 받는다") {
             runTest {
                 val beforeList = Arb.list(Arb.memo(), 1..3).next()
                 val afterList = Arb.list(Arb.memo(), 1..3).next()

@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllCalendarFilterTagUseCase
@@ -273,7 +274,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
         test("TC-efd8e7dc-b217-44f8-b3d8-64d62806ef15 태그 선택 전체 해제를 전체 해제 UseCase에 전달한다") {
             runTest(mainDispatcher) {
                 val unselectAllCalendarFilterTagUseCase = mockk<UnselectAllCalendarFilterTagUseCase>()
-                coEvery { unselectAllCalendarFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { unselectAllCalendarFilterTagUseCase() } returns Result.success(Unit)
                 val viewModel =
                     viewModel(
                         unselectAllCalendarFilterTagUseCase = unselectAllCalendarFilterTagUseCase,
@@ -283,7 +284,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    unselectAllCalendarFilterTagUseCase(parameter = Unit)
+                    unselectAllCalendarFilterTagUseCase()
                 }
             }
         }
@@ -315,14 +316,14 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
         test("태그 선택 전체 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val unselectAllCalendarFilterTagUseCase = mockk<UnselectAllCalendarFilterTagUseCase>()
-                coEvery { unselectAllCalendarFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                coEvery { unselectAllCalendarFilterTagUseCase() } returns Result.success(Unit)
                 val viewModel = viewModel(unselectAllCalendarFilterTagUseCase = unselectAllCalendarFilterTagUseCase)
 
                 viewModel.unselectAllTag()
                 viewModel.unselectAllTag()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { unselectAllCalendarFilterTagUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { unselectAllCalendarFilterTagUseCase() }
             }
         }
     }
@@ -353,7 +354,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
         private fun filterUseCase(flow: Flow<Result<List<Tag>>>): GetCalendarFilterUseCase {
             val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-            every { getCalendarFilterUseCase(parameter = Unit) } returns flow
+            every { getCalendarFilterUseCase() } returns flow
 
             return getCalendarFilterUseCase
         }

@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.testing.location.coordinate
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.kotest.assertions.withClue
@@ -59,7 +60,7 @@ class TagDetailPlaceExecutionBoundaryTest {
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP }
-        coVerify(exactly = 1) { fetch(parameter = Unit) }
+        coVerify(exactly = 1) { fetch() }
     }
 
     @Test
@@ -74,7 +75,7 @@ class TagDetailPlaceExecutionBoundaryTest {
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP }
-        coVerify(exactly = 1) { fetch(parameter = Unit) }
+        coVerify(exactly = 1) { fetch() }
     }
 
     @Test
@@ -90,7 +91,7 @@ class TagDetailPlaceExecutionBoundaryTest {
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP }
-        coVerify(exactly = 1) { fetch(parameter = Unit) }
+        coVerify(exactly = 1) { fetch() }
     }
 
     @Test
@@ -117,7 +118,7 @@ class TagDetailPlaceExecutionBoundaryTest {
                 composeRule.waitForIdle()
 
                 composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP }
-                coVerify(exactly = 1) { fetch(parameter = Unit) }
+                coVerify(exactly = 1) { fetch() }
             }
         }
     }
@@ -155,13 +156,13 @@ class TagDetailPlaceExecutionBoundaryTest {
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.LIST }
-        coVerify(exactly = 0) { afterFetch(parameter = Unit) }
+        coVerify(exactly = 0) { afterFetch() }
 
         selectMapMode()
 
         composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP }
-        coVerify(exactly = 1) { beforeFetch(parameter = Unit) }
-        coVerify(exactly = 1) { afterFetch(parameter = Unit) }
+        coVerify(exactly = 1) { beforeFetch() }
+        coVerify(exactly = 1) { afterFetch() }
     }
 
     private fun assertRestoreContinuesMovedMap(
@@ -189,8 +190,8 @@ class TagDetailPlaceExecutionBoundaryTest {
             mapState.provider shouldBe DiaryMapProvider.GOOGLE
             mapState.coordinate shouldBe movedCoordinate.toDiaryMapCoordinate()
         }
-        coVerify(exactly = 1) { beforeFetch(parameter = Unit) }
-        coVerify(exactly = 1) { afterFetch(parameter = Unit) }
+        coVerify(exactly = 1) { beforeFetch() }
+        coVerify(exactly = 1) { afterFetch() }
     }
 
     // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 탭 본문 대신 보기 모드, 현재 위치 확인, 지도 상태를 정하는 부분만 구성한다.
@@ -216,14 +217,14 @@ class TagDetailPlaceExecutionBoundaryTest {
 
         private fun fetchCurrentLocationUseCase(coordinate: Coordinate?): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { useCase(parameter = Unit) } returns (coordinate?.let { Result.success(it) } ?: Result.failure(IllegalStateException("location error")))
+            coEvery { useCase() } returns (coordinate?.let { Result.success(it) } ?: Result.failure(IllegalStateException("location error")))
 
             return useCase
         }
 
         private fun mapViewModel(fetchCurrentLocationUseCase: FetchCurrentLocationUseCase): TagDetailPlaceMapViewModel {
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(parameter = Unit) } returns flowOf(Result.success(MapProvider.NAVER))
+            every { getDefaultMapProviderUseCase() } returns flowOf(Result.success(MapProvider.NAVER))
 
             return TagDetailPlaceMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

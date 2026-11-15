@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavigator
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
+import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
@@ -100,6 +101,7 @@ private val OverlayNavKeySet: Set<ScreenNavKey> =
         MemoHomeFilterNavKey,
         CalendarHomeFilterNavKey,
         TagHomeFilterNavKey,
+        RoutineHomeFilterNavKey,
     )
 
 @Composable

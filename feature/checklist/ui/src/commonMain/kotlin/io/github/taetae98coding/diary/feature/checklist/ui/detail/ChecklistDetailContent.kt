@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryChecklistItemSortBarHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
@@ -53,7 +54,7 @@ internal fun ChecklistDetailContent(
     val componentSpacing = DiaryTheme.dimens.componentSpacing
 
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.systemScroll(state.listState) { state.listState.animateScrollToItem(0) },
         state = state.listState,
         contentPadding =
             PaddingValues(

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.contact
 
+import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
@@ -13,13 +14,15 @@ import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UnfavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UpdateContactUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageContactMemoUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedContactMemoUseCase
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.core.changeActive
 import io.github.taetae98coding.diary.work.appaction.core.invalidArgument
 import io.github.taetae98coding.diary.work.appaction.core.map
+import io.github.taetae98coding.diary.work.appaction.core.readActive
 import io.github.taetae98coding.diary.work.appaction.core.readFirst
 import io.github.taetae98coding.diary.work.appaction.core.readPage
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
@@ -29,9 +32,8 @@ import io.github.taetae98coding.diary.work.appaction.core.toLocalDateArgumentOrN
 import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toSortArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
-import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
-import io.github.taetae98coding.diary.work.appaction.memo.memoSortList
-import io.github.taetae98coding.diary.work.appaction.memo.toAppActionMemo
+import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
+import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
 import org.koin.core.annotation.Factory
 
 private const val CONTACT_ID = "contactId"
@@ -42,8 +44,7 @@ internal val contactSortList: List<ListSort> = listOf(ListSort.NAME, ListSort.RE
 public class ContactAppAction internal constructor(
     private val pageContactUseCase: PageContactUseCase,
     private val findContactUseCase: FindContactUseCase,
-    private val pageContactMemoUseCase: PageContactMemoUseCase,
-    private val pageFinishedContactMemoUseCase: PageFinishedContactMemoUseCase,
+    private val getEntityTagUseCase: GetEntityTagUseCase,
     private val addContactUseCase: AddContactUseCase,
     private val updateContactUseCase: UpdateContactUseCase,
     private val favoriteContactUseCase: FavoriteContactUseCase,
@@ -63,33 +64,22 @@ public class ContactAppAction internal constructor(
                 ).map { contact -> contact.toAppActionContact() }
         }
 
-    public suspend fun get(contactId: String): AppActionContactDetail? = runAppAction { findContactUseCase.readFirst(parameter = contactId.toUuidArgument(name = CONTACT_ID))?.toAppActionContactDetail() }
+    public suspend fun get(contactId: String): AppActionContactDetailWithTags? = runAppAction { detail(contactId = contactId, includesDeleted = false) }
 
-    public suspend fun memoList(
-        contactId: String,
-        sort: String?,
-        cursor: String?,
-    ): AppActionPage<AppActionMemo> =
-        runAppAction {
-            pageContactMemoUseCase
-                .readPage(
-                    parameter = PageContactMemoUseCase.Parameter(contactId = contactId.toUuidArgument(name = CONTACT_ID), sort = sort.toSortArgument(memoSortList)),
-                    offset = cursor.toPageOffset(),
-                ).map { memo -> memo.toAppActionMemo() }
-        }
+    public suspend fun getIncludingDeleted(contactId: String): AppActionContactDetailWithTags? = runAppAction { detail(contactId = contactId, includesDeleted = true) }
 
-    public suspend fun memoFinishedList(
+    private suspend fun detail(
         contactId: String,
-        sort: String?,
-        cursor: String?,
-    ): AppActionPage<AppActionMemo> =
-        runAppAction {
-            pageFinishedContactMemoUseCase
-                .readPage(
-                    parameter = PageFinishedContactMemoUseCase.Parameter(contactId = contactId.toUuidArgument(name = CONTACT_ID), sort = sort.toSortArgument(memoSortList)),
-                    offset = cursor.toPageOffset(),
-                ).map { memo -> memo.toAppActionMemo() }
-        }
+        includesDeleted: Boolean,
+    ): AppActionContactDetailWithTags? {
+        val id = contactId.toUuidArgument(name = CONTACT_ID)
+        val contact = findContactUseCase.readFirst(parameter = id)?.takeIf { contact -> includesDeleted || !contact.isDeleted } ?: return null
+
+        return AppActionContactDetailWithTags(
+            contact = contact.toAppActionContactDetail(),
+            tags = getEntityTagUseCase.readFirst(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.CONTACT, entityId = id)).map { tag -> tag.toAppActionTag() },
+        )
+    }
 
     public suspend fun add(
         name: String,
@@ -102,6 +92,7 @@ public class ContactAppAction internal constructor(
         hometown: String?,
         howWeMet: String?,
         phoneNumbers: List<String>,
+        tagIds: List<String>,
     ): AppActionId =
         runAppAction {
             val birthdayDate = birthday.toLocalDateArgumentOrNull(name = CONTACT_BIRTHDAY)
@@ -122,22 +113,37 @@ public class ContactAppAction internal constructor(
                     phoneNumberList = phoneNumbers.toContactPhoneNumberList(),
                 )
 
-            addContactUseCase(parameter = AddContactUseCase.Parameter(detail = detail, tagIdSet = emptySet())).getOrThrow().toAppActionId()
+            addContactUseCase(parameter = AddContactUseCase.Parameter(detail = detail, tagIdSet = tagIds.toUuidSetArgument(name = "tagIds"))).getOrThrow().toAppActionId()
         }
 
     public suspend fun update(input: AppActionContactUpdateInput): AppActionChangedCount =
         runAppAction {
             val id = input.contactId.toUuidArgument(name = CONTACT_ID)
-            val current = findContactUseCase.readFirst(parameter = id)?.detail ?: return@runAppAction 0.toAppActionChangedCount()
+            val current = findContactUseCase.readActive(id = id, isDeleted = Contact::isDeleted)?.detail ?: return@runAppAction 0.toAppActionChangedCount()
 
             updateContactUseCase(parameter = UpdateContactUseCase.Parameter(id = id, detail = input.toContactDetail(current = current))).getOrThrow().toAppActionChangedCount()
         }
 
-    public suspend fun favorite(contactId: String): AppActionChangedCount = runAppAction { favoriteContactUseCase(parameter = contactId.toUuidArgument(name = CONTACT_ID)).getOrThrow().toAppActionChangedCount() }
+    public suspend fun favorite(contactId: String): AppActionChangedCount =
+        runAppAction {
+            val id = contactId.toUuidArgument(name = CONTACT_ID)
 
-    public suspend fun unfavorite(contactId: String): AppActionChangedCount = runAppAction { unfavoriteContactUseCase(parameter = contactId.toUuidArgument(name = CONTACT_ID)).getOrThrow().toAppActionChangedCount() }
+            findContactUseCase.changeActive(id = id, isDeleted = Contact::isDeleted) { favoriteContactUseCase(parameter = id) }
+        }
 
-    public suspend fun delete(contactId: String): AppActionChangedCount = runAppAction { deleteContactUseCase(parameter = contactId.toUuidArgument(name = CONTACT_ID)).getOrThrow().toAppActionChangedCount() }
+    public suspend fun unfavorite(contactId: String): AppActionChangedCount =
+        runAppAction {
+            val id = contactId.toUuidArgument(name = CONTACT_ID)
+
+            findContactUseCase.changeActive(id = id, isDeleted = Contact::isDeleted) { unfavoriteContactUseCase(parameter = id) }
+        }
+
+    public suspend fun delete(contactId: String): AppActionChangedCount =
+        runAppAction {
+            val id = contactId.toUuidArgument(name = CONTACT_ID)
+
+            findContactUseCase.changeActive(id = id, isDeleted = Contact::isDeleted) { deleteContactUseCase(parameter = id) }
+        }
 
     public suspend fun restore(contactId: String): AppActionChangedCount = runAppAction { restoreContactUseCase(parameter = contactId.toUuidArgument(name = CONTACT_ID)).getOrThrow().toAppActionChangedCount() }
 }

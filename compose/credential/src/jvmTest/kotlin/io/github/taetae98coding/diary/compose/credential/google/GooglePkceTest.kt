@@ -8,6 +8,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.byte
+import io.kotest.property.arbitrary.byteArray
+import io.kotest.property.arbitrary.constant
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
@@ -96,22 +99,14 @@ class GooglePkceTest :
         }
     })
 
-private fun randomBytes(): ByteArray = ByteArray(32) { Arb.int().next().toByte() }
+private fun randomBytes(): ByteArray = Arb.byteArray(length = Arb.constant(PKCE_RANDOM_BYTE_COUNT), content = Arb.byte()).next()
 
-private fun googleClientId(): String = "${Arb.long().next().toULong()}.apps.googleusercontent.com"
+private fun googleClientId(): String = "${Arb.long(min = 0).next()}.apps.googleusercontent.com"
 
-private fun loopbackRedirectUri(): String {
-    val port =
-        1_024 +
-            Arb
-                .int()
-                .next()
-                .toUInt()
-                .rem(64_512u)
-                .toInt()
-    return "http://127.0.0.1:$port/callback"
-}
+private fun loopbackRedirectUri(): String = "http://127.0.0.1:${Arb.int(LOOPBACK_PORT_RANGE).next()}/callback"
 
 private val PKCE_CODE_VERIFIER_REGEX = Regex("^[A-Za-z0-9._~-]{43,128}$")
+private const val PKCE_RANDOM_BYTE_COUNT = 32
+private val LOOPBACK_PORT_RANGE = 1_024..65_535
 private const val RFC_7636_CODE_VERIFIER = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
 private const val RFC_7636_CODE_CHALLENGE = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"

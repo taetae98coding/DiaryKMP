@@ -29,7 +29,6 @@ internal fun MemoContactChip(
         label = contact.displayName(),
         modifier =
             modifier.semantics {
-                // 칩의 클릭 동작은 유지하고 이름만 덧붙이도록 action을 비워 둔다.
                 onClick(label = detailActionLabel, action = null)
             },
     )

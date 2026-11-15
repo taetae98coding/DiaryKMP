@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.feature.web.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
@@ -136,6 +141,54 @@ class WebHomeSortRestorationTest {
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
         composeRule.onNodeWithText(titleOrderList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(titleOrderList.first().detail.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-80de79be-57d0-40e4-a072-5d794bca3459 화면을 떠났다가 다시 들어오면 정렬이 제목순으로 돌아간다`() {
+        val first = testWeb(title = "A-${Arb.string().next()}")
+        val second = testWeb(title = "B-${Arb.string().next()}")
+        val pageWebUseCase = mockk<PageWebUseCase>()
+        every { pageWebUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(webPagingDataOf(listOf(first, second))))
+        every { pageWebUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
+            flowOf(Result.success(webPagingDataOf(listOf(second, first))))
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
+        justRun { syncViewModel.refresh() }
+        var viewModel by mutableStateOf(webHomeViewModel(pageWebUseCase = pageWebUseCase))
+        var entryCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            // 떠난 화면의 상태는 남지 않으므로, 다시 들어온 화면은 저장 상태까지 새로 만드는 구성으로 재현한다.
+            key(entryCount) {
+                DiaryTheme {
+                    WebHomeScreen(
+                        navigateUp = {},
+                        navigateToSearch = {},
+                        navigateToAdd = {},
+                        navigateToDetail = {},
+                        componentVisibleProvider = { WebHomeScaffoldComponentVisible() },
+                        webViewModel = viewModel,
+                        syncViewModel = syncViewModel,
+                    )
+                }
+            }
+        }
+        waitUntilTitleExists(first.detail.title)
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
+        composeRule.waitForIdle()
+        viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+
+        // 화면을 떠나면 정렬을 보관하던 객체도 정리되므로, 다시 들어온 화면에는 새로 만든 객체를 준다.
+        composeRule.runOnIdle {
+            viewModel = webHomeViewModel(pageWebUseCase = pageWebUseCase)
+            entryCount += 1
+        }
+        waitUntilTitleExists(first.detail.title)
+
+        viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
+        cardTitleList() shouldBe listOf(first.detail.title, second.detail.title)
     }
 
     private fun webHomeViewModel(pageWebUseCase: PageWebUseCase): WebHomeViewModel =

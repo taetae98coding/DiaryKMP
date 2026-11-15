@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.domain.qr.content
 
+import io.github.taetae98coding.diary.library.kotlin.text.StructuredLines
+import io.github.taetae98coding.diary.library.kotlin.text.firstStructuredComponent
+import io.github.taetae98coding.diary.library.kotlin.text.joinStructuredComponents
+import io.github.taetae98coding.diary.library.kotlin.text.unescapeStructuredText
+
 public fun QrFormat.readContent(raw: String): QrContent? {
     if (!recognizes(raw)) return null
 
@@ -23,29 +28,18 @@ private fun readContact(raw: String): QrContent.Contact {
 
     val name =
         value("FN")?.unescapeStructuredText()
-            ?: value("N")?.joinComponents()
+            ?: value("N")?.joinStructuredComponents()
             ?: ""
 
     return QrContent.Contact(
         name = name,
         phoneNumber = value("TEL")?.unescapeStructuredText().orEmpty(),
         email = value("EMAIL")?.unescapeStructuredText().orEmpty(),
-        company =
-            value("ORG")
-                ?.splitUnescaped(';')
-                ?.firstOrNull()
-                ?.unescapeStructuredText()
-                .orEmpty(),
-        address = value("ADR")?.joinComponents().orEmpty(),
+        company = value("ORG")?.firstStructuredComponent().orEmpty(),
+        address = value("ADR")?.joinStructuredComponents().orEmpty(),
         website = value("URL")?.unescapeStructuredText().orEmpty(),
     )
 }
-
-private fun String.joinComponents(): String =
-    splitUnescaped(';')
-        .map(String::unescapeStructuredText)
-        .filter(String::isNotEmpty)
-        .joinToString(separator = " ")
 
 private fun readWifi(raw: String): QrContent.Wifi {
     val entries = WifiEntries.parse(raw)

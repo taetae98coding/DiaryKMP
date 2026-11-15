@@ -1,0 +1,18 @@
+<resources>
+    <string name="routine_card_cycle_daily">Today</string>
+    <string name="routine_card_cycle_weekly">This week</string>
+    <string name="routine_card_cycle_monthly">This month</string>
+    <string name="routine_card_progress_with_goal">%1$s %2$s / %3$s</string>
+    <string name="routine_card_progress">%1$s %2$s</string>
+    <string name="routine_card_achievement_rate">%1$s%</string>
+    <string name="routine_card_not_started">Not started</string>
+    <string name="routine_card_finished">Finished</string>
+    <string name="routine_list_finished_message">Routine finished.</string>
+    <string name="routine_list_restarted_message">Routine restarted.</string>
+    <string name="routine_list_deleted_message">Routine deleted.</string>
+    <string name="routine_list_undo_action">Undo</string>
+    <string name="routine_list_delete_content_description">Delete routine</string>
+    <string name="routine_list_finish_content_description">Finish routine</string>
+    <string name="routine_list_restart_content_description">Restart routine</string>
+    <string name="routine_finished_list_detail_placeholder_message">Choose a routine</string>
+</resources>

@@ -34,7 +34,7 @@ class FetchYoutubeVideoUseCaseTest :
                     coVerify(exactly = 1) { repository.fetch(link = YOUTUBE_LINK) }
                 }
 
-                Then("TC-7eded492-d855-445f-b3c9-e16bd41d208f 링크의 앞뒤 공백을 없앤 값으로 조회한다") {
+                Then("링크의 앞뒤 공백을 없앤 값으로 조회한다") {
                     val repository = successRepository(video = Arb.youtubeVideo().next())
                     val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
 

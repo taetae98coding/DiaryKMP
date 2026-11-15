@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -366,7 +367,7 @@ class UpdateContactUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
             val useCase =
                 useCase(
@@ -443,7 +444,7 @@ class UpdateContactUseCaseTest :
 
         private fun getAccountUseCase(account: Account): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
-            every { useCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { useCase() } returns flowOf(Result.success(account))
 
             return useCase
         }

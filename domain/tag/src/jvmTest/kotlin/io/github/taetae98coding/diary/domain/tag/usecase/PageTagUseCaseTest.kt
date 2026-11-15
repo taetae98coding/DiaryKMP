@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
@@ -32,7 +33,7 @@ class PageTagUseCaseTest :
             val tagList = List(2) { tag() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagRepository = mockk<AccountTagRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val query = Arb.string().next()
             every { accountTagRepository.page(account = account, query = query.trim(), sort = ListSort.DEFAULT) } returns flowOf(PagingData.from(tagList))
             val useCase =
@@ -66,7 +67,7 @@ class PageTagUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val useCase =
                 PageTagUseCase(
                     getAccountUseCase = getAccountUseCase,

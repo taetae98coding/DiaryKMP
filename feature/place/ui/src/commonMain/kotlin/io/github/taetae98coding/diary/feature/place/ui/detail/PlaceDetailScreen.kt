@@ -17,6 +17,10 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
+import io.github.taetae98coding.diary.compose.core.share.ContentSharer
+import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
+import io.github.taetae98coding.diary.compose.core.share.rememberShareResultMessage
+import io.github.taetae98coding.diary.compose.core.share.showShareResult
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
@@ -55,6 +59,7 @@ internal fun PlaceDetailScreen(
     detailViewModel: PlaceDetailViewModel,
     searchViewModel: PlaceSearchViewModel,
     tagViewModel: EntityDetailTagViewModel,
+    contentSharerFactory: ContentSharerFactory,
     modifier: Modifier = Modifier,
 ) {
     val tabState = key(id) { rememberPlaceDetailTabState() }
@@ -68,6 +73,8 @@ internal fun PlaceDetailScreen(
     val scaffoldState = key(content?.id) { rememberPlaceDetailFormState(initialDetail = content?.detail ?: PlaceDetail.EMPTY, defaultProvider = content?.defaultProvider) }
     val isUpdateEnabled by rememberIsUpdateEnabled(scaffoldState = scaffoldState, uiStateProvider = { uiState })
     val openExternalMap = rememberOpenExternalMap(scaffoldState = scaffoldState, savedTitleProvider = { content?.detail?.title.orEmpty() })
+    val contentSharer = contentSharerFactory.rememberContentSharer()
+    val share = rememberSharePlace(scaffoldState = scaffoldState, contentSharer = contentSharer, savedTitleProvider = { content?.detail?.title.orEmpty() })
 
     EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
     PlaceDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp)
@@ -75,7 +82,7 @@ internal fun PlaceDetailScreen(
 
     PlaceDetailScaffold(
         state = scaffoldState,
-        onEvent = { event -> handlePlaceDetailScaffoldEvent(event = event, detailViewModel = detailViewModel, scaffoldState = scaffoldState, openExternalMap = openExternalMap, navigateUp = navigateUp) },
+        onEvent = { event -> handlePlaceDetailScaffoldEvent(event = event, detailViewModel = detailViewModel, scaffoldState = scaffoldState, openExternalMap = openExternalMap, share = share, navigateUp = navigateUp) },
         onSearchEvent = { event -> searchViewModel.handleSearchEvent(event = event, scaffoldState = scaffoldState) },
         onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
         modifier =
@@ -90,6 +97,7 @@ internal fun PlaceDetailScreen(
         uiStateProvider = { uiState },
         searchUiStateProvider = { searchUiState },
         tagUiStateProvider = { tagUiState },
+        isShareSupported = contentSharer.isTextSupported,
         tabFloatingActionButton = { tab ->
             TabFloatingActionButton(
                 tab = tab,
@@ -222,6 +230,41 @@ private fun rememberOpenExternalMap(
                         )
 
                     if (!isOpened) scaffoldState.snackbarHostState.showImmediate(message = openFailedMessage)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun rememberSharePlace(
+    scaffoldState: PlaceFormState,
+    contentSharer: ContentSharer,
+    savedTitleProvider: () -> String,
+): () -> Unit {
+    val coroutineScope = rememberCoroutineScope()
+    val coordinateInvalidMessage = stringResource(Res.string.place_coordinate_invalid_message)
+    val shareResultMessage = rememberShareResultMessage()
+    val latestSavedTitleProvider by rememberUpdatedState(savedTitleProvider)
+
+    return remember(scaffoldState, contentSharer, coroutineScope, coordinateInvalidMessage, shareResultMessage) {
+        {
+            val coordinate = scaffoldState.spot
+
+            if (coordinate == null) {
+                coroutineScope.launch { scaffoldState.snackbarHostState.showImmediate(message = coordinateInvalidMessage) }
+            } else {
+                val content =
+                    placeShareContent(
+                        provider = scaffoldState.mapState.provider,
+                        coordinate = coordinate,
+                        inputTitle = scaffoldState.detail.title,
+                        savedTitle = latestSavedTitleProvider(),
+                        address = scaffoldState.detail.address,
+                    )
+
+                coroutineScope.launch {
+                    scaffoldState.snackbarHostState.showShareResult(result = contentSharer.share(content = content), message = shareResultMessage)
                 }
             }
         }

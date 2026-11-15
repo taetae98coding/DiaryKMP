@@ -26,16 +26,20 @@ struct AddMusicIntent: AppIntent {
     )
     var link: String?
 
+    @Parameter(title: LocalizedStringResource("Tags to Link", table: "AppIntentCore"))
+    var tags: [TagEntity]?
+
     static var parameterSummary: some ParameterSummary {
         Summary("Add song \(\.$title)", table: "AppIntentMusic") {
             \.$artist
             \.$link
+            \.$tags
         }
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<MusicEntity> & ProvidesDialog {
         let musicId = try await appAction {
-            try await DiaryMusicAppAction.shared.add(title: title, artist: artist, link: link)
+            try await DiaryMusicAppAction.shared.add(title: title, artist: artist, link: link, tagIds: (tags ?? []).map(\.id))
         }
         return .result(
             value: try await MusicEntityQuery.require(musicId: musicId),
@@ -77,6 +81,7 @@ struct EditMusicIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await MusicEntityQuery.require(musicId: song.id)
         let changedCount = try await appAction {
             try await DiaryMusicAppAction.shared.update(musicId: song.id, title: title, artist: artist, link: link)
         }

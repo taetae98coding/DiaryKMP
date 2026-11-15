@@ -1,11 +1,9 @@
 package io.github.taetae98coding.diary.work.appaction.appfunction.dday
 
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
-import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.appFunctionCall
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionChangedCount
-import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.toAppFunctionId
 import io.github.taetae98coding.diary.work.appaction.dday.DDayAppAction
 
@@ -73,14 +71,4 @@ internal class DDayAppFunction(
     suspend fun delete(ddayId: String): AppFunctionChangedCount = appFunctionCall { ddayAppAction.delete(ddayId = ddayId).toAppFunctionChangedCount() }
 
     suspend fun restore(ddayId: String): AppFunctionChangedCount = appFunctionCall { ddayAppAction.restore(ddayId = ddayId).toAppFunctionChangedCount() }
-
-    suspend fun tagAdd(
-        ddayId: String,
-        tagId: String,
-    ): AppFunctionDone = appFunctionCall { ddayAppAction.tagAdd(ddayId = ddayId, tagId = tagId).toAppFunctionDone() }
-
-    suspend fun tagRemove(
-        ddayId: String,
-        tagId: String,
-    ): AppFunctionDone = appFunctionCall { ddayAppAction.tagRemove(ddayId = ddayId, tagId = tagId).toAppFunctionDone() }
 }

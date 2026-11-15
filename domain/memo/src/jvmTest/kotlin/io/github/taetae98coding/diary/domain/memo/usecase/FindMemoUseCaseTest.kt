@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -35,7 +36,7 @@ class FindMemoUseCaseTest :
             val account = Arb.accountUser().next()
             val memo = memo()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMemoRepository = mockk<AccountMemoRepository>()
             every { accountMemoRepository.find(account = account, memoId = memo.id) } returns flowOf(memo)
             val useCase =
@@ -59,7 +60,7 @@ class FindMemoUseCaseTest :
         Given("조회할 메모가 없다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMemoRepository = mockk<AccountMemoRepository>()
             every { accountMemoRepository.find(account = account, memoId = any()) } returns flowOf(null)
             val useCase =
@@ -80,7 +81,7 @@ class FindMemoUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
             val useCase =
                 FindMemoUseCase(
@@ -105,7 +106,7 @@ class FindMemoUseCaseTest :
             val memo = memo()
             val changedMemo = memo.copy(detail = Arb.memoDetail().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val memoFlow = MutableStateFlow<Memo?>(memo)
             val accountMemoRepository = mockk<AccountMemoRepository>()
             every { accountMemoRepository.find(account = account, memoId = memo.id) } returns memoFlow

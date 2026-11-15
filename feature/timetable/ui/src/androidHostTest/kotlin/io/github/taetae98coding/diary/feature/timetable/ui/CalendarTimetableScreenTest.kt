@@ -45,13 +45,14 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
@@ -711,7 +712,7 @@ class CalendarTimetableScreenTest {
     @Test
     fun `TC-67e702c6-49f8-44c2-8e6a-c5add506e4f0 날씨 조회가 실패해도 메모와 공휴일을 표시한다`() {
         assertShownWithoutWeather(
-            weatherViewModel = calendarTimetableWeatherViewModel(getCurrentCalendarWeatherUseCase = getCurrentCalendarWeatherUseCase(flow = flowOf(weatherFailure()))),
+            weatherViewModel = calendarTimetableWeatherViewModel(getCurrentCalendarWeatherUseCase = stubGetCurrentCalendarWeatherUseCase(flow = flowOf(weatherFailure()))),
         )
     }
 
@@ -735,7 +736,7 @@ class CalendarTimetableScreenTest {
 
     @Test
     fun `TC-e6a3d4de-9fd0-4aab-9e4b-abda7222dd52 날짜를 옮겨도 날짜별 날씨를 다시 조회하지 않는다`() {
-        val getUseCase = getCurrentCalendarWeatherUseCase(flow = flowOf(Result.success(CalendarWeatherReport(weatherList = listOf(todayWeather(), tomorrowWeather())))))
+        val getUseCase = stubGetCurrentCalendarWeatherUseCase(flow = flowOf(Result.success(CalendarWeatherReport(weatherList = listOf(todayWeather(), tomorrowWeather())))))
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
             date = september(day = 23),
@@ -746,7 +747,7 @@ class CalendarTimetableScreenTest {
         swipePageLeft()
 
         composeRule.onNodeWithText(MIN_MAX_TEMPERATURE_TEXT).assertIsDisplayed()
-        verify(exactly = 1) { getUseCase(parameter = Unit) }
+        verify(exactly = 1) { getUseCase() }
     }
 
     @Test
@@ -787,6 +788,18 @@ class CalendarTimetableScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-b5584e78-0090-4668-ba21-294abd22c61e 삭제한 연락처의 생일은 조작 없이 사라진다`() {
+        val birthdayListFlow = MutableStateFlow(listOf(birthday(day = 24)))
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 24), birthdayListFlow = birthdayListFlow)
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
+
+        composeRule.runOnIdle { birthdayListFlow.value = emptyList() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertDoesNotExist()
     }
 
     @Test
@@ -923,7 +936,7 @@ class CalendarTimetableScreenTest {
         name: String = BIRTHDAY_NAME,
         nameQualifier: String = "",
         month: Int = 9,
-    ): CalendarContactBirthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = name, nameQualifier = nameQualifier, date = LocalDate(year = 2026, month = month, day = day))
+    ): CalendarContactBirthday = Arb.calendarContactBirthday().next().copy(name = name, nameQualifier = nameQualifier, date = LocalDate(year = 2026, month = month, day = day))
 
     private fun todayWeather(): CalendarWeather =
         Arb

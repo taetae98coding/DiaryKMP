@@ -12,7 +12,10 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +31,7 @@ class SwipeChecklistCardTest {
     @Test
     fun `TC-c7d4827a-f896-4048-b403-21e2cf5f12c9 체크리스트 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
         var deleteCount = 0
-        setCard(summary = testChecklistSummary(), onDelete = { deleteCount += 1 })
+        setCard(summary = Arb.checklistSummary().next(), onDelete = { deleteCount += 1 })
 
         composeRule.onNodeWithTag(CHECKLIST_CARD_TEST_TAG).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
@@ -39,7 +42,7 @@ class SwipeChecklistCardTest {
     @Test
     fun `TC-c9b6b398-b2e1-4f21-ba60-9eaa2d97ad70 TC-46d2b79a-3029-4b06-97f0-0cd9e132e627 체크리스트 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
         var deleteCount = 0
-        val summary = testChecklistSummary()
+        val summary = Arb.checklistSummary().next()
         setCard(summary = summary, onDelete = { deleteCount += 1 })
 
         composeRule.onNodeWithTag(CHECKLIST_CARD_TEST_TAG).performTouchInput { swipeRight() }
@@ -75,7 +78,7 @@ class SwipeChecklistCardTest {
     @Test
     fun `준비된 체크리스트 카드를 누르면 선택 동작을 한 번 실행한다`() {
         var clickCount = 0
-        setCard(summary = testChecklistSummary(), onClick = { clickCount += 1 })
+        setCard(summary = Arb.checklistSummary().next(), onClick = { clickCount += 1 })
 
         composeRule.onNodeWithTag(CHECKLIST_CARD_TEST_TAG).performClick()
         composeRule.waitForIdle()

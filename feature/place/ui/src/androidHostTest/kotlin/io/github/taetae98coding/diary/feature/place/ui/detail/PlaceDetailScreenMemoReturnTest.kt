@@ -119,6 +119,7 @@ class PlaceDetailScreenMemoReturnTest {
                         navigateUp = {},
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = contentSharerFactoryOf(),
                     )
                 }
             }

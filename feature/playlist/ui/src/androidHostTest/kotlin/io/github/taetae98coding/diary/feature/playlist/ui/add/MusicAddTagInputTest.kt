@@ -8,32 +8,26 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
-import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
-import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
-import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
 import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.clickEntityTagInput
 import io.github.taetae98coding.diary.feature.playlist.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.playlist.ui.sendTagAddedResult
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -180,7 +174,7 @@ class MusicAddTagInputTest {
             // 메모리 정리 뒤에는 태그 선택을 들고 있던 객체도 새로 만들어지므로 복원할 때마다 진입 경로의 초기값으로 새로 만든다.
             val tagViewModel =
                 remember {
-                    tagViewModel(initialTagId = initialTag?.id, allTagList = allTagList).also(tagViewModelList::add)
+                    addTagViewModel(initialTagId = initialTag?.id, allTagList = allTagList).also(tagViewModelList::add)
                 }
 
             MusicTagTestTheme {
@@ -196,7 +190,7 @@ class MusicAddTagInputTest {
             }
         }
         composeRule.waitForIdle()
-        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.fillAllInput()
         composeRule.runOnIdle { tagViewModelList.last().add(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
@@ -206,6 +200,8 @@ class MusicAddTagInputTest {
 
         tagViewModelList.size shouldBe 2
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertDoesNotExist()
         expectedTitleListAfterRestore.forEach { title -> composeRule.onNodeWithText(title).assertExists() }
         composeRule.runOnIdle {
@@ -213,25 +209,6 @@ class MusicAddTagInputTest {
                 .last()
                 .selectionUiState.value.tagIdSet shouldBe setOfNotNull(initialTag?.id)
         }
-    }
-
-    private fun tagViewModel(
-        initialTagId: Uuid?,
-        allTagList: List<Tag>,
-    ): EntityAddTagViewModel {
-        val pageTagUseCase = mockk<PageTagUseCase>()
-        every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(allTagList)))
-        val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
-        every { getSelectedTagUseCase(parameter = any()) } answers {
-            val idSet = firstArg<Set<Uuid>>()
-            flowOf(Result.success(allTagList.filter { tag -> tag.id in idSet }))
-        }
-
-        return EntityAddTagViewModel(
-            initialTagId = initialTagId,
-            pageTagUseCase = pageTagUseCase,
-            getSelectedTagUseCase = getSelectedTagUseCase,
-        )
     }
 
     private companion object {

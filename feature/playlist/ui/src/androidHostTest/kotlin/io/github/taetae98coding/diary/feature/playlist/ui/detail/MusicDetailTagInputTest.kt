@@ -213,6 +213,7 @@ class MusicDetailTagInputTest {
                     componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
                     musicViewModel = musicViewModel,
                     tagViewModel = tagViewModel,
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }

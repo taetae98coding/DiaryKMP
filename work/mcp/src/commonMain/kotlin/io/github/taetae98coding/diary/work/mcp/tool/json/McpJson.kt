@@ -38,3 +38,5 @@ internal fun idResult(id: Uuid): JsonObject = buildJsonObject { put("id", id) }
 internal fun changedCountResult(count: Int): JsonObject = buildJsonObject { put("changedCount", count) }
 
 internal val doneResult: JsonObject = buildJsonObject { put("done", true) }
+
+internal val notDoneResult: JsonObject = buildJsonObject { put("done", false) }

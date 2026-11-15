@@ -149,6 +149,7 @@ struct EditMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Int> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
         let changedCount = try await appAction {
             try await DiaryMemoAppAction.shared.update(
                 memoId: memo.id,
@@ -182,6 +183,7 @@ struct CopyMemoIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<MemoEntity> & ProvidesDialog {
+        _ = try await MemoEntityQuery.require(memoId: memo.id)
         let memoId = try await appAction { try await DiaryMemoAppAction.shared.copy(memoId: memo.id) }
         return .result(
             value: try await MemoEntityQuery.require(memoId: memoId),

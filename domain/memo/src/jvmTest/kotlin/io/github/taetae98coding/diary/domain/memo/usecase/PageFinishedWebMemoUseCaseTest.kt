@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountWebMemoRepository
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -34,7 +35,7 @@ class PageFinishedWebMemoUseCaseTest :
             val pagingData = PagingData.from(listOf(Arb.memo(title = Arb.nonBlankString().next()).next()))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountWebMemoRepository = mockk<AccountWebMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountWebMemoRepository.pageFinished(account = account, webId = webId, sort = ListSort.DEFAULT) } returns flowOf(pagingData)
             val useCase =
                 PageFinishedWebMemoUseCase(
@@ -80,7 +81,7 @@ class PageFinishedWebMemoUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountWebMemoRepository = mockk<AccountWebMemoRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase =
                 PageFinishedWebMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -111,7 +112,7 @@ class PageFinishedWebMemoUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountWebMemoRepository = mockk<AccountWebMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             every { accountWebMemoRepository.pageFinished(account = account, webId = webId, sort = ListSort.DEFAULT) } returns flow { throw failure }
             val useCase =
                 PageFinishedWebMemoUseCase(
@@ -145,7 +146,7 @@ class PageFinishedWebMemoUseCaseTest :
             val otherAccountPagingFlow = MutableStateFlow(otherAccountPagingData)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountWebMemoRepository = mockk<AccountWebMemoRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            every { getAccountUseCase() } returns accountFlow
             every { accountWebMemoRepository.pageFinished(account = account, webId = webId, sort = ListSort.DEFAULT) } returns accountPagingFlow
             every { accountWebMemoRepository.pageFinished(account = otherAccount, webId = webId, sort = ListSort.DEFAULT) } returns otherAccountPagingFlow
             val useCase =

@@ -100,7 +100,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-2eff41ae-28e1-4305-a906-620d864e6476: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표 없이 받은 순서대로 전달한다") {
+        test("좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표 없이 받은 순서대로 전달한다") {
             val places = Arb.naverPlaceRemoteEntity().take(3).toList()
             val items =
                 JsonArray(

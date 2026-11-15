@@ -8,7 +8,9 @@
 
 ## 적용 대상
 
-항목을 카드로 보여 주는 목록은 모두 이 상호작용을 제공한다. 완료 여부가 있는 메모와 태그는 진행 상태 변경과 삭제를, 완료 여부가 없는 웹 항목, 장소, 연락처, 곡, QR, 체크리스트, 디데이는 삭제만 제공한다.
+항목을 카드로 보여 주는 목록은 모두 이 상호작용을 제공한다. 완료 여부가 있는 메모, 태그와 루틴은 진행 상태 변경과 삭제를, 완료 여부가 없는 웹 항목, 장소, 연락처, 곡, QR, 체크리스트, 디데이는 삭제만 제공한다.
+
+이 문서의 `진행 상태를 바꾸는 동작`은 완료와 다시 시작을 가리킨다. 루틴에서는 이 동작이 [루틴 스펙](../common/routine.md)의 `완료 여부`를 바꾸며, 오늘과 시작 날짜로 정하는 [루틴 앱 스펙](./routine.md)의 `진행 상태`(시작 전, 진행 중)는 바꾸지 않는다.
 
 | 스펙 | 목록 | 진행 상태를 바꾸는 동작 |
 | --- | --- | --- |
@@ -31,16 +33,21 @@
 | [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 | 없음 |
 | [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 | 없음 |
 | [TagDetail 디데이 탭](./tag-detail-dday.md) | 태그별 디데이 목록 | 없음 |
+| [TagDetail 루틴 탭](./tag-detail-routine.md) | 태그별 루틴 목록 | 완료 |
+| [TagRoutineFinishedList 화면](./tag-routine-finished-list.md) | 태그별 완료된 루틴 목록 | 다시 시작 |
 | [ContactHome 화면](./contact-home.md) | 연락처 목록 | 없음 |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 목록 | 없음 |
 | [QrHome 화면](./qr-home.md) | QR 목록 | 없음 |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 목록 | 없음 |
 | [DDayHome 화면](./dday-home.md) | 디데이 목록 | 없음 |
+| [RoutineHome 화면](./routine-home.md) | 목록 보기의 루틴 목록 | 완료 |
+| [RoutineFinishedList 화면](./routine-finished-list.md) | 완료된 루틴 목록 | 다시 시작 |
 | [SearchHome 화면](./search-home.md) | 메모 검색 결과 | 항목마다 완료 또는 다시 시작 |
 | [SearchHome 화면](./search-home.md) | 태그 검색 결과 | 항목마다 완료 또는 다시 시작 |
 | [SearchHome 화면](./search-home.md) | 장소 검색 결과 | 없음 |
 | [SearchHome 화면](./search-home.md) | 웹 검색 결과 | 없음 |
 | [SearchHome 화면](./search-home.md) | 디데이 검색 결과 | 없음 |
+| [SearchHome 화면](./search-home.md) | 루틴 검색 결과 | 항목마다 완료 또는 다시 시작 |
 
 진행 상태를 바꾸는 동작이 `없음`인 목록은 완료 여부가 없는 항목을 보여 주므로 삭제 방향만 제공한다.
 

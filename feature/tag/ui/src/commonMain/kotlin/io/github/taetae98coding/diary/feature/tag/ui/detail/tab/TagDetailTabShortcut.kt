@@ -24,6 +24,7 @@ internal fun Modifier.tagDetailTabShortcut(
     onMusicAdd: () -> Unit,
     onQrAdd: () -> Unit,
     onDDayAdd: () -> Unit,
+    onRoutineAdd: () -> Unit,
     state: TagDetailTabState = rememberTagDetailTabState(),
     isUpdateEnabledProvider: () -> Boolean = { false },
 ): Modifier {
@@ -63,6 +64,8 @@ internal fun Modifier.tagDetailTabShortcut(
                 TagDetailTab.QR -> keyEvent.handleAddShortcut(onAdd = onQrAdd)
 
                 TagDetailTab.DDAY -> keyEvent.handleAddShortcut(onAdd = onDDayAdd)
+
+                TagDetailTab.ROUTINE -> keyEvent.handleAddShortcut(onAdd = onRoutineAdd)
             }
         }
 }

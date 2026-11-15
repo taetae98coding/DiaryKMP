@@ -1,23 +1,11 @@
 package io.github.taetae98coding.diary.compose.map
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextMeasurer
-import io.github.taetae98coding.diary.compose.map.di.MapDispatcher
 import io.github.taetae98coding.diary.compose.map.provider.label
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
-
-@Composable
-internal fun rememberPinMarkerImageFactory(): PinMarkerImageFactory {
-    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<MapDispatcher>())
-
-    return remember(dispatcher) { PinMarkerImageFactory(dispatcher = dispatcher) }
-}
 
 internal data class PinMarkerImageKey(
     val color: Color,

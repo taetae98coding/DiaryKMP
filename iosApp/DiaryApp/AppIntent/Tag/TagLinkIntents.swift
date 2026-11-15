@@ -18,6 +18,8 @@ struct LinkChildTagToTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await TagEntityQuery.require(tagId: childTag.id)
         _ = try await appAction { try await DiaryTagLinkAppAction.shared.add(tagId: tag.id, linkedTagId: childTag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Linked.", table: "AppIntentCore")))
     }
@@ -40,6 +42,8 @@ struct UnlinkChildTagFromTagIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await TagEntityQuery.require(tagId: childTag.id)
         _ = try await appAction { try await DiaryTagLinkAppAction.shared.remove(tagId: tag.id, linkedTagId: childTag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
     }

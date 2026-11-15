@@ -2,7 +2,7 @@
 
 이 문서는 캘린더에 표시할 메모를 정하는 기준을 다룬다. 어떤 메모가 캘린더에 나타나는지, 어떤 기간을 차지하는지, 어떤 색상으로 표시되는지를 정한다.
 
-메모를 캘린더의 어느 자리에 어떤 모양으로 배치하는지는 [Calendar 컴포넌트 디자인](../../design/calendar.md)과 [CalendarWeekOfMonth 컴포넌트 디자인](../../design/calendar-week-of-month.md)의 아이템 배치를 따르며, 메모를 캘린더에 실제로 배치하는 화면 구성은 [CalendarHome 디자인](../../design/calendar-home.md)에서 다룬다. 이 문서에는 직접 수행하는 사용자 조작이 없어 `feature` 영역을 두지 않는다.
+메모를 캘린더의 어느 자리에 어떤 모양으로 배치하는지는 [Calendar 컴포넌트 디자인](../../design/calendar.md)과 [CalendarWeekOfMonth 컴포넌트 디자인](../../design/calendar-week-of-month.md)의 아이템 배치를 따르며, 메모를 캘린더에 실제로 배치하는 화면 구성은 [CalendarHome 디자인](../../design/calendar-home.md)과 [CalendarTimetable 디자인](../../design/calendar-timetable.md)에서 다룬다. 이 문서에는 직접 수행하는 사용자 조작이 없어 `feature` 영역을 두지 않는다.
 
 메모의 기간과 상태 개념은 [MemoAdd 화면 스펙](./memo-add.md)을, 대표 태그 개념은 [메모 대표 태그 스펙](../common/memo-primary-tag.md)을 따른다.
 

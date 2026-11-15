@@ -69,6 +69,7 @@ import io.github.taetae98coding.diary.feature.web.ui.add.urlInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeViewModel
 import io.github.taetae98coding.diary.feature.web.ui.home.testWeb
@@ -111,7 +112,6 @@ class WebListDetailNavigationTest {
     private var homeWebList: List<Web> = emptyList()
     private val homePagingData = MutableStateFlow(webPagingDataOf(emptyList()))
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -252,7 +252,7 @@ class WebListDetailNavigationTest {
                         entryProvider =
                             entryProvider {
                                 entry<WebListDetailMoreNavKey> { Text(text = MORE_CONTENT) }
-                                webEntry(backStack = backStack)
+                                webEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
                                 entry<SearchHomeNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
@@ -268,7 +268,6 @@ class WebListDetailNavigationTest {
 
     @Composable
     private fun WebListDetailTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -373,7 +372,7 @@ class WebListDetailNavigationTest {
     }
 }
 
-// 웹 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 웹 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object WebListDetailMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

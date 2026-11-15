@@ -6,9 +6,9 @@ import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
+import io.github.taetae98coding.diary.app.shared.AppDependencies
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.di.DiaryKoinApplication
-import io.github.taetae98coding.diary.core.navigation.ScreenEntryInstaller
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
@@ -35,8 +35,8 @@ import kotlin.uuid.Uuid
 
 class AppEntryInstallerTest :
     FunSpec({
-        test("저장할 수 있는 모든 화면 키는 Koin이 모은 entry로 열 수 있다") {
-            val installerList = koinApplication<DiaryKoinApplication>().koin.getAll<ScreenEntryInstaller>()
+        test("저장할 수 있는 모든 화면 키는 앱 의존 묶음이 모은 entry로 열 수 있다") {
+            val installerList = koinApplication<DiaryKoinApplication>().koin.get<AppDependencies>().entryInstallerList
             val navigator =
                 AppState(
                     backStack = NavBackStack(TopLevelNavigation.DEFAULT.key),

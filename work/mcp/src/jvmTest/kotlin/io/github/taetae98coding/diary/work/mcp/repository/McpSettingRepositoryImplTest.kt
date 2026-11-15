@@ -41,6 +41,18 @@ class McpSettingRepositoryImplTest :
             }
         }
 
+        test("TC-30ea3b2b-ac06-4fc0-a7b3-9f87fa6aecf0 바꾼 적 없으면 꺼짐, 저장된 값은 그대로다") {
+            listOf<Pair<Boolean?, Boolean>>(null to false, false to false, true to true).forEach { (stored, expected) ->
+                val dataSource = mockk<McpSettingLocalDataSource>()
+                every { dataSource.getEnabled() } returns MutableStateFlow(stored)
+                val repository = McpSettingRepositoryImpl(mcpSettingLocalDataSource = dataSource)
+
+                repository.getEnabled().test {
+                    awaitItem() shouldBe expected
+                }
+            }
+        }
+
         test("연결 사용 설정을 저장한다") {
             val isEnabled = Arb.boolean().next()
             val dataSource = mockk<McpSettingLocalDataSource>()

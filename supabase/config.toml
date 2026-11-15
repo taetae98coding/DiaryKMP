@@ -22,11 +22,6 @@ client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
 # 웹 흐름도 id_token을 앱이 직접 받아 signInWithIdToken으로 검증하므로 secret이 필요 없다.
 # CLI 설정 검증도 apple·google provider는 secret 필수 검사에서 제외한다.
 
-# S3 Vector Buckets는 Pro 플랜 전용 기능인데 CLI가 기본값을 enabled로 두어,
-# 무료 티어에서는 config push가 402로 실패한다. 그래서 명시적으로 꺼둔다.
-[storage.vector]
-enabled = false
-
 [functions.v1-session-google-id-token]
 verify_jwt = false
 
@@ -146,6 +141,18 @@ verify_jwt = true
 [functions.v1-sync-pull-dday]
 verify_jwt = true
 
+[functions.v1-sync-push-routine]
+verify_jwt = true
+
+[functions.v1-sync-pull-routine]
+verify_jwt = true
+
+[functions.v1-sync-push-routine-record]
+verify_jwt = true
+
+[functions.v1-sync-pull-routine-record]
+verify_jwt = true
+
 [functions.v1-sync-push-contact-tag]
 verify_jwt = true
 
@@ -174,6 +181,12 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.v1-sync-pull-dday-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-routine-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-routine-tag]
 verify_jwt = true
 
 [functions.v1-profile-upload]

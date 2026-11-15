@@ -18,6 +18,8 @@
 | [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 |
 | [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 |
 | [TagDetail 디데이 탭](./tag-detail-dday.md) | 태그별 디데이 목록 |
+| [TagDetail 루틴 탭](./tag-detail-routine.md) | 태그별 루틴 목록 |
+| [TagRoutineFinishedList 화면](./tag-routine-finished-list.md) | 태그별 완료된 루틴 목록 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 |
@@ -32,7 +34,10 @@
 | [QrHome 화면](./qr-home.md) | QR 목록 |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 목록 |
 | [DDayHome 화면](./dday-home.md) | 디데이 목록 |
-| [SearchHome 화면](./search-home.md) | 메모·태그·장소·웹·디데이 검색 결과 목록 |
+| [RoutineHome 화면](./routine-home.md) | 목록 보기의 루틴 목록 |
+| [RoutineFinishedList 화면](./routine-finished-list.md) | 완료된 루틴 목록 |
+| [RoutineDetail 화면](./routine-detail.md) | 기록 내역 |
+| [SearchHome 화면](./search-home.md) | 메모·태그·장소·웹·디데이·루틴 검색 결과 목록 |
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | 장소 선택 목록의 목록 보기 |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | 웹 선택 목록 |
 | [메모 연락처 입력 컴포넌트](./memo-contact-input.md) | 연락처 선택 목록 |

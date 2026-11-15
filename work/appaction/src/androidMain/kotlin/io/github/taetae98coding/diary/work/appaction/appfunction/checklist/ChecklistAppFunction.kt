@@ -21,7 +21,8 @@ internal class ChecklistAppFunction(
         title: String,
         description: String?,
         items: List<String>,
-    ): AppFunctionId = appFunctionCall { checklistAppAction.add(title = title, description = description, items = items).toAppFunctionId() }
+        tagIds: List<String>,
+    ): AppFunctionId = appFunctionCall { checklistAppAction.add(title = title, description = description, items = items, tagIds = tagIds).toAppFunctionId() }
 
     suspend fun update(
         checklistId: String,
@@ -34,15 +35,4 @@ internal class ChecklistAppFunction(
     suspend fun delete(checklistId: String): AppFunctionChangedCount = appFunctionCall { checklistAppAction.delete(checklistId = checklistId).toAppFunctionChangedCount() }
 
     suspend fun restore(checklistId: String): AppFunctionChangedCount = appFunctionCall { checklistAppAction.restore(checklistId = checklistId).toAppFunctionChangedCount() }
-
-    suspend fun itemAdd(
-        checklistId: String,
-        content: String,
-    ): AppFunctionChangedCount = appFunctionCall { checklistAppAction.itemAdd(checklistId = checklistId, content = content).toAppFunctionChangedCount() }
-
-    suspend fun itemCheck(itemId: String): AppFunctionChangedCount = appFunctionCall { checklistAppAction.itemCheck(itemId = itemId).toAppFunctionChangedCount() }
-
-    suspend fun itemUncheck(itemId: String): AppFunctionChangedCount = appFunctionCall { checklistAppAction.itemUncheck(itemId = itemId).toAppFunctionChangedCount() }
-
-    suspend fun itemDelete(itemId: String): AppFunctionChangedCount = appFunctionCall { checklistAppAction.itemDelete(itemId = itemId).toAppFunctionChangedCount() }
 }

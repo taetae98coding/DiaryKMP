@@ -11,5 +11,7 @@ internal interface QrActionLauncher {
     suspend fun launch(action: QrAction): Boolean
 }
 
-@Composable
-internal expect fun rememberQrActionLauncher(): QrActionLauncher
+internal interface QrActionLauncherFactory {
+    @Composable
+    fun rememberQrActionLauncher(): QrActionLauncher
+}

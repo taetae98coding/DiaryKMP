@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.web.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
@@ -34,7 +35,7 @@ class DeleteWebUseCaseTest :
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery {
                 accountWebRepository.updateDeleted(
@@ -76,7 +77,7 @@ class DeleteWebUseCaseTest :
             val account = Arb.accountUser().next()
             val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery {
                 accountWebRepository.updateDeleted(account = account, webId = id, isDeleted = any(), updatedAt = any())
@@ -104,7 +105,7 @@ class DeleteWebUseCaseTest :
             val account = Arb.constant(Account.Guest).next()
             val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery {
                 accountWebRepository.updateDeleted(account = account, webId = id, isDeleted = any(), updatedAt = any())
@@ -131,7 +132,7 @@ class DeleteWebUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
             val useCase =
                 DeleteWebUseCase(
@@ -158,7 +159,7 @@ class DeleteWebUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery {
                 accountWebRepository.updateDeleted(account = account, webId = any(), isDeleted = any(), updatedAt = any())

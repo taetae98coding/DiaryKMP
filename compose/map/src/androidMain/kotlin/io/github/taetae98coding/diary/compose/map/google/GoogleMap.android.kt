@@ -12,17 +12,18 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.isFinite
+import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.permission.rememberIsPermissionGranted
 import io.github.taetae98coding.diary.core.permission.Permission
 import kotlin.uuid.Uuid
 import com.google.maps.android.compose.GoogleMap as AndroidGoogleMap
 
 @Composable
-internal actual fun GoogleMap(
-    modifier: Modifier,
-    state: DiaryMapState,
-    onSpotClick: ((DiaryMapCoordinate) -> Unit)?,
-    onPinClick: ((Uuid) -> Unit)?,
+internal fun GoogleMap(
+    modifier: Modifier = Modifier,
+    state: DiaryMapState = rememberDiaryMapState(),
+    onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
+    onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     val isLocationPermissionGranted = rememberIsPermissionGranted(Permission.LOCATION)
     val properties = remember(isLocationPermissionGranted) { googleMapProperties(isLocationPermissionGranted) }

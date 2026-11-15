@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -18,22 +17,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.button.ClearButton
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryDatePickerDialogHost
-import io.github.taetae98coding.diary.compose.core.icon.CheckIcon
 import io.github.taetae98coding.diary.compose.core.icon.DropDownIcon
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.core.menu.DiarySelectMenuItem
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
@@ -154,7 +149,7 @@ private fun OverflowPolicyRow(
                 onDismissRequest = { isExpanded = false },
             ) {
                 ddayOverflowPolicyList.forEach { policy ->
-                    DDaySelectMenuItem(
+                    DiarySelectMenuItem(
                         text = policy.label(),
                         isSelected = policy == state.overflowPolicy,
                         onClick = {
@@ -166,22 +161,6 @@ private fun OverflowPolicyRow(
             }
         }
     }
-}
-
-@Composable
-internal fun DDaySelectMenuItem(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    DropdownMenuItem(
-        text = { Text(text = text) },
-        onClick = onClick,
-        modifier = modifier.semantics { selected = isSelected },
-        // 고르지 않은 항목도 체크 아이콘의 자리를 비워 두어 이름의 시작을 맞춘다.
-        leadingIcon = { CheckIcon(modifier = Modifier.alpha(if (isSelected) 1F else 0F)) },
-    )
 }
 
 @Composable
@@ -198,22 +177,6 @@ private fun DDayRepeatRuleCardPreview() {
     DiaryTheme {
         Surface {
             DDayRepeatRuleCard()
-        }
-    }
-}
-
-@ComponentPreview
-@Composable
-private fun DDaySelectMenuItemPreview(
-    @PreviewParameter(BooleanPreviewParameter::class) isSelected: Boolean,
-) {
-    DiaryTheme {
-        Surface {
-            DDaySelectMenuItem(
-                text = DDayOverflowPolicy.CLAMP_TO_MONTH_END.label(),
-                isSelected = isSelected,
-                onClick = {},
-            )
         }
     }
 }

@@ -34,6 +34,7 @@ import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
@@ -405,9 +406,9 @@ class PlaceHomeMapContentTest {
             initialCoordinate: Coordinate,
         ): PlaceHomeMapViewModel {
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(parameter = Unit) } returns flowOf(Result.success(defaultProvider))
+            every { getDefaultMapProviderUseCase() } returns flowOf(Result.success(defaultProvider))
             val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns Result.success(initialCoordinate)
+            coEvery { fetchCurrentLocationUseCase() } returns Result.success(initialCoordinate)
 
             return PlaceHomeMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

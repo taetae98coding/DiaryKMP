@@ -192,7 +192,7 @@ class TagDetailContactTabTest {
     }
 
     @Test
-    fun `TC-2410a5de-600f-4b03-acea-5a08ebced30b 목록 위에 지금 정렬을 표시하고 정렬을 고르면 그 기준을 전달한다`() {
+    fun `목록 위에 지금 정렬을 표시하고 정렬을 고르면 그 기준을 전달한다`() {
         val eventList = mutableListOf<TagDetailContactContentEvent>()
         setContactTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagContact(name = FIRST_TITLE))),

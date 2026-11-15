@@ -6,6 +6,9 @@ import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKe
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.isChecklistAddOnDetailPane
 import io.github.taetae98coding.diary.feature.checklist.api.isChecklistListDetailPane
+import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -60,9 +63,32 @@ class ChecklistListDetailPaneTest :
             backStack.isChecklistAddOnDetailPane() shouldBe false
             backStack.isChecklistListDetailPane(backStack.last()) shouldBe false
         }
+
+        test("TC-9a92f0f9-ae6b-4f72-b8ae-1f38395393c8 태그 입력에서 연 태그 추가와 태그 상세는 어느 목록·상세 배치에도 놓이지 않는다") {
+            val detailPaneCases: List<List<ScreenNavKey>> =
+                listOf(
+                    emptyList(),
+                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next()), ChecklistAddNavKey()),
+                )
+            val tagKeyList: List<ScreenNavKey> =
+                listOf(
+                    TagAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                    TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                )
+
+            detailPaneCases.forEach { detailKeyList ->
+                tagKeyList.forEach { tagKey ->
+                    val backStack = listOf(OtherScreenNavKey, ChecklistHomeNavKey) + detailKeyList + tagKey
+
+                    backStack.isChecklistListDetailPane(tagKey) shouldBe false
+                    backStack.isTagListDetailPane(tagKey) shouldBe false
+                }
+            }
+        }
     })
 
-// 체크리스트 목록이 아닌 진입 화면을 대신한다. `더보기` 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 체크리스트 목록이 아닌 진입 화면을 대신한다. `더보기` 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object OtherScreenNavKey : ScreenNavKey {
     override val screenName: String
         get() = "Other"

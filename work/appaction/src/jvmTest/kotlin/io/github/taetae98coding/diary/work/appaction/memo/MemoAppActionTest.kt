@@ -67,7 +67,7 @@ class MemoAppActionTest :
                 val memoList = Arb.list(Arb.memo(), 1..3).next()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
-                val action = memoAppActionOf(pageMemoHomeUseCase)
+                val action = memoListAppActionOf(pageMemoHomeUseCase)
 
                 action.list(sort = null, cursor = null) shouldBe AppActionPage(items = memoList.map { memo -> memo.expected() }, nextCursor = null)
                 action.list(sort = "recently_updated", cursor = null).items shouldBe memoList.map { memo -> memo.expected() }
@@ -80,7 +80,7 @@ class MemoAppActionTest :
         test("목록이 제공하지 않는 정렬은 고를 수 있는 정렬을 알리며 실패한다") {
             runTest {
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                val action = memoAppActionOf(pageMemoHomeUseCase)
+                val action = memoListAppActionOf(pageMemoHomeUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.list(sort = "name", cursor = null) }.message shouldBe
                     "'sort' must be one of default, title, recently_updated."
@@ -93,7 +93,7 @@ class MemoAppActionTest :
                 val memoList = Arb.list(Arb.memo(), 101..150).next()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(memoList))) }
-                val action = memoAppActionOf(pageMemoHomeUseCase)
+                val action = memoListAppActionOf(pageMemoHomeUseCase)
 
                 val firstPage = action.list(sort = null, cursor = null)
                 val secondPage = action.list(sort = null, cursor = firstPage.nextCursor)
@@ -112,7 +112,7 @@ class MemoAppActionTest :
                         delay(ACCOUNT_CONFIRM_DELAY_MILLIS)
                         emit(Result.success(PagingData.from(memoList)))
                     }
-                val action = memoAppActionOf(pageMemoHomeUseCase)
+                val action = memoListAppActionOf(pageMemoHomeUseCase)
 
                 action.list(sort = null, cursor = null).items shouldBe memoList.map { memo -> memo.expected() }
             }
@@ -123,7 +123,7 @@ class MemoAppActionTest :
                 val message = Arb.nonBlankString().next()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(message)))
-                val action = memoAppActionOf(pageMemoHomeUseCase)
+                val action = memoListAppActionOf(pageMemoHomeUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.list(sort = null, cursor = null) }.message shouldBe "IllegalStateException: $message"
             }
@@ -134,17 +134,17 @@ class MemoAppActionTest :
                 val memoList = Arb.list(Arb.memo(), 1..3).next()
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
-                val action = memoAppActionOf(pageFinishedMemoUseCase)
+                val action = memoListAppActionOf(pageFinishedMemoUseCase)
 
                 action.finishedList(sort = "title", cursor = null) shouldBe AppActionPage(items = memoList.map { memo -> memo.expected() }, nextCursor = null)
                 verify(exactly = 1) { pageFinishedMemoUseCase(parameter = ListSort.TITLE) }
             }
         }
 
-        test("메모 하나를 연결된 태그, 장소, 웹, 연락처와 함께 돌려준다") {
+        test("TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 메모 하나를 연결된 태그, 장소, 웹, 연락처와 함께 돌려준다") {
             runTest {
-                val memo = Arb.memo().next()
-                val tagList = Arb.list(Arb.tag(), 0..3).next()
+                val memo = Arb.memo().next().copy(isDeleted = false)
+                val tagList = Arb.list(Arb.tag(), 1..3).next()
                 val placeList = Arb.list(Arb.place(), 0..3).next()
                 val webList = Arb.list(Arb.web(), 0..3).next()
                 val contactList = Arb.list(Arb.contact(), 0..3).next().map { contact -> ContactListItem(contact = contact, nameQualifier = Arb.string().next()) }
@@ -287,6 +287,33 @@ class MemoAppActionTest :
             }
         }
 
+        test("TC-edf2f510-aac0-4a31-afdb-2f9368763906 추가 요청에 담은 태그를 함께 연결한다") {
+            runTest {
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddMemoUseCase.Parameter>()
+                val addMemoUseCase = mockk<AddMemoUseCase>()
+                coEvery { addMemoUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = memoAppActionOf(addMemoUseCase)
+
+                val result =
+                    action.add(
+                        title = Arb.nonBlankString().next(),
+                        description = null,
+                        color = null,
+                        dateTime = null,
+                        primaryTagId = null,
+                        tagIds = tagIdSet.map { tagId -> tagId.toString() },
+                        placeIds = emptyList(),
+                        webIds = emptyList(),
+                        contactIds = emptyList(),
+                    )
+
+                result shouldBe AppActionId(id = addedId.toString())
+                parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
         test("색과 설명을 담지 않으면 빈 설명과 불투명한 무작위 색으로 추가한다") {
             runTest {
                 val title = Arb.nonBlankString().next()
@@ -359,7 +386,7 @@ class MemoAppActionTest :
 
         test("고칠 값을 담지 않은 항목은 지금 값을 유지하고 고친 수를 돌려준다") {
             runTest {
-                val memo = Arb.memo().next()
+                val memo = Arb.memo().next().copy(isDeleted = false)
                 val title = Arb.nonBlankString().next()
                 val changedCount = Arb.int(0..1).next()
                 val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -376,7 +403,7 @@ class MemoAppActionTest :
 
         test("기간 지우기를 요청하면 기간을 지우고, 새 기간을 담으면 그 기간으로 고친다") {
             runTest {
-                val memo = Arb.memo().next()
+                val memo = Arb.memo().next().copy(isDeleted = false)
                 val start = Arb.kotlinxLocalDateTime().next()
                 val findMemoUseCase = mockk<FindMemoUseCase>()
                 val updateMemoUseCase = mockk<UpdateMemoUseCase>()
@@ -448,6 +475,36 @@ class MemoAppActionTest :
                 val action = memoAppActionOf(deleteMemoUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.delete(memoId = Arb.kotlinUuid().next().toString()) }.message shouldBe "IllegalStateException: $message"
+            }
+        }
+
+        test("TC-e17787d4-7a35-4675-8dbd-0b61b2795a73 삭제된 메모의 상세는 없는 메모와 같이 null을 돌려준다") {
+            runTest {
+                val memo = Arb.memo().next().copy(isDeleted = true)
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
+                val action = memoAppActionOf(findMemoUseCase)
+
+                action.get(memoId = memo.id.toString()) shouldBe null
+            }
+        }
+
+        test("삭제된 메모도 포함하는 조회는 삭제된 메모를 돌려준다") {
+            runTest {
+                val memo = Arb.memo().next().copy(isDeleted = true)
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                val getMemoTagUseCase = mockk<GetMemoTagUseCase>()
+                val getMemoPlaceUseCase = mockk<GetMemoPlaceUseCase>()
+                val getMemoWebUseCase = mockk<GetMemoWebUseCase>()
+                val getMemoContactUseCase = mockk<GetMemoContactUseCase>()
+                every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
+                every { getMemoTagUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoPlaceUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoWebUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoContactUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                val action = memoAppActionOf(findMemoUseCase, getMemoTagUseCase, getMemoPlaceUseCase, getMemoWebUseCase, getMemoContactUseCase)
+
+                action.getIncludingDeleted(memoId = memo.id.toString())?.memo?.id shouldBe memo.id.toString()
             }
         }
     })

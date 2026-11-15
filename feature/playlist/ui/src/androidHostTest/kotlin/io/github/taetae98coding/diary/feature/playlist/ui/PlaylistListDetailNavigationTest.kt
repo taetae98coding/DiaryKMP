@@ -18,6 +18,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -44,9 +45,12 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
@@ -58,15 +62,19 @@ import io.github.taetae98coding.diary.feature.playlist.ui.add.linkInput
 import io.github.taetae98coding.diary.feature.playlist.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.add.titleInput
 import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailEffect
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
 import io.github.taetae98coding.diary.feature.playlist.ui.home.testMusic
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
@@ -104,8 +112,8 @@ class PlaylistListDetailNavigationTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestMoreNavKey, PlaylistHomeNavKey)
     private val homeViewModelList = mutableListOf<PlaylistHomeViewModel>()
+    private val addTagViewModelList = mutableListOf<EntityAddTagViewModel>()
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
@@ -130,6 +138,29 @@ class PlaylistListDetailNavigationTest {
         composeRule.titleInput().assert(hasText(""))
         composeRule.artistInput().assert(hasText(""))
         composeRule.linkInput().assert(hasText(""))
+    }
+
+    @Test
+    fun `TC-28cc3064-5f51-4ded-87ee-1a25e4bedbc7 곡 상세 위에서 연 곡 추가는 태그를 고르지 않은 상태로 시작한다`() {
+        val music = testMusic(title = listedMusicTitle())
+        val tag = Arb.tag(title = PLACEHOLDER_TAG_TITLE).next()
+        setPlaylistNavDisplay(musicList = listOf(music), tag = tag)
+        composeRule.runOnIdle { addTagViewModelList.last().add(tagId = tag.id) }
+        composeRule.waitForIdle()
+        composeRule.onAllNodesWithText(PLACEHOLDER_TAG_TITLE).onFirst().assertExists()
+
+        openAddOnDetail(music = music)
+
+        backStack.last() shouldBe MusicAddNavKey()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(3)
+        composeRule.onAllNodesWithText(PLACEHOLDER_TAG_TITLE).assertCountEquals(0)
+        addTagViewModelList shouldHaveSize 2
+        composeRule.runOnIdle {
+            addTagViewModelList
+                .last()
+                .selectionUiState.value.tagIdSet
+                .shouldBeEmpty()
+        }
     }
 
     @Test
@@ -274,6 +305,32 @@ class PlaylistListDetailNavigationTest {
         composeRule.titleInput().assert(hasText(""))
         composeRule.artistInput().assert(hasText(""))
         composeRule.linkInput().assert(hasText(""))
+    }
+
+    @Test
+    fun `TC-c41335b9-dce4-40f5-8581-5930af99d5e3 한 영역에서 연 곡 추가가 놓인 동안 곡을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
+        val music = testMusic(title = listedMusicTitle())
+        val typedTitle = "typed-title-${Arb.int().next()}"
+        // 한 영역만 표시되던 동안 목록에서 곡 추가를 연 뒤 창이 넓어지면, 목록 위에 그 곡 추가만 쌓인 전환 이력이 목록과 상세로 함께 표시된다.
+        backStack.add(MusicAddNavKey())
+        setPlaylistNavDisplay(music = music)
+        waitUntilDisplayed(music)
+        assertAddOnDetailPane()
+        composeRule.titleInput().performTextInput(typedTitle)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(music.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, PlaylistHomeNavKey, MusicDetailNavKey(id = music.id))
+        assertDetailOnDetailPane()
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, PlaylistHomeNavKey)
+        assertAddOnDetailPane()
+        composeRule.onNodeWithText(typedTitle).assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(""))
     }
 
     @Test
@@ -429,8 +486,11 @@ class PlaylistListDetailNavigationTest {
         setPlaylistNavDisplay(musicList = listOf(music))
     }
 
-    private fun setPlaylistNavDisplay(musicList: List<Music>) {
-        val module = viewModelModule(musicList = musicList, detailTitle = "detail-${Arb.int().next()}")
+    private fun setPlaylistNavDisplay(
+        musicList: List<Music>,
+        tag: Tag? = null,
+    ) {
+        val module = viewModelModule(musicList = musicList, detailTitle = "detail-${Arb.int().next()}", tag = tag)
         composeRule.setContent {
             PlaylistNavigationTestHost(module = module) {
                 val holder = rememberListDetailPlaceholderStateHolder()
@@ -448,7 +508,7 @@ class PlaylistListDetailNavigationTest {
                         entryProvider =
                             entryProvider {
                                 entry<NavigationTestMoreNavKey> { Text(text = MORE_CONTENT) }
-                                playlistEntry(backStack = backStack)
+                                playlistEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
                             },
                     )
                 }
@@ -484,7 +544,7 @@ class PlaylistListDetailNavigationTest {
                                 rememberViewModelStoreNavEntryDecorator(),
                                 rememberListDetailPlaceholderNavEntryDecorator(holder),
                             ),
-                        entryProvider = entryProvider { playlistEntry(backStack = restorableBackStack) },
+                        entryProvider = entryProvider { playlistEntry(backStack = restorableBackStack, contentSharerFactory = testContentSharerFactory()) },
                     )
                 }
             }
@@ -498,7 +558,6 @@ class PlaylistListDetailNavigationTest {
         module: Module,
         content: @Composable () -> Unit,
     ) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -520,9 +579,17 @@ class PlaylistListDetailNavigationTest {
     private fun viewModelModule(
         musicList: List<Music>,
         detailTitle: String,
+        tag: Tag? = null,
     ): Module =
         module {
-            factory { addTagScreenTestViewModel() }
+            // 태그 선택은 ViewModel이 들고 있으므로, 태그를 넘긴 테스트는 실제 ViewModel을 쓰고 만들어진 인스턴스를 모은다.
+            factory { parameters ->
+                if (tag == null) {
+                    addTagScreenTestViewModel()
+                } else {
+                    addTagViewModel(initialTagId = parameters.getOrNull(), allTagList = listOf(tag)).also { viewModel -> addTagViewModelList += viewModel }
+                }
+            }
             factory { detailTagScreenTestViewModel() }
             factory<PlaylistHomeViewModel> {
                 mockk<PlaylistHomeViewModel>(relaxed = true) {
@@ -551,6 +618,7 @@ class PlaylistListDetailNavigationTest {
 
     private companion object {
         const val MORE_CONTENT = "MoreContent"
+        const val PLACEHOLDER_TAG_TITLE = "PlaylistPlaceholderTag"
         const val DEFAULT_ADD_MUSIC_DESCRIPTION = "Add music"
         const val DEFAULT_DELETE_MUSIC_DESCRIPTION = "Delete music"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
@@ -565,7 +633,7 @@ class PlaylistListDetailNavigationTest {
     }
 }
 
-// 플레이리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 플레이리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object NavigationTestMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

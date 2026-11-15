@@ -8,4 +8,5 @@ public enum class EntityTagKind {
     MUSIC,
     QR,
     DDAY,
+    ROUTINE,
 }

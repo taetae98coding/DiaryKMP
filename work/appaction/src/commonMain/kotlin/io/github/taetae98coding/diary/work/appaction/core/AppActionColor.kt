@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.core
 
+import org.koin.core.annotation.Factory
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -24,4 +25,12 @@ internal fun String?.toColorArgumentOrNull(): Long? {
     return (ALPHA_MASK or hex.toInt(radix = HEX_RADIX)).toLong()
 }
 
-internal fun String?.toColorArgumentOrRandom(random: Random = Random.Default): Long = toColorArgumentOrNull() ?: (ALPHA_MASK or random.nextInt(range = 0..RGB_MASK)).toLong()
+internal fun String?.toColorArgumentOrRandom(random: Random = Random.Default): Long = toColorArgumentOrNull() ?: randomColor(random = random)
+
+// 데스크톱 MCP 연결도 컬러를 받지 않는 추가의 컬러를 이 값으로 정한다.
+@Factory
+public class AppActionRandomColor {
+    public fun next(): Long = randomColor(random = Random.Default)
+}
+
+private fun randomColor(random: Random): Long = (ALPHA_MASK or random.nextInt(range = 0..RGB_MASK)).toLong()

@@ -4,7 +4,7 @@
 
 나누어 불러오는 목록이 나타나는 순서와 아직 준비되지 않은 자리의 처리는 [페이지 조회 목록의 자리 표시 스펙](./paged-list-placeholder.md)을, 목록이 비어 있을 때의 안내는 [목록 빈 상태 스펙](./list-empty-state.md)을, 목록 카드에서 삭제를 실행하는 상호작용과 그 뒤의 안내는 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을, 정렬 선택은 [목록 정렬 스펙](./list-sort.md)을, 목록을 당겨 새로고침하는 조작은 [새로고침 스펙](./sync-refresh.md)을, 목록과 상세를 함께 사용하는 배치는 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다.
 
-디자인: [항목 목록 화면 공통 디자인](../../design/entity-home.md). 이 디자인은 적용 대상 중 ContactHome, QrHome, WebHome, ChecklistHome, PlaylistHome이 함께 쓰는 표현만 다룬다.
+디자인: [항목 목록 화면 공통 디자인](../../design/entity-home.md). 이 디자인은 적용 대상 중 ContactHome, QrHome, WebHome, ChecklistHome, PlaylistHome, DDayHome이 함께 쓰는 표현만 다룬다.
 
 ## 적용 대상
 
@@ -19,10 +19,12 @@
 | [DDayHome 화면](./dday-home.md) | 디데이 | `더보기` |
 | [MemoHome 목록](./memo-home.md) | 메모 | 공통 내비게이션의 `메모` |
 | [TagHome 목록](./tag-home.md) | 태그 | 공통 내비게이션의 `태그` |
+| [RoutineHome 화면](./routine-home.md) | 루틴 | 공통 내비게이션의 `루틴` |
 
 - PlaceHome은 두 보기 모드의 목록 표시, 목록 조회와 갱신, 추가·상세로 이동하는 결과를 [장소 보기 모드 스펙](./place-view-mode.md)에 맡기므로, 이 문서에서는 노출 기준, 삭제와 실행 취소, 저장, 뒤로가기만 따른다.
 - MemoHome과 TagHome은 완료 여부를 가진 항목을 보여 주는 주요 목적지라 목록 표시, 완료, 화면 유지를 각 화면 스펙과 [TopLevelNavigation 스펙](./top-level-navigation.md)이 정한다. 이 문서에서는 `추가로 이동`, `상세로 이동`, `삭제`, `안내와 실행 취소`와 `삭제와 실행 취소의 저장`의 실행 취소를 저장하지 못한 결과만 따른다. 완료와 함께 다루는 상태 전이와 저장은 각 화면 스펙이 정한다.
-- [FileHome 화면](./file-home.md)은 목록을 서버에서 불러오고 목록에서 삭제하지 않으며, [RoutineHome 화면](./routine-home.md)은 노출하는 항목이 없으므로 이 문서를 따르지 않는다.
+- RoutineHome은 완료 여부를 가진 항목을 보여 주는 주요 목적지이며 목록 보기와 달력 보기를 가진다. 목록 보기는 이 문서의 `목록 표시`, `새로고침`, `추가로 이동`, `상세로 이동`, `삭제`, `안내와 실행 취소`, `목록에 노출하는 항목`, `목록 갱신`, `삭제와 실행 취소의 상태 전이`, `삭제와 실행 취소의 저장`, `목록 조회`를 따른다. `뒤로가기`와 `화면 유지`는 주요 목적지이므로 [RoutineHome 화면 스펙](./routine-home.md)과 [TopLevelNavigation 스펙](./top-level-navigation.md)이 정한다. 달력 보기는 `추가로 이동`만 따르며, 달력 보기의 표시와 목록 카드의 빠른 기록, 루틴의 완료와 완료 여부를 더한 노출 기준, 완료된 루틴 확인은 [RoutineHome 화면 스펙](./routine-home.md)이 소유한다.
+- [FileHome 화면](./file-home.md)은 목록을 서버에서 불러오고 목록에서 삭제하지 않으므로 이 문서를 따르지 않는다.
 
 ## feature
 
@@ -147,3 +149,4 @@
 - [DDayHome 화면 스펙](./dday-home.md)
 - [MemoHome 목록 스펙](./memo-home.md)
 - [TagHome 목록 스펙](./tag-home.md)
+- [RoutineHome 화면 스펙](./routine-home.md)

@@ -71,7 +71,6 @@ class DDayAddNavDisplayTest {
 
     private val addViewModelList = mutableListOf<DDayAddViewModel>()
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -149,7 +148,6 @@ class DDayAddNavDisplayTest {
 
     @Composable
     private fun NavDisplayTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -199,7 +197,7 @@ class DDayAddNavDisplayTest {
     }
 }
 
-// 디데이 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 디데이 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object DDayAddNavDisplayMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

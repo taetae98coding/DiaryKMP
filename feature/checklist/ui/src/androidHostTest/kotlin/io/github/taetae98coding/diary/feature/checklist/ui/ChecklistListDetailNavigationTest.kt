@@ -55,6 +55,7 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
@@ -70,6 +71,9 @@ import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetai
 import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeViewModel
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -111,7 +115,6 @@ class ChecklistListDetailNavigationTest {
     private var directiveOverride by mutableStateOf<PaneScaffoldDirective?>(null)
     private val homePagingData = MutableStateFlow(checklistPagingDataOf(emptyList()))
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
     fun setUp() {
         stopKoin()
@@ -125,7 +128,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-ae8c35b0-95a1-4971-a4a4-e22e42889d3e 목록과 상세를 함께 쓰는 환경에서는 체크리스트 목록과 체크리스트 추가를 함께 표시한다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
 
         setChecklistNavDisplay(summaryList = listOf(summary))
 
@@ -136,7 +139,7 @@ class ChecklistListDetailNavigationTest {
     @Test
     @Config(qualifiers = "w411dp-h891dp")
     fun `TC-8a905a0f-4a90-455b-bc9c-096d1931d23b 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
 
         composeRule.onNode(card(summary)).assertExists()
@@ -152,7 +155,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-b1d53913-a559-4b4e-9b11-d771c7bfedd1 목록과 함께 표시되면 상세 영역의 화면에서 뒤로가기 수단을 제공하지 않는다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
 
         assertAddOnDetailPane()
@@ -167,7 +170,7 @@ class ChecklistListDetailNavigationTest {
     @Test
     @Config(qualifiers = "w411dp-h891dp")
     fun `TC-77217cc5-dd22-4d78-953d-020749ce688c 단독으로 표시되면 그 화면에서 뒤로가기 수단을 제공한다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
@@ -187,7 +190,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-bca1061e-1340-4e9b-b1b1-67c2f88db175 목록에서 체크리스트를 선택하면 목록을 유지한 채 상세 영역이 그 체크리스트의 상세로 바뀐다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
 
         selectChecklist(summary)
@@ -199,7 +202,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-05186388-e37b-4d54-a200-48763688366d 상세 영역에서 뒤로가면 체크리스트 추가로 되돌아간다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         selectChecklist(summary)
 
@@ -212,7 +215,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-7e985232-a5c6-4e7e-927a-8421ac760f73 상세에서 체크리스트를 삭제하면 상세 영역이 체크리스트 추가로 되돌아간다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         selectChecklist(summary)
 
@@ -226,7 +229,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-4b3eed45-b9dc-4edb-9552-786b8e309963 체크리스트 상세가 놓인 동안 체크리스트 추가를 실행하면 상세 영역이 체크리스트 추가로 바뀐다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
 
         openAddOnDetail(summary)
@@ -238,7 +241,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-48790395-dac8-45cc-b071-065355bd991f 체크리스트 상세 위에서 연 체크리스트 추가에서 뒤로가면 이전 체크리스트 상세로 돌아간다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         openAddOnDetail(summary)
 
@@ -251,7 +254,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-e690f1f3-92f9-4f5d-9ce5-02469da22329 체크리스트 상세 위에서 연 체크리스트 추가는 빈 입력으로 시작한다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         fillPlaceholder()
 
@@ -263,8 +266,8 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-014ccf10-5678-4853-8d88-56bb988f6334 체크리스트 상세가 놓인 동안 다른 체크리스트를 고르면 교체하고 뒤로가면 체크리스트 추가로 돌아간다`() {
-        val first = testChecklistSummary(titlePrefix = FIRST_PREFIX)
-        val second = testChecklistSummary(titlePrefix = SECOND_PREFIX)
+        val first = Arb.checklistSummary(titlePrefix = FIRST_PREFIX).next()
+        val second = Arb.checklistSummary(titlePrefix = SECOND_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(first, second))
 
         selectChecklist(first)
@@ -283,8 +286,8 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-e8f2bdec-251b-44ec-88fd-d14a59ff7dba 체크리스트 상세 위에서 연 체크리스트 추가가 놓인 동안 다른 체크리스트를 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
-        val first = testChecklistSummary(titlePrefix = FIRST_PREFIX)
-        val second = testChecklistSummary(titlePrefix = SECOND_PREFIX)
+        val first = Arb.checklistSummary(titlePrefix = FIRST_PREFIX).next()
+        val second = Arb.checklistSummary(titlePrefix = SECOND_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(first, second))
         openAddOnDetail(first)
         titleInput().performTextInput(TYPED_ADD_TITLE)
@@ -305,7 +308,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-e8f2bdec-251b-44ec-88fd-d14a59ff7dba 좁은 창에서 연 체크리스트 추가가 창이 넓어져 상세 영역에 놓인 동안 체크리스트를 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
-        val summary = testChecklistSummary(titlePrefix = FIRST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = FIRST_PREFIX).next()
         directiveOverride = singlePaneDirective()
         setChecklistNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)
@@ -332,7 +335,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-03c6e703-e1d7-45a6-a231-a4175946c3f4 체크리스트를 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
 
         pressBack()
@@ -344,7 +347,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-f68665b5-f231-47dc-bf9d-9b13e5ededfc 체크리스트 상세가 함께 놓여 있어도 목록의 뒤로가기는 더보기로 돌아간다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         selectChecklist(summary)
 
@@ -357,7 +360,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-05af48ff-beab-4170-bcd8-285a5dfd4995 상세에 열린 체크리스트를 목록에서 밀어 삭제해도 상세 영역은 그 체크리스트의 상세로 남는다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         selectChecklist(summary)
 
@@ -371,7 +374,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-3f4d611b-cc7c-40ef-9317-98cdd5cc6a8c 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         selectChecklist(summary)
 
@@ -387,7 +390,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-6361ed73-5711-40c4-bf9c-72a73472b94c 더보기로 돌아갔다가 다시 진입하면 상세 영역의 체크리스트 추가는 입력이 모두 비어 있는 상태로 시작한다`() {
-        setChecklistNavDisplay(summaryList = listOf(testChecklistSummary(titlePrefix = LIST_PREFIX)))
+        setChecklistNavDisplay(summaryList = listOf(Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()))
         fillPlaceholder()
 
         composeRule.runOnIdle { backStack.removeLastOrNull() }
@@ -401,7 +404,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-a8bc4821-271a-43af-8254-d57769415d09 배치를 떠나기 전에는 상세 영역에서 체크리스트 상세를 보고 돌아와도 체크리스트 추가의 입력이 남는다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         fillPlaceholder()
 
@@ -413,12 +416,81 @@ class ChecklistListDetailNavigationTest {
         assertPlaceholderRetained()
     }
 
+    @Test
+    fun `TC-9a92f0f9-ae6b-4f72-b8ae-1f38395393c8 체크리스트 상세의 태그 입력에서 연 화면은 단독으로 표시하고 돌아오면 그 상세가 놓인다`() {
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
+        setChecklistNavDisplay(summaryList = listOf(summary))
+        selectChecklist(summary)
+
+        assertTagRouteStandalone(summary = summary, assertDetailPane = ::assertDetailOnDetailPane)
+    }
+
+    @Test
+    fun `TC-9a92f0f9-ae6b-4f72-b8ae-1f38395393c8 선택 전 체크리스트 추가의 태그 입력에서 연 화면은 단독으로 표시하고 돌아오면 그 추가가 놓인다`() {
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
+        setChecklistNavDisplay(summaryList = listOf(summary))
+
+        assertTagRouteStandalone(summary = summary, assertDetailPane = ::assertAddOnDetailPane)
+    }
+
+    @Test
+    fun `TC-59da20e1-4d27-4134-8370-0a0d14e68ff0 배치를 떠나기 전에는 태그 입력에서 연 화면에 다녀와도 체크리스트 추가의 입력이 남는다`() {
+        setChecklistNavDisplay(summaryList = listOf(Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()))
+        fillPlaceholder()
+
+        listOf(::openTagAddFromTagInput, ::openTagDetail).forEach { openTagRoute ->
+            openTagRoute()
+            pressBack()
+
+            assertPlaceholderRetained()
+        }
+    }
+
+    private fun assertTagRouteStandalone(
+        summary: ChecklistSummary,
+        assertDetailPane: () -> Unit,
+    ) {
+        val backStackBeforeOpen = backStack.toList()
+
+        listOf(::openTagAddFromTagInput, ::openTagDetail).forEach { openTagRoute ->
+            openTagRoute()
+            composeRule.onNode(card(summary)).assertDoesNotExist()
+
+            pressBack()
+
+            backStack.toList() shouldBe backStackBeforeOpen
+            composeRule.onNode(card(summary)).assertExists()
+            assertDetailPane()
+        }
+    }
+
+    // 고를 수 있는 태그가 없는 것으로 확인된 태그 입력의 추가 항목은 태그 추가로 이동한다.
+    private fun openTagAddFromTagInput() {
+        composeRule.clickEntityTagInput()
+
+        (backStack.last() is TagAddNavKey) shouldBe true
+        assertTagRouteDisplayed()
+    }
+
+    private fun openTagDetail() {
+        composeRule.runOnIdle { backStack.add(TagDetailNavKey(id = Arb.kotlinUuid().next())) }
+        composeRule.waitForIdle()
+
+        assertTagRouteDisplayed()
+    }
+
+    private fun assertTagRouteDisplayed() {
+        composeRule.onNodeWithText(TAG_ROUTE_CONTENT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_RESET_DESCRIPTION).assertDoesNotExist()
+    }
+
     private fun assertProgressChanged(
         checked: Int,
         total: Int,
         action: () -> Unit,
     ) {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX, checkedCount = 1, totalCount = 3)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX, checkedCount = 1, totalCount = 3).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         selectChecklist(summary)
         composeRule.onNode(card(summary) and hasContentDescription(progressDescription(checked = 1, total = 3))).assertExists()
@@ -441,7 +513,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-788ff34a-0c74-4b12-87bb-6f05baad187d 선택 전 체크리스트 추가에서 추가에 성공해도 상세 영역은 체크리스트 추가로 남고 추가한 체크리스트가 목록에 나타난다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         titleInput().performTextInput(ADDED_TITLE)
         composeRule.waitForIdle()
@@ -491,7 +563,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-48ef2282-3983-476a-a231-d6ab2486245b 목록에서 연 체크리스트 추가를 뒤로가기로 닫아도 선택 전 체크리스트 추가의 작성 내용이 남는다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         fillPlaceholder()
         openAddOnDetail(summary)
@@ -507,8 +579,8 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-48ef2282-3983-476a-a231-d6ab2486245b 목록에서 연 체크리스트 추가를 다른 체크리스트를 골라 걷어내도 선택 전 체크리스트 추가의 작성 내용이 남는다`() {
-        val first = testChecklistSummary(titlePrefix = FIRST_PREFIX)
-        val second = testChecklistSummary(titlePrefix = SECOND_PREFIX)
+        val first = Arb.checklistSummary(titlePrefix = FIRST_PREFIX).next()
+        val second = Arb.checklistSummary(titlePrefix = SECOND_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(first, second))
         fillPlaceholder()
         openAddOnDetail(first)
@@ -524,7 +596,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-bf647801-8986-41a4-be3b-9c9485f35b4f 화면이 재생성되어도 상세 선택을 유지한다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var restoredBackStack: NavBackStack<ScreenNavKey>
         setRestorableNavDisplay(summaryList = listOf(summary), restorationTester = restorationTester) { stack -> restoredBackStack = stack }
@@ -543,7 +615,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-dc5fda7e-5e8f-4da7-a4cf-736dbf9bf4b0 시스템이 앱을 정리했다가 다시 만들어도 상세 선택과 뒤로가기 기록을 유지한다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var restoredBackStack: NavBackStack<ScreenNavKey>
         setRestorableNavDisplay(summaryList = listOf(summary), restorationTester = restorationTester) { stack -> restoredBackStack = stack }
@@ -565,7 +637,7 @@ class ChecklistListDetailNavigationTest {
 
     @Test
     fun `TC-68b88f0e-8156-451c-be1c-76bc959bc954 앱이 백그라운드에 다녀와도 상세 선택을 유지한다`() {
-        val summary = testChecklistSummary(titlePrefix = LIST_PREFIX)
+        val summary = Arb.checklistSummary(titlePrefix = LIST_PREFIX).next()
         setChecklistNavDisplay(summaryList = listOf(summary))
         selectChecklist(summary)
 
@@ -666,6 +738,8 @@ class ChecklistListDetailNavigationTest {
                         entryProvider =
                             entryProvider {
                                 entry<ChecklistListDetailMoreNavKey> { Text(text = MORE_CONTENT) }
+                                entry<TagAddNavKey> { Text(text = TAG_ROUTE_CONTENT) }
+                                entry<TagDetailNavKey> { Text(text = TAG_ROUTE_CONTENT) }
                                 checklistEntry(backStack = backStack)
                             },
                     )
@@ -719,7 +793,6 @@ class ChecklistListDetailNavigationTest {
         module: Module,
         content: @Composable () -> Unit,
     ) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -804,7 +877,7 @@ class ChecklistListDetailNavigationTest {
                     every { effect } returns effectChannel.receiveAsFlow()
                     // 추가가 저장되면 목록이 다시 조회되는 것과 같게 추가한 체크리스트를 목록 조회 결과에 더한다.
                     every { add(detail = any(), itemContentList = any(), tagIdSet = any()) } answers {
-                        val added = testChecklistSummary().let { summary -> summary.copy(checklist = summary.checklist.copy(detail = firstArg<ChecklistDetail>())) }
+                        val added = Arb.checklistSummary().next().let { summary -> summary.copy(checklist = summary.checklist.copy(detail = firstArg<ChecklistDetail>())) }
                         homeSummaryList = homeSummaryList + added
                         homePagingData.value = checklistPagingDataOf(homeSummaryList)
                         effectChannel.trySend(ChecklistAddEffect.AddSucceeded).getOrThrow()
@@ -815,6 +888,7 @@ class ChecklistListDetailNavigationTest {
 
     private companion object {
         const val MORE_CONTENT = "MoreContent"
+        const val TAG_ROUTE_CONTENT = "TagRouteContent"
         const val LIST_PREFIX = "list-"
         const val FIRST_PREFIX = "a-$LIST_PREFIX"
         const val SECOND_PREFIX = "b-$LIST_PREFIX"
@@ -857,7 +931,7 @@ class ChecklistListDetailNavigationTest {
     }
 }
 
-// 체크리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 체크리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object ChecklistListDetailMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

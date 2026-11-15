@@ -57,14 +57,6 @@ Repository가 집합 전체 교체를 `submitXxx`([domain.md](domain.md)의 `Use
 
 외부 API, 플랫폼, 서버 함수의 이름은 그 계약을 그대로 따른다. 예: `BGTaskScheduler.submit`, Supabase 함수 `v1-fcm-token-submit`.
 
-⚠️ 비권장 예시:
-
-```kotlin
-public interface HolidaySettingLocalDataSource {
-    public suspend fun submitHiddenKeySet(hiddenKeySet: Set<String>)
-}
-```
-
 ### 원격 엔티티의 버전과 기본값
 
 Supabase 동기화 요청에 담는 `core:network` 원격 엔티티는 버전을 나누지 않고 현재 형식 하나만 두며, 프로퍼티에 기본값을 두지 않는다. 이유와 서버 쪽 버전 규칙은 [supabase.md](supabase.md)의 `동기화 계약의 버전`을 따른다.
@@ -99,34 +91,7 @@ data 계층은 발생한 에러를 삼키지 않고 호출자에게 그대로 �
 
 `CancellationException`은 이 예외에서도 그대로 다시 던진다.
 
-⚠️ 비권장 예시:
-
-```kotlin
-@Factory
-internal class HolidaySettingRepositoryImpl(
-    private val holidaySettingLocalDataSource: HolidaySettingLocalDataSource,
-) : HolidaySettingRepository {
-    override fun getHiddenKeySet(): Flow<Set<String>> =
-        holidaySettingLocalDataSource
-            .getHiddenKeySet()
-            .catch { emit(emptySet()) }
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-val locationName =
-    async {
-        try {
-            weatherRemoteDataSource.getLocationName(...).toLocationName()
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (_: Throwable) {
-            ""
-        }
-    }
-```
+예: `data:weather`는 날씨와 함께 조회하는 위치 이름의 실패를 `async` 안에서 잡아 빈 문자열로 바꾼다.
 
 `FlowUseCase`는 `execute`에서 전파된 예외를 `Result.failure`로 감싸므로, data 계층이 에러를 그대로 올려보내면 실패가 실패로 전달된다. UseCase에서 실패를 다른 결과로 바꿀 때는 그 이유를 코드에 남긴다.
 
@@ -137,3 +102,11 @@ val locationName =
 getHolidayUseCase(parameter = targetYear)
     .map { result -> result.getOrDefault(emptyList()) }
 ```
+
+## 세션 폐기 판정
+
+저장된 로그인 세션을 직접 갱신하다 실패했을 때 세션을 지울지는 `core:supabase:impl`의 `SupabaseAuthImpl`이 허용 목록(`REVOKED_ERROR_CODE_SET`)으로 판정한다. 서버 응답의 오류 코드가 목록에 있을 때만 세션을 지우고, 그 밖의 모든 실패는 세션을 남긴 채 예외를 그대로 던진다. 목록에 넣을 응답은 [계정 조회 스펙](../../docs/spec/client/account.md)의 `세션 갱신 여부`가 정한다.
+
+- HTTP 상태로 판정하지 않는다. 같은 상태(400)에 폐기와 폐기가 아닌 응답(사용자 정지, 잘못된 요청)이 섞여 있고, 요청이 너무 많다는 응답(429)이나 갱신이 겹쳤다는 응답(409)처럼 세션이 멀쩡한 4xx가 있다.
+- 기본값은 세션 유지다. 세션을 잘못 지우면 사용자가 다시 로그인해야 하지만, 폐기를 놓치면 세션이 갱신되지 않은 사용자로 남을 뿐이고 앱이 화면에 보이면 인증 제공자의 자동 갱신이 정리한다. 그래서 모르는 코드, 코드가 없는 응답, 새로 생긴 코드를 폐기로 넘기는 `else` 분기나 상태 기반 보조 판정을 더하지 않는다.
+- 인증 제공자의 자동 갱신은 이 목록을 따르지 않고 HTTP 상태로 판정한다(supabase-kt 3.9.0까지 확인). 두 기준을 맞추려고 `SupabaseAuthImpl`의 판정을 상태 기반으로 되돌리지 않는다.

@@ -9,7 +9,11 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -57,6 +61,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
@@ -89,6 +94,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_ADD
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
+import io.github.taetae98coding.diary.feature.contact.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeFilterUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
@@ -139,8 +145,8 @@ class ContactListDetailPlaceholderTest {
     private var homeContactList: List<Contact> = emptyList()
     private val homeViewModelList = mutableListOf<ContactHomeViewModel>()
     private var contactAddViewModelFactory: () -> ContactAddViewModel = { screenTestViewModel() }
+    private var launchCount by mutableIntStateOf(0)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
@@ -415,6 +421,30 @@ class ContactListDetailPlaceholderTest {
         composeRule.assertContactAddIsEmpty()
     }
 
+    // 한 영역만 표시되던 동안 목록에서 연 연락처 추가는 목록 위에 쌓여 있다가 창이 넓어지면 상세 영역에 놓이므로, 그 전환 이력에서 넓은 창으로 시작한다.
+    @Test
+    fun `TC-5f06e023-4786-4590-af12-bd9084031688 좁은 창에서 연 연락처 추가가 놓인 동안 다른 연락처를 고르면 그 상세로 바꾼다`() {
+        val contact = listedContact()
+        val typedName = placeholderInput().name
+        backStack.add(ContactAddNavKey())
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.nameInput().performTextInput(typedName)
+        composeRule.waitForIdle()
+        composeRule.nameInput().assert(hasText(typedName))
+
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey)
+        composeRule.onNodeWithText(typedName).assertDoesNotExist()
+        composeRule.assertContactAddIsEmpty()
+    }
+
     @Test
     fun `TC-2905040a-69df-4c5c-8d28-94f12fd72c62 선택 전 연락처 추가가 놓인 상태에서 뒤로가면 배치를 떠나 더보기로 간다`() {
         setContactNavDisplay(contactList = listOf(listedContact()))
@@ -536,13 +566,16 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
     }
 
-    // 필터 선택은 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
     @Test
     @Config(qualifiers = "w400dp-h800dp")
     fun `TC-aa5ba16e-90da-45c6-aeea-05b10ad39ada 앱을 다시 실행해 진입하면 유무 필터가 처음 상태다`() {
         setContactNavDisplay(contactList = listOf(listedContact()))
+        selectBirthdayWithFilter()
 
-        homeViewModelList.single().filterUiState.value shouldBe ContactHomeFilterUiState()
+        relaunchApp()
+
+        homeViewModelList.size shouldBe 2
+        homeViewModelList.last().filterUiState.value shouldBe ContactHomeFilterUiState()
         composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertDoesNotExist()
     }
 
@@ -591,14 +624,16 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertDoesNotExist()
     }
 
-    // 목록 위치는 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
     @Test
     @Config(qualifiers = "w400dp-h800dp")
     fun `TC-08a032ed-f0ba-48fd-80c0-96eb2475309d 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val contactList = positionContactList()
-
         setContactNavDisplay(contactList = contactList)
+        scrollToPositionContact(contactList)
 
+        relaunchApp()
+
+        homeViewModelList.size shouldBe 2
         composeRule.onNode(contactCard(contactList.first())).assertIsDisplayed()
         composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertDoesNotExist()
     }
@@ -619,6 +654,26 @@ class ContactListDetailPlaceholderTest {
 
         backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-34a36e6f-64d0-4e70-81bd-e2b5fc867b8f 넓은 창에서 완료된 메모 목록에서 뒤로가면 목록과 메모 탭이 선택된 상세가 함께 돌아온다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNode(contactCard(contact)).assertIsDisplayed()
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
+        composeRule.waitForIdle()
+        backStack.last() shouldBe ContactMemoFinishedListNavKey(contactId = contact.id)
+        composeRule.onNode(contactCard(contact)).assertDoesNotExist()
+        pressBack()
+
+        composeRule.onNode(contactCard(contact)).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertIsDisplayed()
     }
 
     @Test
@@ -674,6 +729,12 @@ class ContactListDetailPlaceholderTest {
     }
 
     private fun hasStateDescription(value: String): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, value)
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 화면 상태를 들고 있던 객체도 새로 만들어지므로, 새 키로 저장 상태 없이 화면 전체를 다시 구성한다.
+    private fun relaunchApp() {
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+    }
 
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
@@ -759,7 +820,7 @@ class ContactListDetailPlaceholderTest {
             homeEntry = {
                 contactHomeEntry(backStack = backStack)
                 contactAddEntry(backStack = backStack)
-                if (isProductDetail) contactDetailEntry(backStack = backStack)
+                if (isProductDetail) contactDetailEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
             },
             isStubDetail = !isProductDetail,
         )
@@ -771,33 +832,35 @@ class ContactListDetailPlaceholderTest {
         isStubDetail: Boolean = true,
     ) {
         composeRule.setContent {
-            ContactPlaceholderTestHost {
-                val holder = rememberListDetailPlaceholderStateHolder()
+            key(launchCount) {
+                ContactPlaceholderTestHost {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                    NavDisplay(
-                        backStack = backStack,
-                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                        entryDecorators = entryDecorators(holder),
-                        entryProvider =
-                            entryProvider {
-                                entry<MoreNavKey> { Text(text = MORE_CONTENT) }
-                                homeEntry()
-                                if (isStubDetail) {
-                                    entry<ContactDetailNavKey>(
-                                        metadata = ListDetailSceneStrategy.detailPane(sceneKey = ContactHomeNavKey),
-                                    ) { key ->
-                                        Column {
-                                            Text(text = ROUTE_CONTENT)
-                                            Text(text = detailContent(id = key.id))
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators = entryDecorators(holder),
+                            entryProvider =
+                                entryProvider {
+                                    entry<MoreNavKey> { Text(text = MORE_CONTENT) }
+                                    homeEntry()
+                                    if (isStubDetail) {
+                                        entry<ContactDetailNavKey>(
+                                            metadata = ListDetailSceneStrategy.detailPane(sceneKey = ContactHomeNavKey),
+                                        ) { key ->
+                                            Column {
+                                                Text(text = ROUTE_CONTENT)
+                                                Text(text = detailContent(id = key.id))
+                                            }
                                         }
                                     }
-                                }
-                                entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
-                                entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
-                                entry<ContactMemoFinishedListNavKey> { Text(text = ROUTE_CONTENT) }
-                            },
-                    )
+                                    entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
+                                    entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
+                                    entry<ContactMemoFinishedListNavKey> { Text(text = ROUTE_CONTENT) }
+                                },
+                        )
+                    }
                 }
             }
         }
@@ -806,7 +869,6 @@ class ContactListDetailPlaceholderTest {
 
     @Composable
     private fun ContactPlaceholderTestHost(content: @Composable () -> Unit) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -927,7 +989,7 @@ class ContactListDetailPlaceholderTest {
     }
 }
 
-// 연락처 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 연락처 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object MoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

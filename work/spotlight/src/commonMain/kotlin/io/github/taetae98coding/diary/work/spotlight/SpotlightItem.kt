@@ -19,4 +19,5 @@ internal enum class SpotlightIcon {
     QR,
     MUSIC,
     DDAY,
+    ROUTINE,
 }

@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -19,11 +17,11 @@ import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
+import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.place.PlaceListEvent
@@ -60,18 +58,13 @@ internal fun TagDetailPlacePagingList(
         modifier = modifier,
     ) { isEmpty ->
         if (isEmpty) {
-            DiaryPullToRefreshBox(
-                isRefreshingProvider = isRefreshingProvider,
+            DiaryRefreshableEmptyBox(
                 onRefresh = { onEvent(TagDetailPlaceContentEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),
+                isRefreshingProvider = isRefreshingProvider,
             ) {
                 DiaryEmptyBox(
                     title = stringResource(Res.string.tag_detail_place_empty_title),
-                    // 빈 상태에서도 당겨서 새로고침할 수 있도록 중첩 스크롤을 전달한다.
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
                     description = stringResource(Res.string.tag_detail_place_empty_description),
                     icon = { PlaceIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
                 )

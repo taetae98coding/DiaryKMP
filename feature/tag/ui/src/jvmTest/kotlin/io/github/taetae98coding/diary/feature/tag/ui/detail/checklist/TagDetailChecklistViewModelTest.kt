@@ -10,7 +10,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.model.tag.TagScope
-import io.github.taetae98coding.diary.core.testing.checklist.checklist
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageTagChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.RestoreChecklistUseCase
@@ -59,7 +59,7 @@ class TagDetailChecklistViewModelTest : FunSpec() {
         test("TC-c2a90aea-0184-45eb-90f7-ac9326d34dfa TC-f7d0f491-98c6-4b46-a9a9-764d162c736c 상세 대상 태그로 조회한 체크리스트 목록을 순서 그대로 전달한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val itemList = List(3) { item() }
+                val itemList = List(3) { Arb.checklistSummary().next() }
                 val page = mockk<PageTagChecklistUseCase>()
                 every { page(parameter = PageTagChecklistUseCase.Parameter(tagId = tagId, scope = TagScope.SELF)) } returns flowOf(Result.success(PagingData.from(itemList)))
                 val viewModel = TagDetailChecklistViewModel(tagId = tagId, pageChecklistUseCase = page, deleteChecklistUseCase = mockk(), restoreChecklistUseCase = mockk())
@@ -94,8 +94,8 @@ class TagDetailChecklistViewModelTest : FunSpec() {
         test("TC-6e914ebb-0357-4604-87f2-6dc4438a9e03 표시 범위를 넓혔다 되돌리면 체크리스트 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val selfList = List(2) { item() }
-                val childList = selfList + List(2) { item() }
+                val selfList = List(2) { Arb.checklistSummary().next() }
+                val childList = selfList + List(2) { Arb.checklistSummary().next() }
                 val page = mockk<PageTagChecklistUseCase>()
                 every { page(parameter = PageTagChecklistUseCase.Parameter(tagId = tagId, scope = TagScope.SELF)) } returns flowOf(Result.success(PagingData.from(selfList)))
                 every { page(parameter = PageTagChecklistUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD)) } returns flowOf(Result.success(PagingData.from(childList)))
@@ -136,7 +136,7 @@ class TagDetailChecklistViewModelTest : FunSpec() {
         test("TC-49e49fc0-cd1e-44c6-8910-8f2a37732a30 이어서 불러오기에 실패해도 이미 불러온 체크리스트을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val itemList = List(2) { item() }
+                val itemList = List(2) { Arb.checklistSummary().next() }
                 val page = mockk<PageTagChecklistUseCase>()
                 every { page(parameter = PageTagChecklistUseCase.Parameter(tagId = tagId, scope = TagScope.SELF)) } returns
                     appendFailingPagingData(firstPage = itemList).map { pagingData -> Result.success(pagingData) }
@@ -154,7 +154,7 @@ class TagDetailChecklistViewModelTest : FunSpec() {
         test("TC-49e49fc0-cd1e-44c6-8910-8f2a37732a30 조회가 성공한 뒤 다시 조회하다 실패하면 이전 체크리스트을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val itemList = List(2) { item() }
+                val itemList = List(2) { Arb.checklistSummary().next() }
                 val page = mockk<PageTagChecklistUseCase>()
                 val resultFlow = MutableStateFlow<Result<PagingData<ChecklistSummary>>>(Result.success(PagingData.from(itemList)))
                 every { page(parameter = PageTagChecklistUseCase.Parameter(tagId = tagId, scope = TagScope.SELF)) } returns resultFlow
@@ -261,14 +261,5 @@ class TagDetailChecklistViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { restore(parameter = id) }
             }
         }
-    }
-
-    private companion object {
-        private fun item(): ChecklistSummary =
-            ChecklistSummary(
-                checklist = Arb.checklist(isDeleted = false).next(),
-                checkedCount = 1,
-                totalCount = 2,
-            )
     }
 }

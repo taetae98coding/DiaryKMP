@@ -507,10 +507,11 @@ class AccountMemoTransactionImplTest :
             database.memoTagDao().findByMemoIdList(listOf(memo.id)) shouldBe listOf(restoredMemoTag)
         }
 
-        test("TC-cf31ec56-1107-480f-98f0-73d83cdb95bc 저장된 연결의 생성 시각과 수정 시각은 메모와 같다") {
+        test("TC-cf31ec56-1107-480f-98f0-73d83cdb95bc 저장된 연결의 생성 시각과 수정 시각은 저장한 시점으로 같다") {
             val accountId = Arb.kotlinUuid().next()
             val tagId = Arb.kotlinUuid().next()
-            val memo = memo()
+            val now = Arb.secondPrecisionInstant().next()
+            val memo = memo().copy(updatedAt = now, createdAt = now)
 
             transaction.upsert(
                 accountId = accountId,
@@ -524,8 +525,8 @@ class AccountMemoTransactionImplTest :
                         memoId = memo.id,
                         tagId = tagId,
                         isDeleted = false,
-                        updatedAt = memo.updatedAt,
-                        createdAt = memo.createdAt,
+                        updatedAt = now,
+                        createdAt = now,
                     ),
                 )
         }

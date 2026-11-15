@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.file
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileDownloadSettingUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.SetFileDownloadDirectoryUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.UnsetFileDownloadDirectoryUseCase
@@ -23,7 +24,7 @@ internal class SettingFileViewModel(
     getFileDownloadSettingUseCase: GetFileDownloadSettingUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<SettingFileUiState> =
-        getFileDownloadSettingUseCase(parameter = Unit)
+        getFileDownloadSettingUseCase()
             .map { result ->
                 result.fold(
                     onSuccess = { setting -> SettingFileUiState.Content(directory = setting.directory) },
@@ -45,7 +46,7 @@ internal class SettingFileViewModel(
     }
 
     fun unsetDirectory() {
-        change { unsetFileDownloadDirectoryUseCase(parameter = Unit) }
+        change { unsetFileDownloadDirectoryUseCase() }
     }
 
     private fun change(block: suspend () -> Result<Unit>) {

@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeYearContentEvent
@@ -25,10 +27,12 @@ internal fun GoldenHolidayList(
     contentPadding: PaddingValues = DiaryTheme.dimens.screenPaddingValues,
 ) {
     val colors = CalendarDefaults.colors()
+    val gridState = rememberLazyStaggeredGridState()
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(GoldenHolidayListDefaults.MinColumnWidth),
-        modifier = modifier,
+        modifier = modifier.systemScroll(gridState) { gridState.animateScrollToItem(0) },
+        state = gridState,
         contentPadding = contentPadding,
         verticalItemSpacing = DiaryTheme.dimens.itemSpacing,
         horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),

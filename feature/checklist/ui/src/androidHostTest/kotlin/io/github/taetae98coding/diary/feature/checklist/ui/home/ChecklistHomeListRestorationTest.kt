@@ -14,10 +14,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
 import io.github.taetae98coding.diary.feature.checklist.ui.refreshableList
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.checklist.ui.testChecklistSummary
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -107,7 +109,7 @@ class ChecklistHomeListRestorationTest {
 
     private fun restorationChecklistList(): List<ChecklistSummary> =
         List(RESTORATION_COUNT) { index ->
-            testChecklistSummary(titlePrefix = "${index.toString().padStart(length = 2, padChar = '0')}-")
+            Arb.checklistSummary(titlePrefix = "${index.toString().padStart(length = 2, padChar = '0')}-").next()
         }
 
     private companion object {

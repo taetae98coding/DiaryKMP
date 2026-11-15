@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
@@ -22,6 +23,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.place.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalTime
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -46,6 +49,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.plus
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -83,6 +89,43 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
                     itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
                     verify(exactly = 1) { pagePlaceMemoUseCase(parameter = PagePlaceMemoUseCase.Parameter(placeId = placeId, sort = sort)) }
                 }
+            }
+        }
+
+        test("TC-77cf165c-157a-4753-a9b9-5814c79151ce 기간이 없는 메모는 그룹 없이 먼저, 기간이 있는 메모는 시작 날짜별 그룹으로 나눈다") {
+            runTest(mainDispatcher) {
+                val placeId = Arb.kotlinUuid().next()
+                val date = Arb.kotlinxLocalDate().next()
+                val nextDate = date.plus(1, DateTimeUnit.DAY)
+                val noDateMemo = memo()
+                val allDayMemo = memo(dateTime = MemoDateTime.AllDay(dateRange = date..nextDate))
+                val dateTimeMemo =
+                    memo(
+                        dateTime =
+                            MemoDateTime.DateTime(
+                                start = LocalDateTime(date = date, time = Arb.kotlinxLocalTime().next()),
+                                endInclusive = LocalDateTime(date = nextDate, time = Arb.kotlinxLocalTime().next()),
+                            ),
+                    )
+                val nextDateMemo = memo(dateTime = MemoDateTime.AllDay(dateRange = nextDate..nextDate))
+                val pagePlaceMemoUseCase = mockk<PagePlaceMemoUseCase>()
+                every { pagePlaceMemoUseCase(parameter = PagePlaceMemoUseCase.Parameter(placeId = placeId, sort = ListSort.DEFAULT)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(noDateMemo, allDayMemo, dateTimeMemo, nextDateMemo))))
+                val viewModel = viewModel(placeId = placeId, pagePlaceMemoUseCase = pagePlaceMemoUseCase)
+
+                val itemList = flowOf(viewModel.memoPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe
+                    listOf(
+                        MemoListItem.Content(memo = noDateMemo),
+                        MemoListItem.DateHeader(date = date),
+                        MemoListItem.Content(memo = allDayMemo),
+                        MemoListItem.Content(memo = dateTimeMemo),
+                        MemoListItem.DateHeader(date = nextDate),
+                        MemoListItem.Content(memo = nextDateMemo),
+                    )
             }
         }
 
@@ -293,12 +336,12 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
             restoreMemoUseCase = restoreMemoUseCase,
         )
 
-    private fun memo(): Memo =
+    private fun memo(dateTime: MemoDateTime? = null): Memo =
         Arb
             .memo()
             .next()
             .copy(
-                detail = Arb.memoDetail().next().copy(dateTime = null),
+                detail = Arb.memoDetail().next().copy(dateTime = dateTime),
                 updatedAt = Arb.secondPrecisionInstant().next(),
                 createdAt = Arb.secondPrecisionInstant().next(),
             )

@@ -7,7 +7,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -50,6 +54,7 @@ import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewMo
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailEffect
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.playlistEntry
@@ -89,7 +94,6 @@ class PlaylistHomeListRetentionTest {
         resetAndroidUiDispatcher()
     }
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -195,8 +199,13 @@ class PlaylistHomeListRetentionTest {
     @Test
     fun `TC-74008fbe-7493-4283-96aa-d70ac4a67548 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val musicList = retentionMusicList()
+        var launchCount by mutableIntStateOf(0)
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 화면 상태를 들고 있던 객체도 새로 만들어지므로, 새 키로 저장 상태 없이 화면을 다시 구성한다.
+        setPlaylistNavDisplay(musicList = musicList, launchCountProvider = { launchCount })
+        scrollToPositionMusic(musicList)
 
-        setPlaylistNavDisplay(musicList = musicList)
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
         waitUntilMusicIsDisplayed(musicList.first())
 
         composeRule.onNode(musicCard(musicList.first())).assertIsDisplayed()
@@ -233,32 +242,42 @@ class PlaylistHomeListRetentionTest {
         composeRule.waitForIdle()
     }
 
-    private fun setPlaylistNavDisplay(musicList: List<Music>) {
+    private fun setPlaylistNavDisplay(
+        musicList: List<Music>,
+        launchCountProvider: () -> Int = { 0 },
+    ) {
         val module = viewModelModule(musicList = musicList)
         composeRule.setContent {
-            RetentionTestHost(module = module) {
-                val holder = rememberListDetailPlaceholderStateHolder()
-
-                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                    NavDisplay(
-                        backStack = backStack,
-                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                        entryDecorators =
-                            listOf(
-                                rememberSaveableStateHolderNavEntryDecorator(),
-                                rememberViewModelStoreNavEntryDecorator(),
-                                rememberListDetailPlaceholderNavEntryDecorator(holder),
-                            ),
-                        entryProvider =
-                            entryProvider {
-                                entry<RetentionMoreNavKey> { Text(text = MORE_CONTENT) }
-                                playlistEntry(backStack = backStack)
-                            },
-                    )
-                }
+            key(launchCountProvider()) {
+                PlaylistNavDisplay(module = module)
             }
         }
         composeRule.waitForIdle()
+    }
+
+    @Composable
+    private fun PlaylistNavDisplay(module: Module) {
+        RetentionTestHost(module = module) {
+            val holder = rememberListDetailPlaceholderStateHolder()
+
+            CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                NavDisplay(
+                    backStack = backStack,
+                    sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                    entryDecorators =
+                        listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(),
+                            rememberListDetailPlaceholderNavEntryDecorator(holder),
+                        ),
+                    entryProvider =
+                        entryProvider {
+                            entry<RetentionMoreNavKey> { Text(text = MORE_CONTENT) }
+                            playlistEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
+                        },
+                )
+            }
+        }
     }
 
     @Composable
@@ -266,7 +285,6 @@ class PlaylistHomeListRetentionTest {
         module: Module,
         content: @Composable () -> Unit,
     ) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -323,7 +341,7 @@ class PlaylistHomeListRetentionTest {
     }
 }
 
-// 플레이리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 플레이리스트 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object RetentionMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "RetentionMore"

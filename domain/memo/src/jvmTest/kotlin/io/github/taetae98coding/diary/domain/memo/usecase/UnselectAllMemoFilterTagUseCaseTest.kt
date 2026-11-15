@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoFilterRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -25,7 +26,7 @@ class UnselectAllMemoFilterTagUseCaseTest :
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountMemoFilterRepository = mockk<AccountMemoFilterRepository>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             coEvery { accountMemoFilterRepository.deleteAll(account = account) } just Runs
             val useCase =
                 UnselectAllMemoFilterTagUseCase(
@@ -35,7 +36,7 @@ class UnselectAllMemoFilterTagUseCaseTest :
 
             When("태그 필터 선택을 전체 해제한다") {
                 Then("현재 계정의 필터 선택을 모두 제거한다") {
-                    useCase(parameter = Unit).shouldBeSuccess()
+                    useCase().shouldBeSuccess()
 
                     coVerify(exactly = 1) {
                         accountMemoFilterRepository.deleteAll(account = account)
@@ -48,7 +49,7 @@ class UnselectAllMemoFilterTagUseCaseTest :
             val failure = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountMemoFilterRepository = mockk<AccountMemoFilterRepository>(relaxed = true)
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))
+            every { getAccountUseCase() } returns flowOf(Result.failure(failure))
             val useCase =
                 UnselectAllMemoFilterTagUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -57,7 +58,7 @@ class UnselectAllMemoFilterTagUseCaseTest :
 
             When("태그 필터 선택을 전체 해제한다") {
                 Then("계정 조회 실패를 전달하고 저장소에 해제를 요청하지 않는다") {
-                    useCase(parameter = Unit).shouldBeFailure { throwable -> throwable shouldBe failure }
+                    useCase().shouldBeFailure { throwable -> throwable shouldBe failure }
 
                     coVerify(exactly = 0) {
                         accountMemoFilterRepository.deleteAll(account = any())

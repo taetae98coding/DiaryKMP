@@ -52,6 +52,11 @@ class TagHomeScreenReselectTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(tagTitle(index = 0)).assertIsDisplayed()
+        composeRule.onNodeWithText(tagTitle(index = 1)).assertIsDisplayed()
+        // 격자라 둘째 태그는 첫 태그의 옆이나 아래에 놓인다.
+        val first = composeRule.onNodeWithText(tagTitle(index = 0)).fetchSemanticsNode().positionInRoot
+        val second = composeRule.onNodeWithText(tagTitle(index = 1)).fetchSemanticsNode().positionInRoot
+        (first.y < second.y || (first.y == second.y && first.x < second.x)) shouldBe true
     }
 
     @Test

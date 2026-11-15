@@ -7,10 +7,10 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEnt
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
+import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
-import kotlin.uuid.Uuid
 
 // 앱 테마의 밝은 모양 주 색(Material3 기본 primary)이다. 밝은 모양과 어두운 모양에서 같은 아이콘을 쓰므로 하나만 둔다.
 internal const val APP_PRIMARY_COLOR: Long = 0xFF6750A4
@@ -96,6 +96,13 @@ internal fun DDayLocalEntity.toSpotlightItem(): SpotlightItem =
         iconColor = detail.color,
     )
 
-private fun String.withId(id: Uuid): String = replace("{id}", id.toString())
+internal fun RoutineLocalEntity.toSpotlightItem(): SpotlightItem =
+    SpotlightItem(
+        identifier = ScreenDeepLink.ROUTINE_DETAIL.withId(id),
+        title = detail.title,
+        description = detail.description,
+        icon = SpotlightIcon.ROUTINE,
+        iconColor = detail.color,
+    )
 
 private fun List<String>.joinNotEmpty(separator: String): String = filter(String::isNotEmpty).joinToString(separator = separator)

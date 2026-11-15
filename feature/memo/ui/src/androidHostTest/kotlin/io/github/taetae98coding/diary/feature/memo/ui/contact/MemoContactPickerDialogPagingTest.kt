@@ -3,8 +3,12 @@ package io.github.taetae98coding.diary.feature.memo.ui.contact
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -108,9 +112,19 @@ class MemoContactPickerDialogPagingTest {
         val wikiContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val docsContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         composeRule.setMemoContactPickerDialog(contactPagingData = appendFailedContactPagingDataOf(listOf(wikiContact, docsContact)))
+        composeRule.awaitContactPickerRows()
+
+        composeRule.contactPickerList().performScrollToIndex(1)
+        composeRule.waitForIdle()
 
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).assertExists()
         composeRule.contactDialogNodeWithText(SECOND_CONTACT_NAME).assertExists()
+        // 오류 안내나 재시도 항목이 없으므로 목록 항목 수는 준비된 연락처 수와 같다.
+        composeRule
+            .contactPickerList()
+            .fetchSemanticsNode()
+            .children.size shouldBe 2
+        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(2)
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
     }
 

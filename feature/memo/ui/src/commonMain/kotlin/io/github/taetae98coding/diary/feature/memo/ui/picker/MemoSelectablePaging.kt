@@ -2,6 +2,8 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui.picker
 
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
@@ -29,10 +31,20 @@ internal class MemoSelectablePaging<T : Any>(
     val selectablePagingData: Flow<PagingData<T>> =
         flowOf("")
             .flatMapLatest { value -> page(value) }
-            .map { result -> result.getOrElse { PagingData.empty() } }
+            .map { result -> result.getOrElse { throwable -> refreshFailedPagingData(throwable) } }
             .cachedIn(scope)
 
     fun updateQuery(query: String) {
         this.query.value = query
     }
 }
+
+private fun <T : Any> refreshFailedPagingData(throwable: Throwable): PagingData<T> =
+    PagingData.empty(
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(throwable),
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )

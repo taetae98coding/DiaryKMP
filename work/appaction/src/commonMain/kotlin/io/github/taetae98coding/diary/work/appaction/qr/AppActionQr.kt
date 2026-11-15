@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.appaction.qr
 
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.work.appaction.core.filterBySearchQuery
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 
 public data class AppActionQr(
     val id: String,
@@ -10,6 +11,11 @@ public data class AppActionQr(
     val value: String,
     val createdAt: String,
     val updatedAt: String,
+)
+
+public data class AppActionQrDetail(
+    val qr: AppActionQr,
+    val tags: List<AppActionTag>,
 )
 
 internal fun Qr.toAppActionQr(): AppActionQr =

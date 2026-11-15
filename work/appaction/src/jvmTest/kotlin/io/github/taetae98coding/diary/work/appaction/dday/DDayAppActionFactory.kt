@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.work.appaction.dday
 
+import io.github.taetae98coding.diary.core.testing.dday.dday
+import io.github.taetae98coding.diary.work.appaction.core.findUseCase
 import io.github.taetae98coding.diary.work.appaction.core.useCase
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
@@ -15,14 +19,12 @@ internal fun ddayAppActionOf(vararg useCaseArray: Any): DDayAppAction {
 
     return DDayAppAction(
         pageDDayUseCase = useCaseList.useCase(),
-        findDDayUseCase = useCaseList.useCase(),
+        findDDayUseCase = useCaseList.findUseCase { Arb.dday().next().copy(isDeleted = false) },
         getEntityTagUseCase = useCaseList.useCase(),
         addDDayUseCase = useCaseList.useCase(),
         updateDDayUseCase = useCaseList.useCase(),
         deleteDDayUseCase = useCaseList.useCase(),
         restoreDDayUseCase = useCaseList.useCase(),
-        addEntityTagUseCase = useCaseList.useCase(),
-        removeEntityTagUseCase = useCaseList.useCase(),
         clock = useCaseList.useCase(),
     )
 }

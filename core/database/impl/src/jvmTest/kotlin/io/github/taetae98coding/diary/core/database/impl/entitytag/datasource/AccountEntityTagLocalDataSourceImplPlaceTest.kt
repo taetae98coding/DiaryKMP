@@ -691,7 +691,7 @@ class AccountEntityTagLocalDataSourceImplPlaceTest :
             }
         }
 
-        test("TC-b9ccc593-1f09-4710-ba90-3ec29a001f44 TC-60158d7b-c0fc-42ce-b158-12e70939875e 태그 연결은 장소 목록·지도 핀과 장소 검색 결과를 바꾸지 않는다") {
+        test("TC-b9ccc593-1f09-4710-ba90-3ec29a001f44 태그 연결은 장소 목록·지도 핀과 장소 검색 결과를 바꾸지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val firstPlace = place(title = "a-place").withCoordinate(latitude = 1.0, longitude = 1.0)
             val secondPlace = place(title = "b-place").withCoordinate(latitude = 2.0, longitude = 2.0)

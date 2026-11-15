@@ -64,6 +64,8 @@ class MemoGeminiSettingRequiredTest {
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
                     navigateToGeminiSetting = { geminiSettingCount += 1 },
+                    initialTitle = "",
+                    initialDescription = "",
                     initialDateTime = null,
                     addRequestKey = TEST_ADD_REQUEST_KEY,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },

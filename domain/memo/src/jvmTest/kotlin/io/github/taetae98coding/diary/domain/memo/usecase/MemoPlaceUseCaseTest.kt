@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoPlaceRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -243,7 +244,7 @@ class MemoPlaceUseCaseTest :
             val memoId = Arb.kotlinUuid().next()
             val placeList = List(2) { Arb.place().next() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>()
             every { accountMemoPlaceRepository.getPlaceList(account = account, memoId = memoId) } returns flowOf(placeList)
             val useCase =
@@ -262,7 +263,7 @@ class MemoPlaceUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>(relaxed = true)
             val useCase =
                 GetMemoPlaceUseCase(
@@ -283,7 +284,7 @@ class MemoPlaceUseCaseTest :
     public companion object {
         private fun accountUseCase(account: Account = Arb.accountUser().next()): GetAccountUseCase {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
 
             return getAccountUseCase
         }

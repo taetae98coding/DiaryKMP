@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.testing.location.coordinate
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.kotest.matchers.shouldBe
@@ -60,7 +61,7 @@ class TagDetailPlaceTargetHostTest {
             mapState.coordinate shouldBe movedCoordinate
             (targetMarker == beforeMarker) shouldBe false
         }
-        coVerify(exactly = 1) { fetch(parameter = Unit) }
+        coVerify(exactly = 1) { fetch() }
     }
 
     @Test
@@ -70,7 +71,7 @@ class TagDetailPlaceTargetHostTest {
         var isPlaceTabSelected by mutableStateOf(true)
         val id = Uuid.random()
         val mapViewModel = mapViewModel(fetch)
-        // TagDetail 화면은 네 탭을 이 호스트 안에 두므로, 탭 본문이 컴포지션에서 빠졌다가 돌아오는 것을 호스트 안에서 재현한다.
+        // TagDetail 화면은 모든 탭을 이 호스트 안에 두므로, 탭 본문이 컴포지션에서 빠졌다가 돌아오는 것을 호스트 안에서 재현한다.
         composeRule.setContent {
             TagDetailPlaceTargetHost(
                 id = id,
@@ -142,14 +143,14 @@ class TagDetailPlaceTargetHostTest {
     private companion object {
         private fun fetchCurrentLocationUseCase(coordinate: Coordinate): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { useCase(parameter = Unit) } returns Result.success(coordinate)
+            coEvery { useCase() } returns Result.success(coordinate)
 
             return useCase
         }
 
         private fun mapViewModel(fetchCurrentLocationUseCase: FetchCurrentLocationUseCase): TagDetailPlaceMapViewModel {
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(parameter = Unit) } returns flowOf(Result.success(MapProvider.NAVER))
+            every { getDefaultMapProviderUseCase() } returns flowOf(Result.success(MapProvider.NAVER))
 
             return TagDetailPlaceMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

@@ -99,7 +99,10 @@ stateDiagram-v2
 | `QrHome` | [QrHome 화면](./qr-home.md) |
 | `QrScan` | [QrScan 화면](./qr-scan.md) |
 | `RoutineAdd` | [RoutineAdd 화면](./routine-add.md) |
+| `RoutineDetail` | [RoutineDetail 화면](./routine-detail.md) |
+| `RoutineFinishedList` | [RoutineFinishedList 화면](./routine-finished-list.md) |
 | `RoutineHome` | [RoutineHome 화면](./routine-home.md) |
+| `RoutineHomeFilter` | [RoutineHome 화면](./routine-home.md) |
 | `SearchHome` | [SearchHome 화면](./search-home.md) |
 | `SettingFile` | [SettingFile 화면](./setting-file.md) |
 | `SettingGemini` | [SettingGemini 화면](./setting-gemini.md) |
@@ -113,12 +116,13 @@ stateDiagram-v2
 | `TagHome` | [TagHome 목록](./tag-home.md) |
 | `TagHomeFilter` | [TagHome 목록](./tag-home.md) |
 | `TagMemoFinishedList` | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) |
+| `TagRoutineFinishedList` | [TagRoutineFinishedList 화면](./tag-routine-finished-list.md) |
 | `WebAdd` | [WebAdd 화면](./web-add.md) |
 | `WebDetail` | [WebDetail 화면](./web-detail.md) |
 | `WebHome` | [WebHome 화면](./web-home.md) |
 | `WebMemoFinishedList` | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) |
 
-`CalendarHomeFilter`, `DDayHomeFilter`, `MemoHomeFilter`, `TagHomeFilter`는 각 목록 화면 위에 겹쳐 표시하는 필터다. 겹쳐 표시하는 화면도 화면 조회 대상이므로 아래 화면과 구분되는 이름을 가진다.
+`CalendarHomeFilter`, `DDayHomeFilter`, `MemoHomeFilter`, `RoutineHomeFilter`, `TagHomeFilter`는 각 목록 화면 위에 겹쳐 표시하는 필터다. 겹쳐 표시하는 화면도 화면 조회 대상이므로 아래 화면과 구분되는 이름을 가진다.
 
 `TagAdd`는 태그 입력에서 열든 태그 목록에서 열든 같은 이름으로 남는다. 어디에서 열었는지는 결과를 돌려줄 곳을 정하기 위한 값이고 사용자가 보는 화면은 같기 때문이다.
 

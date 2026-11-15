@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.domain.sync.usecase
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncManager
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
@@ -18,7 +19,7 @@ class GetProgressReportedUseCaseTest :
 
             When("진행 표시 여부가 바뀐다") {
                 Then("바뀐 값이 그대로 전달된다") {
-                    useCase(parameter = Unit).test {
+                    useCase().test {
                         awaitItem().shouldBeSuccess(false)
 
                         isProgressReportedFlow.value = true

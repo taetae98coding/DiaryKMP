@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
@@ -49,7 +50,7 @@ class PlaceAddFormEffectTest {
         val addPlaceUseCase = mockk<AddPlaceUseCase>()
         coEvery { addPlaceUseCase(any()) } returns Result.success(Arb.kotlinUuid().next())
         val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-        every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
+        every { getDefaultMapProviderUseCase() } returns emptyFlow()
         val viewModel =
             PlaceAddViewModel(
                 addPlaceUseCase = addPlaceUseCase,

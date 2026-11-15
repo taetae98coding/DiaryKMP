@@ -67,8 +67,8 @@ class ContactDetailFormTest {
 
         setContactDetailScaffold(detail = detail)
 
-        // 설명은 입력과 미리보기에 함께 나타나므로 편집할 수 있는 입력 노드를 지목한다.
         composeRule.nameInput().assert(hasText(CONTACT_NAME))
+        // 설명은 입력과 미리보기에 함께 나타나므로 편집할 수 있는 입력 노드를 지목한다.
         composeRule.onNode(hasText(CONTACT_DESCRIPTION) and hasSetTextAction()).assertExists()
         composeRule.onNodeWithText(HEIGHT_TEXT).assertExists()
         composeRule.onNodeWithText(FOOT_SIZE_TEXT).assertExists()

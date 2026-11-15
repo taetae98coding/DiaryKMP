@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
@@ -36,8 +38,11 @@ internal fun HolidaySettingList(
     holidaySettingList: List<HolidaySetting> = emptyList(),
     bottomPadding: Dp = DiaryTheme.dimens.screenVerticalPadding,
 ) {
+    val listState = rememberLazyListState()
+
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.systemScroll(listState) { listState.animateScrollToItem(0) },
+        state = listState,
         contentPadding =
             PaddingValues(
                 start = DiaryTheme.dimens.screenHorizontalPadding,

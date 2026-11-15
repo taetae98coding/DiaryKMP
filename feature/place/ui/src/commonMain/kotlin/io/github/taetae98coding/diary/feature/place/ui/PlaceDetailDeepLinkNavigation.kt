@@ -17,7 +17,6 @@ internal class PlaceDetailDeepLinkNavigation :
     DeepLinkNavigation by UriDeepLinkMatcher(DeepLinkUri(ScreenDeepLink.PLACE_DETAIL), PlaceDetailNavKey.serializer())
         .toDeepLinkNavigation({ result, isLaunch -> openPlaceDetail(detailKey = result.key, isLaunch = isLaunch, listBackStack = topLevelBackStackOf(MoreHomeNavKey) + PlaceHomeNavKey) })
 
-// 앱 밖에서 상세를 열 때, 앱을 새로 시작했으면 목록 위에 상세를 쌓고 보던 화면이 있으면 그 위에 쌓는다. 보던 화면이 같은 상세면 쌓지 않는다.
 private fun ScreenNavigator.openPlaceDetail(
     detailKey: ScreenNavKey,
     listBackStack: List<ScreenNavKey>,

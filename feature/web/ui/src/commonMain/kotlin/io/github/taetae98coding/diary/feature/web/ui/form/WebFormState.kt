@@ -33,7 +33,7 @@ internal class WebFormState(
 }
 
 @Composable
-internal fun rememberWebAddFormState(): WebFormState = rememberWebFormState(initialDetail = WebDetail.EMPTY)
+internal fun rememberWebAddFormState(initialDetail: WebDetail = WebDetail.EMPTY): WebFormState = rememberWebFormState(initialDetail = initialDetail)
 
 @Composable
 internal fun rememberWebDetailFormState(initialDetail: WebDetail = WebDetail.EMPTY): WebFormState = rememberWebFormState(initialDetail = initialDetail)

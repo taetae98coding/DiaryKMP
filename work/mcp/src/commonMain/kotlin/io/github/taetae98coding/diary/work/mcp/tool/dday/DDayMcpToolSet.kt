@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.work.mcp.tool.dday
 
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatInputList
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
@@ -11,6 +13,7 @@ import io.github.taetae98coding.diary.domain.dday.usecase.RestoreDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UpdateDDayUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -20,12 +23,15 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.changeActive
+import io.github.taetae98coding.diary.work.mcp.tool.isActive
 import io.github.taetae98coding.diary.work.mcp.tool.json.changedCountResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrNull
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorOrRandom
 import io.github.taetae98coding.diary.work.mcp.tool.json.colorParameter
 import io.github.taetae98coding.diary.work.mcp.tool.json.doneResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.idResult
+import io.github.taetae98coding.diary.work.mcp.tool.json.notDoneResult
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJsonArray
 import io.github.taetae98coding.diary.work.mcp.tool.localDateOrNull
@@ -33,7 +39,9 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParamete
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.readActive
 import io.github.taetae98coding.diary.work.mcp.tool.readFirst
+import io.github.taetae98coding.diary.work.mcp.tool.tag.NOT_DONE_DESCRIPTION
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import io.github.taetae98coding.diary.work.mcp.tool.uuidSet
 import kotlinx.datetime.LocalDate
@@ -66,6 +74,7 @@ internal class DDayMcpToolSet(
     private val updateDDayUseCase: UpdateDDayUseCase,
     private val deleteDDayUseCase: DeleteDDayUseCase,
     private val restoreDDayUseCase: RestoreDDayUseCase,
+    private val findTagUseCase: FindTagUseCase,
     private val addEntityTagUseCase: AddEntityTagUseCase,
     private val removeEntityTagUseCase: RemoveEntityTagUseCase,
     private val clock: Clock,
@@ -88,7 +97,7 @@ internal class DDayMcpToolSet(
             },
             McpTool(
                 name = "dday_get",
-                description = "Gets one D-Day with its linked tags and the days left or passed counted from today. Returns null when the D-Day does not exist.",
+                description = "Gets one D-Day with its linked tags and the days left or passed counted from today. Returns null when the D-Day does not exist or is deleted.",
                 parameterList = listOf(ddayIdParameter),
                 kind = McpToolKind.READ,
             ) { arguments -> getDDay(arguments) },
@@ -137,7 +146,7 @@ internal class DDayMcpToolSet(
                 description = "Deletes a D-Day. Use dday_restore with the same id to undo.",
                 parameterList = listOf(ddayIdParameter),
                 kind = McpToolKind.DESTRUCTIVE,
-            ) { arguments -> changedCountResult(deleteDDayUseCase(parameter = arguments.uuid(DDAY_ID)).getOrThrow()) },
+            ) { arguments -> findDDayUseCase.changeActive(id = arguments.uuid(DDAY_ID), isDeleted = DDay::isDeleted) { id -> deleteDDayUseCase(parameter = id) } },
             McpTool(
                 name = "dday_restore",
                 description = "Restores a deleted D-Day.",
@@ -154,7 +163,7 @@ internal class DDayMcpToolSet(
 
     private suspend fun getDDay(arguments: McpToolArguments): JsonElement {
         val ddayId = arguments.uuid(DDAY_ID)
-        val dday = findDDayUseCase.readFirst(parameter = ddayId) ?: return JsonNull
+        val dday = findDDayUseCase.readFirst(parameter = ddayId)?.takeUnless { dday -> dday.isDeleted } ?: return JsonNull
         val tagList = getEntityTagUseCase.readFirst(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = ddayId))
 
         return buildJsonObject {
@@ -187,7 +196,7 @@ internal class DDayMcpToolSet(
         val newEndDate = arguments.localDateOrNull(END_DATE)
         val newRepeatList = arguments.repeatInputListOrNull()
         val newOverflowPolicy = arguments.overflowPolicyOrNull()
-        val current = findDDayUseCase.readFirst(parameter = ddayId)?.detail ?: return changedCountResult(count = 0)
+        val current = findDDayUseCase.readActive(id = ddayId, isDeleted = DDay::isDeleted)?.detail ?: return changedCountResult(count = 0)
         val input =
             DDayInput(
                 title = arguments.stringOrNull(TITLE) ?: current.title,
@@ -212,7 +221,7 @@ internal class DDayMcpToolSet(
     ): McpTool =
         McpTool(
             name = name,
-            description = description,
+            description = "$description $NOT_DONE_DESCRIPTION",
             parameterList =
                 listOf(
                     ddayIdParameter,
@@ -220,8 +229,16 @@ internal class DDayMcpToolSet(
                 ),
             kind = McpToolKind.WRITE,
         ) { arguments: McpToolArguments ->
-            link(arguments.uuid(DDAY_ID), arguments.uuid("tagId"))
-            doneResult as JsonElement
+            val entityId = arguments.uuid(DDAY_ID)
+            val tagId = arguments.uuid("tagId")
+            val isLinkable = findDDayUseCase.isActive(id = entityId, isDeleted = DDay::isDeleted) && findTagUseCase.isActive(id = tagId, isDeleted = Tag::isDeleted)
+
+            if (isLinkable) {
+                link(entityId, tagId)
+                doneResult
+            } else {
+                notDoneResult
+            }
         }
 }
 

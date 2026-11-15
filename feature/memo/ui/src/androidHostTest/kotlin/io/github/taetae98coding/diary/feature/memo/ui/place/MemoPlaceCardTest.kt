@@ -83,6 +83,20 @@ class MemoPlaceCardTest {
     }
 
     @Test
+    fun `TC-c7757569-a5c6-4c3b-9870-3c3fbdafec46 선택한 장소의 제목이 바뀌면 카드의 장소 목록에 반영된다`() {
+        val place = testPlace(title = HOME_PLACE_TITLE)
+        var uiState by mutableStateOf(placeCardUiState(selectedPlaceList = listOf(place)))
+        composeRule.setMemoPlaceCard(uiStateProvider = { uiState })
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
+
+        uiState = placeCardUiState(selectedPlaceList = listOf(place.copy(detail = place.detail.copy(title = OFFICE_PLACE_TITLE))))
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-16def837-7242-4e9f-ac6e-b05b1748d3a7 지도가 표시되지 않는 동안 장소를 선택해도 지도 이동이 일어나지 않는다`() {
         val place = testPlace(title = HOME_PLACE_TITLE)
 

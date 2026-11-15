@@ -15,16 +15,15 @@ import org.koin.core.annotation.Single
 @Single(binds = [DeepLinkNavigation::class])
 internal class ChecklistDetailDeepLinkNavigation :
     DeepLinkNavigation by UriDeepLinkMatcher(DeepLinkUri(ScreenDeepLink.CHECKLIST_DETAIL), ChecklistDetailNavKey.serializer())
-        .toDeepLinkNavigation({ result, isLaunch -> openChecklistDetail(detailKey = result.key, isLaunch = isLaunch, listBackStack = topLevelBackStackOf(MoreHomeNavKey) + ChecklistHomeNavKey) })
+        .toDeepLinkNavigation({ result, isLaunch -> openChecklistDetail(detailKey = result.key.copy(isStandalone = true), isLaunch = isLaunch, listBackStack = topLevelBackStackOf(MoreHomeNavKey) + ChecklistHomeNavKey) })
 
-// 앱 밖에서 상세를 열 때, 앱을 새로 시작했으면 목록 위에 상세를 쌓고 보던 화면이 있으면 그 위에 쌓는다. 보던 화면이 같은 상세면 쌓지 않는다.
 private fun ScreenNavigator.openChecklistDetail(
-    detailKey: ScreenNavKey,
+    detailKey: ChecklistDetailNavKey,
     listBackStack: List<ScreenNavKey>,
     isLaunch: Boolean,
 ) {
     when {
-        backStack.lastOrNull() == detailKey -> Unit
+        (backStack.lastOrNull() as? ChecklistDetailNavKey)?.id == detailKey.id -> Unit
 
         isLaunch -> {
             backStack.clear()

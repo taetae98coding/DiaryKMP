@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteE
 import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.logger.core.DiaryLog
@@ -44,7 +45,7 @@ class FetchCurrentWeatherUseCaseReportTest :
             val reportList = recordCrashlyticsLog()
 
             When("현재 날씨 동기화를 요청한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-8d1e107d-3c63-4f1f-ba86-a639075ca3a3 동기화가 성공으로 끝나고 오류 보고가 남지 않는다") {
                     result.isSuccess shouldBe true
@@ -61,12 +62,12 @@ class FetchCurrentWeatherUseCaseReportTest :
                     weatherRemoteDataSource = weatherRemoteDataSource,
                     clock = clock { now },
                 )
-            useCase(parameter = Unit).isSuccess shouldBe true
+            useCase().isSuccess shouldBe true
             val reportList = recordCrashlyticsLog()
             now += 59.minutes
 
             When("위치 권한 허용이 아닌 계기로 현재 날씨 동기화를 다시 요청한다") {
-                val result = useCase(parameter = Unit)
+                val result = useCase()
 
                 Then("TC-5b34763d-ca69-47c2-afc1-21efed0134e8 동기화가 성공으로 끝나고 조회 없이 오류 보고가 남지 않는다") {
                     result.isSuccess shouldBe true

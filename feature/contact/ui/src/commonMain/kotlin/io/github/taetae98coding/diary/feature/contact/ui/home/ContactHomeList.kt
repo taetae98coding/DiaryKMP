@@ -17,10 +17,10 @@ import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.contact.SwipeContactCard
 import io.github.taetae98coding.diary.compose.contact.previewContact
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
+import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
@@ -55,10 +55,10 @@ internal fun ContactHomeList(
         modifier = modifier,
     ) { isEmpty ->
         if (isEmpty) {
-            DiaryPullToRefreshBox(
-                isRefreshingProvider = isRefreshingProvider,
+            DiaryRefreshableEmptyBox(
                 onRefresh = { onEvent(ContactHomeScaffoldEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),
+                isRefreshingProvider = isRefreshingProvider,
             ) {
                 ContactHomeEmpty(
                     modifier = Modifier.fillMaxSize(),

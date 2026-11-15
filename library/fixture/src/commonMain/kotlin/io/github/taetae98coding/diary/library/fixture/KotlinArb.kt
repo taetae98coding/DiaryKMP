@@ -21,7 +21,8 @@ private const val MIN_EPOCH_SECONDS = 0L
 private const val MAX_EPOCH_SECONDS = 4_102_444_800L
 
 /**
- * Kotest의 [Arb.Companion.uuid]는 `java.util.UUID`를 만들어 공통 코드에서 쓸 수 없으므로 [Uuid.random]으로 만든다.
+ * Kotest의 [Arb.Companion.uuid]는 플랫폼마다 다른 `PlatformUuid`(JVM에서는 `java.util.UUID`)를 만들어 공통 코드에서 [Uuid]로 쓸 수 없으므로
+ * [Uuid.random]으로 만든다.
  */
 public fun Arb.Companion.kotlinUuid(): Arb<Uuid> = arbitrary { Uuid.random() }
 

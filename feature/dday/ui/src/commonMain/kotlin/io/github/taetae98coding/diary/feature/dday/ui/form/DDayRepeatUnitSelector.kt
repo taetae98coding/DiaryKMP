@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
+import io.github.taetae98coding.diary.compose.core.menu.DiarySelectMenuItem
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.dday.repeat.DDayRepeatUnit
@@ -64,7 +65,7 @@ internal fun DDayRepeatUnitSelector(
                 onDismissRequest = { isExpanded = false },
             ) {
                 ddayRepeatUnitList.forEach { unit ->
-                    DDaySelectMenuItem(
+                    DiarySelectMenuItem(
                         text = unit.label(),
                         isSelected = unit == state.unit,
                         onClick = {

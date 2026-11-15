@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasText
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.swipeDown
@@ -192,6 +194,47 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
+    fun `TC-c451a89e-4d0a-4dbb-a692-14eb12052179 메모 탭을 선택하는 것만으로는 새로고침을 요청하지 않는다`() {
+        setScreen()
+        composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
+
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertIsDisplayed()
+        verify(exactly = 0) { requireNotNull(memoSyncViewModelRef).refresh() }
+    }
+
+    @Test
+    fun `TC-1fad51c4-b2df-4353-bcdd-011822c26dd2 메모를 완료하고 실행 취소해도 수정 중이던 입력은 그대로다`() {
+        val memo = typeFormInputAndOpenMemoTab()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Finished(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().finish(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restart(id = memo.id) }
+        assertTypedFormInputRetained()
+    }
+
+    @Test
+    fun `TC-1fad51c4-b2df-4353-bcdd-011822c26dd2 메모를 삭제하고 실행 취소해도 수정 중이던 입력은 그대로다`() {
+        val memo = typeFormInputAndOpenMemoTab()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restore(id = memo.id) }
+        assertTypedFormInputRetained()
+    }
+
+    @Test
     fun `TC-7057f8c9-004a-4fe9-b4de-f7de13059840 TC-a34b4471-6584-4100-89d1-0315e72f16be 대상 웹 항목을 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
         composeRule.setWebDetailMemoScreen(
             viewModel = memoScreenWebViewModel(MutableStateFlow(WebDetailUiState.Loading)),
@@ -282,6 +325,26 @@ class WebDetailScreenMemoTest {
         navigateToMemoAddCount shouldBe 1
     }
 
+    private fun typeFormInputAndOpenMemoTab(): Memo {
+        val memo = webMemo(title = SCREEN_MEMO_TITLE)
+        setScreen(memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))))
+        composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
+        composeRule.waitForIdle()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoIsDisplayed(title = memo.detail.title)
+
+        return memo
+    }
+
+    private fun assertTypedFormInputRetained() {
+        composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
+
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.urlInput().assert(hasText(TYPED_URL))
+    }
+
     // 웹 페이지 불러오기는 화면 fixture가 불러오는 중 상태로 둔다.
     private fun inProgressSwipeMemo(): Memo {
         val memo = webMemo(title = SCREEN_MEMO_TITLE)
@@ -350,6 +413,8 @@ class WebDetailScreenMemoTest {
         const val POSITION_MEMO_TITLE_PREFIX = "WebDetailPositionMemo"
         const val CONTACT_NAME = "WebDetailMemoScreenName"
         const val SCREEN_MEMO_TITLE = "WebDetailScreenMemo"
+        const val TYPED_TITLE = "WebDetailMemoTypedTitle"
+        const val TYPED_URL = "https://memo.example.com"
         const val INDEPENDENT_MEMO_TITLE = "WebDetailIndependentMemo"
         const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         const val KOREAN_DELETED_MESSAGE = "메모가 삭제되었습니다."

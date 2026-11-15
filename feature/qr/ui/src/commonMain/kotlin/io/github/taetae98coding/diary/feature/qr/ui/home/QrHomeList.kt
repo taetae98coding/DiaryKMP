@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -18,11 +16,11 @@ import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.QrIcon
+import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.qr.QrListEvent
 import io.github.taetae98coding.diary.compose.qr.SwipeQrCard
@@ -49,18 +47,13 @@ internal fun QrHomeList(
         modifier = modifier,
     ) { isEmpty ->
         if (isEmpty) {
-            DiaryPullToRefreshBox(
-                isRefreshingProvider = isRefreshingProvider,
+            DiaryRefreshableEmptyBox(
                 onRefresh = { onEvent(QrHomeScaffoldEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),
+                isRefreshingProvider = isRefreshingProvider,
             ) {
                 DiaryEmptyBox(
                     title = stringResource(Res.string.qr_home_empty_title),
-                    // 빈 상태에서도 당겨서 새로고침할 수 있도록 중첩 스크롤을 전달한다.
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
                     description = stringResource(Res.string.qr_home_empty_description),
                     icon = { QrIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
                 )

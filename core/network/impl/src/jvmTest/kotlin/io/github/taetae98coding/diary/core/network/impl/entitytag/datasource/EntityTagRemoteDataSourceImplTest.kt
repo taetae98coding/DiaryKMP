@@ -105,6 +105,14 @@ private val entityTagRemoteCaseList: List<EntityTagRemoteCase> =
             pushTcId = "TC-625e9cc2-5758-408e-b2cc-3848aced64e9 TC-e3c79a10-0f67-404b-9a01-c528f91912af",
             pullTcId = "TC-5540aae3-5d58-4bcb-a8cf-7f74047a738d",
         ),
+        EntityTagRemoteCase(
+            label = "루틴",
+            kind = EntityTagKindRemoteEntity.ROUTINE,
+            keyPrefix = "routine",
+            functionName = "routine-tag",
+            pushTcId = "TC-ed75f3dc-6b86-4679-8f6e-82ae9fe34b20 TC-8a1cf22f-fe8b-48c2-b48b-33754b15754e",
+            pullTcId = "TC-b47ae447-c72a-4d42-a319-d644676cf2c9",
+        ),
     )
 
 class EntityTagRemoteDataSourceImplTest :

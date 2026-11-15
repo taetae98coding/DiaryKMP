@@ -26,9 +26,11 @@ import io.github.taetae98coding.diary.compose.core.input.DIARY_EMOJI_INPUT_TEST_
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -41,6 +43,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTa
 import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.routine.TagDetailRoutineTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebTab
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
@@ -75,6 +78,7 @@ internal const val DEFAULT_CHECKLIST_TAB_DESCRIPTION = "Checklist"
 internal const val DEFAULT_MUSIC_TAB_DESCRIPTION = "Music"
 internal const val DEFAULT_QR_TAB_DESCRIPTION = "QR code"
 internal const val DEFAULT_DDAY_TAB_DESCRIPTION = "D-Day"
+internal const val DEFAULT_ROUTINE_TAB_DESCRIPTION = "Routine"
 internal const val KOREAN_CONTACT_TAB_DESCRIPTION = "연락처"
 internal const val KOREAN_CHECKLIST_TAB_DESCRIPTION = "체크리스트"
 internal const val KOREAN_MUSIC_TAB_DESCRIPTION = "곡"
@@ -172,6 +176,8 @@ internal fun TagDetailTestTabContent(
     checklistPagingItems: LazyPagingItems<ChecklistSummary> = remember { flowOf(PagingData.empty<ChecklistSummary>()) }.collectAsLazyPagingItems(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
+    ddayPagingItems: LazyPagingItems<DDay> = remember { flowOf(PagingData.empty<DDay>()) }.collectAsLazyPagingItems(),
+    routinePagingItems: LazyPagingItems<RoutineSummary> = remember { flowOf(PagingData.empty<RoutineSummary>()) }.collectAsLazyPagingItems(),
 ) {
     when (tab) {
         TagDetailTab.DETAIL ->
@@ -182,15 +188,7 @@ internal fun TagDetailTestTabContent(
                 state = state,
             )
 
-        TagDetailTab.MEMO ->
-            EntityDetailMemoTab(
-                emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title),
-                emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description),
-                onEvent = {},
-                onMemoListEvent = {},
-                modifier = Modifier.fillMaxSize(),
-                memoPagingItems = memoPagingItems,
-            )
+        TagDetailTab.MEMO -> TagDetailTestMemoTab(memoPagingItems = memoPagingItems)
 
         TagDetailTab.WEB ->
             TagDetailWebTab(
@@ -234,6 +232,35 @@ internal fun TagDetailTestTabContent(
                 qrPagingItems = qrPagingItems,
             )
 
-        TagDetailTab.DDAY -> TagDetailDDayTab(onEvent = {}, modifier = Modifier.fillMaxSize())
+        TagDetailTab.DDAY ->
+            TagDetailDDayTab(
+                onEvent = {},
+                modifier = Modifier.fillMaxSize(),
+                ddayPagingItems = ddayPagingItems,
+            )
+
+        TagDetailTab.ROUTINE -> TagDetailTestRoutineTab(routinePagingItems = routinePagingItems)
     }
+}
+
+@Composable
+private fun TagDetailTestRoutineTab(routinePagingItems: LazyPagingItems<RoutineSummary>) {
+    TagDetailRoutineTab(
+        onEvent = {},
+        onRoutineListEvent = {},
+        modifier = Modifier.fillMaxSize(),
+        routinePagingItems = routinePagingItems,
+    )
+}
+
+@Composable
+private fun TagDetailTestMemoTab(memoPagingItems: LazyPagingItems<MemoListItem>) {
+    EntityDetailMemoTab(
+        emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title),
+        emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description),
+        onEvent = {},
+        onMemoListEvent = {},
+        modifier = Modifier.fillMaxSize(),
+        memoPagingItems = memoPagingItems,
+    )
 }

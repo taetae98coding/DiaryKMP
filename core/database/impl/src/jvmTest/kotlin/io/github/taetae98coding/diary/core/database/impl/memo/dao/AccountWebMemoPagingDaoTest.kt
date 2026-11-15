@@ -16,8 +16,10 @@ import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemo
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.webtag.webTagTable
+import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
@@ -32,6 +34,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
@@ -242,6 +245,24 @@ class AccountWebMemoPagingDaoTest :
             }
         }
 
+        test("TC-265b3eb7-ec06-4da9-a204-8b78b6171066 웹 항목과 메모가 같은 태그에 연결되어 있어도 웹 항목의 메모로 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val target = web()
+            val linkedMemo = memo()
+            val sameTagMemo = memo()
+            val tagId = Arb.kotlinUuid().next()
+            insertWebMemo(accountId, target, linkedMemo)
+            insertMemo(accountId, sameTagMemo)
+            database.webTagTable().upsert(
+                entityTagList = listOf(Arb.entityTagLocalEntity().next().copy(entityId = target.id, tagId = tagId, isDeleted = false)),
+            )
+            database.memoTagDao().upsert(
+                listOf(Arb.memoTagLocalEntity().next().copy(memoId = sameTagMemo.id, tagId = tagId, isDeleted = false)),
+            )
+
+            pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(linkedMemo.id)
+        }
+
         test("TC-94d79ed3-bd01-4b7f-9807-9e3d79dbe389 웹 항목별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val target = web()
@@ -389,6 +410,23 @@ class AccountWebMemoPagingDaoTest :
             database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to restoredAt)
             assertConnectionKept(memoId = targetMemo.id)
             pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(targetMemo.id)
+        }
+
+        test("TC-c45ce93d-3e41-4f75-8be8-ec2a624b2e91 메모의 완료·삭제와 실행 취소는 대상 웹 항목의 내용과 삭제 여부를 바꾸지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val target = web()
+            val targetMemo = memo()
+            insertWebMemo(accountId, target, targetMemo)
+            val memoDao = database.accountMemoDao()
+
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+            database.accountWebDao().find(accountId = accountId, webId = target.id).first() shouldBe target
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
+            database.accountWebDao().find(accountId = accountId, webId = target.id).first() shouldBe target
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            database.accountWebDao().find(accountId = accountId, webId = target.id).first() shouldBe target
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
+            database.accountWebDao().find(accountId = accountId, webId = target.id).first() shouldBe target
         }
 
         test("TC-ccf8971b-ef51-412b-b72a-6cedc53ca6de 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {

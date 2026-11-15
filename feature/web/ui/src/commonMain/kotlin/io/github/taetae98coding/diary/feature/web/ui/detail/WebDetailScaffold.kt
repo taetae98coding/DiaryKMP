@@ -44,6 +44,7 @@ internal fun WebDetailScaffold(
     onFormEvent: (WebFormEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
+    isShareVisible: Boolean = false,
     state: WebDetailScaffoldState = rememberWebDetailScaffoldState(),
     formState: WebFormState = rememberWebDetailFormState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
@@ -69,6 +70,7 @@ internal fun WebDetailScaffold(
         topBar = {
             WebDetailTopBar(
                 onEvent = onEvent,
+                isShareVisible = isShareVisible,
                 uiStateProvider = uiStateProvider,
             )
         },

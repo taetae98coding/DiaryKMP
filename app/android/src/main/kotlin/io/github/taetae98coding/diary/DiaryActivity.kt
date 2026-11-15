@@ -6,12 +6,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import io.github.taetae98coding.diary.app.shared.App
+import io.github.taetae98coding.diary.app.shared.AppDependencies
 import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import org.koin.android.ext.android.inject
 
 internal class DiaryActivity : ComponentActivity() {
     private val appDeepLink: AppDeepLink by inject()
+    private val appDependencies: AppDependencies by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -21,7 +23,7 @@ internal class DiaryActivity : ComponentActivity() {
             openDeepLink(intent = intent, isLaunch = true)
         }
         setContent {
-            App()
+            App(dependencies = appDependencies)
         }
     }
 

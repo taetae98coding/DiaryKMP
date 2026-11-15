@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.work.appaction.appfunction.checklist
 
 import androidx.appfunctions.AppFunctionSerializable
+import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionTag
+import io.github.taetae98coding.diary.work.appaction.appfunction.item.toAppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklist
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistDetail
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistItem
@@ -56,13 +58,15 @@ public data class AppFunctionChecklistItem(
     val updatedAt: String,
 )
 
-/** A checklist with its items. */
+/** A checklist with its items and linked tags. */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 public data class AppFunctionChecklistDetail(
     /** The checklist. */
     val checklist: AppFunctionChecklist,
     /** Items of the checklist that are not deleted. */
     val items: List<AppFunctionChecklistItem>,
+    /** Tags linked to the checklist. */
+    val tags: List<AppFunctionTag>,
 )
 
 /** One page of checklists. */
@@ -80,6 +84,7 @@ internal fun AppActionChecklistDetail.toAppFunctionChecklistDetail(): AppFunctio
     AppFunctionChecklistDetail(
         checklist = checklist.toAppFunctionChecklist(),
         items = items.map { item -> item.toAppFunctionChecklistItem() },
+        tags = tags.map { tag -> tag.toAppFunctionTag() },
     )
 
 private fun AppActionChecklist.toAppFunctionChecklist(): AppFunctionChecklist = AppFunctionChecklist(id = id, title = title, description = description, createdAt = createdAt, updatedAt = updatedAt)

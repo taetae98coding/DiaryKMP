@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.repository.AccountQrRepository
@@ -60,7 +61,7 @@ class AddQrUseCaseTest :
                         val result = useCase(parameter = AddQrUseCase.Parameter(detail = Arb.qrDetail(title = blankTitle).next(), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<QrTitleBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                        verify(exactly = 0) { getAccountUseCase() }
                         coVerify(exactly = 0) { accountQrRepository.upsert(account = any(), qr = any(), tagIdSet = any()) }
                         coVerify(exactly = 0) { requestSyncUseCase(parameter = any()) }
                     }
@@ -92,7 +93,7 @@ class AddQrUseCaseTest :
                     val result = useCase(parameter = AddQrUseCase.Parameter(detail = Arb.qrDetail(value = "").next(), tagIdSet = emptySet()))
 
                     result.shouldBeFailure().shouldBeInstanceOf<QrValueEmptyException>()
-                    verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
+                    verify(exactly = 0) { getAccountUseCase() }
                     coVerify(exactly = 0) { accountQrRepository.upsert(account = any(), qr = any(), tagIdSet = any()) }
                     coVerify(exactly = 0) { requestSyncUseCase(parameter = any()) }
                 }
@@ -103,7 +104,7 @@ class AddQrUseCaseTest :
             val account = Arb.accountUser().next()
             val qrSlot = slot<Qr>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery { accountQrRepository.upsert(account = account, qr = capture(qrSlot), tagIdSet = any()) } just Runs
             val now = Arb.secondPrecisionInstant().next()
@@ -119,7 +120,7 @@ class AddQrUseCaseTest :
                 )
 
             When("연결할 태그를 골라 QR을 추가한다") {
-                Then("TC-4eaac45d-26f2-4397-af48-a82d86675b92 TC-a6fde504-b12a-4648-9b7f-cad5ca5d3fd0 고른 태그를 그대로 새 QR을의 연결로 넘긴다") {
+                Then("TC-a6fde504-b12a-4648-9b7f-cad5ca5d3fd0 고른 태그를 그대로 새 QR을의 연결로 넘긴다") {
                     val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
                     val repository = mockk<AccountQrRepository>(relaxed = true)
                     val taggedUseCase =
@@ -209,7 +210,7 @@ class AddQrUseCaseTest :
         Given("QR을 추가할 수 있는 현재 계정이 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery { accountQrRepository.upsert(account = account, qr = any(), tagIdSet = any()) } just Runs
             val requestSyncUseCase = requestSyncUseCase()
@@ -233,7 +234,7 @@ class AddQrUseCaseTest :
         Given("QR 저장은 성공하지만 동기화 요청이 실패하도록 준비되어 있다") {
             val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val qrSlot = slot<Qr>()
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery { accountQrRepository.upsert(account = account, qr = capture(qrSlot), tagIdSet = any()) } just Runs
@@ -260,7 +261,7 @@ class AddQrUseCaseTest :
 
         Given("계정이 게스트 상태로 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every { getAccountUseCase() } returns flowOf(Result.success(Account.Guest))
             val accountQrRepository = mockk<AccountQrRepository>(relaxed = true)
             val useCase =
                 AddQrUseCase(
@@ -282,7 +283,7 @@ class AddQrUseCaseTest :
         Given("계정 조회가 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val accountQrRepository = mockk<AccountQrRepository>(relaxed = true)
             val useCase =
                 AddQrUseCase(
@@ -305,7 +306,7 @@ class AddQrUseCaseTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery { accountQrRepository.upsert(account = account, qr = any(), tagIdSet = any()) } throws throwable
             val requestSyncUseCase = requestSyncUseCase()

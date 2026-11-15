@@ -2,10 +2,11 @@ import AppIntents
 import DiaryIos
 
 struct ChecklistEntityQuery: EntityStringQuery {
+    // ‘삭제한 체크리스트 되돌리기’에 넘긴 항목을 다시 찾을 수 있게 삭제된 항목도 찾는다.
     func entities(for identifiers: [ChecklistEntity.ID]) async throws -> [ChecklistEntity] {
         var entityList: [ChecklistEntity] = []
         for identifier in identifiers {
-            if let detail = try await ChecklistEntityQuery.detail(checklistId: identifier, itemSort: nil) {
+            if let detail = try await appAction({ try await DiaryChecklistAppAction.shared.getIncludingDeleted(checklistId: identifier, itemSort: nil) }) {
                 entityList.append(ChecklistEntity(detail: detail))
             }
         }
@@ -24,6 +25,7 @@ struct ChecklistEntityQuery: EntityStringQuery {
         try await appAction { try await DiaryChecklistAppAction.shared.list(pageNumber: AppIntentPage.number(nil)) }.items
     }
 
+    // 상세와 추가 결과, 항목 찾기는 데스크톱 연결과 같이 삭제된 체크리스트를 없는 체크리스트로 다룬다.
     nonisolated static func detail(checklistId: String, itemSort: DiaryAppActionChecklistItemSort?) async throws -> DiaryAppActionChecklistDetail? {
         try await appAction { try await DiaryChecklistAppAction.shared.get(checklistId: checklistId, itemSort: itemSort) }
     }
@@ -33,6 +35,16 @@ struct ChecklistEntityQuery: EntityStringQuery {
             throw AppIntentError.notFound(LocalizedStringResource("Couldn't find the checklist.", table: "AppIntentChecklist"))
         }
         return ChecklistEntity(detail: detail)
+    }
+
+    static func requireChecklist(of item: ChecklistItemEntity) async throws {
+        guard let checklistId = item.checklistId else { return }
+        guard let detail = try await detail(checklistId: checklistId, itemSort: nil) else {
+            throw AppIntentError.notFound(LocalizedStringResource("Couldn't find the checklist.", table: "AppIntentChecklist"))
+        }
+        guard detail.items.contains(where: { saved in saved.id == item.itemId }) else {
+            throw AppIntentError.notFound(LocalizedStringResource("Couldn't find the checklist item.", table: "AppIntentChecklist"))
+        }
     }
 }
 

@@ -201,6 +201,54 @@ export const ddayPushRequestSchema = z.object({
   ),
 });
 
+const routineAmountSchema = z.number().int().min(1).max(9999999);
+
+const MAX_ROUTINE_UNIT_LENGTH = 10;
+
+export const routinePushRequestSchema = z.object({
+  routineList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      isFinished: z.boolean(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+      detail: z.object({
+        title: z.string(),
+        description: z.string(),
+        color: z.number().int(),
+        startDate: localDateSchema,
+        cycle: z.enum([
+          "FREQ=DAILY",
+          "FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR",
+          "FREQ=DAILY;BYDAY=SA,SU",
+          "FREQ=WEEKLY;WKST=SU",
+          "FREQ=MONTHLY",
+        ]),
+        unit: z.string().refine((unit) => [...unit].length <= MAX_ROUTINE_UNIT_LENGTH, {
+          message: `unit must be at most ${MAX_ROUTINE_UNIT_LENGTH} characters.`,
+        }),
+        goalAmount: routineAmountSchema.nullable(),
+        amountPerRecord: routineAmountSchema,
+      }),
+    }),
+  ),
+});
+
+export const routineRecordPushRequestSchema = z.object({
+  routineRecordList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      routineId: z.string().uuid(),
+      date: localDateSchema,
+      amount: routineAmountSchema,
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
 // 태어난 연도와 알게 된 경로는 이 정보가 생기기 전 버전의 앱이 보내지 않으므로 선택 키로 받는다.
 // 키가 없으면 DB 함수가 저장된 값을 유지하거나 기본값을 쓰고, 키가 있으면 null이어도 그 값으로 저장한다.
 export const contactPushRequestSchema = z.object({
@@ -349,6 +397,18 @@ export const ddayTagPushRequestSchema = z.object({
   ddayTagList: z.array(
     z.object({
       ddayId: z.string().uuid(),
+      tagId: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
+export const routineTagPushRequestSchema = z.object({
+  routineTagList: z.array(
+    z.object({
+      routineId: z.string().uuid(),
       tagId: z.string().uuid(),
       isDeleted: z.boolean(),
       updatedAt: z.string().datetime({ offset: true }),

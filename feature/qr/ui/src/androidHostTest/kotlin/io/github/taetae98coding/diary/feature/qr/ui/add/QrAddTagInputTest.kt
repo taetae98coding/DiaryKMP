@@ -9,26 +9,21 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
-import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
-import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
-import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.DEFAULT_ENTITY_TAG_LABEL
 import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.qr.ui.addTagViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.clickEntityTagInput
 import io.github.taetae98coding.diary.feature.qr.ui.sendTagAddedResult
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,17 +40,23 @@ class QrAddTagInputTest {
     @Test
     fun `TC-a6b4e5a1-4a94-4e4b-a51c-cb32efbcd577 추가에 성공해도 고른 태그는 유지한다`() {
         val tag = Arb.tag(title = SELECTED_TAG_TITLE).next()
+        // 화면이 추가 성공 뒤 선택을 지우면 표시가 바뀌도록, 선택을 실제로 들고 있는 ViewModel을 쓴다.
+        val tagViewModel = addTagViewModel(initialTagId = tag.id, allTagList = listOf(tag))
         setQrAddScreen(
             addViewModel = effectViewModel(effect = QrAddEffect.AddSucceeded),
-            tagViewModel = addTagScreenTestViewModel(tagList = listOf(tag)),
+            tagViewModel = tagViewModel,
         )
+        composeRule.onQrTextInput().performTextInput(TYPED_QR_VALUE)
         composeRule.onTitleInput().performTextInput(TYPED_TITLE)
         composeRule.waitForIdle()
+        composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
 
         clickAdd()
 
         composeRule.titleInputText() shouldBe ""
         composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
+        composeRule.runOnIdle { tagViewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id) }
+        composeRule.qrTextInputText() shouldBe ""
     }
 
     @Test
@@ -89,19 +90,24 @@ class QrAddTagInputTest {
     @Test
     fun `TC-102e70af-e5fc-4495-97dd-41bc2a53dec6 화면이 재생성되어도 고른 태그가 유지된다`() {
         val tag = Arb.tag(title = SELECTED_TAG_TITLE).next()
-        val tagViewModel = addTagScreenTestViewModel(tagList = listOf(tag))
+        // 회전 같은 재생성에서는 태그 선택을 들고 있는 ViewModel이 살아남으므로 화면 밖에서 한 번만 만든다.
+        val tagViewModel = addTagViewModel(initialTagId = tag.id, allTagList = listOf(tag))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             QrAddScreenContent(addViewModel = remember { screenTestViewModel() }, tagViewModel = tagViewModel)
         }
+        composeRule.onQrTextInput().performTextInput(TYPED_QR_VALUE)
         composeRule.onTitleInput().performTextInput(TYPED_TITLE)
         composeRule.waitForIdle()
+        composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
         composeRule.titleInputText() shouldBe TYPED_TITLE
         composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
+        composeRule.runOnIdle { tagViewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id) }
+        composeRule.qrTextInputText() shouldBe TYPED_QR_VALUE
     }
 
     @Test
@@ -147,7 +153,7 @@ class QrAddTagInputTest {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             // 메모리 정리 뒤에는 태그 선택을 들고 있던 객체도 새로 만들어지므로 복원할 때마다 진입 경로의 초기값으로 새로 만든다.
-            val tagViewModel = remember { tagViewModel(initialTagId = initialTag?.id, allTagList = allTagList).also(tagViewModelList::add) }
+            val tagViewModel = remember { addTagViewModel(initialTagId = initialTag?.id, allTagList = allTagList).also(tagViewModelList::add) }
 
             QrAddScreenContent(addViewModel = remember { screenTestViewModel() }, tagViewModel = tagViewModel)
         }
@@ -169,21 +175,6 @@ class QrAddTagInputTest {
                 .last()
                 .selectionUiState.value.tagIdSet shouldBe setOfNotNull(initialTag?.id)
         }
-    }
-
-    private fun tagViewModel(
-        initialTagId: Uuid?,
-        allTagList: List<Tag>,
-    ): EntityAddTagViewModel {
-        val pageTagUseCase = mockk<PageTagUseCase>()
-        every { pageTagUseCase(parameter = any()) } returns MutableStateFlow(Result.success(PagingData.from(allTagList)))
-        val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
-        every { getSelectedTagUseCase(parameter = any()) } answers {
-            val idSet = firstArg<Set<Uuid>>()
-            MutableStateFlow(Result.success(allTagList.filter { tag -> tag.id in idSet }))
-        }
-
-        return EntityAddTagViewModel(initialTagId = initialTagId, pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
     }
 
     private fun clickAdd() {
@@ -234,6 +225,7 @@ class QrAddTagInputTest {
     private companion object {
         const val DEFAULT_ADD_DESCRIPTION = "Add QR code"
         const val TYPED_TITLE = "QrAddTagTypedTitle"
+        const val TYPED_QR_VALUE = "QrAddTagTypedValue"
         const val SELECTED_TAG_TITLE = "QrAddSelectedTag"
         const val INITIAL_TAG_TITLE = "QrAddRestoreInitialTag"
         const val OTHER_TAG_TITLE = "QrAddRestoreOtherTag"

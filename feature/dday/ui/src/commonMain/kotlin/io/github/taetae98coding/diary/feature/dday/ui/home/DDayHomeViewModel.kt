@@ -8,6 +8,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
 import io.github.taetae98coding.diary.core.model.dday.DDay
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.DeleteDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
@@ -35,15 +36,15 @@ internal class DDayHomeViewModel(
     private val restoreDDayUseCase: RestoreDDayUseCase,
 ) : ViewModel() {
     val ddayPagingData: Flow<PagingData<DDay>> =
-        pageDDayUseCase(parameter = Unit)
+        pageDDayUseCase()
             // 조건 없는 PagingData.empty()는 불러오기 상태를 싣지 않아 목록이 처음의 불러오는 중에 머물러 빈 상태로 바뀌지 않는다.
             .map { result -> result.getOrElse { PagingData.empty(sourceLoadStates = LOADED_EMPTY_LOAD_STATES) } }
             .cachedIn(viewModelScope)
 
     val filterUiState: StateFlow<DDayHomeScaffoldFilterUiState> =
         combine(
-            getDDayFilterUseCase(parameter = Unit),
-            getDDayFilterTagIdUseCase(parameter = Unit),
+            getDDayFilterUseCase(),
+            getDDayFilterTagIdUseCase(),
         ) { tagListResult, storedTagIdSetResult ->
             DDayHomeScaffoldFilterUiState(
                 selectedTagIdSet =

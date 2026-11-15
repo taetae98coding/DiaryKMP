@@ -9,6 +9,8 @@ internal sealed interface QrDetailScaffoldEvent {
         val action: QrAction,
     ) : QrDetailScaffoldEvent
 
+    data object ClickShare : QrDetailScaffoldEvent
+
     data object ClickUndo : QrDetailScaffoldEvent
 
     data object ClickScan : QrDetailScaffoldEvent

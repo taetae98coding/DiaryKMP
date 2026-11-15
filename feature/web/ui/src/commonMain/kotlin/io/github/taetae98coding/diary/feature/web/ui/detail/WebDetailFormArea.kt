@@ -23,6 +23,7 @@ internal fun WebDetailFormArea(
     uiStateProvider: () -> WebDetailUiState = { WebDetailUiState.Loading },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
 ) {
+    // 조회 중과 내용 표시 사이에서만 전환한다. 내용이 갱신될 때마다 전환하면 입력 영역의 스크롤 위치가 처음으로 돌아간다.
     DiaryCrossfade(
         targetState = uiStateProvider() is WebDetailUiState.Content,
         modifier = modifier,

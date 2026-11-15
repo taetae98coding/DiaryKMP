@@ -17,6 +17,7 @@ kotlin {
                 implementation(projects.domain.place)
                 implementation(projects.domain.playlist)
                 implementation(projects.domain.qr)
+                implementation(projects.domain.routine)
                 implementation(projects.domain.search)
                 implementation(projects.domain.tag)
                 implementation(projects.domain.web)

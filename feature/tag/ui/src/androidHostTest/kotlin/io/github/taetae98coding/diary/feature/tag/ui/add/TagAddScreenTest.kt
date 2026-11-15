@@ -6,13 +6,17 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -49,6 +53,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -279,6 +284,26 @@ class TagAddScreenTest {
                 linkedTagIdSet = setOf(linkedTag.id),
             )
         coVerify(exactly = 2) { useCase(expected) }
+    }
+
+    @Test
+    fun `TC-517526f6-8822-45ae-83e9-f4838625f001 추가를 실행하면 처리가 끝날 때까지 진행 상태를 표시한다`() {
+        val addResult = CompletableDeferred<Result<Uuid>>()
+        val useCase = mockk<AddTagUseCase>()
+        coEvery { useCase(any()) } coAnswers { addResult.await() }
+        setTagAddScreen(viewModel = TagAddViewModel(addTagUseCase = useCase))
+        composeRule.onNode(addProgressMatcher(), useUnmergedTree = true).assertDoesNotExist()
+
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(addProgressMatcher(), useUnmergedTree = true).assertExists()
+
+        addResult.complete(Result.success(Arb.kotlinUuid().next()))
+        composeRule.waitForIdle()
+
+        composeRule.onNode(addProgressMatcher(), useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
@@ -516,6 +541,8 @@ class TagAddScreenTest {
         private const val ENTRY_COUNT = 2
 
         private val hexRegex = Regex(pattern = "#[0-9A-F]{6}")
+
+        private fun addProgressMatcher(): SemanticsMatcher = hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate).and(hasAnyAncestor(hasContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION)))
 
         private fun hasHexText(): SemanticsMatcher =
             SemanticsMatcher(description = "Hex color text") { node ->

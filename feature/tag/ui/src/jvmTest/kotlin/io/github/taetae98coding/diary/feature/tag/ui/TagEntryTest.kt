@@ -29,7 +29,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.emptyFlow
-import kotlin.uuid.Uuid
 
 class TagEntryTest :
     FunSpec({
@@ -67,7 +66,7 @@ class TagEntryTest :
         }
 
         test("TC-afcd267d-f71b-459e-8228-5aa322d3c037 태그 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
-            val detailKey = TagDetailNavKey(id = Uuid.random())
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStackCases =
                 listOf(
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, TagAddNavKey()) to TagAddNavKey(),
@@ -105,8 +104,8 @@ class TagEntryTest :
         }
 
         test("TC-77bfba92-3da7-404e-96bd-a6f1d88d9bb5 태그 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다") {
-            val memoDetailKey = MemoDetailNavKey(id = Uuid.random())
-            val tagDetailKey = TagDetailNavKey(id = Uuid.random())
+            val memoDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+            val tagDetailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStackCases =
                 listOf(
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoHomeFilterNavKey, TagAddNavKey()) to TagAddNavKey(),
@@ -115,10 +114,10 @@ class TagEntryTest :
                     listOf(OtherTopLevelNavKey, TagAddNavKey()) to TagAddNavKey(),
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, memoDetailKey, tagDetailKey) to tagDetailKey,
                     listOf(OtherTopLevelNavKey, CalendarHomeFilterStandInNavKey, TagAddNavKey()) to TagAddNavKey(),
-                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Uuid.random()), TagAddNavKey()) to TagAddNavKey(),
-                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Uuid.random()), TagAddNavKey()) to TagAddNavKey(),
-                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Uuid.random()), tagDetailKey) to tagDetailKey,
-                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Uuid.random()), tagDetailKey) to tagDetailKey,
+                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Arb.kotlinUuid().next()), TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Arb.kotlinUuid().next()), TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Arb.kotlinUuid().next()), tagDetailKey) to tagDetailKey,
+                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Arb.kotlinUuid().next()), tagDetailKey) to tagDetailKey,
                 )
 
             backStackCases.forEach { (backStack, key) ->
@@ -133,7 +132,7 @@ class TagEntryTest :
         }
 
         test("TC-1d96471b-ff5a-4901-8354-c098e2456c1e TagMemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
-            val tagId = Uuid.random()
+            val tagId = Arb.kotlinUuid().next()
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = tagId)
             val backStack =
                 listOf(

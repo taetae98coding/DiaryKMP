@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.mcp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.mcp.McpServerState
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.mcp.usecase.DisableMcpServerUseCase
 import io.github.taetae98coding.diary.domain.mcp.usecase.EnableMcpServerUseCase
 import io.github.taetae98coding.diary.domain.mcp.usecase.GetMcpServerEnabledUseCase
@@ -26,8 +27,8 @@ internal class SettingMcpViewModel(
 
     val uiState: StateFlow<SettingMcpUiState> =
         combine(
-            getMcpServerEnabledUseCase(parameter = Unit),
-            getMcpServerStateUseCase(parameter = Unit),
+            getMcpServerEnabledUseCase(),
+            getMcpServerStateUseCase(),
         ) { enabledResult, stateResult ->
             enabledResult.fold(
                 onSuccess = { isEnabled ->
@@ -52,9 +53,9 @@ internal class SettingMcpViewModel(
         viewModelScope.launch {
             try {
                 if (isEnabled) {
-                    enableMcpServerUseCase(parameter = Unit)
+                    enableMcpServerUseCase()
                 } else {
-                    disableMcpServerUseCase(parameter = Unit)
+                    disableMcpServerUseCase()
                 }
             } finally {
                 isSaving = false

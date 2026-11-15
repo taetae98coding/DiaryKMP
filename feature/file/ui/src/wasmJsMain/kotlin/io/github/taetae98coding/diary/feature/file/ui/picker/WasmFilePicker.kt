@@ -8,14 +8,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.browser.document
+import org.koin.core.annotation.Single
 import org.w3c.dom.HTMLInputElement
 import org.w3c.files.File
 
-@Composable
-internal actual fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {
-    val latestOnPick by rememberUpdatedState(onPick)
+@Single(binds = [FilePickerFactory::class])
+internal class WasmFilePickerFactory : FilePickerFactory {
+    @Composable
+    override fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {
+        val latestOnPick by rememberUpdatedState(onPick)
 
-    return remember { WasmFilePicker(onPick = { uri -> latestOnPick(uri) }) }
+        return remember { WasmFilePicker(onPick = { uri -> latestOnPick(uri) }) }
+    }
 }
 
 internal class WasmFilePicker(

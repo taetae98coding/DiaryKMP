@@ -24,7 +24,6 @@ import java.util.TimeZone
 
 class DDayPushRequestRemoteEntityTest :
     FunSpec({
-        // Edge Function은 스키마에 선언하지 않은 키를 버리므로, 키가 늘거나 이름이 바뀌면 함수 스키마도 함께 바꿔야 한다.
         test("디데이 업로드 요청은 디데이가 가지는 값을 빠짐없이 담는다") {
             val encoded = encodeDDay(dday = Arb.ddayRemoteEntity().next())
 

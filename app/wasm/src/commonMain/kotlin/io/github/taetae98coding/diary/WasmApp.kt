@@ -9,9 +9,9 @@ import io.github.taetae98coding.diary.app.shared.initializer.StartupInitializer
 import kotlinx.browser.document
 
 internal fun main() {
-    StartupInitializer.initialize(isDebug = true)
+    val dependencies = StartupInitializer.initialize(isDebug = true)
 
     ComposeViewport(requireNotNull(document.body)) {
-        App()
+        App(dependencies = dependencies)
     }
 }

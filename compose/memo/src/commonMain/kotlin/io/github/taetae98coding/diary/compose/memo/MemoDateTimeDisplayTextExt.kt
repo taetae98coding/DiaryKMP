@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.compose.core.format.toDisplayText
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 
 @Composable
-internal fun MemoDateTime.toDisplayText(): String =
+public fun MemoDateTime.toDisplayText(): String =
     when (this) {
         is MemoDateTime.AllDay -> {
             if (dateRange.start == dateRange.endInclusive) {

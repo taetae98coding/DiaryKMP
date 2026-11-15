@@ -2,12 +2,16 @@ package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.ALL_DAY_END_DATE_TEXT
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.ALL_DAY_END_DAY_CELL_TEXT
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.DEFAULT_CANCEL
@@ -75,6 +79,36 @@ class DiaryDateTimeInputDatePickerDialogTest {
     }
 
     @Test
+    fun `TC-d8df214b-65e0-475c-8b98-45ff2a0db13e 직접 입력한 날짜를 비우고 확인하면 다이얼로그가 닫히지 않는다`() {
+        setDiaryDateTimeInput(initialValue = allDayValue())
+        composeRule.onNodeWithText(START_DATE_TEXT).performClick()
+        composeRule.onNodeWithContentDescription(TEXT_INPUT_MODE_DESCRIPTION).performClick()
+
+        composeRule.onNode(hasSetTextAction()).performTextClearance()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).performClick()
+
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertExists()
+        composeRule.onNodeWithText(DEFAULT_CANCEL).performClick()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertDoesNotExist()
+        composeRule.onNodeWithText(START_DATE_TEXT).assertExists()
+    }
+
+    @Test
+    fun `TC-d8df214b-65e0-475c-8b98-45ff2a0db13e 올바르지 않은 날짜를 직접 입력하고 확인하면 다이얼로그가 닫히지 않는다`() {
+        setDiaryDateTimeInput(initialValue = allDayValue())
+        composeRule.onNodeWithText(START_DATE_TEXT).performClick()
+        composeRule.onNodeWithContentDescription(TEXT_INPUT_MODE_DESCRIPTION).performClick()
+
+        composeRule.onNode(hasSetTextAction()).performTextReplacement(INVALID_DATE_INPUT)
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).performClick()
+
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertExists()
+        composeRule.onNodeWithText(DEFAULT_CANCEL).performClick()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertDoesNotExist()
+        composeRule.onNodeWithText(START_DATE_TEXT).assertExists()
+    }
+
+    @Test
     fun `TC-ce1bb9b6-4b63-4329-906e-c4adfd80b0e9 종료 날짜 선택 다이얼로그에서 확인하면 고른 날짜가 반영된다`() {
         setDiaryDateTimeInput(initialValue = allDayValue())
 
@@ -137,5 +171,7 @@ class DiaryDateTimeInputDatePickerDialogTest {
 
     private companion object {
         private const val PICKED_END_DATE_TEXT = "Jul 25, 2026"
+        private const val TEXT_INPUT_MODE_DESCRIPTION = "Switch to text input mode"
+        private const val INVALID_DATE_INPUT = "13452026"
     }
 }

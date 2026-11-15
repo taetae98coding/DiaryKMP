@@ -100,6 +100,19 @@ class AccountMemoSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPendingMemo, secondPendingMemo)
         }
 
+        test("TC-cb16b55c-2e2e-40b2-b6a1-70c5ee02410f 여러 번 수정한 메모는 업로드 대상에 최종 상태 한 건으로만 모인다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val middleMemo = memo.copy(detail = Arb.memoDetailLocalEntity().next(), updatedAt = Instant.fromEpochMilliseconds(2_000))
+            val finalMemo = memo.copy(detail = Arb.memoDetailLocalEntity().next(), updatedAt = Instant.fromEpochMilliseconds(3_000))
+
+            accountTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
+            accountTransaction.upsert(accountId = accountId, memoList = listOf(middleMemo), memoTagList = emptyList())
+            accountTransaction.upsert(accountId = accountId, memoList = listOf(finalMemo), memoTagList = emptyList())
+
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(finalMemo)
+        }
+
         test("TC-aac365bb-b751-48aa-8d35-f88b442e15b1 TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 메모는 포함되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val guestMemo = memo()

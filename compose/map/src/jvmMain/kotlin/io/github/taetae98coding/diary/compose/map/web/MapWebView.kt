@@ -15,11 +15,11 @@ import io.github.taetae98coding.diary.library.webkit.WebKitWebViewPanel
 import io.github.taetae98coding.diary.library.webkit.hideWhileCoveredByOverlay
 import io.github.taetae98coding.diary.library.webkit.webKitWebViewOverlayId
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.koin.compose.koinInject
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun MapWebView(
+    httpServer: MapHttpServer,
     createHtml: () -> String?,
     modifier: Modifier = Modifier,
     baseUrl: String? = null,
@@ -27,7 +27,6 @@ internal fun MapWebView(
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
 ) {
-    val httpServer = koinInject<MapHttpServer>()
     // 지도 문서에는 처음 그릴 때의 위치와 핀을 담고, 이후 바뀐 상태는 스크립트로 전달한다.
     val html = remember { createHtml() }
     val page = remember(httpServer, html, baseUrl) { html?.takeIf { baseUrl == null }?.let(httpServer::register) }

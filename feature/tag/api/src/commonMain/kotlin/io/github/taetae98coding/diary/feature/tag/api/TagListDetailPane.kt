@@ -9,4 +9,4 @@ public fun List<ScreenNavKey>.isTagListDetailPane(key: ScreenNavKey): Boolean {
     return subList(0, index).lastOrNull { belowKey -> !belowKey.isTagDetailPaneKey() } == TagHomeNavKey
 }
 
-private fun ScreenNavKey.isTagDetailPaneKey(): Boolean = this is TagAddNavKey || this is TagDetailNavKey
+private fun ScreenNavKey.isTagDetailPaneKey(): Boolean = this is TagAddNavKey || (this is TagDetailNavKey && !isStandalone)

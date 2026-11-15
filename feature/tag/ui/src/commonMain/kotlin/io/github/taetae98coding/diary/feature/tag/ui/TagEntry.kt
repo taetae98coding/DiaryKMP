@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -34,6 +35,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagRoutineFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
@@ -62,6 +64,7 @@ internal fun EntryProviderScope<ScreenNavKey>.tagEntry(
     tagAddEntry(backStack = backStack)
     tagDetailEntry(backStack = backStack)
     tagMemoFinishedListEntry(backStack = backStack)
+    tagRoutineFinishedListEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
@@ -201,6 +204,9 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
             navigateToQrDetail = { id -> backStack.add(QrDetailNavKey(id = id)) },
             navigateToDDayAdd = { backStack.navigateToDDayAddFromTagDetail(tagId = navKey.id) },
             navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
+            navigateToRoutineAdd = { backStack.navigateToRoutineAddFromTagDetail(tagId = navKey.id) },
+            navigateToRoutineDetail = { id -> backStack.add(RoutineDetailNavKey(id = id, isStandalone = true)) },
+            navigateToRoutineFinishedList = { backStack.add(TagRoutineFinishedListNavKey(tagId = navKey.id)) },
             id = navKey.id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { backStack.tagDetailScaffoldComponentVisible(key = navKey, isListPaneVisible = isListPaneVisible) },

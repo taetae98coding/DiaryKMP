@@ -50,8 +50,10 @@ internal fun SettingGeminiScreen(
                 }
 
                 is SettingGeminiScaffoldEvent.ClickApiKeyIssue -> {
-                    if (!uriHandler.tryOpenUri(GEMINI_API_KEY_ISSUE_URL)) {
-                        coroutineScope.launch { formState.snackbarHostState.showImmediate(message = apiKeyIssueOpenFailedMessage) }
+                    coroutineScope.launch {
+                        if (!uriHandler.tryOpenUri(GEMINI_API_KEY_ISSUE_URL)) {
+                            formState.snackbarHostState.showImmediate(message = apiKeyIssueOpenFailedMessage)
+                        }
                     }
                 }
 

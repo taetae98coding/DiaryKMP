@@ -17,7 +17,9 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -112,6 +114,42 @@ class QrAddTagViewModelTest : FunSpec() {
                         cancelAndIgnoreRemainingEvents()
                     }
                     viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                }
+            }
+        }
+
+        test("TC-570fc7c4-fb6e-4878-a5d5-a0c83b9fd6da 고른 태그가 완료되거나 삭제되면 제외된 것으로 표시한다") {
+            listOf<(Tag) -> Tag>(
+                { value -> value.copy(isFinished = true) },
+                { value -> value.copy(isDeleted = true) },
+            ).forEach { change ->
+                runTest(mainDispatcher) {
+                    val tag = tag().copy(isFinished = false)
+                    val storedTag = MutableStateFlow(tag)
+                    val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                    every { getSelectedTagUseCase(parameter = any()) } answers {
+                        val idSet = firstArg<Set<Uuid>>()
+                        storedTag.map { value ->
+                            Result.success(listOf(value).filter { selected -> selected.id in idSet && !selected.isFinished && !selected.isDeleted })
+                        }
+                    }
+                    val viewModel =
+                        EntityAddTagViewModel(
+                            initialTagId = null,
+                            pageTagUseCase = mockk<PageTagUseCase>(relaxed = true),
+                            getSelectedTagUseCase = getSelectedTagUseCase,
+                        )
+
+                    viewModel.uiState.test {
+                        viewModel.add(tagId = tag.id)
+                        advanceUntilIdle()
+                        expectMostRecentItem().tagList shouldBe listOf(tag)
+
+                        storedTag.value = change(tag)
+                        advanceUntilIdle()
+                        expectMostRecentItem().tagList.shouldBeEmpty()
+                        cancelAndIgnoreRemainingEvents()
+                    }
                 }
             }
         }

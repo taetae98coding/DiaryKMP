@@ -1,0 +1,57 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Couldn't open the app": {
+      "comment": "Title of the alert shown when the share extension could not open the app",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open the app"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱을 열지 못했습니다"
+          }
+        }
+      }
+    },
+    "OK": {
+      "comment": "Button that closes the share alert and the share sheet",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인"
+          }
+        }
+      }
+    },
+    "Please try sharing again.": {
+      "comment": "Message of the alert shown when the share extension could not open the app",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please try sharing again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 공유해 주세요."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

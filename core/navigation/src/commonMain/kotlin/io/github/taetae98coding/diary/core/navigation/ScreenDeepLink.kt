@@ -21,6 +21,29 @@ public object ScreenDeepLink {
     public const val QR_DETAIL: String = "diary://qr-detail?id={id}"
     public const val MUSIC_DETAIL: String = "diary://music-detail?id={id}"
     public const val DDAY_DETAIL: String = "diary://dday-detail?id={id}"
+    public const val ROUTINE_DETAIL: String = "diary://routine-detail?id={id}"
+
+    // 다른 앱의 공유로 받은 내용을 채운 추가 화면을 여는 주소의 형태다. 중괄호 이름은 각 추가 화면 키(메모는 주소 값 클래스)의 속성 이름과 같아야 하고, 값이 없으면 그 이름을 빼고 담는다.
+    // 전화번호처럼 여러 개인 값은 같은 이름을 반복해 담는다. 날짜는 YYYY-MM-DD, 날짜와 시각은 YYYY-MM-DDTHH:MM 형태로 담는다.
+    public const val WEB_ADD: String = "diary://web-add?initialTitle={initialTitle}&initialUrl={initialUrl}"
+    public const val MEMO_ADD: String =
+        "diary://memo-add?initialTitle={initialTitle}&initialDescription={initialDescription}" +
+            "&initialStartDate={initialStartDate}&initialEndDate={initialEndDate}" +
+            "&initialStartDateTime={initialStartDateTime}&initialEndDateTime={initialEndDateTime}"
+    public const val CONTACT_ADD: String =
+        "diary://contact-add?initialName={initialName}&initialDescription={initialDescription}" +
+            "&initialPhoneNumberList={initialPhoneNumberList}&initialBirthday={initialBirthday}"
+
+    // iOS 공유 확장이 공유 원문을 앱에 넘기는 주소의 형태다. 앱 진입점이 이 원문으로 판정해 위의 추가 화면 주소로 바꿔 연다.
+    // kind는 아래 SHARE_KIND_* 값이고, text는 글·연락처 파일·일정 파일의 글, subject는 공유 제목이다.
+    // 공유 확장은 Kotlin을 쓰지 않으므로 iosApp/DiaryShare의 주소·키와 같아야 한다.
+    public const val SHARE_HOST: String = "share"
+    public const val SHARE_KIND: String = "kind"
+    public const val SHARE_TEXT: String = "text"
+    public const val SHARE_SUBJECT: String = "subject"
+    public const val SHARE_KIND_TEXT: String = "text"
+    public const val SHARE_KIND_CONTACT: String = "contact"
+    public const val SHARE_KIND_EVENT: String = "event"
 
     // 알림의 추가 정보에 주소를 담는 키다. iOS는 알림의 userInfo로, Android는 FCM SDK가 표시한 알림을 선택했을 때 진입 화면이 받는 값으로 전달된다.
     // 서버가 같은 키로 보내므로 supabase/functions/_shared/daily-memo-notification.ts의 키와 같아야 한다.

@@ -15,13 +15,14 @@ internal class MusicAppFunction(
         cursor: String?,
     ): AppFunctionMusicPage = appFunctionCall { musicAppAction.list(sort = sort, cursor = cursor).toAppFunctionMusicPage() }
 
-    suspend fun get(musicId: String): AppFunctionMusic? = appFunctionCall { musicAppAction.get(musicId = musicId)?.toAppFunctionMusic() }
+    suspend fun get(musicId: String): AppFunctionMusicDetail? = appFunctionCall { musicAppAction.get(musicId = musicId)?.toAppFunctionMusicDetail() }
 
     suspend fun add(
         title: String,
         artist: String?,
         link: String?,
-    ): AppFunctionId = appFunctionCall { musicAppAction.add(title = title, artist = artist, link = link).toAppFunctionId() }
+        tagIds: List<String>,
+    ): AppFunctionId = appFunctionCall { musicAppAction.add(title = title, artist = artist, link = link, tagIds = tagIds).toAppFunctionId() }
 
     suspend fun update(
         musicId: String,

@@ -106,17 +106,18 @@
 ### TC-f9cd7730-015c-4120-aa0a-dda6e46df8b0: 같은 이름이 있으면 덮어쓰지 않고 가장 작은 번호를 붙인다
 
 - 근거: `domain > 이름이 겹칠 때`
-- Given: 고른 폴더가 저장 위치이고, 그 위치에 테스트 데이터의 파일이 이미 있다.
+- Given: 고른 폴더가 저장 위치이고, 그 위치에 테스트 데이터의 파일이나 폴더가 이미 있다.
 - When: 테스트 데이터의 이름으로 저장된 파일을 내려받는다.
-- Then: 이미 있는 파일을 덮어쓰지 않고 테스트 데이터의 이름으로 새로 저장한다.
+- Then: 이미 있는 파일이나 폴더를 덮어쓰지 않고 테스트 데이터의 이름으로 새로 저장한다.
 - 테스트 데이터:
 
-| 저장된 이름 | 이미 있는 파일 | 저장하는 이름 |
+| 저장된 이름 | 이미 있는 파일이나 폴더 | 저장하는 이름 |
 | --- | --- | --- |
 | `report.pdf` | 없음 | `report.pdf` |
 | `report.pdf` | `report.pdf` | `report (1).pdf` |
 | `report.pdf` | `report.pdf`, `report (1).pdf` | `report (2).pdf` |
 | `report.pdf` | `report.pdf`, `report (2).pdf` | `report (1).pdf` |
+| `report.pdf` | 이름이 `report.pdf`인 폴더 | `report (1).pdf` |
 | `archive.tar.gz` | `archive.tar.gz` | `archive.tar (1).gz` |
 | `README` | `README` | `README (1)` |
 | `.env` | `.env` | `.env (1)` |

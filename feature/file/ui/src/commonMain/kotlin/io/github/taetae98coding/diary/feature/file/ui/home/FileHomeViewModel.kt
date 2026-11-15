@@ -8,6 +8,7 @@ import androidx.paging.map
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
@@ -26,7 +27,7 @@ internal class FileHomeViewModel(
     getUpdatedFileUseCase: GetUpdatedFileUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<FileHomeUiState> =
-        getAccountUseCase(parameter = Unit)
+        getAccountUseCase()
             .map { result ->
                 result.fold(
                     onSuccess = { account -> account.toUiState() },
@@ -40,10 +41,10 @@ internal class FileHomeViewModel(
 
     val filePagingData: Flow<PagingData<DiaryFile>> =
         combine(
-            pageFileUseCase(parameter = Unit)
+            pageFileUseCase()
                 .map { result -> result.getOrElse { PagingData.empty() } }
                 .cachedIn(viewModelScope),
-            getUpdatedFileUseCase(parameter = Unit).map { result -> result.getOrNull().orEmpty() },
+            getUpdatedFileUseCase().map { result -> result.getOrNull().orEmpty() },
         ) { pagingData, updatedFileMap ->
             pagingData.map { file -> updatedFileMap[file.id] ?: file }
         }.cachedIn(viewModelScope)

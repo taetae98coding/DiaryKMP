@@ -60,6 +60,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
@@ -76,6 +77,7 @@ import io.github.taetae98coding.diary.feature.file.ui.home.FILE_HOME_LIST_TEST_T
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUiState
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUploadViewModel
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeViewModel
+import io.github.taetae98coding.diary.feature.file.ui.picker.AndroidFilePickerFactory
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -127,7 +129,6 @@ class FileListDetailNavigationTest {
     private val addViewModelList = mutableListOf<FileAddViewModel>()
     private val pagingScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    // 목록을 불러올 때 서버가 돌려줄 목록과 불러온 횟수.
     private var serverFileList: List<DiaryFile> = emptyList()
     private var serverLoadCount = 0
     private val homePagingData =
@@ -136,7 +137,6 @@ class FileListDetailNavigationTest {
             pagingSourceFactory = { homePagingSource() },
         ).flow.cachedIn(pagingScope)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
@@ -864,7 +864,7 @@ class FileListDetailNavigationTest {
                         entryProvider =
                             entryProvider {
                                 entry<NavigationTestMoreNavKey> { Text(text = MORE_CONTENT) }
-                                fileEntry(backStack = backStack)
+                                fileEntry(backStack = backStack, filePickerFactory = AndroidFilePickerFactory())
                             },
                     )
                 }
@@ -878,7 +878,6 @@ class FileListDetailNavigationTest {
         module: Module,
         content: @Composable () -> Unit,
     ) {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
         val viewModelStoreOwner =
             remember {
                 object : ViewModelStoreOwner {
@@ -900,7 +899,7 @@ class FileListDetailNavigationTest {
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun viewModelModule(fileList: List<DiaryFile>): Module {
         val getAccountUseCase = mockk<GetAccountUseCase>()
-        every { getAccountUseCase(parameter = Unit) } returns accountFlow
+        every { getAccountUseCase() } returns accountFlow
 
         serverFileList = fileList
 
@@ -913,11 +912,11 @@ class FileListDetailNavigationTest {
             }
             factory<FileHomeUploadViewModel> {
                 val getFileUploadStateUseCase = mockk<GetFileUploadStateUseCase>()
-                every { getFileUploadStateUseCase(parameter = Unit) } returns addMocks.state.map { state -> Result.success(state) }
+                every { getFileUploadStateUseCase() } returns addMocks.state.map { state -> Result.success(state) }
                 val getFileUploadEventUseCase = mockk<GetFileUploadEventUseCase>()
-                every { getFileUploadEventUseCase(parameter = Unit) } returns uploadEventFlow.map { event -> Result.success(event) }
+                every { getFileUploadEventUseCase() } returns uploadEventFlow.map { event -> Result.success(event) }
                 val getFileUploadSucceededEventUseCase = mockk<GetFileUploadSucceededEventUseCase>()
-                every { getFileUploadSucceededEventUseCase(parameter = Unit) } returns uploadSucceededChannel.receiveAsFlow().map { event -> Result.success(event) }
+                every { getFileUploadSucceededEventUseCase() } returns uploadSucceededChannel.receiveAsFlow().map { event -> Result.success(event) }
 
                 FileHomeUploadViewModel(
                     getFileUploadStateUseCase = getFileUploadStateUseCase,
@@ -948,7 +947,7 @@ class FileListDetailNavigationTest {
     }
 }
 
-// 파일 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 파일 화면으로 들어가는 `더보기` 화면을 대신한다. 더보기 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object NavigationTestMoreNavKey : ScreenNavKey {
     override val screenName: String
         get() = "More"

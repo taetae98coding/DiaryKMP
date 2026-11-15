@@ -220,6 +220,26 @@ class MusicDetailScreenTest {
     }
 
     @Test
+    fun `TC-35fea53e-49a6-47cc-94eb-3ebdf5fc59ed 다시 불러오는 동안 링크를 지우면 도착한 결과를 채우지 않는다`() {
+        val effect = MutableStateFlow<MusicDetailEffect?>(null)
+        setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
+
+        composeRule.clickFetch()
+        composeRule.linkInput().performTextReplacement("")
+        composeRule.waitForIdle()
+        val textListBeforeResult = composeRule.visibleTextList()
+        composeRule.runOnIdle {
+            effect.value = MusicDetailEffect.LinkFetched(link = STORED_LINK, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+        }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(STORED_TITLE))
+        composeRule.artistInput().assert(hasText(STORED_ARTIST))
+        composeRule.linkInput().assert(hasText(""))
+        composeRule.visibleTextList() shouldBe textListBeforeResult
+    }
+
+    @Test
     fun `TC-35fea53e-49a6-47cc-94eb-3ebdf5fc59ed 다시 불러오는 동안 링크를 바꿨다가 되돌리면 도착한 결과를 채운다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
@@ -468,6 +488,7 @@ class MusicDetailScreenTest {
                     navigateToTagDetail = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = testContentSharerFactory(),
                 )
             }
         }
@@ -502,6 +523,7 @@ class MusicDetailScreenTest {
                         navigateToTagDetail = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }
@@ -539,6 +561,7 @@ class MusicDetailScreenTest {
                         navigateToTagDetail = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }
@@ -616,6 +639,7 @@ class MusicDetailScreenTest {
                         navigateToTagDetail = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }
@@ -748,6 +772,7 @@ class MusicDetailScreenTest {
                         navigateToTagDetail = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = testContentSharerFactory(),
                     )
                 }
             }

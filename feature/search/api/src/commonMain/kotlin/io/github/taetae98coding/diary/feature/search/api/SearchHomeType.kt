@@ -9,4 +9,5 @@ public enum class SearchHomeType {
     PLACE,
     WEB,
     DDAY,
+    ROUTINE,
 }

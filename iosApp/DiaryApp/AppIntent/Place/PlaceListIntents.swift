@@ -137,8 +137,9 @@ struct PlaceMemoListIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
         let memoPage = try await appAction {
-            try await DiaryPlaceAppAction.shared.memoList(placeId: place.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.placeList(placeId: place.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: LinkedMemoListDialog.make(page: memoPage))
     }
@@ -171,8 +172,9 @@ struct PlaceFinishedMemoListIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<[MemoEntity]> & ProvidesDialog {
+        _ = try await PlaceEntityQuery.require(placeId: place.id)
         let memoPage = try await appAction {
-            try await DiaryPlaceAppAction.shared.memoFinishedList(placeId: place.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+            try await DiaryMemoListAppAction.shared.placeFinishedList(placeId: place.id, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
         }
         return .result(value: memoPage.items.map(MemoEntity.init(memo:)), dialog: LinkedMemoListDialog.make(page: memoPage))
     }

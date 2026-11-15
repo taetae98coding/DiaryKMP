@@ -11,9 +11,11 @@ import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemo
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoDateTime
+import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoDetail
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoPage
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
@@ -23,7 +25,10 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
 import io.github.taetae98coding.diary.work.appaction.core.appActionColor
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDateTime
+import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDetail
 import io.github.taetae98coding.diary.work.appaction.memo.MemoAppAction
+import io.github.taetae98coding.diary.work.appaction.memo.MemoListAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -57,12 +62,20 @@ class DiaryAppFunctionServiceTest {
     val appFunctionTestRule = AppFunctionTestRule(context)
 
     private val memoAppAction = mockk<MemoAppAction>()
+    private val memoListAppAction = mockk<MemoListAppAction>()
 
     private lateinit var tester: AppFunctionServiceTester
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { memoAppAction } }) }
+        startKoin {
+            modules(
+                module {
+                    single { memoAppAction }
+                    single { memoListAppAction }
+                },
+            )
+        }
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
     }
 
@@ -75,7 +88,7 @@ class DiaryAppFunctionServiceTest {
     fun `메모 동작을 모두 제공한다`() =
         runBlocking<Unit> {
             tester.functionNameList().filter { name -> name.startsWith("memo") && memoLinkPrefixList.none { prefix -> name.startsWith(prefix) } } shouldContainExactlyInAnyOrder
-                listOf("memoList", "memoFinishedList", "memoGet", "memoAdd", "memoUpdate", "memoCopy", "memoFinish", "memoRestart", "memoDelete", "memoRestore")
+                listOf("memoList", "memoFinishedList", MEMO_GET, "memoAdd", "memoUpdate", "memoCopy", "memoFinish", "memoRestart", "memoDelete", "memoRestore")
         }
 
     @Test
@@ -95,7 +108,7 @@ class DiaryAppFunctionServiceTest {
                     updatedAt = Arb.string().next(),
                 )
             val nextCursor = Arb.int(1..1000).next().toString()
-            coEvery { memoAppAction.list(sort = any(), cursor = any()) } returns AppActionPage(items = listOf(memo), nextCursor = nextCursor)
+            coEvery { memoListAppAction.list(sort = any(), cursor = any()) } returns AppActionPage(items = listOf(memo), nextCursor = nextCursor)
 
             val response = tester.execute(name = "memoList") { setString("sort", AppActionSortValue.TITLE) }
 
@@ -117,21 +130,21 @@ class DiaryAppFunctionServiceTest {
                         ),
                     nextCursor = nextCursor,
                 )
-            coVerify(exactly = 1) { memoAppAction.list(sort = AppActionSortValue.TITLE, cursor = null) }
+            coVerify(exactly = 1) { memoListAppAction.list(sort = AppActionSortValue.TITLE, cursor = null) }
         }
 
     @Test
-    fun `메모 추가는 받은 값을 공통 동작에 넘기고 id를 돌려준다`() =
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 메모 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
         runBlocking<Unit> {
             val title = Arb.nonBlankString().next()
-            val tagId = Arb.kotlinUuid().next().toString()
+            val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
             val addedId = Arb.kotlinUuid().next().toString()
             coEvery { memoAppAction.add(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns AppActionId(id = addedId)
 
             val response =
                 tester.execute(name = "memoAdd") {
                     setString("title", title)
-                    setStringList("tagIds", listOf(tagId))
+                    setStringList("tagIds", tagIdList)
                 }
 
             response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
@@ -142,7 +155,7 @@ class DiaryAppFunctionServiceTest {
                     color = null,
                     dateTime = null,
                     primaryTagId = null,
-                    tagIds = listOf(tagId),
+                    tagIds = tagIdList,
                     placeIds = emptyList(),
                     webIds = emptyList(),
                     contactIds = emptyList(),
@@ -163,12 +176,53 @@ class DiaryAppFunctionServiceTest {
         }
 
     @Test
+    fun `TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 메모 조회는 연결된 태그와 함께 돌려준다`() =
+        runBlocking<Unit> {
+            val memo =
+                AppActionMemo(
+                    id = Arb.kotlinUuid().next().toString(),
+                    title = Arb.string().next(),
+                    description = Arb.string().next(),
+                    color = Arb.appActionColor().next(),
+                    dateTime = null,
+                    primaryTagId = null,
+                    isFinished = Arb.boolean().next(),
+                    createdAt = Arb.string().next(),
+                    updatedAt = Arb.string().next(),
+                )
+            val tag = Arb.appActionTag().next()
+            coEvery { memoAppAction.get(memoId = memo.id) } returns AppActionMemoDetail(memo = memo, tags = listOf(tag), places = emptyList(), webs = emptyList(), contacts = emptyList())
+
+            val response = tester.execute(name = MEMO_GET) { setString(MEMO_ID, memo.id) }
+
+            response.returnValueAs<AppFunctionMemoDetail>() shouldBe
+                AppFunctionMemoDetail(
+                    memo =
+                        AppFunctionMemo(
+                            id = memo.id,
+                            title = memo.title,
+                            description = memo.description,
+                            color = memo.color,
+                            dateTime = null,
+                            primaryTagId = null,
+                            isFinished = memo.isFinished,
+                            createdAt = memo.createdAt,
+                            updatedAt = memo.updatedAt,
+                        ),
+                    tags = listOf(tag.expectedTag()),
+                    places = emptyList(),
+                    webs = emptyList(),
+                    contacts = emptyList(),
+                )
+        }
+
+    @Test
     fun `없는 메모를 조회하면 값이 없는 결과를 돌려준다`() =
         runBlocking<Unit> {
             val memoId = Arb.kotlinUuid().next().toString()
             coEvery { memoAppAction.get(memoId = memoId) } returns null
 
-            val response = tester.execute(name = "memoGet") { setString(MEMO_ID, memoId) }
+            val response = tester.execute(name = MEMO_GET) { setString(MEMO_ID, memoId) }
 
             response.shouldBeInstanceOf<ExecuteAppFunctionResponse.Success>().returnValue.containsKey(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE) shouldBe false
         }
@@ -206,4 +260,5 @@ class DiaryAppFunctionServiceTest {
 }
 
 private const val MEMO_ID = "memoId"
+private const val MEMO_GET = "memoGet"
 private val memoLinkPrefixList = listOf("memoTag", "memoPrimaryTag", "memoPlace", "memoWeb", "memoContact")

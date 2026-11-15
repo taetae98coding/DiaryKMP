@@ -277,6 +277,32 @@ class AccountTagMemoPagingDaoTest :
             }
         }
 
+        test("TC-b26a374f-dbe3-4ad8-9e4f-b36db2d3d639 메모는 저장 시점에 선택한 태그의 목록에만 나타난다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tagA = tag()
+            val tagB = tag()
+            insertTag(accountId = accountId, tag = tagA)
+            insertTag(accountId = accountId, tag = tagB)
+
+            listOf(
+                listOf(tagA) to true,
+                listOf(tagA, tagB) to true,
+                listOf(tagB) to false,
+            ).forEach { (selectedTagList, isShownInTagATab) ->
+                val savedMemo = memo(isFinished = false, isDeleted = false)
+
+                insertMemo(accountId, savedMemo)
+                selectedTagList.forEach { selectedTag ->
+                    insertMemoTag(accountId = accountId, memoTag = memoTag(memoId = savedMemo.id, tagId = selectedTag.id))
+                }
+
+                tagPagedIds(accountId = accountId, tagId = tagA.id).contains(savedMemo.id) shouldBe isShownInTagATab
+                selectedTagList.forEach { selectedTag ->
+                    tagPagedIds(accountId = accountId, tagId = selectedTag.id).contains(savedMemo.id) shouldBe true
+                }
+            }
+        }
+
         test("TC-b836c29e-fd66-4c7f-9c50-2917c3cb292a 태그별 메모는 기간 없음, 시작 날짜, 종일 여부, 시작 시각, 종료 시점, 제목 순으로 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()

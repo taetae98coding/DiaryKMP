@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.exception.FileNameBlankException
 import io.github.taetae98coding.diary.domain.file.exception.FileNameTooLongException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
@@ -104,4 +105,4 @@ class UpdateFileUseCaseTest :
         }
     })
 
-private fun getAccountUseCase(result: Result<Account> = Result.success(Arb.accountUser().next())): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns flowOf(result) }
+private fun getAccountUseCase(result: Result<Account> = Result.success(Arb.accountUser().next())): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase() } returns flowOf(result) }

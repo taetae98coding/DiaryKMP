@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.testing.location.coordinate
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeUiState
@@ -18,6 +19,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -100,14 +102,27 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-4145cf13-a46a-49ff-a4e9-1dd664d1dfc6 현재 위치를 확인하기 전에는 확인 중 상태를 유지한다") {
+        test("TC-4145cf13-a46a-49ff-a4e9-1dd664d1dfc6 현재 위치 확인이 끝나기 전에는 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)))
+                val coordinate = Arb.coordinate().next()
+                val completion = CompletableDeferred<Result<Coordinate>>()
+                val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
+                coEvery { fetchCurrentLocationUseCase() } coAnswers { completion.await() }
+                val viewModel =
+                    viewModel(
+                        defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
+                        fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,
+                    )
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe PlaceHomeUiState.Loading
+                    viewModel.fetchCurrentLocation()
                     advanceUntilIdle()
+                    coVerify(exactly = 1) { fetchCurrentLocationUseCase() }
                     expectNoEvents()
+
+                    completion.complete(Result.success(coordinate))
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
                 }
             }
         }
@@ -169,7 +184,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 1) { fetchCurrentLocationUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { fetchCurrentLocationUseCase() }
             }
         }
 
@@ -178,7 +193,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                 val beforeCoordinate = Arb.coordinate().next()
                 val afterCoordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-                coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returnsMany
+                coEvery { fetchCurrentLocationUseCase() } returnsMany
                     listOf(Result.success(beforeCoordinate), Result.success(afterCoordinate))
 
                 viewModel(
@@ -239,7 +254,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
 
         private fun fetchCurrentLocationUseCase(currentLocation: Result<Coordinate>): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { useCase(parameter = Unit) } returns currentLocation
+            coEvery { useCase() } returns currentLocation
 
             return useCase
         }
@@ -250,7 +265,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             fetchCurrentLocationUseCase: FetchCurrentLocationUseCase = fetchCurrentLocationUseCase(currentLocation),
         ): PlaceHomeMapViewModel {
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(Unit) } returns defaultMapProvider
+            every { getDefaultMapProviderUseCase() } returns defaultMapProvider
 
             return PlaceHomeMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

@@ -52,7 +52,8 @@ class TagAddScreenLinkTest {
     @Test
     fun `TC-88e17216-d82b-4fba-bc3c-3d682a799802 태그 연결 칩을 누르면 태그 선택 목록이 열린다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
-        setTagAddScreen(tagList = tagList)
+        var tagAddCount = 0
+        setTagAddScreen(tagList = tagList, navigateToTagAdd = { tagAddCount += 1 })
 
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
         composeRule.awaitTagLinkPickerRows()
@@ -60,6 +61,7 @@ class TagAddScreenLinkTest {
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        tagAddCount shouldBe 0
     }
 
     @Test

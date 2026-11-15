@@ -87,6 +87,9 @@
   .pc h3 { font-size: 13px; margin: 0 0 2px; }
   .pc .pros h3 { color: var(--pro); }
   .pc .cons h3 { color: var(--con); }
+  .option.other { cursor: default; }
+  .option.other .option-top { cursor: pointer; }
+  .option.other textarea { display: block; width: calc(100% - 27px); min-height: 60px; margin: 8px 0 0 27px; }
   @media (max-width: 600px) { .pc { grid-template-columns: 1fr; } }
   textarea {
     width: 100%;
@@ -281,6 +284,10 @@ function hasNote(item) {
   return item.type !== "text" && item.note !== false;
 }
 
+function hasOther(item) {
+  return item.type !== "text" && item.other !== false;
+}
+
 function renderItem(item, index) {
   const card = el("section", { class: "item", id: `item-${index}` });
   const name = `item-${index}-choice`;
@@ -323,6 +330,14 @@ function renderItem(item, index) {
       if (optionMedia) box.append(optionMedia);
       options.append(box);
     }
+    if (hasOther(item)) {
+      const input = el("input", { type: item.type, name, "data-other": "" });
+      const text = el("textarea", { "data-other-text": "", placeholder: "선택지에 원하는 답이 없으면 직접 적어 주세요" });
+      // 입력란을 label 밖에 두어, 입력란을 눌러도 checkbox 선택이 뒤집히지 않게 한다. 적기 시작하면 기타를 고른 것으로 본다.
+      text.addEventListener("input", () => { if (text.value.trim()) input.checked = true; });
+      const top = el("label", { class: "option-top" }, input, el("span", { class: "option-label", text: "기타" }));
+      options.append(el("div", { class: "option other" }, top, text));
+    }
     body.append(options);
     if (hasNote(item)) {
       const note = el("textarea", { "data-note": "", placeholder: "추가로 전달할 내용이 있으면 적어 주세요 (선택)" });
@@ -345,11 +360,22 @@ function readItem(item, index) {
     return { skipped, text, answered: text.trim().length > 0 };
   }
   const selected = [...card.querySelectorAll("[data-option]")].filter((i) => i.checked).map((i) => item.options.find((o) => o.id === i.value));
-  return { skipped, selected, note, answered: selected.length > 0 };
+  const other = card.querySelector("[data-other]")?.checked === true;
+  const otherText = other ? card.querySelector("[data-other-text]").value.trim() : "";
+  // 기타를 골랐으면 내용을 적어야 답한 것으로 본다.
+  const answered = other ? otherText.length > 0 : selected.length > 0;
+  return { skipped, selected, other, otherText, note, answered };
 }
 
 function indent(text, prefix) {
   return text.split("\n").map((line) => prefix + line).join("\n");
+}
+
+function pushField(lines, name, text) {
+  if (text.includes("\n")) {
+    lines.push(`   - ${name}:`);
+    lines.push(indent(text, "     "));
+  } else lines.push(`   - ${name}: ${text}`);
 }
 
 function buildPrompt(states) {
@@ -370,18 +396,15 @@ function buildPrompt(states) {
       lines.push(`   - 입력${mark}:`);
       lines.push(indent(state.text, "     "));
     } else {
-      const label = (o) => o.label + (o.recommended ? " (추천안)" : "");
-      if (item.type === "radio") lines.push(`   - 선택: ${label(state.selected[0])}`);
+      const labels = state.selected.map((o) => o.label + (o.recommended ? " (추천안)" : ""));
+      if (state.other) labels.push("기타");
+      if (item.type === "radio") lines.push(`   - 선택: ${labels[0]}`);
       else {
         lines.push("   - 선택:");
-        state.selected.forEach((o) => lines.push(`     - ${label(o)}`));
+        labels.forEach((label) => lines.push(`     - ${label}`));
       }
-      if (state.note) {
-        if (state.note.includes("\n")) {
-          lines.push("   - 메모:");
-          lines.push(indent(state.note, "     "));
-        } else lines.push(`   - 메모: ${state.note}`);
-      }
+      if (state.other) pushField(lines, "기타 내용", state.otherText);
+      if (state.note) pushField(lines, "메모", state.note);
     }
   });
   return lines.join("\n");
@@ -398,7 +421,7 @@ function update() {
     else unanswered++;
     if (state.skipped || state.answered) card.classList.remove("unanswered");
     card.querySelectorAll(".option").forEach((box) => box.classList.toggle("checked", box.querySelector("input").checked));
-    card.querySelectorAll("[data-option], [data-text], [data-note]").forEach((input) => { input.disabled = state.skipped; });
+    card.querySelectorAll("[data-option], [data-other], [data-other-text], [data-text], [data-note]").forEach((input) => { input.disabled = state.skipped; });
   });
   $("count-answered").textContent = answered;
   $("count-skipped").textContent = skipped;
@@ -435,7 +458,9 @@ async function copyPrompt() {
   if (missing >= 0) {
     states.forEach((s, i) => { if (!s.skipped && !s.answered) $(`item-${i}`).classList.add("unanswered"); });
     $(`item-${missing}`).scrollIntoView({ behavior: "smooth", block: "start" });
-    toast("미응답 항목이 있습니다. 답하거나 건너뛰기를 선택해 주세요.");
+    const emptyOther = states[missing].other;
+    if (emptyOther) $(`item-${missing}`).querySelector("[data-other-text]").focus({ preventScroll: true });
+    toast(emptyOther ? "기타를 고른 항목은 내용을 적어 주세요." : "미응답 항목이 있습니다. 답하거나 건너뛰기를 선택해 주세요.");
     return;
   }
   const text = $("preview").value;
@@ -467,6 +492,11 @@ function reset() {
       card.querySelectorAll("[data-option]").forEach((input) => {
         input.checked = item.options.find((o) => o.id === input.value)?.recommended === true;
       });
+      const other = card.querySelector("[data-other]");
+      if (other) {
+        other.checked = false;
+        card.querySelector("[data-other-text]").value = "";
+      }
       const note = card.querySelector("[data-note]");
       if (note) note.value = "";
     }

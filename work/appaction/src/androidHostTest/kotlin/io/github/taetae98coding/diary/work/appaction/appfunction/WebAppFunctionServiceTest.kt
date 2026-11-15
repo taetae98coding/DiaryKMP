@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctio
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionWeb
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemo
@@ -27,6 +28,10 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
 import io.github.taetae98coding.diary.work.appaction.core.appActionColor
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
+import io.github.taetae98coding.diary.work.appaction.memo.MemoListAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.EntityTagAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWebDetail
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWebHeader
@@ -65,12 +70,22 @@ class WebAppFunctionServiceTest {
     val appFunctionTestRule = AppFunctionTestRule(context)
 
     private val webAppAction = mockk<WebAppAction>()
+    private val entityTagAppAction = mockk<EntityTagAppAction>()
+    private val memoListAppAction = mockk<MemoListAppAction>()
 
     private lateinit var tester: AppFunctionServiceTester
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { webAppAction } }) }
+        startKoin {
+            modules(
+                module {
+                    single { webAppAction }
+                    single { entityTagAppAction }
+                    single { memoListAppAction }
+                },
+            )
+        }
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
     }
 
@@ -83,7 +98,7 @@ class WebAppFunctionServiceTest {
     fun `웹 동작을 모두 제공한다`() =
         runBlocking<Unit> {
             tester.functionNameList().filter { name -> name.startsWith("web") } shouldContainExactlyInAnyOrder
-                listOf(WEB_LIST, WEB_GET, WEB_MEMO_LIST, "webMemoFinishedList", WEB_ADD, WEB_UPDATE, "webDelete", WEB_RESTORE, "webTagAdd", WEB_TAG_REMOVE)
+                listOf(WEB_LIST, WEB_GET, WEB_MEMO_LIST, "webMemoFinishedList", WEB_ADD, WEB_UPDATE, "webDelete", WEB_RESTORE, WEB_TAG_ADD, WEB_TAG_REMOVE)
         }
 
     @Test
@@ -104,9 +119,10 @@ class WebAppFunctionServiceTest {
         }
 
     @Test
-    fun `웹 조회는 요청 헤더와 태그를 함께 돌려준다`() =
+    fun `TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 웹 조회는 요청 헤더와 연결된 태그를 함께 돌려준다`() =
         runBlocking<Unit> {
             val web = appActionWeb()
+            val tag = Arb.appActionTag().next()
             val header = AppActionWebHeader(name = Arb.string().next(), value = Arb.string().next())
             val detail =
                 AppActionWebDetail(
@@ -120,7 +136,7 @@ class WebAppFunctionServiceTest {
                             updatedAt = web.updatedAt,
                             headers = listOf(header),
                         ),
-                    tags = emptyList(),
+                    tags = listOf(tag),
                 )
             coEvery { webAppAction.get(webId = web.id) } returns detail
 
@@ -138,7 +154,7 @@ class WebAppFunctionServiceTest {
                             updatedAt = web.updatedAt,
                             headers = listOf(AppFunctionWebHeader(name = header.name, value = header.value)),
                         ),
-                    tags = emptyList(),
+                    tags = listOf(tag.expectedTag()),
                 )
         }
 
@@ -159,7 +175,7 @@ class WebAppFunctionServiceTest {
                     createdAt = Arb.string().next(),
                     updatedAt = Arb.string().next(),
                 )
-            coEvery { webAppAction.memoList(webId = any(), sort = any(), cursor = any()) } returns AppActionPage(items = listOf(memo), nextCursor = cursor)
+            coEvery { memoListAppAction.webList(webId = any(), sort = any(), cursor = any()) } returns AppActionPage(items = listOf(memo), nextCursor = cursor)
 
             val response =
                 tester.execute(name = WEB_MEMO_LIST) {
@@ -185,7 +201,7 @@ class WebAppFunctionServiceTest {
                         ),
                     nextCursor = cursor,
                 )
-            coVerify(exactly = 1) { webAppAction.memoList(webId = webId, sort = AppActionSortValue.DEFAULT, cursor = null) }
+            coVerify(exactly = 1) { memoListAppAction.webList(webId = webId, sort = AppActionSortValue.DEFAULT, cursor = null) }
         }
 
     @Test
@@ -198,12 +214,32 @@ class WebAppFunctionServiceTest {
 
             val response =
                 tester.execute(name = WEB_ADD) {
-                    setString("title", title)
+                    setString(TITLE, title)
                     setString("url", url)
                 }
 
             response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
             coVerify(exactly = 1) { webAppAction.add(title = title, url = url, description = null, headers = emptyList(), tagIds = emptyList()) }
+        }
+
+    @Test
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 웹 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
+        runBlocking<Unit> {
+            val title = Arb.nonBlankString().next()
+            val url = Arb.nonBlankString().next()
+            val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
+            val addedId = Arb.kotlinUuid().next().toString()
+            coEvery { webAppAction.add(any(), any(), any(), any(), any()) } returns AppActionId(id = addedId)
+
+            val response =
+                tester.execute(name = WEB_ADD) {
+                    setString(TITLE, title)
+                    setString("url", url)
+                    setStringList("tagIds", tagIdList)
+                }
+
+            response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
+            coVerify(exactly = 1) { webAppAction.add(title = title, url = url, description = null, headers = emptyList(), tagIds = tagIdList) }
         }
 
     @Test
@@ -224,19 +260,28 @@ class WebAppFunctionServiceTest {
         }
 
     @Test
-    fun `태그 연결 해제는 완료를 돌려준다`() =
+    fun `TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 웹 태그 연결과 해제는 완료를 돌려준다`() =
         runBlocking<Unit> {
             val webId = Arb.kotlinUuid().next().toString()
             val tagId = Arb.kotlinUuid().next().toString()
-            coEvery { webAppAction.tagRemove(webId = webId, tagId = tagId) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.add(kind = AppActionEntityTagKind.WEB, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.remove(kind = AppActionEntityTagKind.WEB, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
 
-            val response =
+            val addResponse =
+                tester.execute(name = WEB_TAG_ADD) {
+                    setString(WEB_ID, webId)
+                    setString("tagId", tagId)
+                }
+            val removeResponse =
                 tester.execute(name = WEB_TAG_REMOVE) {
                     setString(WEB_ID, webId)
                     setString("tagId", tagId)
                 }
 
-            response.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { entityTagAppAction.add(kind = AppActionEntityTagKind.WEB, entityId = webId, tagId = tagId) }
+            coVerify(exactly = 1) { entityTagAppAction.remove(kind = AppActionEntityTagKind.WEB, entityId = webId, tagId = tagId) }
         }
 
     @Test
@@ -250,7 +295,7 @@ class WebAppFunctionServiceTest {
             val invalid =
                 tester
                     .execute(name = WEB_ADD) {
-                        setString("title", Arb.nonBlankString().next())
+                        setString(TITLE, Arb.nonBlankString().next())
                         setString("url", Arb.nonBlankString().next())
                         setStringList("headers", listOf("NoColon"))
                     }.shouldBeInstanceOf<ExecuteAppFunctionResponse.Error>()
@@ -280,5 +325,7 @@ private const val WEB_GET = "webGet"
 private const val WEB_LIST = "webList"
 private const val WEB_MEMO_LIST = "webMemoList"
 private const val WEB_RESTORE = "webRestore"
+private const val WEB_TAG_ADD = "webTagAdd"
 private const val WEB_TAG_REMOVE = "webTagRemove"
 private const val WEB_UPDATE = "webUpdate"
+private const val TITLE = "title"

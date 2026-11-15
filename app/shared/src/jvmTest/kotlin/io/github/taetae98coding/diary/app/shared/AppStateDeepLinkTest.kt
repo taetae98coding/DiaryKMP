@@ -205,17 +205,18 @@ class AppStateDeepLinkTest :
         }
 
         test("TC-0c488028-2358-4e3f-8cf9-3f3447bc6ace 열 화면을 알아볼 수 없으면 보던 화면이나 시작 화면을 그대로 둔다") {
+            // 실행 중이 아닌 상태에서 알림을 선택하면 앱 시작 경로로 열린다.
             listOf(
-                listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key),
-                listOf(TopLevelNavigation.DEFAULT.key),
-            ).forEach { initialBackStack ->
+                listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key) to false,
+                listOf(TopLevelNavigation.DEFAULT.key) to true,
+            ).forEach { (initialBackStack, isLaunch) ->
                 listOf(
                     "diary://${Arb.kotlinUuid().next()}",
                     "diary://timetable?type=day&date=${Arb.kotlinUuid().next()}",
                 ).forEach { deepLink ->
                     val appState = createAppState(*initialBackStack.toTypedArray())
 
-                    appState.openDeepLink(deepLink = deepLink)
+                    appState.openDeepLink(deepLink = deepLink, isLaunch = isLaunch)
 
                     appState.backStack.toList() shouldBe initialBackStack
                 }

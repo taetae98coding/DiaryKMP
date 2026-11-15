@@ -8,9 +8,12 @@ import io.github.taetae98coding.diary.core.calendar.database.api.entity.LunarDat
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.LunarTransaction
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.transaction.LunarTransactionImpl
+import io.github.taetae98coding.diary.core.testing.lunar.lunarDateLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
 import java.io.File
@@ -97,13 +100,6 @@ internal fun lunarDateList(
     start: LocalDate,
     endInclusive: LocalDate,
 ): List<LunarDateLocalEntity> =
-    (start..endInclusive).mapIndexed { index, solar ->
-        LunarDateLocalEntity(
-            solar = solar,
-            solarYear = solarYear,
-            lunarYear = solarYear - 1,
-            lunarMonth = 11,
-            lunarDay = 1 + index,
-            isLeapMonth = false,
-        )
+    (start..endInclusive).map { solar ->
+        Arb.lunarDateLocalEntity().next().copy(solar = solar, solarYear = solarYear)
     }

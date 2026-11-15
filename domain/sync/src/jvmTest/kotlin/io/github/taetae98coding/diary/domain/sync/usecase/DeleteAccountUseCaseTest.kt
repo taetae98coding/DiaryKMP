@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.testing.authentication.appleAuthoriza
 import io.github.taetae98coding.diary.domain.account.repository.AccountRepository
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncDataRepository
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -42,7 +43,7 @@ class DeleteAccountUseCaseTest :
                 Then("TC-13a4dded-2539-40aa-8637-ea6f4de0517b 서버에 탈퇴를 요청한 뒤 로그아웃한다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { fixture.accountRepository.delete(appleAuthorization = authorization) }
-                    coVerify(exactly = 1) { fixture.signOutUseCase(parameter = Unit) }
+                    coVerify(exactly = 1) { fixture.signOutUseCase() }
                 }
 
                 Then("TC-e64cb655-d2fc-4b69-942a-20e3ad112f67 그 계정의 기기 데이터와 마지막 동기화 시각을 지운다") {
@@ -65,7 +66,7 @@ class DeleteAccountUseCaseTest :
                     Then("TC-4b46963d-1ea3-40d8-ae4b-66d54f4a4084 $label 서버에 요청하지 않고 실패한다") {
                         result.shouldBeFailure()
                         coVerify(exactly = 0) { fixture.accountRepository.delete(appleAuthorization = any()) }
-                        coVerify(exactly = 0) { fixture.signOutUseCase(parameter = Unit) }
+                        coVerify(exactly = 0) { fixture.signOutUseCase() }
                     }
                 }
             }
@@ -83,7 +84,7 @@ class DeleteAccountUseCaseTest :
                 Then("TC-ed9f47a1-176a-4d60-a181-06e62faa6583 기기 데이터를 지우지 않고 로그아웃하지 않으며 실패한다") {
                     result.shouldBeFailure()
                     coVerify(exactly = 0) { fixture.accountSyncDataRepository.delete(account = any()) }
-                    coVerify(exactly = 0) { fixture.signOutUseCase(parameter = Unit) }
+                    coVerify(exactly = 0) { fixture.signOutUseCase() }
                 }
 
                 Then("TC-364abafa-b866-4902-b128-c8a3799b563f 서버 처리 실패는 오류 보고를 남기지 않는다") {
@@ -103,7 +104,7 @@ class DeleteAccountUseCaseTest :
 
                 Then("TC-892a1660-772e-408f-ad0e-c99ca15aefba 로그아웃하고 성공으로 끝나며 오류 보고는 남기지 않는다") {
                     result.shouldBeSuccess()
-                    coVerify(exactly = 1) { fixture.signOutUseCase(parameter = Unit) }
+                    coVerify(exactly = 1) { fixture.signOutUseCase() }
                     reportList.shouldBeEmpty()
                 }
             }
@@ -128,7 +129,7 @@ class DeleteAccountUseCaseTest :
 
                 Then("TC-ac89843d-73fb-4ece-9f0b-6f8c58a5228c 기기 데이터를 지우지 않고 로그아웃하지 않는다") {
                     coVerify(exactly = 0) { fixture.accountSyncDataRepository.delete(account = any()) }
-                    coVerify(exactly = 0) { fixture.signOutUseCase(parameter = Unit) }
+                    coVerify(exactly = 0) { fixture.signOutUseCase() }
                 }
             }
         }
@@ -167,8 +168,8 @@ private class Fixture(
     private val getAccountUseCase: GetAccountUseCase = mockk()
 
     init {
-        coEvery { signOutUseCase(parameter = Unit) } returns Result.success(Unit)
-        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+        coEvery { signOutUseCase() } returns Result.success(Unit)
+        every { getAccountUseCase() } returns flowOf(Result.success(account))
     }
 
     val useCase: DeleteAccountUseCase =

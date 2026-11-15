@@ -7,12 +7,16 @@ import androidx.compose.runtime.remember
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.koin.core.annotation.Single
 import org.w3c.dom.HTMLInputElement
 import org.w3c.files.File
 import kotlin.coroutines.resume
 
-@Composable
-internal actual fun rememberPhotoPicker(): PhotoPicker = remember { WasmPhotoPicker() }
+@Single(binds = [PhotoPickerFactory::class])
+internal class WasmPhotoPickerFactory : PhotoPickerFactory {
+    @Composable
+    override fun rememberPhotoPicker(): PhotoPicker = remember { WasmPhotoPicker() }
+}
 
 internal class WasmPhotoPicker : PhotoPicker {
     // 브라우저는 사용자 조작 안에서 연 파일 선택 창만 허용하므로 미리 만들어 두지 않고 열 때 만든다.

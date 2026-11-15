@@ -10,23 +10,32 @@ import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactBirthday
 import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactDetail
+import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactDetailWithTags
 import io.github.taetae98coding.diary.work.appaction.appfunction.contact.AppFunctionContactPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appaction.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.returnValueAs
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionContact
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoPage
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContact
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactBirthday
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactDetail
+import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactDetailWithTags
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactUpdateInput
 import io.github.taetae98coding.diary.work.appaction.contact.ContactAppAction
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
+import io.github.taetae98coding.diary.work.appaction.memo.MemoListAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
+import io.github.taetae98coding.diary.work.appaction.tag.EntityTagAppAction
+import io.github.taetae98coding.diary.work.appaction.tag.appActionTag
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -61,12 +70,22 @@ class ContactAppFunctionServiceTest {
     val appFunctionTestRule = AppFunctionTestRule(context)
 
     private val contactAppAction = mockk<ContactAppAction>()
+    private val entityTagAppAction = mockk<EntityTagAppAction>()
+    private val memoListAppAction = mockk<MemoListAppAction>()
 
     private lateinit var tester: AppFunctionServiceTester
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { contactAppAction } }) }
+        startKoin {
+            modules(
+                module {
+                    single { contactAppAction }
+                    single { entityTagAppAction }
+                    single { memoListAppAction }
+                },
+            )
+        }
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
     }
 
@@ -90,6 +109,8 @@ class ContactAppFunctionServiceTest {
                     "contactUnfavorite",
                     "contactDelete",
                     "contactRestore",
+                    CONTACT_TAG_ADD,
+                    CONTACT_TAG_REMOVE,
                 )
         }
 
@@ -131,7 +152,7 @@ class ContactAppFunctionServiceTest {
         }
 
     @Test
-    fun `연락처 조회는 모든 정보를 같은 값으로 돌려주고 없으면 값이 없는 결과를 돌려준다`() =
+    fun `TC-4ca7faaf-f740-4b6a-9c4b-33ac9b779292 연락처 조회는 모든 정보를 연결된 태그와 함께 돌려주고 없으면 값이 없는 결과를 돌려준다`() =
         runBlocking<Unit> {
             val birthday = Arb.kotlinxLocalDate().next().toString()
             val detail =
@@ -150,25 +171,30 @@ class ContactAppFunctionServiceTest {
                     createdAt = Arb.string().next(),
                     updatedAt = Arb.string().next(),
                 )
+            val tag = Arb.appActionTag().next()
             val missingId = Arb.kotlinUuid().next().toString()
-            coEvery { contactAppAction.get(contactId = detail.id) } returns detail
+            coEvery { contactAppAction.get(contactId = detail.id) } returns AppActionContactDetailWithTags(contact = detail, tags = listOf(tag))
             coEvery { contactAppAction.get(contactId = missingId) } returns null
 
-            tester.execute(name = CONTACT_GET) { setString(CONTACT_ID, detail.id) }.returnValueAs<AppFunctionContactDetail>() shouldBe
-                AppFunctionContactDetail(
-                    id = detail.id,
-                    name = detail.name,
-                    description = detail.description,
-                    heightCm = detail.heightCm,
-                    footSizeMm = detail.footSizeMm,
-                    birthday = AppFunctionContactBirthday(date = birthday, calendar = LUNAR),
-                    birthYear = detail.birthYear,
-                    hometown = detail.hometown,
-                    howWeMet = detail.howWeMet,
-                    phoneNumbers = detail.phoneNumbers,
-                    isFavorite = detail.isFavorite,
-                    createdAt = detail.createdAt,
-                    updatedAt = detail.updatedAt,
+            tester.execute(name = CONTACT_GET) { setString(CONTACT_ID, detail.id) }.returnValueAs<AppFunctionContactDetailWithTags>() shouldBe
+                AppFunctionContactDetailWithTags(
+                    contact =
+                        AppFunctionContactDetail(
+                            id = detail.id,
+                            name = detail.name,
+                            description = detail.description,
+                            heightCm = detail.heightCm,
+                            footSizeMm = detail.footSizeMm,
+                            birthday = AppFunctionContactBirthday(date = birthday, calendar = LUNAR),
+                            birthYear = detail.birthYear,
+                            hometown = detail.hometown,
+                            howWeMet = detail.howWeMet,
+                            phoneNumbers = detail.phoneNumbers,
+                            isFavorite = detail.isFavorite,
+                            createdAt = detail.createdAt,
+                            updatedAt = detail.updatedAt,
+                        ),
+                    tags = listOf(tag.expectedTag()),
                 )
             tester
                 .execute(name = CONTACT_GET) { setString(CONTACT_ID, missingId) }
@@ -181,7 +207,7 @@ class ContactAppFunctionServiceTest {
     fun `연락처의 메모 목록은 연락처와 정렬을 공통 동작에 넘긴다`() =
         runBlocking<Unit> {
             val contactId = Arb.kotlinUuid().next().toString()
-            coEvery { contactAppAction.memoFinishedList(contactId = any(), sort = any(), cursor = any()) } returns AppActionPage(items = emptyList(), nextCursor = null)
+            coEvery { memoListAppAction.contactFinishedList(contactId = any(), sort = any(), cursor = any()) } returns AppActionPage(items = emptyList(), nextCursor = null)
 
             val response =
                 tester.execute(name = "contactMemoFinishedList") {
@@ -190,19 +216,20 @@ class ContactAppFunctionServiceTest {
                 }
 
             response.returnValueAs<AppFunctionMemoPage>() shouldBe AppFunctionMemoPage(items = emptyList(), nextCursor = null)
-            coVerify(exactly = 1) { contactAppAction.memoFinishedList(contactId = contactId, sort = AppActionSortValue.TITLE, cursor = null) }
+            coVerify(exactly = 1) { memoListAppAction.contactFinishedList(contactId = contactId, sort = AppActionSortValue.TITLE, cursor = null) }
         }
 
     @Test
-    fun `연락처 추가는 받은 값을 공통 동작에 넘기고 id를 돌려준다`() =
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 연락처 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
         runBlocking<Unit> {
             val birthday = Arb.kotlinxLocalDate().next().toString()
             val heightCm = Arb.int(0..9999).next().let { tenth -> "${tenth / 10}.${tenth % 10}" }
             val footSizeMm = Arb.int(1..999).next()
             val name = Arb.nonBlankString().next()
             val phoneNumber = Arb.nonBlankString().next()
+            val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
             val addedId = Arb.kotlinUuid().next().toString()
-            coEvery { contactAppAction.add(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns AppActionId(id = addedId)
+            coEvery { contactAppAction.add(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns AppActionId(id = addedId)
 
             val response =
                 tester.execute(name = "contactAdd") {
@@ -212,6 +239,7 @@ class ContactAppFunctionServiceTest {
                     setString("birthday", birthday)
                     setString("birthdayCalendar", LUNAR)
                     setStringList("phoneNumbers", listOf(phoneNumber))
+                    setStringList("tagIds", tagIdList)
                 }
 
             response.returnValueAs<AppFunctionId>() shouldBe AppFunctionId(id = addedId)
@@ -227,6 +255,7 @@ class ContactAppFunctionServiceTest {
                     hometown = null,
                     howWeMet = null,
                     phoneNumbers = listOf(phoneNumber),
+                    tagIds = tagIdList,
                 )
             }
         }
@@ -264,6 +293,31 @@ class ContactAppFunctionServiceTest {
         }
 
     @Test
+    fun `TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 연락처 태그 연결과 해제는 완료를 돌려준다`() =
+        runBlocking<Unit> {
+            val contactId = Arb.kotlinUuid().next().toString()
+            val tagId = Arb.kotlinUuid().next().toString()
+            coEvery { entityTagAppAction.add(kind = AppActionEntityTagKind.CONTACT, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { entityTagAppAction.remove(kind = AppActionEntityTagKind.CONTACT, entityId = any(), tagId = any()) } returns AppActionDone(done = true)
+
+            val addResponse =
+                tester.execute(name = CONTACT_TAG_ADD) {
+                    setString(CONTACT_ID, contactId)
+                    setString("tagId", tagId)
+                }
+            val removeResponse =
+                tester.execute(name = CONTACT_TAG_REMOVE) {
+                    setString(CONTACT_ID, contactId)
+                    setString("tagId", tagId)
+                }
+
+            addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { entityTagAppAction.add(kind = AppActionEntityTagKind.CONTACT, entityId = contactId, tagId = tagId) }
+            coVerify(exactly = 1) { entityTagAppAction.remove(kind = AppActionEntityTagKind.CONTACT, entityId = contactId, tagId = tagId) }
+        }
+
+    @Test
     fun `인자 오류는 잘못된 인자 실패로 같은 메시지를 알린다`() =
         runBlocking<Unit> {
             val message = Arb.nonBlankString().next()
@@ -288,6 +342,8 @@ class ContactAppFunctionServiceTest {
         }
 }
 
+private const val CONTACT_TAG_ADD = "contactTagAdd"
+private const val CONTACT_TAG_REMOVE = "contactTagRemove"
 private const val CONTACT_ID = "contactId"
 private const val CONTACT_GET = "contactGet"
 private const val LUNAR = "lunar"

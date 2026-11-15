@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.gemini
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.SetGeminiSettingUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
@@ -29,7 +30,7 @@ internal class SettingGeminiViewModel(
 
     val uiState: StateFlow<SettingGeminiUiState> =
         combine(
-            getGeminiSettingUseCase(parameter = Unit),
+            getGeminiSettingUseCase(),
             isInProgress,
         ) { result, isInProgress ->
             result.fold(

@@ -7,6 +7,7 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import io.github.taetae98coding.diary.core.model.file.FileUri
@@ -43,7 +44,7 @@ class AndroidFilePickerTest {
 
         tester.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides harness.owner) {
-                picker = rememberFilePicker(onPick = { value -> pickedList += value })
+                picker = remember { AndroidFilePickerFactory() }.rememberFilePicker(onPick = { value -> pickedList += value })
             }
         }
         composeRule.runOnIdle { picker.open() }
@@ -63,7 +64,7 @@ class AndroidFilePickerTest {
 
         tester.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides harness.owner) {
-                picker = rememberFilePicker(onPick = { value -> pickedList += value })
+                picker = remember { AndroidFilePickerFactory() }.rememberFilePicker(onPick = { value -> pickedList += value })
             }
         }
         composeRule.runOnIdle { picker.open() }

@@ -59,6 +59,7 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailUiState
 import io.github.taetae98coding.diary.feature.place.ui.detail.TITLE_INDEX
 import io.github.taetae98coding.diary.feature.place.ui.detail.changeColor
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
+import io.github.taetae98coding.diary.feature.place.ui.detail.contentSharerFactoryOf
 import io.github.taetae98coding.diary.feature.place.ui.detail.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.input
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeDetail
@@ -287,6 +288,7 @@ class PlaceDetailTabTest {
                     detailViewModel = screenTestViewModel(uiState = MutableStateFlow(placeContent())),
                     searchViewModel = searchScreenTestViewModel(),
                     tagViewModel = detailTagScreenTestViewModel(),
+                    contentSharerFactory = contentSharerFactoryOf(),
                 )
             }
         }
@@ -382,6 +384,7 @@ class PlaceDetailTabTest {
                         detailViewModel = screenTestViewModel(uiState = MutableStateFlow(placeContent())),
                         searchViewModel = searchScreenTestViewModel(),
                         tagViewModel = detailTagScreenTestViewModel(),
+                        contentSharerFactory = contentSharerFactoryOf(),
                     )
                 }
             }

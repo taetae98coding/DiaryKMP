@@ -28,20 +28,26 @@ import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailScaffoldC
 import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailScreen
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeScreen
-import io.github.taetae98coding.diary.feature.file.ui.picker.rememberFilePicker
+import io.github.taetae98coding.diary.feature.file.ui.picker.FilePickerFactory
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-internal fun EntryProviderScope<ScreenNavKey>.fileEntry(backStack: NavBackStack<ScreenNavKey>) {
-    fileHomeEntry(backStack = backStack)
-    fileAddEntry(backStack = backStack)
+internal fun EntryProviderScope<ScreenNavKey>.fileEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    filePickerFactory: FilePickerFactory,
+) {
+    fileHomeEntry(backStack = backStack, filePickerFactory = filePickerFactory)
+    fileAddEntry(backStack = backStack, filePickerFactory = filePickerFactory)
     fileDetailEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<ScreenNavKey>.fileHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.fileHomeEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    filePickerFactory: FilePickerFactory,
+) {
     entry<FileHomeNavKey>(
         clazzContentKey = { FILE_HOME_CONTENT_KEY },
-        metadata = fileHomeListPaneMetadata(),
+        metadata = fileHomeListPaneMetadata(filePickerFactory = filePickerFactory),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
         FileHomeScreen(
@@ -57,12 +63,13 @@ private fun EntryProviderScope<ScreenNavKey>.fileHomeEntry(backStack: NavBackSta
 
 internal const val FILE_HOME_CONTENT_KEY: String = "FileHomeNavKey"
 
-internal fun fileHomeListPaneMetadata(): Map<String, Any> =
+internal fun fileHomeListPaneMetadata(filePickerFactory: FilePickerFactory): Map<String, Any> =
     ListDetailSceneStrategy.listPane(
         sceneKey = FileHomeNavKey,
         detailPlaceholder = {
             ListDetailPlaceholderStateProvider(listContentKey = FILE_HOME_CONTENT_KEY) {
                 FileAddDetailPlaceholder(
+                    filePickerFactory = filePickerFactory,
                     uploadViewModel = koinViewModel(),
                     accountViewModel = koinViewModel(),
                 )
@@ -73,6 +80,7 @@ internal fun fileHomeListPaneMetadata(): Map<String, Any> =
 // 고른 파일은 placeholder의 ViewModel에 남아 FileAdd가 화면에서 빠져도 지워지지 않으므로 따로 비운다.
 @Composable
 private fun FileAddDetailPlaceholder(
+    filePickerFactory: FilePickerFactory,
     uploadViewModel: FileAddViewModel,
     accountViewModel: FileAddAccountViewModel,
 ) {
@@ -84,14 +92,17 @@ private fun FileAddDetailPlaceholder(
         FileAddScreen(
             navigateUp = {},
             componentVisibleProvider = { FileAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-            filePicker = rememberFilePicker(onPick = uploadViewModel::select),
+            filePicker = filePickerFactory.rememberFilePicker(onPick = uploadViewModel::select),
             uploadViewModel = uploadViewModel,
             accountViewModel = accountViewModel,
         )
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.fileAddEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.fileAddEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    filePickerFactory: FilePickerFactory,
+) {
     entry<FileAddNavKey>(
         metadata = { key -> backStack.fileListDetailPaneMetadata(key) },
     ) {
@@ -101,7 +112,7 @@ private fun EntryProviderScope<ScreenNavKey>.fileAddEntry(backStack: NavBackStac
         FileAddScreen(
             navigateUp = backStack::removeLastOrNull,
             componentVisibleProvider = { FileAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            filePicker = rememberFilePicker(onPick = uploadViewModel::select),
+            filePicker = filePickerFactory.rememberFilePicker(onPick = uploadViewModel::select),
             uploadViewModel = uploadViewModel,
             accountViewModel = koinViewModel(),
         )

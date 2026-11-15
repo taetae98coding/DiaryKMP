@@ -56,7 +56,6 @@ class HolidayHomeScreenTest {
 
     private val targetYear = mutableStateOf<Int?>(null)
 
-    // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
     fun tearDown() {
         stopKoin()
@@ -93,7 +92,7 @@ class HolidayHomeScreenTest {
         composeRule.onNodeWithText(clockYear.toString()).assertExists()
         composeRule.onNodeWithText(actualYear.toString()).assertDoesNotExist()
         composeRule.onNodeWithText((clockYear - 1).toString()).assertDoesNotExist()
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
     }
 
     @Test
@@ -154,7 +153,7 @@ class HolidayHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_LOADING_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
     }
 
     @Test
@@ -202,7 +201,7 @@ class HolidayHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_ERROR_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.assertThisYearGoldenHolidayShown()
     }
 
     @Test

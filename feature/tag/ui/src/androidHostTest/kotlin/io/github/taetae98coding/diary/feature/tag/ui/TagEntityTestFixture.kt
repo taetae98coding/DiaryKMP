@@ -1,12 +1,11 @@
 package io.github.taetae98coding.diary.feature.tag.ui
 
-import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.qr.Qr
-import io.github.taetae98coding.diary.core.testing.checklist.checklist
-import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
+import io.github.taetae98coding.diary.core.model.routine.RoutineCycle
+import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.contactDetail
 import io.github.taetae98coding.diary.core.testing.dday.dday
@@ -15,6 +14,8 @@ import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.core.testing.routine.routine
+import io.github.taetae98coding.diary.core.testing.routine.routineDetail
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -34,13 +35,6 @@ internal fun tagContact(name: String): ContactListItem =
                     createdAt = Arb.secondPrecisionInstant().next(),
                 ),
         nameQualifier = "",
-    )
-
-internal fun tagChecklist(title: String): ChecklistSummary =
-    ChecklistSummary(
-        checklist = Arb.checklist(isDeleted = false, detail = Arb.checklistDetail().next().copy(title = title)).next(),
-        checkedCount = 1,
-        totalCount = 2,
     )
 
 internal fun tagMusic(title: String): Music =
@@ -78,3 +72,32 @@ internal fun tagDDay(
             isDeleted = false,
         )
 }
+
+internal fun tagRoutine(
+    title: String,
+    startDate: LocalDate = LocalDate(year = 2000, month = 1, day = 1),
+    isFinished: Boolean = false,
+    cycle: RoutineCycle = RoutineCycle.DAILY,
+    unit: String = "회",
+    goalAmount: Int? = null,
+    cycleAmount: Long = 0,
+): RoutineSummary =
+    RoutineSummary(
+        routine =
+            Arb
+                .routine()
+                .next()
+                .copy(
+                    detail =
+                        Arb.routineDetail().next().copy(
+                            title = title,
+                            startDate = startDate,
+                            cycle = cycle,
+                            unit = unit,
+                            goalAmount = goalAmount,
+                        ),
+                    isFinished = isFinished,
+                    isDeleted = false,
+                ),
+        cycleAmount = cycleAmount,
+    )

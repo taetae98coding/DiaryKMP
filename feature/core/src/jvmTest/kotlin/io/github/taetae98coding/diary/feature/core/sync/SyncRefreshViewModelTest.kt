@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.core.sync
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -179,7 +180,7 @@ class SyncRefreshViewModelTest : FunSpec() {
 
         private fun progressReportedUseCase(isRefreshingFlow: Flow<Result<Boolean>> = flowOf(Result.success(false))): GetProgressReportedUseCase {
             val getProgressReportedUseCase = mockk<GetProgressReportedUseCase>()
-            every { getProgressReportedUseCase(parameter = Unit) } returns isRefreshingFlow
+            every { getProgressReportedUseCase() } returns isRefreshingFlow
 
             return getProgressReportedUseCase
         }

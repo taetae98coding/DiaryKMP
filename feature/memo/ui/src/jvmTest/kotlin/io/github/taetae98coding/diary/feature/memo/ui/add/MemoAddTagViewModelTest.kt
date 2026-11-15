@@ -419,7 +419,31 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-c776dc42-2be2-4593-9942-e6efef1a71b2 TC-93aba386-40ce-4f81-a0e8-98ecc148b468 선택할 수 있는 태그에 없는 태그와 대표 지정도 선택으로 남는다") {
+        test("TC-c776dc42-2be2-4593-9942-e6efef1a71b2 목록을 열지 않아도 불러온 범위 밖의 대상 태그가 선택과 대표 지정으로 남는다") {
+            runTest(mainDispatcher) {
+                val storedTagList = List(LOADED_TAG_COUNT * 3) { tag() }
+                val targetTag = storedTagList.last()
+                val viewModel =
+                    viewModel(
+                        initialPrimaryTagId = targetTag.id,
+                        tagListFlow = flowOf(Result.success(storedTagList)),
+                        pageTagListFlow = flowOf(Result.success(storedTagList.take(LOADED_TAG_COUNT))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                viewModel.selectionUiState.value shouldBe
+                    MemoTagSelectionUiState(
+                        tagIdSet = setOf(targetTag.id),
+                        primaryTagId = targetTag.id,
+                    )
+            }
+        }
+
+        test("TC-93aba386-40ce-4f81-a0e8-98ecc148b468 선택할 수 있는 태그에 없는 태그와 대표 지정도 선택으로 남는다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
                 val unselectableTag = tag()
@@ -599,6 +623,53 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
         searchTests()
+        searchFailureTests()
+        orderTests()
+    }
+
+    private fun searchFailureTests() {
+        test("TC-02face70-57f7-427e-8efb-51cb18d0b37d 검색어를 바꿔 다시 조회하다 실패하면 이전 태그를 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val tagList = List(2) { tag() }
+                val pageTagUseCase = mockk<PageTagUseCase>()
+                every { pageTagUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(tagList)))
+                every { pageTagUseCase(parameter = SEARCH_QUERY) } returns flowOf(Result.failure(IllegalStateException()))
+                val viewModel = viewModel(pageTagUseCase = pageTagUseCase)
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
+
+                    viewModel.updateQuery(SEARCH_QUERY)
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+    }
+
+    // 제목 오름차순 조회는 기기 저장 테스트가 검증하므로, 조회한 순서를 고른 순서나 대표 지정으로 바꾸지 않는지 본다.
+    private fun orderTests() {
+        test("TC-d4f72f37-9bfa-4fc3-ad02-c0c6ccbf1e46 선택한 태그는 고른 순서나 대표 지정과 관계없이 조회한 순서로 표시한다") {
+            runTest(mainDispatcher) {
+                val firstTag = tag()
+                val secondTag = tag()
+                val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(firstTag, secondTag))))
+
+                viewModel.uiState.test {
+                    viewModel.selectTag(id = secondTag.id)
+                    viewModel.selectTag(id = firstTag.id)
+                    viewModel.selectPrimaryTag(id = secondTag.id)
+                    advanceUntilIdle()
+
+                    val uiState = expectMostRecentItem()
+                    uiState.selectedTagList shouldBe listOf(firstTag, secondTag)
+                    uiState.primaryTagId shouldBe secondTag.id
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
     }
 
     private fun searchTests() {
@@ -645,6 +716,8 @@ class MemoAddTagViewModelTest : FunSpec() {
 
     private companion object {
         private const val SEARCH_QUERY = "Travel"
+
+        private const val LOADED_TAG_COUNT = 30
 
         private fun tag(): Tag =
             Arb

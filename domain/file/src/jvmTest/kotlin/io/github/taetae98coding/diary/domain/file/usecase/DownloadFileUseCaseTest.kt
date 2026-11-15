@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.domain.file.repository.FileDetailRepository
 import io.github.taetae98coding.diary.domain.file.repository.FileDownloadSettingRepository
@@ -127,4 +128,4 @@ private fun useCase(
 
 private fun settingRepository(setting: FileDownloadSetting): FileDownloadSettingRepository = mockk<FileDownloadSettingRepository>().also { repository -> every { repository.get() } returns flowOf(setting) }
 
-private fun getAccountUseCase(result: Result<Account> = Result.success(Arb.accountUser().next())): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns flowOf(result) }
+private fun getAccountUseCase(result: Result<Account> = Result.success(Arb.accountUser().next())): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase() } returns flowOf(result) }

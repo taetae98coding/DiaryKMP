@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 공유할 파일을 받는 앱에 잠시 읽게 할 때만 쓰므로 내보내지 않고, 공유할 때마다 읽기 권한을 붙여 넘긴다. -->
+        <provider
+            android:name="io.github.taetae98coding.diary.compose.core.share.ShareFileProvider"
+            android:authorities="${applicationId}.share"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/compose_core_share_file_paths" />
+        </provider>
+    </application>
+</manifest>

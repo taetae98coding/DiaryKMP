@@ -24,12 +24,12 @@ import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
@@ -42,7 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -352,13 +351,7 @@ class CalendarHomeScreenWeatherScrollTest {
 
     private fun memoTitle(index: Int): String = "$MEMO_TITLE_PREFIX$index"
 
-    private fun memo(title: String): CalendarMemo =
-        CalendarMemo(
-            id = Uuid.random(),
-            title = title,
-            color = Arb.long().next(),
-            dateTime = MemoDateTime.AllDay(dateRange = july(day = MEMO_START_DAY)..july(day = WEATHER_DAY)),
-        )
+    private fun memo(title: String): CalendarMemo = Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = july(day = MEMO_START_DAY)..july(day = WEATHER_DAY)), title = title).next()
 
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 

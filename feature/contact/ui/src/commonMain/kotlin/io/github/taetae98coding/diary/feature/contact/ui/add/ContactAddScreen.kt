@@ -6,6 +6,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
+import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.form.handleContactFormEvent
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactAddFormState
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
@@ -20,12 +25,13 @@ internal fun ContactAddScreen(
     navigateToTagDetail: (Uuid) -> Unit,
     tagAddRequestKey: Uuid,
     addedResultRequestKey: Uuid?,
+    initialDetail: ContactDetail,
     componentVisibleProvider: () -> ContactAddScaffoldComponentVisible,
     addViewModel: ContactAddViewModel,
     tagViewModel: EntityAddTagViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val state = rememberContactAddFormState()
+    val state = rememberContactAddFormState(initialDetail = initialDetail)
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
@@ -72,3 +78,12 @@ internal fun ContactAddScreen(
         componentVisibleProvider = componentVisibleProvider,
     )
 }
+
+internal fun ContactAddNavKey.initialDetail(): ContactDetail =
+    ContactDetail.EMPTY.copy(
+        name = initialName,
+        description = initialDescription,
+        birthday = initialBirthday?.let { date -> ContactBirthday(date = date, calendar = ContactBirthdayCalendar.SOLAR) },
+        birthYear = initialBirthday?.year,
+        phoneNumberList = initialPhoneNumberList.map { number -> ContactPhoneNumber(number = number) },
+    )

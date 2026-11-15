@@ -157,19 +157,38 @@ class AccountPlaceSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe cursor
         }
 
-        test("TC-e4322045-cda0-47a9-a446-deb2016075f6 장소를 삭제하면 업로드 대기가 된다") {
-            val accountId = Arb.kotlinUuid().next()
-            val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
-            transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = 3L)
+        test("TC-e4322045-cda0-47a9-a446-deb2016075f6 동기화를 마친 장소를 수정하거나 삭제하면 업로드 대기가 된다") {
+            val actionList: List<suspend (Uuid, Uuid) -> Unit> =
+                listOf(
+                    { accountId, placeId ->
+                        accountTransaction.updateDetail(
+                            accountId = accountId,
+                            placeId = placeId,
+                            detail = detail(),
+                            updatedAt = Instant.fromEpochMilliseconds(2_000),
+                        )
+                    },
+                    { accountId, placeId ->
+                        accountTransaction.updateDeleted(
+                            accountId = accountId,
+                            placeId = placeId,
+                            isDeleted = true,
+                            updatedAt = Instant.fromEpochMilliseconds(2_000),
+                        )
+                    },
+                )
 
-            accountTransaction.updateDeleted(
-                accountId = accountId,
-                placeId = place.id,
-                isDeleted = true,
-                updatedAt = Instant.fromEpochMilliseconds(2_000),
-            )
+            actionList.forEach { action ->
+                val accountId = Arb.kotlinUuid().next()
+                val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
+                transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = 3L)
+                isPending(accountId = accountId, placeId = place.id) shouldBe false
 
-            isPending(accountId = accountId, placeId = place.id) shouldBe true
+                action(accountId, place.id)
+
+                isPending(accountId = accountId, placeId = place.id) shouldBe true
+                syncDataSource.readPendingList(accountId = accountId).map { pending -> pending.id } shouldBe listOf(place.id)
+            }
         }
 
         test("TC-85437a34-b1a2-4fa0-ae7a-ec766c5b8952 내려받기 저장이 끝나면 서버 변경 순번이 커서로 기록된다") {

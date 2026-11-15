@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.transaction.AccountDDayTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.entitytag.datasource.AccountEntityTagLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
@@ -18,15 +19,18 @@ import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.Acc
 import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.routine.transaction.AccountRoutineTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.localPlace
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.core.testing.web.localWeb
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -165,7 +169,7 @@ class AccountTagLinkMeaningTest :
                 .map { tag -> tag.id } shouldBe listOf(toTag.id)
         }
 
-        test("TC-87c521ec-13a9-459d-b94d-ddb6823c5a3c 태그를 연결해도 연락처, 체크리스트, 곡, QR에 연결된 태그는 늘어나지 않는다") {
+        test("TC-87c521ec-13a9-459d-b94d-ddb6823c5a3c 태그를 연결해도 연락처, 체크리스트, 곡, QR, 디데이에 연결된 태그는 늘어나지 않는다") {
             val insertEntityList: List<Pair<EntityTagKindLocalEntity, suspend (Uuid) -> Uuid>> =
                 listOf(
                     EntityTagKindLocalEntity.CONTACT to { accountId ->
@@ -192,6 +196,16 @@ class AccountTagLinkMeaningTest :
                         val qr = Arb.qrLocalEntity().next().copy(isDeleted = false)
                         AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
                         qr.id
+                    },
+                    EntityTagKindLocalEntity.DDAY to { accountId ->
+                        val dday = Arb.ddayLocalEntity().next().copy(isDeleted = false)
+                        AccountDDayTransactionImpl(database = database).upsert(accountId = accountId, dday = dday, ddayTagList = emptyList())
+                        dday.id
+                    },
+                    EntityTagKindLocalEntity.ROUTINE to { accountId ->
+                        val routine = Arb.routineLocalEntity().next().copy(isFinished = false, isDeleted = false)
+                        AccountRoutineTransactionImpl(database = database).upsert(accountId = accountId, routine = routine, routineTagList = emptyList())
+                        routine.id
                     },
                 )
 

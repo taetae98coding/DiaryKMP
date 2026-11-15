@@ -179,25 +179,22 @@ class DDayListDetailPaneTest :
     }
 }
 
-// `더보기`처럼 디데이 목록으로 들어가는 화면을 대신한다. 그 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// `더보기`처럼 디데이 목록으로 들어가는 화면을 대신한다. 그 기능의 화면 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object ListDetailOtherNavKey : ScreenNavKey {
     override val screenName: String
         get() = "Other"
 }
 
-// 캘린더 홈을 대신한다.
 private data object ListDetailCalendarNavKey : ScreenNavKey {
     override val screenName: String
         get() = "CalendarStub"
 }
 
-// 시간표를 대신한다.
 private data object ListDetailTimetableNavKey : ScreenNavKey {
     override val screenName: String
         get() = "TimetableStub"
 }
 
-// SearchHome을 대신한다.
 private data object ListDetailSearchNavKey : ScreenNavKey {
     override val screenName: String
         get() = "SearchStub"

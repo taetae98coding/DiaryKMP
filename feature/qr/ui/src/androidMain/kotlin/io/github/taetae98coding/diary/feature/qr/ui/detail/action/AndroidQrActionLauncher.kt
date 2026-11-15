@@ -20,12 +20,16 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
+import org.koin.core.annotation.Single
 
-@Composable
-internal actual fun rememberQrActionLauncher(): QrActionLauncher {
-    val context = LocalContext.current
+@Single(binds = [QrActionLauncherFactory::class])
+internal class AndroidQrActionLauncherFactory : QrActionLauncherFactory {
+    @Composable
+    override fun rememberQrActionLauncher(): QrActionLauncher {
+        val context = LocalContext.current
 
-    return remember(context) { AndroidQrActionLauncher(context = context) }
+        return remember(context) { AndroidQrActionLauncher(context = context) }
+    }
 }
 
 internal class AndroidQrActionLauncher(

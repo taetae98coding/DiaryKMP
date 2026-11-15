@@ -4,9 +4,11 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.memoplace.transaction.AccountMemoPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
@@ -14,6 +16,7 @@ import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.long
@@ -65,6 +68,49 @@ class AccountPlaceTransactionImplTest :
                 ) { statement -> statement.readAll { it.toAccountPlace() } }
             }
 
+        suspend fun findPlaceTagList(): List<Triple<Uuid, Uuid, Boolean>> =
+            database.useReaderConnection { transactor ->
+                transactor.usePrepared(
+                    """
+                    SELECT place_tag.place_id, place_tag.tag_id, place_tag.is_deleted
+                    FROM place_tag
+                    INNER JOIN account_place_tag
+                        ON account_place_tag.place_id = place_tag.place_id
+                        AND account_place_tag.tag_id = place_tag.tag_id
+                    """,
+                ) { statement -> statement.readAll { it.toLink() } }
+            }
+
+        suspend fun findMemoPlaceList(): List<Triple<Uuid, Uuid, Boolean>> =
+            database.useReaderConnection { transactor ->
+                transactor.usePrepared(
+                    """
+                    SELECT memo_place.memo_id, memo_place.place_id, memo_place.is_deleted
+                    FROM memo_place
+                    INNER JOIN account_memo_place
+                        ON account_memo_place.memo_id = memo_place.memo_id
+                        AND account_memo_place.place_id = memo_place.place_id
+                    """,
+                ) { statement -> statement.readAll { it.toLink() } }
+            }
+
+        suspend fun linkMemo(
+            accountId: Uuid,
+            placeId: Uuid,
+        ): Uuid {
+            val memoId = Arb.kotlinUuid().next()
+
+            AccountMemoPlaceTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoId = memoId,
+                placeId = placeId,
+                isDeleted = false,
+                updatedAt = Arb.secondPrecisionInstant().next(),
+            )
+
+            return memoId
+        }
+
         test("TC-71726817-3873-40c5-8081-8856b2290f1c 장소와 현재 계정의 연결을 함께 저장한다") {
             val accountId = Arb.kotlinUuid().next()
             val place = place()
@@ -80,6 +126,31 @@ class AccountPlaceTransactionImplTest :
                         isDirty = true,
                     ),
                 )
+        }
+
+        test("TC-a1f67716-6619-4c28-bb0b-db49aee35c12 태그를 고른 장소 추가는 장소와 계정 연결, 태그 연결을 함께 저장한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val place = place()
+            val tagIdList = List(2) { Arb.kotlinUuid().next() }
+
+            transaction.upsert(
+                accountId = accountId,
+                placeList = listOf(place),
+                placeTagList =
+                    tagIdList.map { tagId ->
+                        EntityTagLocalEntity(
+                            entityId = place.id,
+                            tagId = tagId,
+                            isDeleted = false,
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                            createdAt = Arb.secondPrecisionInstant().next(),
+                        )
+                    },
+            )
+
+            findPlaceList() shouldBe listOf(place)
+            findAccountPlaceList() shouldBe listOf(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = true))
+            findPlaceTagList() shouldContainExactlyInAnyOrder tagIdList.map { tagId -> Triple(place.id, tagId, false) }
         }
 
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 장소 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
@@ -190,6 +261,21 @@ class AccountPlaceTransactionImplTest :
                 )
         }
 
+        test("TC-a51d0a4a-f218-4b3d-99ce-f8da1f06eec6 수정은 같은 장소를 덮어쓰고 계정 연결과 메모 연결을 남긴다") {
+            val accountId = Arb.kotlinUuid().next()
+            val place = place().copy(isDeleted = false)
+            val newDetail = placeDetail()
+            val updatedAt = Arb.secondPrecisionInstant().next()
+            transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+            val memoId = linkMemo(accountId = accountId, placeId = place.id)
+
+            transaction.updateDetail(accountId = accountId, placeId = place.id, detail = newDetail, updatedAt = updatedAt)
+
+            findPlaceList() shouldBe listOf(place.copy(detail = newDetail, updatedAt = updatedAt))
+            findAccountPlaceList() shouldBe listOf(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = true))
+            findMemoPlaceList() shouldBe listOf(Triple(memoId, place.id, false))
+        }
+
         test("TC-dbdf8a25-1a6d-46a1-82d9-12a47a841bb1 삭제 상태가 된 장소를 수정해도 삭제 상태로 남는다") {
             val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = true)
@@ -257,19 +343,21 @@ class AccountPlaceTransactionImplTest :
             findPlaceList().single().detail.address shouldBe address
         }
 
-        test("TC-454e7312-d0dd-4603-a7b6-00a92504c393 삭제해도 장소와 계정 연결을 저장소에서 제거하지 않는다") {
+        test("TC-454e7312-d0dd-4603-a7b6-00a92504c393 삭제해도 장소와 계정 연결, 메모 연결을 저장소에서 제거하지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+            val memoId = linkMemo(accountId = accountId, placeId = place.id)
 
             transaction.updateDeleted(
                 accountId = accountId,
                 placeId = place.id,
                 isDeleted = true,
-                updatedAt = Arb.secondPrecisionInstant().next(),
+                updatedAt = updatedAt,
             )
 
-            findPlaceList().size shouldBe 1
+            findPlaceList() shouldBe listOf(place.copy(isDeleted = true, updatedAt = updatedAt))
             findAccountPlaceList() shouldBe
                 listOf(
                     AccountPlaceLocalEntity(
@@ -278,6 +366,7 @@ class AccountPlaceTransactionImplTest :
                         isDirty = true,
                     ),
                 )
+            findMemoPlaceList() shouldBe listOf(Triple(memoId, place.id, false))
         }
 
         test("다른 계정의 장소는 수정하거나 삭제하지 않는다") {
@@ -416,6 +505,13 @@ class AccountPlaceTransactionImplTest :
                 isDeleted = getBoolean(7),
                 updatedAt = Instant.fromEpochMilliseconds(getLong(8)),
                 createdAt = Instant.fromEpochMilliseconds(getLong(9)),
+            )
+
+        private fun SQLiteStatement.toLink(): Triple<Uuid, Uuid, Boolean> =
+            Triple(
+                Uuid.parse(getText(0)),
+                Uuid.parse(getText(1)),
+                getBoolean(2),
             )
 
         private fun SQLiteStatement.toAccountPlace(): AccountPlaceLocalEntity =

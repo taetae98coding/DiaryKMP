@@ -7,6 +7,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.testing.location.coordinate
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.kotest.core.spec.style.FunSpec
@@ -156,7 +157,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 1) { fetchCurrentLocationUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { fetchCurrentLocationUseCase() }
             }
         }
 
@@ -165,7 +166,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 val beforeCoordinate = Arb.coordinate().next()
                 val afterCoordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-                coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returnsMany
+                coEvery { fetchCurrentLocationUseCase() } returnsMany
                     listOf(Result.success(beforeCoordinate), Result.success(afterCoordinate))
 
                 viewModel(
@@ -197,7 +198,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 val restoredCoordinate = Arb.coordinate().next()
                 val restoredLocation = CompletableDeferred<Result<Coordinate>>()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-                coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns
+                coEvery { fetchCurrentLocationUseCase() } returns
                     Result.success(Arb.coordinate().next()) coAndThen { restoredLocation.await() }
 
                 viewModel(
@@ -227,7 +228,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     }
                 }
 
-                coVerify(exactly = 2) { fetchCurrentLocationUseCase(parameter = Unit) }
+                coVerify(exactly = 2) { fetchCurrentLocationUseCase() }
             }
         }
 
@@ -263,7 +264,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
 
         private fun fetchCurrentLocationUseCase(currentLocation: Result<Coordinate>): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { useCase(parameter = Unit) } returns currentLocation
+            coEvery { useCase() } returns currentLocation
 
             return useCase
         }
@@ -274,7 +275,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             fetchCurrentLocationUseCase: FetchCurrentLocationUseCase = fetchCurrentLocationUseCase(currentLocation),
         ): MemoPlaceMapViewModel {
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
-            every { getDefaultMapProviderUseCase(Unit) } returns defaultMapProvider
+            every { getDefaultMapProviderUseCase() } returns defaultMapProvider
 
             return MemoPlaceMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

@@ -8,6 +8,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.work.appaction.core.APP_ACTION_PAGE_SIZE
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArgumentException
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArguments
@@ -151,7 +152,7 @@ private fun pagingUseCase(
     val pagingSourceFactory = itemList.asPagingSourceFactory()
 
     return mockk<FlowUseCase<Unit, PagingData<String>>>().also { useCase ->
-        every { useCase(parameter = Unit) } answers {
+        every { useCase() } answers {
             Pager(
                 config = PagingConfig(pageSize = 30, enablePlaceholders = enablePlaceholders),
                 pagingSourceFactory = pagingSourceFactory,

@@ -25,7 +25,7 @@ public class MapHttpServer {
     @Volatile
     private var rootUrl: String? = null
 
-    // 화면을 그리기 전에 main 함수에서 부른다. 포트를 0으로 열어 운영체제가 비어 있는 포트를 고르게 한다.
+    // 화면을 그리기 전에 앱 시작 초기화가 부른다. 포트를 0으로 열어 운영체제가 비어 있는 포트를 고르게 한다.
     public fun start() {
         if (server != null) return
 

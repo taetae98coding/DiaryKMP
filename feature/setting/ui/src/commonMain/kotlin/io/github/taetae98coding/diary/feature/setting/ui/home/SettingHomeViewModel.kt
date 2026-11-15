@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileDownloadDirectorySupportUseCase
 import io.github.taetae98coding.diary.domain.mcp.usecase.ReadMcpServerSupportUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
@@ -18,8 +19,8 @@ internal class SettingHomeViewModel(
 ) : ViewModel() {
     val uiState: StateFlow<SettingHomeUiState> =
         flow {
-            val isFileDownloadDirectorySupported = readFileDownloadDirectorySupportUseCase(parameter = Unit).getOrNull()
-            val isMcpServerSupported = readMcpServerSupportUseCase(parameter = Unit).getOrNull()
+            val isFileDownloadDirectorySupported = readFileDownloadDirectorySupportUseCase().getOrNull()
+            val isMcpServerSupported = readMcpServerSupportUseCase().getOrNull()
 
             if (isFileDownloadDirectorySupported == null || isMcpServerSupported == null) {
                 emit(SettingHomeUiState.Loading)

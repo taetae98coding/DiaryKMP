@@ -81,7 +81,9 @@
 | TagDetail 곡 탭의 태그별 곡 목록 | 플레이리스트 아이콘 |
 | TagDetail QR 탭의 태그별 QR 목록 | QR 아이콘 |
 | TagDetail 디데이 탭의 태그별 디데이 목록 | 디데이 아이콘 |
+| TagDetail 루틴 탭의 태그별 루틴 목록 | 루틴 아이콘 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 완료 아이콘 |
+| TagRoutineFinishedList 태그별 완료된 루틴 목록 | 완료 아이콘 |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 메모 아이콘 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 메모 아이콘 |
 | WebDetail 메모 탭의 웹 항목별 메모 목록 | 메모 아이콘 |
@@ -89,7 +91,10 @@
 | MemoHome 메모 목록, 좁히지 않은 상태 | 메모 아이콘 |
 | MemoHome 메모 목록, 좁힌 상태 | 필터 아이콘 |
 | MemoFinishedList 완료된 메모 목록 | 완료 아이콘 |
-| RoutineHome 루틴 목록 | 루틴 아이콘 |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태 | 루틴 아이콘 |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태이고 완료되지 않은 루틴은 있으나 오늘 할 루틴이 없음 | 루틴 아이콘 |
+| RoutineHome 목록 보기의 루틴 목록, 좁힌 상태 | 필터 아이콘 |
+| RoutineFinishedList 완료된 루틴 목록 | 완료 아이콘 |
 | PlaceHome 지도 모드의 장소 목록 | 지도 아이콘 |
 | PlaceHome 목록 모드의 장소 목록 | 장소 아이콘 |
 | WebHome 웹 목록 | 웹 아이콘 |
@@ -105,14 +110,15 @@
 | SearchHome 장소 검색 결과 목록 | 장소 아이콘 |
 | SearchHome 웹 검색 결과 목록 | 웹 아이콘 |
 | SearchHome 디데이 검색 결과 목록 | 디데이 아이콘 |
+| SearchHome 루틴 검색 결과 목록 | 루틴 아이콘 |
 
-SearchHome의 다섯 목록은 문구가 같으므로 아이콘이 지금 어느 유형의 결과를 보고 있는지를 알린다. 각 유형은 그 유형의 목록 화면이 쓰는 아이콘을 그대로 쓴다.
+SearchHome의 여섯 목록은 문구가 같으므로 아이콘이 지금 어느 유형의 결과를 보고 있는지를 알린다. 각 유형은 그 유형의 목록 화면이 쓰는 아이콘을 그대로 쓴다.
 
 루틴 아이콘은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `루틴` 목적지 아이콘과 같다.
 
 완료 아이콘은 [TagHome 목록 디자인](./tag-home.md)과 [MemoHome 목록 디자인](./memo-home.md)의 완료 스와이프가 쓰는 완료 아이콘과 같고, 필터 아이콘은 [필터 Bottom Sheet 디자인](./filter-bottom-sheet.md)의 필터 버튼과 같은 아이콘이다. 지도 아이콘은 [장소 보기 모드 디자인](./place-view-mode.md)의 목록 모드 전환 컨트롤과 `더보기`의 장소 메뉴에서 쓰는 아이콘과 같고, 장소 아이콘은 위치 표시 핀 모양 아이콘이다. 웹 아이콘은 [WebHome 화면 디자인](./web-home.md)이 웹을 가리킬 때 쓰는 아이콘과 같고, 연락처 아이콘은 [ContactHome 화면 디자인](./contact-home.md)이 연락처를 가리킬 때 쓰는 아이콘과 같다. 플레이리스트 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `플레이리스트` 바로가기 항목이 쓰는 아이콘과 같고, 체크리스트 아이콘은 같은 화면의 `체크리스트` 바로가기 항목이 쓰는 Material Symbols `checklist` 아이콘과 같다. [ChecklistDetail 화면 디자인](./checklist-detail.md)의 체크 항목 빈 상태도 같은 아이콘을 쓰며, 그 화면이 이 문서의 `빈 상태 구성`만 빌려 쓰는 기준은 그 화면 문서가 소유한다. 디데이 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `디데이` 바로가기 항목이 쓰는 아이콘과 같다.
 
-MemoHome 목록, TagHome 목록, ContactHome 연락처 목록과 DDayHome 디데이 목록에서 좁힌 상태와 좁히지 않은 상태 사이의 전환도 `전환`의 교차 페이드를 따른다.
+MemoHome 목록, TagHome 목록, ContactHome 연락처 목록, DDayHome 디데이 목록과 RoutineHome 목록 보기의 루틴 목록에서 좁힌 상태와 좁히지 않은 상태 사이의 전환도 `전환`의 교차 페이드를 따른다. RoutineHome 목록 보기에서 좁히지 않은 상태의 두 빈 상태 사이를 오갈 때도 같다. 두 빈 상태는 같은 루틴 아이콘을 쓰고 문구만 다르며, 어느 쪽을 표시하는지는 [RoutineHome 화면 디자인](./routine-home.md)의 `빈 상태`를 따른다.
 
 ## 문구
 
@@ -143,7 +149,10 @@ MemoHome 목록, TagHome 목록, ContactHome 연락처 목록과 DDayHome 디데
 | TagDetail QR 탭의 태그별 QR 목록 | 보조 | `추가 버튼으로 새 QR을 만들 수 있습니다` | `Use the add button to create a QR code.` |
 | TagDetail 디데이 탭의 태그별 디데이 목록 | 제목 | `이 태그에 연결된 디데이가 없습니다` | `No D-Days linked to this tag` |
 | TagDetail 디데이 탭의 태그별 디데이 목록 | 보조 | `추가 버튼으로 새 디데이를 만들 수 있습니다` | `Use the add button to create a D-Day.` |
+| TagDetail 루틴 탭의 태그별 루틴 목록 | 제목 | `이 태그에 연결된 루틴이 없습니다` | `No routines linked to this tag` |
+| TagDetail 루틴 탭의 태그별 루틴 목록 | 보조 | `추가 버튼으로 새 루틴을 만들 수 있습니다` | `Use the add button to create a routine.` |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 제목 | `이 태그에서 완료한 메모가 없습니다` | `No finished memos for this tag` |
+| TagRoutineFinishedList 태그별 완료된 루틴 목록 | 제목 | `이 태그에서 완료한 루틴이 없습니다` | `No finished routines for this tag` |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 제목 | `이 연락처에 연결된 메모가 없습니다` | `No memos linked to this contact` |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 제목 | `이 장소에 연결된 메모가 없습니다` | `No memos linked to this place` |
@@ -162,8 +171,13 @@ MemoHome 목록, TagHome 목록, ContactHome 연락처 목록과 DDayHome 디데
 | PlaceHome 지도 모드의 장소 목록 | 보조 | `지도를 옮기면 다른 장소를 볼 수 있습니다` | `Move the map to see other places.` |
 | PlaceHome 목록 모드의 장소 목록 | 제목 | `아직 장소가 없습니다` | `No places yet` |
 | PlaceHome 목록 모드의 장소 목록 | 보조 | `추가 버튼으로 새 장소를 만들 수 있습니다` | `Use the add button to create a place.` |
-| RoutineHome 루틴 목록 | 제목 | `아직 루틴이 없습니다` | `No routines yet` |
-| RoutineHome 루틴 목록 | 보조 | `추가 버튼으로 새 루틴을 만들 수 있습니다` | `Use the add button to create a routine.` |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태 | 제목 | `아직 루틴이 없습니다` | `No routines yet` |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태 | 보조 | `추가 버튼으로 새 루틴을 만들 수 있습니다` | `Use the add button to create a routine.` |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태이고 완료되지 않은 루틴은 있으나 오늘 할 루틴이 없음 | 제목 | `오늘 할 루틴이 없습니다` | `No routines for today` |
+| RoutineHome 목록 보기의 루틴 목록, 좁히지 않은 상태이고 완료되지 않은 루틴은 있으나 오늘 할 루틴이 없음 | 보조 | `필터에서 모든 루틴을 볼 수 있습니다` | `Use the filter to see all routines.` |
+| RoutineHome 목록 보기의 루틴 목록, 좁힌 상태 | 제목 | `조건에 맞는 루틴이 없습니다` | `No routines match the filter` |
+| RoutineHome 목록 보기의 루틴 목록, 좁힌 상태 | 보조 | `필터를 바꾸면 다른 루틴을 볼 수 있습니다` | `Change the filter to see other routines.` |
+| RoutineFinishedList 완료된 루틴 목록 | 제목 | `완료한 루틴이 없습니다` | `No finished routines` |
 | WebHome 웹 목록 | 제목 | `아직 웹이 없습니다` | `No webs yet` |
 | WebHome 웹 목록 | 보조 | `추가 버튼으로 새 웹을 만들 수 있습니다` | `Use the add button to create a web.` |
 | ContactHome 연락처 목록, 좁히지 않은 상태 | 제목 | `아직 연락처가 없습니다` | `No contacts yet` |
@@ -180,12 +194,14 @@ MemoHome 목록, TagHome 목록, ContactHome 연락처 목록과 DDayHome 디데
 | DDayHome 디데이 목록, 좁히지 않은 상태 | 보조 | `추가 버튼으로 새 디데이를 만들 수 있습니다` | `Use the add button to create a D-Day.` |
 | DDayHome 디데이 목록, 좁힌 상태 | 제목 | `조건에 맞는 디데이가 없습니다` | `No D-Days match the filter` |
 | DDayHome 디데이 목록, 좁힌 상태 | 보조 | `필터를 바꾸면 다른 디데이를 볼 수 있습니다` | `Change the filter to see other D-Days.` |
-| SearchHome 다섯 유형의 검색 결과 목록 | 제목 | `검색 결과가 없습니다` | `No search results` |
-| SearchHome 다섯 유형의 검색 결과 목록 | 보조 | `다른 검색어로 찾아보세요` | `Try a different search query.` |
+| SearchHome 여섯 유형의 검색 결과 목록 | 제목 | `검색 결과가 없습니다` | `No search results` |
+| SearchHome 여섯 유형의 검색 결과 목록 | 보조 | `다른 검색어로 찾아보세요` | `Try a different search query.` |
 
-TagFinishedList, MemoFinishedList, TagMemoFinishedList와 ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList는 그 화면에서 항목을 새로 만들 수 없으므로 보조 문구를 두지 않는다.
+TagFinishedList, MemoFinishedList, TagMemoFinishedList, RoutineFinishedList, TagRoutineFinishedList와 ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList는 그 화면에서 항목을 새로 만들 수 없으므로 보조 문구를 두지 않는다.
 
-SearchHome의 다섯 목록은 같은 문구를 쓴다. 유형 이름을 문구에 넣지 않는 것은 사용자가 이미 유형 탭에서 어느 유형을 보고 있는지 알고 있고, 탭을 옮길 때마다 문구가 바뀌면 결과 영역이 유형마다 다른 화면처럼 보이기 때문이다. 이 화면에서는 항목을 새로 만들 수 없으므로 보조 문구는 추가가 아니라 질의를 고치는 것을 권한다.
+SearchHome의 여섯 목록은 같은 문구를 쓴다. 유형 이름을 문구에 넣지 않는 것은 사용자가 이미 유형 탭에서 어느 유형을 보고 있는지 알고 있고, 탭을 옮길 때마다 문구가 바뀌면 결과 영역이 유형마다 다른 화면처럼 보이기 때문이다. 이 화면에서는 항목을 새로 만들 수 없으므로 보조 문구는 추가가 아니라 질의를 고치는 것을 권한다.
+
+RoutineHome의 달력 보기와 [RoutineDetail 화면 디자인](./routine-detail.md)의 기록 내역은 기준 스펙의 `적용 대상`에 없으므로 이 문서의 아이콘과 문구 표에 두지 않는다. 달력 보기는 빈 상태를 표시하지 않고, 기록 내역이 비었을 때의 안내는 그 화면 문서가 소유한다.
 
 문구에는 오류나 실패를 뜻하는 표현을 쓰지 않는다. 조회에 실패해 표시할 항목이 없는 경우도 모든 목록이 같은 빈 상태와 문구를 그대로 사용하며, 빈 상태 대신 목록 자리를 비워 두는 목록은 없다.
 

@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.addTagScreenTestViewModel
 import kotlinx.datetime.LocalDate
@@ -140,6 +141,7 @@ class ContactAddBirthdayTest {
             ContactAddScreenTestTheme {
                 ContactAddScreen(
                     addedResultRequestKey = null,
+                    initialDetail = ContactDetail.EMPTY,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     addViewModel = viewModel,

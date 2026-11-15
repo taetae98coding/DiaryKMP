@@ -347,6 +347,9 @@ class DDayAddFormTest {
             Triple("12", "３", "12"),
             Triple("12345", "6", "12345"),
             Triple("", "99999", "99999"),
+            Triple("", "987654", "98765"),
+            Triple("999", "123", "99912"),
+            Triple("12", "3a4", "1234"),
         ).forEach { (before, input, expected) ->
             composeRule.ddayRepeatNumberInput(1).performTextReplacement(before)
             composeRule.waitForIdle()
