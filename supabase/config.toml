@@ -222,7 +222,7 @@ verify_jwt = false
 [functions.v1-play-integrity-decode]
 verify_jwt = false
 
-# pg_cron이 service role 키로 호출하고 함수 안에서 키를 대조하므로 게이트웨이 JWT 검증은 끈다.
+# pg_cron이 secret 키를 apikey 헤더로 보내 호출하고 함수 안에서 키를 대조하므로 게이트웨이 JWT 검증은 끈다.
 [functions.v1-daily-memo-notification-send]
 verify_jwt = false
 

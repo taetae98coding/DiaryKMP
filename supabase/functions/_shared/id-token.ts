@@ -1,10 +1,9 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { HttpError } from "./http.ts";
 import { isAppliedProfileImage } from "./profile-image.ts";
-import { createAdminClient } from "./supabase.ts";
+import { createAdminClient, publishableKey } from "./supabase.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 export type IdTokenProvider = "google" | "apple";
 
@@ -18,7 +17,7 @@ export async function issueSessionFromIdToken(
   idToken: string,
   nonce?: string,
 ): Promise<Session> {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const supabase = createClient(SUPABASE_URL, publishableKey(), {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 

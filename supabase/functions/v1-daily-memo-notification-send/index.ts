@@ -2,13 +2,11 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { buildFcmMessage, buildNotificationText, toContent } from "../_shared/daily-memo-notification.ts";
 import { FcmClient } from "../_shared/fcm.ts";
 import { HttpError, serve } from "../_shared/http.ts";
-import { createAdminClient } from "../_shared/supabase.ts";
+import { createAdminClient, secretKey } from "../_shared/supabase.ts";
 
-// pg_cron이 15분마다 service role 키로 호출한다. 사용자 세션으로는 호출할 수 없어야 하므로 키가 정확히 일치하는지 본다.
+// pg_cron이 15분마다 secret 키를 apikey 헤더로 보내 호출한다. 앱이나 사용자 세션으로는 호출할 수 없어야 하므로 키가 정확히 일치하는지 본다.
 serve(async (request) => {
-  const bearer = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!serviceRoleKey || bearer !== serviceRoleKey) {
+  if (request.headers.get("apikey") !== secretKey()) {
     throw new HttpError(401, "unauthorized");
   }
 
