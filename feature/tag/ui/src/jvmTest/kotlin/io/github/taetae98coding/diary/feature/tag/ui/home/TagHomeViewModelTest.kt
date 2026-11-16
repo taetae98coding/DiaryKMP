@@ -17,7 +17,7 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
-import io.github.taetae98coding.diary.domain.tag.usecase.PageTagHomeUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageFilteredTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestoreTagUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
@@ -68,7 +68,7 @@ class TagHomeViewModelTest : FunSpec() {
         test("TC-2494c80a-80ea-42d8-91d6-e2efd58aced2 조회한 태그 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = Arb.string().next()), tag(title = Arb.string().next()))
-                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = flowOf(Result.success(tagList))))
+                val viewModel = viewModel(pageFilteredTagUseCase = pageFilteredTagUseCase(tagListFlow = flowOf(Result.success(tagList))))
 
                 flowOf(viewModel.tagPagingData.first()).asSnapshot() shouldBe tagList
             }
@@ -77,10 +77,10 @@ class TagHomeViewModelTest : FunSpec() {
         test("TC-3fdaec2b-1986-4602-b277-4613a60d9aaf 이어서 불러오기에 실패해도 이미 불러온 태그를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = Arb.string().next()), tag(title = Arb.string().next()))
-                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
-                every { pageTagHomeUseCase(parameter = ListSort.TITLE) } returns
+                val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
+                every { pageFilteredTagUseCase(parameter = ListSort.TITLE) } returns
                     appendFailingPagingData(firstPage = tagList).map { pagingData -> Result.success(pagingData) }
-                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase)
+                val viewModel = viewModel(pageFilteredTagUseCase = pageFilteredTagUseCase)
 
                 val itemList =
                     flowOf(viewModel.tagPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
@@ -95,7 +95,7 @@ class TagHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = Arb.string().next()), tag(title = Arb.string().next()))
                 val tagListFlow = MutableStateFlow(Result.success(tagList))
-                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = tagListFlow))
+                val viewModel = viewModel(pageFilteredTagUseCase = pageFilteredTagUseCase(tagListFlow = tagListFlow))
 
                 viewModel.tagPagingData.test {
                     advanceUntilIdle()
@@ -115,7 +115,7 @@ class TagHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
-                        pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = flowOf(Result.failure(IllegalStateException()))),
+                        pageFilteredTagUseCase = pageFilteredTagUseCase(tagListFlow = flowOf(Result.failure(IllegalStateException()))),
                     )
 
                 flowOf(viewModel.tagPagingData.first()).asSnapshot().shouldBeEmpty()
@@ -184,11 +184,11 @@ class TagHomeViewModelTest : FunSpec() {
                 val second = tag(title = "B-${Arb.string().next()}")
                 val titleTagList = listOf(first, second)
                 val recentlyUpdatedTagList = listOf(second, first)
-                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
-                every { pageTagHomeUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(PagingData.from(titleTagList)))
-                every { pageTagHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
+                val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
+                every { pageFilteredTagUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(PagingData.from(titleTagList)))
+                every { pageFilteredTagUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
                     flowOf(Result.success(PagingData.from(recentlyUpdatedTagList)))
-                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase)
+                val viewModel = viewModel(pageFilteredTagUseCase = pageFilteredTagUseCase)
 
                 viewModel.tagPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe titleTagList
@@ -205,8 +205,8 @@ class TagHomeViewModelTest : FunSpec() {
         test("TC-789dd2df-4ab2-4892-b499-29150f142804 지금 선택된 정렬을 다시 골라도 목록을 다시 조회하지 않아 순서가 그대로다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = "A-${Arb.string().next()}"), tag(title = "B-${Arb.string().next()}"))
-                val pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = flowOf(Result.success(tagList)))
-                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase)
+                val pageFilteredTagUseCase = pageFilteredTagUseCase(tagListFlow = flowOf(Result.success(tagList)))
+                val viewModel = viewModel(pageFilteredTagUseCase = pageFilteredTagUseCase)
 
                 viewModel.tagPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe tagList
@@ -218,7 +218,7 @@ class TagHomeViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
                 viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
-                coVerify(exactly = 1) { pageTagHomeUseCase(parameter = ListSort.TITLE) }
+                coVerify(exactly = 1) { pageFilteredTagUseCase(parameter = ListSort.TITLE) }
             }
         }
 
@@ -343,7 +343,7 @@ class TagHomeViewModelTest : FunSpec() {
     public companion object {
         private fun viewModel(
             getTopLevelTagFilterUseCase: GetTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(emptyFlow()),
-            pageTagHomeUseCase: PageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = emptyFlow()),
+            pageFilteredTagUseCase: PageFilteredTagUseCase = pageFilteredTagUseCase(tagListFlow = emptyFlow()),
             finishTagUseCase: FinishTagUseCase = mockk(),
             restartTagUseCase: RestartTagUseCase = mockk(),
             deleteTagUseCase: DeleteTagUseCase = mockk(),
@@ -351,7 +351,7 @@ class TagHomeViewModelTest : FunSpec() {
         ): TagHomeViewModel =
             TagHomeViewModel(
                 getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase,
-                pageTagHomeUseCase = pageTagHomeUseCase,
+                pageFilteredTagUseCase = pageFilteredTagUseCase,
                 finishTagUseCase = finishTagUseCase,
                 restartTagUseCase = restartTagUseCase,
                 deleteTagUseCase = deleteTagUseCase,
@@ -365,12 +365,12 @@ class TagHomeViewModelTest : FunSpec() {
             return getTopLevelTagFilterUseCase
         }
 
-        private fun pageTagHomeUseCase(tagListFlow: Flow<Result<List<Tag>>>): PageTagHomeUseCase {
-            val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
-            every { pageTagHomeUseCase(parameter = ListSort.TITLE) } returns
+        private fun pageFilteredTagUseCase(tagListFlow: Flow<Result<List<Tag>>>): PageFilteredTagUseCase {
+            val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
+            every { pageFilteredTagUseCase(parameter = ListSort.TITLE) } returns
                 tagListFlow.map { result -> result.map { tagList -> PagingData.from(tagList) } }
 
-            return pageTagHomeUseCase
+            return pageFilteredTagUseCase
         }
 
         private fun tag(title: String): Tag =

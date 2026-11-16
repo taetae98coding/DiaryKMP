@@ -9,8 +9,10 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
@@ -117,7 +119,7 @@ class PlaylistHomeScreenTest {
     ) {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
         every { musicViewModel.musicPagingData } returns musicPagingDataFlow
-        every { musicViewModel.uiState } returns MutableStateFlow(PlaylistHomeUiState())
+        every { musicViewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { musicViewModel.effect } returns emptyFlow()
 
         composeRule.setContent {

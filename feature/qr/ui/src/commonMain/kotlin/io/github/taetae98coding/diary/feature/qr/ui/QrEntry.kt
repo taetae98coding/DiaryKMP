@@ -5,9 +5,11 @@ package io.github.taetae98coding.diary.feature.qr.ui
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.result.LocalResultEventBus
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
@@ -64,7 +66,7 @@ private fun EntryProviderScope<ScreenNavKey>.qrHomeEntry(backStack: NavBackStack
 
         QrHomeScreen(
             navigateUp = backStack::navigateUpFromQrHome,
-            navigateToAdd = backStack::navigateToQrAddFromHome,
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToQrAddFromHome),
             navigateToDetail = { id -> backStack.navigateToQrDetail(id = id) },
             componentVisibleProvider = { QrHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isQrAddOnDetailPane()) },
             qrViewModel = koinViewModel(),
@@ -85,8 +87,8 @@ internal fun qrHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<
                 QrAddScreen(
                     navigateUp = {},
                     navigateToScan = { backStack.add(QrScanNavKey) },
-                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = LocalResultEventBus.current,
@@ -108,8 +110,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrAddEntry(backStack: NavBackStack<
         QrAddScreen(
             navigateUp = backStack::removeLastOrNull,
             navigateToScan = { backStack.add(QrScanNavKey) },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             permissionManager = rememberPermissionManager(),
             resultEventBus = LocalResultEventBus.current,
@@ -135,8 +137,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(
         QrDetailScreen(
             navigateUp = backStack::removeLastOrNull,
             navigateToScan = { backStack.add(QrScanNavKey) },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             permissionManager = rememberPermissionManager(),
             qrActionLauncherFactory = qrActionLauncherFactory,

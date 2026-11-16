@@ -40,6 +40,7 @@ public class GetGoldenHolidayUseCase internal constructor(
     private fun holidayListFlow(year: Int): Flow<List<Holiday>> =
         combine(
             year.goldenHolidaySourceYearList().map { targetYear ->
+                // 한 년도의 조회 실패는 다른 대상 년도의 공휴일 사용을 막지 않는다.
                 getHolidayUseCase(parameter = targetYear)
                     .map { result -> result.getOrDefault(emptyList()) }
             },

@@ -11,11 +11,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.SavedStateHandle
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleSignInResult
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential

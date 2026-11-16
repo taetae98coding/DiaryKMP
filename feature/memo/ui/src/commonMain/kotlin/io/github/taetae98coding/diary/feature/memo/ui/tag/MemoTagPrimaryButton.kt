@@ -5,11 +5,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.icon.StarBorderIcon
-import io.github.taetae98coding.diary.compose.core.icon.StarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.StarBorderIcon
+import io.github.taetae98coding.diary.compose.icon.StarIcon
 import io.github.taetae98coding.diary.compose.tag.previewTag
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_primary_set_button_content_description

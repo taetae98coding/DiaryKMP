@@ -15,7 +15,6 @@ import kotlin.uuid.Uuid
 @Factory
 public class UpdateTagUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
-    private val findTagUseCase: FindTagUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
     private val accountTagRepository: AccountTagRepository,
     private val clock: Clock,
@@ -26,9 +25,9 @@ public class UpdateTagUseCase internal constructor(
             parameter.detail.copy(
                 title =
                     parameter.detail.title.ifBlank {
-                        findTagUseCase(parameter.id)
+                        accountTagRepository
+                            .find(account = account, tagId = parameter.id)
                             .first()
-                            .getOrThrow()
                             ?.detail
                             ?.title
                             .orEmpty()

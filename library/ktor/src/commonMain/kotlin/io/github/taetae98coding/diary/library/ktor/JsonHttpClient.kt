@@ -9,7 +9,7 @@ import io.ktor.client.request.url
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-public val DefaultHttpClientJson: Json =
+internal val DefaultHttpClientJson: Json =
     Json {
         ignoreUnknownKeys = true
     }

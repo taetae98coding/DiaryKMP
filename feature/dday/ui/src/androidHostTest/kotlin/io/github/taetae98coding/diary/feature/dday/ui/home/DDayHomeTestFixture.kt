@@ -21,6 +21,10 @@ import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 // 목록에 노출되는 디데이다. 제목은 화면에서 글자로 찾으므로 테스트가 정한다.
 internal fun homeDDayOf(
@@ -70,6 +74,11 @@ internal fun failedHomeDDayPagingData(): PagingData<DDay> =
                 append = LoadState.NotLoading(endOfPaginationReached = false),
             ),
     )
+
+internal fun homeFilterViewModelOf(uiStateFlow: StateFlow<DDayHomeScaffoldFilterUiState> = MutableStateFlow(DDayHomeScaffoldFilterUiState())): DDayHomeScaffoldFilterViewModel =
+    mockk<DDayHomeScaffoldFilterViewModel>().also { viewModel ->
+        every { viewModel.uiState } returns uiStateFlow
+    }
 
 // 화면에 보이는 목록은 하나이므로 당겨서 새로고침 영역 안의 스크롤 목록을 찾는다.
 internal fun SemanticsNodeInteractionsProvider.homeRefreshableList(): SemanticsNodeInteraction = onNode(hasScrollToIndexAction() and hasAnyAncestor(hasTestTag(PULL_TO_REFRESH_TEST_TAG)))

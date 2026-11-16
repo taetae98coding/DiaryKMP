@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RestoreMusicUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
@@ -38,6 +39,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -134,8 +136,8 @@ class PlaylistHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))))
 
-                viewModel.uiState.test {
-                    awaitItem() shouldBe PlaylistHomeUiState(sort = ListSort.TITLE)
+                viewModel.sortUiState.test {
+                    awaitItem() shouldBe ListSortUiState(sort = ListSort.TITLE)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -151,13 +153,13 @@ class PlaylistHomeViewModelTest : FunSpec() {
                     flowOf(Result.success(PagingData.from(recentlyUpdatedMusicList)))
                 val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase)
 
-                viewModel.uiState.test {
-                    awaitItem() shouldBe PlaylistHomeUiState(sort = ListSort.TITLE)
+                viewModel.sortUiState.test {
+                    awaitItem() shouldBe ListSortUiState(sort = ListSort.TITLE)
 
                     viewModel.select(sort = ListSort.RECENTLY_UPDATED)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe PlaylistHomeUiState(sort = ListSort.RECENTLY_UPDATED)
+                    awaitItem() shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
                     cancelAndIgnoreRemainingEvents()
                 }
                 viewModel.musicPagingData.test {
@@ -246,6 +248,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
                 viewModel.delete(id = id)
                 viewModel.delete(id = id)
+                runCurrent()
                 gate.complete(Unit)
                 advanceUntilIdle()
 
@@ -270,6 +273,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
                 viewModel.restore(id = id)
                 viewModel.restore(id = id)
+                runCurrent()
                 gate.complete(Unit)
                 advanceUntilIdle()
 

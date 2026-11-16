@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.core.network.impl.file.transport
 
+import io.github.taetae98coding.diary.core.data.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLargeRemoteException
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
-import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

@@ -10,4 +10,6 @@ public data class RoutineDetailNavKey(
     val isStandalone: Boolean = false,
 ) : ScreenNavKey {
     override val screenName: String get() = "RoutineDetail"
+
+    override val topLevelListKey: ScreenNavKey? get() = if (isStandalone) null else RoutineHomeNavKey
 }

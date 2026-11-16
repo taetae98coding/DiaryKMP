@@ -13,7 +13,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth

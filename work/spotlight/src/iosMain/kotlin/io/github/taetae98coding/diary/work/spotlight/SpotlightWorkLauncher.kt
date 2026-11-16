@@ -1,13 +1,16 @@
 package io.github.taetae98coding.diary.work.spotlight
 
+import io.github.taetae98coding.diary.work.spotlight.di.SpotlightScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.koin.core.annotation.Single
 import org.koin.mp.KoinPlatform
 
+@Single
 internal class SpotlightWorkLauncher(
     private val work: SpotlightWork,
-    private val scope: CoroutineScope,
+    @param:SpotlightScope private val scope: CoroutineScope,
 ) {
     private var job: Job? = null
 

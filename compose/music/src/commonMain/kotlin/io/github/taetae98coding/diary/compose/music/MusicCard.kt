@@ -14,15 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoThumbnailOrNull
 
 public const val MUSIC_CARD_TEST_TAG: String = "MusicCard"
 
 @Composable
-public fun MusicCard(
+internal fun MusicCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     music: Music? = null,

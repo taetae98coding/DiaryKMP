@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.feature.more.ui
 
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileImageViewerNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileNavKey
@@ -28,48 +30,20 @@ internal fun EntryProviderScope<ScreenNavKey>.moreEntry(backStack: NavBackStack<
 private fun EntryProviderScope<ScreenNavKey>.moreHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<MoreHomeNavKey> {
         MoreHomeScreen(
-            navigateToChecklist = {
-                backStack.add(ChecklistHomeNavKey)
-            },
-            navigateToContact = {
-                backStack.add(ContactHomeNavKey)
-            },
-            navigateToDDay = {
-                backStack.add(DDayHomeNavKey)
-            },
-            navigateToFile = {
-                backStack.add(FileHomeNavKey)
-            },
-            navigateToHoliday = {
-                backStack.add(HolidayHomeNavKey)
-            },
-            navigateToLogin = {
-                backStack.add(LoginHomeNavKey)
-            },
-            navigateToPlace = {
-                backStack.add(PlaceHomeNavKey)
-            },
-            navigateToPlaylist = {
-                backStack.add(PlaylistHomeNavKey)
-            },
-            navigateToProfile = {
-                backStack.add(ProfileNavKey)
-            },
-            navigateToProfileImageViewer = { imageUrl ->
-                backStack.add(ProfileImageViewerNavKey(imageUrl = imageUrl))
-            },
-            navigateToQr = {
-                backStack.add(QrHomeNavKey)
-            },
-            navigateToSearch = {
-                backStack.add(SearchHomeNavKey())
-            },
-            navigateToSetting = {
-                backStack.add(SettingHomeNavKey)
-            },
-            navigateToWeb = {
-                backStack.add(WebHomeNavKey)
-            },
+            navigateToChecklist = dropUnlessResumed { backStack.add(ChecklistHomeNavKey) },
+            navigateToContact = dropUnlessResumed { backStack.add(ContactHomeNavKey) },
+            navigateToDDay = dropUnlessResumed { backStack.add(DDayHomeNavKey) },
+            navigateToFile = dropUnlessResumed { backStack.add(FileHomeNavKey) },
+            navigateToHoliday = dropUnlessResumed { backStack.add(HolidayHomeNavKey) },
+            navigateToLogin = dropUnlessResumed { backStack.add(LoginHomeNavKey) },
+            navigateToPlace = dropUnlessResumed { backStack.add(PlaceHomeNavKey) },
+            navigateToPlaylist = dropUnlessResumed { backStack.add(PlaylistHomeNavKey) },
+            navigateToProfile = dropUnlessResumed { backStack.add(ProfileNavKey) },
+            navigateToProfileImageViewer = dropUnlessResumedWithArg { imageUrl -> backStack.add(ProfileImageViewerNavKey(imageUrl = imageUrl)) },
+            navigateToQr = dropUnlessResumed { backStack.add(QrHomeNavKey) },
+            navigateToSearch = dropUnlessResumed { backStack.add(SearchHomeNavKey()) },
+            navigateToSetting = dropUnlessResumed { backStack.add(SettingHomeNavKey) },
+            navigateToWeb = dropUnlessResumed { backStack.add(WebHomeNavKey) },
             accountViewModel = koinViewModel(),
             signOutViewModel = koinViewModel(),
             refreshViewModel = koinViewModel(),

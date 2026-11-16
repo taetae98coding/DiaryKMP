@@ -15,12 +15,12 @@ import io.github.taetae98coding.diary.domain.routine.usecase.SetRoutineViewScope
 import io.github.taetae98coding.diary.domain.routine.usecase.UnselectAllRoutineFilterTagUseCase
 import io.github.taetae98coding.diary.domain.routine.usecase.UnselectRoutineFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.TagFilterState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
@@ -31,27 +31,29 @@ internal class RoutineHomeFilterViewModel(
     pageTagUseCase: PageTagUseCase,
     getRoutineFilterUseCase: GetRoutineFilterUseCase,
     getRoutineViewScopeUseCase: GetRoutineViewScopeUseCase,
-    private val selectRoutineFilterTagUseCase: SelectRoutineFilterTagUseCase,
-    private val unselectRoutineFilterTagUseCase: UnselectRoutineFilterTagUseCase,
-    private val unselectAllRoutineFilterTagUseCase: UnselectAllRoutineFilterTagUseCase,
+    selectRoutineFilterTagUseCase: SelectRoutineFilterTagUseCase,
+    unselectRoutineFilterTagUseCase: UnselectRoutineFilterTagUseCase,
+    unselectAllRoutineFilterTagUseCase: UnselectAllRoutineFilterTagUseCase,
     private val setRoutineViewScopeUseCase: SetRoutineViewScopeUseCase,
 ) : ViewModel() {
-    val tagPagingData: Flow<PagingData<Tag>> =
-        pageTagUseCase(parameter = "")
-            .map { result -> result.getOrElse { PagingData.empty() } }
-            .cachedIn(viewModelScope)
+    private val tagFilterState =
+        TagFilterState(
+            pageTagUseCase = pageTagUseCase,
+            getFilterUseCase = getRoutineFilterUseCase,
+            selectTagUseCase = selectRoutineFilterTagUseCase,
+            unselectTagUseCase = unselectRoutineFilterTagUseCase,
+            unselectAllTagUseCase = unselectAllRoutineFilterTagUseCase,
+        )
+
+    val tagPagingData: Flow<PagingData<Tag>> = tagFilterState.tagPagingData.cachedIn(viewModelScope)
 
     val uiState: StateFlow<RoutineHomeFilterUiState> =
         combine(
-            getRoutineFilterUseCase(),
+            tagFilterState.selectedTagIdSet,
             getRoutineViewScopeUseCase(),
-        ) { tagListResult, viewScopeResult ->
+        ) { selectedTagIdSet, viewScopeResult ->
             RoutineHomeFilterUiState(
-                selectedTagIdSet =
-                    tagListResult
-                        .getOrDefault(emptyList())
-                        .map { tag -> tag.id }
-                        .toSet(),
+                selectedTagIdSet = selectedTagIdSet,
                 viewScope = viewScopeResult.getOrDefault(ROUTINE_DEFAULT_VIEW_SCOPE),
             )
         }.stateIn(
@@ -60,46 +62,18 @@ internal class RoutineHomeFilterViewModel(
             initialValue = RoutineHomeFilterUiState(),
         )
 
-    private val inProgressSelectTagSet = mutableSetOf<Uuid>()
-    private val inProgressUnselectTagSet = mutableSetOf<Uuid>()
-    private var isUnselectAllTagInProgress = false
     private var isSetViewScopeInProgress = false
 
     fun selectTag(id: Uuid) {
-        if (!inProgressSelectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                selectRoutineFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressSelectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.select(id = id) }
     }
 
     fun unselectTag(id: Uuid) {
-        if (!inProgressUnselectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                unselectRoutineFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressUnselectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselect(id = id) }
     }
 
     fun unselectAllTag() {
-        if (isUnselectAllTagInProgress) return
-        isUnselectAllTagInProgress = true
-
-        viewModelScope.launch {
-            try {
-                unselectAllRoutineFilterTagUseCase()
-            } finally {
-                isUnselectAllTagInProgress = false
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselectAll() }
     }
 
     fun setViewScope(viewScope: RoutineViewScope) {

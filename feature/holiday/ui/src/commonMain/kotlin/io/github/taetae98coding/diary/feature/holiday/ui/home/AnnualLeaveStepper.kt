@@ -8,10 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.icon.AddIcon
-import io.github.taetae98coding.diary.compose.core.icon.RemoveIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.AddIcon
+import io.github.taetae98coding.diary.compose.icon.RemoveIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.holiday.ui.Res
 import io.github.taetae98coding.diary.feature.holiday.ui.holiday_annual_leave_decrease_content_description
 import io.github.taetae98coding.diary.feature.holiday.ui.holiday_annual_leave_increase_content_description

@@ -10,7 +10,7 @@ internal fun placeAppActionOf(vararg useCaseArray: Any): PlaceAppAction {
     val useCaseList = useCaseArray.toList()
 
     return PlaceAppAction(
-        pagePlaceHomeUseCase = useCaseList.useCase(),
+        pagePlaceUseCase = useCaseList.useCase(),
         getPlaceListUseCase = useCaseList.useCase(),
         findPlaceUseCase = useCaseList.findUseCase { Arb.place().next().copy(isDeleted = false) },
         getEntityTagUseCase = useCaseList.useCase(),

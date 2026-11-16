@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.memo.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.memo.calendarMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.CalendarMemoLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
-import io.github.taetae98coding.diary.core.testing.memo.calendarMemoLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

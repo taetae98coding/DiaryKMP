@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.property.Arb
@@ -121,6 +122,7 @@ class WebDetailScreenMemoReturnTest {
                         pageViewModel = memoScreenPageViewModel(),
                         tagViewModel = detailTagScreenTestViewModel(),
                         contentSharerFactory = testContentSharerFactory(),
+                        webViewContent = AndroidWebViewContent(),
                     )
                 }
             }

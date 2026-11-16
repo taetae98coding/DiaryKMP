@@ -2,10 +2,10 @@ package io.github.taetae98coding.diary.feature.web.ui.detail.viewmode
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.icon.CodeIcon
-import io.github.taetae98coding.diary.compose.core.icon.LinkIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.CodeIcon
+import io.github.taetae98coding.diary.compose.icon.LinkIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 internal fun WebDetailViewModeIcon(

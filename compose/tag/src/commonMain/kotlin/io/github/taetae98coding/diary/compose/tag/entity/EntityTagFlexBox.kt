@@ -8,12 +8,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAddChip
 import io.github.taetae98coding.diary.compose.core.layout.DiaryChipFlexBox
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.Res
 import io.github.taetae98coding.diary.compose.tag.entity_tag_action
 import io.github.taetae98coding.diary.compose.tag.entity_tag_label
 import io.github.taetae98coding.diary.compose.tag.previewTag
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 

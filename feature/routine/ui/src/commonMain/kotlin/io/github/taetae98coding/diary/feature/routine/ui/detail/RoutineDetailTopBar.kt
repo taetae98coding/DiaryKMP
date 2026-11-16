@@ -6,10 +6,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.previewRoutineDetail
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.routine_detail_delete_button_content_description
 import io.github.taetae98coding.diary.feature.routine.ui.routine_detail_finish_button_content_description

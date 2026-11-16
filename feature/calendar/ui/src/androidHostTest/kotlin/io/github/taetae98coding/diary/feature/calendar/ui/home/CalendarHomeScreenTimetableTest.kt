@@ -14,8 +14,8 @@ import androidx.compose.ui.test.performTouchInput
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.calendar.search.holidaySearchUri
 import io.github.taetae98coding.diary.compose.calendar.search.weatherSearchUri
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
@@ -218,6 +218,7 @@ class CalendarHomeScreenTimetableTest {
                         permissionManager = rememberPermissionManager(),
                         holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
                         memoViewModel = memoViewModel,
+                        filterViewModel = filterViewModel(),
                         birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(birthdayList)),
                         weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(weatherReport)),
                         syncViewModel = syncViewModel(),
@@ -234,7 +235,6 @@ class CalendarHomeScreenTimetableTest {
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
             every { viewModel.select(any()) } returns Unit
             every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
-            every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             every { viewModel.move(any(), any(), any()) } returns Unit
         }
 

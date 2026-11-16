@@ -15,8 +15,8 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 
-private const val TITLE_KEY = "title"
-private const val DESCRIPTION_KEY = "description"
+internal const val TITLE_KEY = "title"
+internal const val DESCRIPTION_KEY = "description"
 private const val PERIOD_KEY = "period"
 private const val ALL_DAY_KEY = "allDay"
 private const val START_DATE_KEY = "startDate"

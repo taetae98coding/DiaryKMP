@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.core.network.impl.account.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.account.appleAuthorizationRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.account.entity.AppleAuthorizationRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
 import io.github.taetae98coding.diary.core.network.impl.account.entity.AccountDeleteRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.account.appleAuthorizationRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -5,10 +5,12 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.picker.MemoSelectablePaging
+import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputController
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +31,8 @@ internal class MemoAddWebViewModel(
     @InjectedParam initialWebId: Uuid?,
     pageMemoSelectableWebUseCase: PageMemoSelectableWebUseCase,
     getSelectedWebUseCase: GetSelectedWebUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    MemoWebInputController {
     val selectionUiState: StateFlow<MemoAddWebSelectionUiState>
         field = MutableStateFlow(MemoAddWebSelectionUiState(webIdSet = setOfNotNull(initialWebId)))
 
@@ -44,21 +47,21 @@ internal class MemoAddWebViewModel(
             )
 
     private val selectablePaging =
-        MemoSelectablePaging(scope = viewModelScope) { query -> pageMemoSelectableWebUseCase(parameter = query) }
+        MemoSelectablePaging { query -> pageMemoSelectableWebUseCase(parameter = query) }
 
-    val webPagingData: Flow<PagingData<Web>> = selectablePaging.pagingData
+    val webPagingData: Flow<PagingData<Web>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
-    val selectableWebPagingData: Flow<PagingData<Web>> = selectablePaging.selectablePagingData
+    val selectableWebPagingData: Flow<PagingData<Web>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
-    fun updateQuery(query: String) {
+    override fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }
 
-    fun selectWeb(id: Uuid) {
-        selectionUiState.update { value -> value.copy(webIdSet = value.webIdSet + id) }
+    override fun selectWeb(webId: Uuid) {
+        selectionUiState.update { value -> value.copy(webIdSet = value.webIdSet + webId) }
     }
 
-    fun unselectWeb(id: Uuid) {
-        selectionUiState.update { value -> value.copy(webIdSet = value.webIdSet - id) }
+    override fun unselectWeb(webId: Uuid) {
+        selectionUiState.update { value -> value.copy(webIdSet = value.webIdSet - webId) }
     }
 }

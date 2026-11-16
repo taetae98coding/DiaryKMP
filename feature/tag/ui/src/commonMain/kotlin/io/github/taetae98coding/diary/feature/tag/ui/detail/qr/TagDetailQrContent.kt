@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
 import io.github.taetae98coding.diary.compose.qr.QrListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
@@ -52,9 +53,13 @@ internal fun TagDetailQrContent(
         TagDetailQrTab(
             onEvent = { event ->
                 when (event) {
-                    is TagDetailQrContentEvent.ClickQr -> navigateToQrDetail(event.id)
                     is TagDetailQrContentEvent.Refresh -> syncViewModel.refresh()
-                    is TagDetailQrContentEvent.DeleteQr -> qrViewModel.delete(id = event.id)
+                }
+            },
+            onQrListEvent = { event ->
+                when (event) {
+                    is QrListEvent.ClickQr -> navigateToQrDetail(event.id)
+                    is QrListEvent.SwipeDelete -> qrViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

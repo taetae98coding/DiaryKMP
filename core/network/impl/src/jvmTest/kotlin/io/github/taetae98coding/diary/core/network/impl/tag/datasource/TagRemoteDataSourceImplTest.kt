@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.network.impl.tag.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.tag.tagRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
@@ -7,7 +8,6 @@ import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestR
 import io.github.taetae98coding.diary.core.network.impl.tag.entity.TagPullResponseRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.tag.entity.TagPushRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.tag.tagRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

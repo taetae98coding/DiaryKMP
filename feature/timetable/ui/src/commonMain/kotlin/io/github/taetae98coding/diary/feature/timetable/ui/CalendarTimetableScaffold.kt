@@ -19,9 +19,9 @@ import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarItemDefaults
 import io.github.taetae98coding.diary.compose.calendar.search.CalendarSearchOpener
 import io.github.taetae98coding.diary.compose.calendar.search.rememberCalendarSearchOpener
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.timetable.Timetable
 import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport

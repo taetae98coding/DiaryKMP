@@ -17,7 +17,7 @@ import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionBut
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.button.LocalDiaryFloatingActionButtonMenuOverride
 import io.github.taetae98coding.diary.compose.core.button.LocalDiaryFloatingActionButtonOverride
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

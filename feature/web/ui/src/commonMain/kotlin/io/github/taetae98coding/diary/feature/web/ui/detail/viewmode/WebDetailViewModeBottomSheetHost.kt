@@ -7,8 +7,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldEvent
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldState
 import io.github.taetae98coding.diary.feature.web.ui.detail.rememberWebDetailScaffoldState

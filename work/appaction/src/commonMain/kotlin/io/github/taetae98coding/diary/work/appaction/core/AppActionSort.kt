@@ -11,7 +11,7 @@ public object AppActionSortValue {
     public const val RECENTLY_UPDATED: String = "recently_updated"
 }
 
-internal fun ListSort.toSortValue(): String =
+public fun ListSort.toSortValue(): String =
     when (this) {
         ListSort.DEFAULT -> AppActionSortValue.DEFAULT
         ListSort.TITLE -> AppActionSortValue.TITLE

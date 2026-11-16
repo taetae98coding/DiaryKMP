@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.data.testing.checklist.localChecklist
+import io.github.taetae98coding.diary.core.data.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.checklist.entity.ChecklistRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.checklistitem.entity.ChecklistItemRemoteEntity
-import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
-import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote

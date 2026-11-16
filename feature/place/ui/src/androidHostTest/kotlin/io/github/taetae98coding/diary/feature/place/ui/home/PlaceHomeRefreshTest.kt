@@ -18,15 +18,16 @@ import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -115,8 +116,8 @@ class PlaceHomeRefreshTest {
         coEvery { fetchCurrentLocationUseCase() } returns Result.failure(IllegalStateException(Arb.string().next()))
         val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
         every { getPlaceListUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
-        val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-        every { pagePlaceHomeUseCase(parameter = any()) } returns placePagingDataFlowOf(listOf(place)).map { data -> Result.success(data) }
+        val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+        every { pagePlaceUseCase(parameter = any()) } returns placePagingDataFlowOf(listOf(place)).map { data -> Result.success(data) }
 
         setPlaceHomeScreen(
             mapViewModel =
@@ -127,7 +128,7 @@ class PlaceHomeRefreshTest {
             placeListViewModel =
                 PlaceHomePlaceListViewModel(
                     getPlaceListUseCase = getPlaceListUseCase,
-                    pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                    pagePlaceUseCase = pagePlaceUseCase,
                     deletePlaceUseCase = mockk(),
                     restorePlaceUseCase = mockk(),
                 ),
@@ -209,7 +210,7 @@ class PlaceHomeRefreshTest {
     @Test
     fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 목록 모드의 목록에서 장소를 선택해 상세로 이동할 수 있다`() {
         val place = viewModeTestPlace()
-        val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
+        val eventList = mutableListOf<Any>()
         composeRule.setContent {
             ViewModeTestPlaceHomeScaffold(
                 onEvent = eventList::add,
@@ -217,6 +218,7 @@ class PlaceHomeRefreshTest {
                 uiState = PlaceHomeUiState.Loading,
                 placePagingDataFlow = placePagingDataFlowOf(listOf(place)),
                 isRefreshing = true,
+                onPlaceListEvent = eventList::add,
             )
         }
 
@@ -224,7 +226,7 @@ class PlaceHomeRefreshTest {
         composeRule.onNodeWithText(place.detail.title).performClick()
         composeRule.waitForIdle()
 
-        eventList.withoutMoveMap() shouldBe listOf(PlaceHomeScaffoldEvent.ClickPlace(id = place.id))
+        eventList.withoutMoveMap() shouldBe listOf(PlaceListEvent.ClickPlace(id = place.id))
     }
 
     @Test
@@ -274,6 +276,7 @@ class PlaceHomeRefreshTest {
                 val isRefreshing by isRefreshingFlow.collectAsStateWithLifecycle()
 
                 PlaceList(
+                    onPlaceListEvent = {},
                     onEvent = onEvent,
                     mapState = mapState,
                     placeListUiStateProvider = { uiState },

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.network.impl.memotag.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.memotag.memoTagRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
@@ -7,7 +8,6 @@ import io.github.taetae98coding.diary.core.network.impl.memotag.entity.MemoTagPu
 import io.github.taetae98coding.diary.core.network.impl.memotag.entity.MemoTagPushRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.memotag.memoTagRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

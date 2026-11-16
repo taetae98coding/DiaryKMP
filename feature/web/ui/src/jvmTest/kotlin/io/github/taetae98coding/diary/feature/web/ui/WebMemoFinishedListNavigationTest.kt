@@ -133,7 +133,7 @@ class WebMemoFinishedListNavigationTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { webEntry(backStack = NavBackStack(*backStack.toTypedArray()), contentSharerFactory = mockk()) }
+            val provider = entryProvider<ScreenNavKey> { webEntry(backStack = NavBackStack(*backStack.toTypedArray()), contentSharerFactory = mockk(), webViewContent = mockk()) }
 
             return provider(key).metadata
         }

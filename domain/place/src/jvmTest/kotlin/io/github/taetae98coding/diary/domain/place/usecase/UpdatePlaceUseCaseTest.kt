@@ -42,9 +42,8 @@ class UpdatePlaceUseCaseTest :
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findPlaceUseCase = mockk<FindPlaceUseCase>()
-            every { findPlaceUseCase(id) } returns flowOf(Result.success(place(id = id, title = savedTitle)))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
+            every { accountPlaceRepository.find(account = account, placeId = id) } returns flowOf(place(id = id, title = savedTitle))
             coEvery {
                 accountPlaceRepository.updateDetail(
                     account = account,
@@ -61,7 +60,6 @@ class UpdatePlaceUseCaseTest :
                 UpdatePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase,
-                    findPlaceUseCase = findPlaceUseCase,
                     accountPlaceRepository = accountPlaceRepository,
                     clock = clock,
                 )
@@ -150,13 +148,11 @@ class UpdatePlaceUseCaseTest :
         ).forEach { coordinate ->
             Given("유효 범위 안의 숫자가 아닌 좌표 $coordinate 로 수정하려 한다") {
                 val getAccountUseCase = mockk<GetAccountUseCase>()
-                val findPlaceUseCase = mockk<FindPlaceUseCase>()
                 val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
                 val useCase =
                     UpdatePlaceUseCase(
                         getAccountUseCase = getAccountUseCase,
                         requestSyncUseCase = requestSyncUseCase(),
-                        findPlaceUseCase = findPlaceUseCase,
                         accountPlaceRepository = accountPlaceRepository,
                         clock = Clock.System,
                     )
@@ -213,13 +209,11 @@ class UpdatePlaceUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
-            val findPlaceUseCase = mockk<FindPlaceUseCase>()
             val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
             val useCase =
                 UpdatePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase(),
-                    findPlaceUseCase = findPlaceUseCase,
                     accountPlaceRepository = accountPlaceRepository,
                     clock = Clock.System,
                 )
@@ -249,7 +243,6 @@ class UpdatePlaceUseCaseTest :
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findPlaceUseCase = mockk<FindPlaceUseCase>()
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery {
                 accountPlaceRepository.updateDetail(
@@ -268,7 +261,6 @@ class UpdatePlaceUseCaseTest :
                 UpdatePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase,
-                    findPlaceUseCase = findPlaceUseCase,
                     accountPlaceRepository = accountPlaceRepository,
                     clock = clock,
                 )
@@ -306,7 +298,6 @@ class UpdatePlaceUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findPlaceUseCase = mockk<FindPlaceUseCase>()
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery {
                 accountPlaceRepository.updateDetail(
@@ -320,7 +311,6 @@ class UpdatePlaceUseCaseTest :
                 UpdatePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase(),
-                    findPlaceUseCase = findPlaceUseCase,
                     accountPlaceRepository = accountPlaceRepository,
                     clock = Clock.System,
                 )

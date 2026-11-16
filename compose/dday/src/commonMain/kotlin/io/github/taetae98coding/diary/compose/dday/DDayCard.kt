@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.domain.dday.count.count
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
@@ -30,7 +30,7 @@ public const val DDAY_CARD_TEST_TAG: String = "DDayCard"
 public const val DDAY_COLOR_INDICATOR_TEST_TAG: String = "DDayColorIndicator"
 
 @Composable
-public fun DDayCard(
+internal fun DDayCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: DDayListState = rememberDDayListState(),

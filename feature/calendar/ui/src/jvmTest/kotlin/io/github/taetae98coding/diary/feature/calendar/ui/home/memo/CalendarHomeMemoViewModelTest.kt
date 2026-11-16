@@ -6,18 +6,12 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
-import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
-import io.github.taetae98coding.diary.core.testing.tag.tag
-import io.github.taetae98coding.diary.domain.core.invoke
-import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.localDateRange
-import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -32,9 +26,7 @@ import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -173,62 +165,6 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-a5c69eb9-d97f-45a6-b738-838199170318 선택한 태그가 있으면 필터 적용 상태를 노출한다") {
-            runTest(mainDispatcher) {
-                val selectedTagList = listOf(tag())
-                val viewModel =
-                    memoViewModel(
-                        getCalendarFilterUseCase =
-                            calendarFilterUseCase(
-                                flow = flowOf(Result.success(selectedTagList)),
-                            ),
-                    )
-
-                viewModel.filterUiState.test {
-                    awaitItem() shouldBe CalendarHomeScaffoldFilterUiState()
-                    advanceUntilIdle()
-                    awaitItem() shouldBe CalendarHomeScaffoldFilterUiState(isApplied = true)
-                    cancelAndIgnoreRemainingEvents()
-                }
-            }
-        }
-
-        test("TC-a5c69eb9-d97f-45a6-b738-838199170318 선택한 태그가 없으면 필터 적용 상태를 노출하지 않는다") {
-            runTest(mainDispatcher) {
-                val viewModel =
-                    memoViewModel(
-                        getCalendarFilterUseCase =
-                            calendarFilterUseCase(
-                                flow = flowOf(Result.success(emptyList())),
-                            ),
-                    )
-
-                viewModel.filterUiState.test {
-                    awaitItem() shouldBe CalendarHomeScaffoldFilterUiState()
-                    advanceUntilIdle()
-                    expectNoEvents()
-                }
-            }
-        }
-
-        test("필터 조회에 실패하면 적용되지 않은 상태를 노출한다") {
-            runTest(mainDispatcher) {
-                val viewModel =
-                    memoViewModel(
-                        getCalendarFilterUseCase =
-                            calendarFilterUseCase(
-                                flow = flowOf(Result.failure(IllegalStateException())),
-                            ),
-                    )
-
-                viewModel.filterUiState.test {
-                    awaitItem() shouldBe CalendarHomeScaffoldFilterUiState()
-                    advanceUntilIdle()
-                    expectNoEvents()
-                }
-            }
-        }
-
         test("move는 MoveMemoUseCase에 이동 파라미터를 그대로 전달한다") {
             runTest(mainDispatcher) {
                 val moveMemoUseCase = mockk<MoveMemoUseCase>()
@@ -301,31 +237,13 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
 }
 
 private fun memoViewModel(
-    getCalendarFilterUseCase: GetCalendarFilterUseCase = calendarFilterUseCase(flow = emptyFlow()),
     getCalendarMemoUseCase: GetCalendarMemoUseCase = getCalendarMemoUseCase(),
     moveMemoUseCase: MoveMemoUseCase = mockk(),
 ): CalendarHomeMemoViewModel =
     CalendarHomeMemoViewModel(
-        getCalendarFilterUseCase = getCalendarFilterUseCase,
         getCalendarMemoUseCase = getCalendarMemoUseCase,
         moveMemoUseCase = moveMemoUseCase,
     )
-
-private fun calendarFilterUseCase(flow: Flow<Result<List<Tag>>>): GetCalendarFilterUseCase {
-    val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-    every { getCalendarFilterUseCase() } returns flow
-
-    return getCalendarFilterUseCase
-}
-
-private fun tag(): Tag =
-    Arb
-        .tag()
-        .next()
-        .copy(
-            updatedAt = Arb.secondPrecisionInstant().next(),
-            createdAt = Arb.secondPrecisionInstant().next(),
-        )
 
 private fun getCalendarMemoUseCase(vararg resultByDateRange: Pair<LocalDateRange, Result<List<CalendarMemo>>>): GetCalendarMemoUseCase {
     val results = resultByDateRange.toMap()

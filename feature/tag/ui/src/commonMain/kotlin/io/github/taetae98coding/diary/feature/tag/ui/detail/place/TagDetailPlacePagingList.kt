@@ -16,16 +16,16 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
@@ -38,6 +38,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TagDetailPlacePagingList(
     onEvent: (TagDetailPlaceContentEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
@@ -83,12 +84,7 @@ internal fun TagDetailPlacePagingList(
                     val place = placePagingItems[index]
 
                     SwipePlaceCard(
-                        onEvent = { event ->
-                            when (event) {
-                                is PlaceListEvent.ClickPlace -> onEvent(TagDetailPlaceContentEvent.ClickPlace(id = event.id))
-                                is PlaceListEvent.SwipeDelete -> onEvent(TagDetailPlaceContentEvent.DeletePlace(id = event.id))
-                            }
-                        },
+                        onEvent = onPlaceListEvent,
                         modifier = Modifier.animateItem(),
                         place = place,
                     )
@@ -105,6 +101,7 @@ private fun TagDetailPlacePagingListPreview() {
         Surface {
             TagDetailPlacePagingList(
                 onEvent = {},
+                onPlaceListEvent = {},
                 modifier = Modifier.fillMaxSize(),
             )
         }

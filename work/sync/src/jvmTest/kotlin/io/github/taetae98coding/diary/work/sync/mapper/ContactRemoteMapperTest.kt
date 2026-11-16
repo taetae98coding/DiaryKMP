@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.contact.localContactCaseList
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactRemoteEntity
-import io.github.taetae98coding.diary.core.testing.contact.localContactCaseList
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

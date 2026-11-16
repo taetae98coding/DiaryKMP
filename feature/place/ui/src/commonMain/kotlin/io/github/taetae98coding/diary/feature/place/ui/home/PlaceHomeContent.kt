@@ -6,13 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.layout.DiaryAdaptiveSplitLayout
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMap
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.PlacePinMarkerEffect
 import io.github.taetae98coding.diary.compose.place.previewPlace
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
@@ -20,6 +21,7 @@ import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
 @Composable
 internal fun PlaceHomeContent(
     onEvent: (PlaceHomeScaffoldEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     mapState: DiaryMapState = rememberDiaryMapState(),
     placeListUiStateProvider: () -> PlaceHomePlaceListUiState = { PlaceHomePlaceListUiState() },
@@ -41,6 +43,7 @@ internal fun PlaceHomeContent(
         secondary = {
             PlaceList(
                 onEvent = onEvent,
+                onPlaceListEvent = onPlaceListEvent,
                 mapState = mapState,
                 placeListUiStateProvider = placeListUiStateProvider,
                 isRefreshingProvider = isRefreshingProvider,
@@ -60,6 +63,7 @@ private fun PlaceHomeContentPreview() {
         Surface {
             PlaceHomeContent(
                 onEvent = {},
+                onPlaceListEvent = {},
                 placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = placeList) },
             )
         }

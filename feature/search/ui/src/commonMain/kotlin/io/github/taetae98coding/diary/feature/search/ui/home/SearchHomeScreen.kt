@@ -24,19 +24,19 @@ import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
-import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayContent
+import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayConnector
 import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayViewModel
-import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoContent
+import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoConnector
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
-import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceContent
+import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceConnector
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultScrollEffect
-import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineContent
+import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineConnector
 import io.github.taetae98coding.diary.feature.search.ui.home.routine.SearchHomeRoutineViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.routine.UpdateSearchHomeRoutineTodayEffect
-import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagContent
+import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagConnector
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
-import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebContent
+import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebConnector
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.uuid.Uuid
@@ -140,7 +140,7 @@ private fun SearchHomeTypeContent(
 ) {
     when (type) {
         SearchHomeType.MEMO ->
-            SearchHomeMemoContent(
+            SearchHomeMemoConnector(
                 viewModel = memo.viewModel,
                 pagingItems = memo.pagingItems,
                 listState = memo.listState,
@@ -150,7 +150,7 @@ private fun SearchHomeTypeContent(
             )
 
         SearchHomeType.TAG ->
-            SearchHomeTagContent(
+            SearchHomeTagConnector(
                 viewModel = tag.viewModel,
                 pagingItems = tag.pagingItems,
                 listState = tag.listState,
@@ -160,7 +160,7 @@ private fun SearchHomeTypeContent(
             )
 
         SearchHomeType.PLACE ->
-            SearchHomePlaceContent(
+            SearchHomePlaceConnector(
                 viewModel = place.viewModel,
                 pagingItems = place.pagingItems,
                 listState = place.listState,
@@ -170,7 +170,7 @@ private fun SearchHomeTypeContent(
             )
 
         SearchHomeType.WEB ->
-            SearchHomeWebContent(
+            SearchHomeWebConnector(
                 viewModel = web.viewModel,
                 pagingItems = web.pagingItems,
                 listState = web.listState,
@@ -180,7 +180,7 @@ private fun SearchHomeTypeContent(
             )
 
         SearchHomeType.DDAY ->
-            SearchHomeDDayContent(
+            SearchHomeDDayConnector(
                 viewModel = dday.viewModel,
                 pagingItems = dday.pagingItems,
                 listState = dday.listState,
@@ -191,7 +191,7 @@ private fun SearchHomeTypeContent(
             )
 
         SearchHomeType.ROUTINE ->
-            SearchHomeRoutineContent(
+            SearchHomeRoutineConnector(
                 viewModel = routine.viewModel,
                 pagingItems = routine.pagingItems,
                 listState = routine.listState,

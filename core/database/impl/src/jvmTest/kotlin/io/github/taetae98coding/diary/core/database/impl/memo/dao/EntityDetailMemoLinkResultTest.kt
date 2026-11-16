@@ -4,6 +4,10 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.contact.localContact
+import io.github.taetae98coding.diary.core.data.testing.memo.localMemo
+import io.github.taetae98coding.diary.core.data.testing.place.localPlace
+import io.github.taetae98coding.diary.core.data.testing.web.localWeb
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -17,10 +21,6 @@ import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountC
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
-import io.github.taetae98coding.diary.core.testing.contact.localContact
-import io.github.taetae98coding.diary.core.testing.memo.localMemo
-import io.github.taetae98coding.diary.core.testing.place.localPlace
-import io.github.taetae98coding.diary.core.testing.web.localWeb
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec

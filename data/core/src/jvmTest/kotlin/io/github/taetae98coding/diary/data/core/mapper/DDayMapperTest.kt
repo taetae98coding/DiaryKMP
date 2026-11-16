@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayOverflowPolicyLocalEntity
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.core.testing.dday.dday
-import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

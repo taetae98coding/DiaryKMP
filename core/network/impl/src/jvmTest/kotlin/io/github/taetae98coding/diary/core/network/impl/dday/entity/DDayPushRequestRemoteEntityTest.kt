@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.core.network.impl.dday.entity
 
+import io.github.taetae98coding.diary.core.data.testing.dday.ddayRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayRepeatRemoteEntity
-import io.github.taetae98coding.diary.core.testing.dday.ddayRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe

@@ -17,12 +17,12 @@ import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoTagExistenceFil
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllMemoFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectMemoFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.TagFilterState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
@@ -33,29 +33,31 @@ internal class MemoHomeFilterViewModel(
     pageTagUseCase: PageTagUseCase,
     getMemoFilterUseCase: GetMemoFilterUseCase,
     getMemoExistenceFilterUseCase: GetMemoExistenceFilterUseCase,
-    private val selectMemoFilterTagUseCase: SelectMemoFilterTagUseCase,
-    private val unselectMemoFilterTagUseCase: UnselectMemoFilterTagUseCase,
-    private val unselectAllMemoFilterTagUseCase: UnselectAllMemoFilterTagUseCase,
+    selectMemoFilterTagUseCase: SelectMemoFilterTagUseCase,
+    unselectMemoFilterTagUseCase: UnselectMemoFilterTagUseCase,
+    unselectAllMemoFilterTagUseCase: UnselectAllMemoFilterTagUseCase,
     private val setMemoDateExistenceFilterUseCase: SetMemoDateExistenceFilterUseCase,
     private val setMemoTagExistenceFilterUseCase: SetMemoTagExistenceFilterUseCase,
     private val setMemoPlaceExistenceFilterUseCase: SetMemoPlaceExistenceFilterUseCase,
 ) : ViewModel() {
-    val tagPagingData: Flow<PagingData<Tag>> =
-        pageTagUseCase(parameter = "")
-            .map { result -> result.getOrElse { PagingData.empty() } }
-            .cachedIn(viewModelScope)
+    private val tagFilterState =
+        TagFilterState(
+            pageTagUseCase = pageTagUseCase,
+            getFilterUseCase = getMemoFilterUseCase,
+            selectTagUseCase = selectMemoFilterTagUseCase,
+            unselectTagUseCase = unselectMemoFilterTagUseCase,
+            unselectAllTagUseCase = unselectAllMemoFilterTagUseCase,
+        )
+
+    val tagPagingData: Flow<PagingData<Tag>> = tagFilterState.tagPagingData.cachedIn(viewModelScope)
 
     val uiState: StateFlow<MemoHomeFilterUiState> =
         combine(
-            getMemoFilterUseCase(),
+            tagFilterState.selectedTagIdSet,
             getMemoExistenceFilterUseCase(),
-        ) { tagListResult, existenceResult ->
+        ) { selectedTagIdSet, existenceResult ->
             MemoHomeFilterUiState(
-                selectedTagIdSet =
-                    tagListResult
-                        .getOrDefault(emptyList())
-                        .map { tag -> tag.id }
-                        .toSet(),
+                selectedTagIdSet = selectedTagIdSet,
                 existence = existenceResult.getOrDefault(MemoExistenceFilter()),
             )
         }.stateIn(
@@ -64,48 +66,20 @@ internal class MemoHomeFilterViewModel(
             initialValue = MemoHomeFilterUiState(),
         )
 
-    private val inProgressSelectTagSet = mutableSetOf<Uuid>()
-    private val inProgressUnselectTagSet = mutableSetOf<Uuid>()
-    private var isUnselectAllTagInProgress = false
     private val inProgressSetDateExistenceSet = mutableSetOf<MemoFilterExistence>()
     private val inProgressSetTagExistenceSet = mutableSetOf<MemoFilterExistence>()
     private val inProgressSetPlaceExistenceSet = mutableSetOf<MemoFilterExistence>()
 
     fun selectTag(id: Uuid) {
-        if (!inProgressSelectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                selectMemoFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressSelectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.select(id = id) }
     }
 
     fun unselectTag(id: Uuid) {
-        if (!inProgressUnselectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                unselectMemoFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressUnselectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselect(id = id) }
     }
 
     fun unselectAllTag() {
-        if (isUnselectAllTagInProgress) return
-        isUnselectAllTagInProgress = true
-
-        viewModelScope.launch {
-            try {
-                unselectAllMemoFilterTagUseCase()
-            } finally {
-                isUnselectAllTagInProgress = false
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselectAll() }
     }
 
     fun setDateExistence(existence: MemoFilterExistence) {

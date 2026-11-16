@@ -28,13 +28,13 @@ class WebPageRepositoryImplTest :
                     WebHeader(name = "X-Empty", value = ""),
                 )
             val remoteDataSource = mockk<WebPageRemoteDataSource>()
-            coEvery { remoteDataSource.get(url = any(), headerList = any()) } returns Arb.webPageRemoteEntity().next()
+            coEvery { remoteDataSource.read(url = any(), headerList = any()) } returns Arb.webPageRemoteEntity().next()
             val repository = WebPageRepositoryImpl(webPageRemoteDataSource = remoteDataSource)
 
             repository.fetch(url = url, headerList = headerList)
 
             coVerify(exactly = 1) {
-                remoteDataSource.get(
+                remoteDataSource.read(
                     url = url,
                     headerList =
                         listOf(
@@ -49,7 +49,7 @@ class WebPageRepositoryImplTest :
         test("TC-069417bf-bcdf-4e50-9f52-6337d1805387 받은 응답의 주소를 기준 주소로, 본문을 그대로 전달한다") {
             val remotePage = Arb.webPageRemoteEntity().next()
             val remoteDataSource = mockk<WebPageRemoteDataSource>()
-            coEvery { remoteDataSource.get(url = any(), headerList = any()) } returns remotePage
+            coEvery { remoteDataSource.read(url = any(), headerList = any()) } returns remotePage
             val repository = WebPageRepositoryImpl(webPageRemoteDataSource = remoteDataSource)
 
             repository.fetch(url = remotePage.url, headerList = emptyList()) shouldBe
@@ -59,7 +59,7 @@ class WebPageRepositoryImplTest :
         test("TC-db6726ec-6a9a-440c-bef1-a36f4c3196ca 원격 요청이 실패하면 실패를 그대로 전파한다") {
             val throwable = IllegalStateException(Arb.string().next())
             val remoteDataSource = mockk<WebPageRemoteDataSource>()
-            coEvery { remoteDataSource.get(url = any(), headerList = any()) } throws throwable
+            coEvery { remoteDataSource.read(url = any(), headerList = any()) } throws throwable
             val repository = WebPageRepositoryImpl(webPageRemoteDataSource = remoteDataSource)
 
             shouldThrow<IllegalStateException> {

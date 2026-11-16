@@ -18,21 +18,21 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryChecklistItemSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.checklist.ui.Res
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_detail_loading_content_description
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_detail_update_button_content_description
 import io.github.taetae98coding.diary.feature.checklist.ui.previewChecklist
-import io.github.taetae98coding.diary.feature.checklist.ui.tag.ChecklistTagInputEvent
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
@@ -40,7 +40,7 @@ import kotlin.uuid.Uuid
 @Composable
 internal fun ChecklistDetailScaffold(
     onEvent: (ChecklistDetailScaffoldEvent) -> Unit,
-    onTagInputEvent: (ChecklistTagInputEvent) -> Unit,
+    onTagInputEvent: (EntityTagInputEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ChecklistDetailFormState = rememberChecklistDetailFormState(),
@@ -113,7 +113,7 @@ internal fun ChecklistDetailScaffold(
 @Composable
 private fun ChecklistDetailScaffoldContent(
     onEvent: (ChecklistDetailScaffoldEvent) -> Unit,
-    onTagInputEvent: (ChecklistTagInputEvent) -> Unit,
+    onTagInputEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ChecklistDetailFormState = rememberChecklistDetailFormState(),
     uiStateProvider: () -> ChecklistDetailUiState = { ChecklistDetailUiState.Loading },

@@ -10,17 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
-import io.github.taetae98coding.diary.feature.checklist.ui.tag.ChecklistTagInputEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 
 @Composable
 internal fun ChecklistAddForm(
     onEvent: (ChecklistAddScaffoldEvent) -> Unit,
-    onTagInputEvent: (ChecklistTagInputEvent) -> Unit,
+    onTagInputEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ChecklistAddFormState = rememberChecklistAddFormState(),
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
@@ -52,8 +52,8 @@ internal fun ChecklistAddForm(
             state = state,
         )
         EntityTagInput(
-            onTagClick = { id -> onTagInputEvent(ChecklistTagInputEvent.ClickTag(id = id)) },
-            onAddClick = { onTagInputEvent(ChecklistTagInputEvent.ClickTagAdd) },
+            onTagClick = { id -> onTagInputEvent(EntityTagInputEvent.ClickTag(id = id)) },
+            onAddClick = { onTagInputEvent(EntityTagInputEvent.ClickAdd) },
             modifier = Modifier.fillMaxWidth(),
             uiStateProvider = tagUiStateProvider,
         )

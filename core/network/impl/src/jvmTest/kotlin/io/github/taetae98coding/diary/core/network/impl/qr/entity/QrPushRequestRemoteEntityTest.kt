@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.core.network.impl.qr.entity
 
-import io.github.taetae98coding.diary.core.testing.qr.remoteQr
+import io.github.taetae98coding.diary.core.data.testing.qr.remoteQr
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

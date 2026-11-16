@@ -19,7 +19,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
@@ -150,7 +150,7 @@ class MemoPlacePickerDialogBoundaryTest {
     ): MemoAddPlaceViewModel {
         val pagePlaceUseCase = mockk<PagePlaceUseCase>()
         every { pagePlaceUseCase(parameter = any()) } answers {
-            val query = firstArg<String>()
+            val query = firstArg<PagePlaceUseCase.Parameter>().query
             queryList.add(query)
             flowOf(Result.success(PagingData.from(placeList.filter { place -> place.detail.title.contains(query, ignoreCase = true) })))
         }

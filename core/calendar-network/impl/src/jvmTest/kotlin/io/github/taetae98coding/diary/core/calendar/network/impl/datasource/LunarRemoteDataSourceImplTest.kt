@@ -26,7 +26,7 @@ class LunarRemoteDataSourceImplTest :
         test("TC-b3604246-d530-4d6d-964e-c35faa78f705 원격 응답을 양력 날짜별 음력 날짜로 읽는다") {
             val dataSource = createDataSource(createMockEngine())
 
-            val actual = dataSource.get(year = 2026)
+            val actual = dataSource.read(year = 2026)
 
             actual shouldHaveSize 365
             actual.first() shouldBe
@@ -56,7 +56,7 @@ class LunarRemoteDataSourceImplTest :
                     )
                 }
 
-            createDataSource(engine).get(year = 1997) shouldBe emptyList()
+            createDataSource(engine).read(year = 1997) shouldBe emptyList()
         }
 
         test("TC-b8dba1db-ba91-4747-a0b3-17f5010f836f 요청한 연도의 한국 음력 자료를 원격에 요청한다") {
@@ -70,7 +70,7 @@ class LunarRemoteDataSourceImplTest :
                 val engine = createMockEngine()
                 val dataSource = createDataSource(engine)
 
-                dataSource.get(year = year)
+                dataSource.read(year = year)
 
                 engine.requestHistory
                     .single()

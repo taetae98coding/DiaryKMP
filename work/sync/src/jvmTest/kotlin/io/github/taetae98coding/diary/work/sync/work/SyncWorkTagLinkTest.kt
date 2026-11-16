@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.data.testing.taglink.tagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.network.api.taglink.entity.TagLinkRemoteEntity
-import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal

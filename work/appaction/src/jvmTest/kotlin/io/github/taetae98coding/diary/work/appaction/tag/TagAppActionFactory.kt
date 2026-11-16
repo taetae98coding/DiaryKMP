@@ -18,7 +18,7 @@ internal fun tagAppActionOf(vararg useCaseArray: Any): TagAppAction {
     val useCaseList = useCaseArray.toList()
 
     return TagAppAction(
-        pageTagHomeUseCase = useCaseList.useCase(),
+        pageFilteredTagUseCase = useCaseList.useCase(),
         pageFinishedTagUseCase = useCaseList.useCase(),
         findTagUseCase = useCaseList.findUseCase { Arb.tag().next().copy(isDeleted = false) },
         getLinkedTagUseCase = useCaseList.useCase(),

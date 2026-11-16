@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
-import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoContent
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoConnector
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoFinishedListButton
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
@@ -31,7 +31,7 @@ internal fun WebDetailMemoContent(
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = WebDetailTab.MEMO, provider = viewModelStoreProvider)
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-        EntityDetailMemoContent(
+        EntityDetailMemoConnector(
             memoViewModel = koinViewModel<WebDetailMemoViewModel> { parametersOf(id) },
             syncViewModel = koinViewModel(),
             navigateToMemoDetail = navigateToMemoDetail,

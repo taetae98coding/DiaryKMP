@@ -24,12 +24,12 @@ import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
-import io.github.taetae98coding.diary.compose.core.icon.PhotoIcon
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.PhotoIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.feature.account.ui.Res
 import io.github.taetae98coding.diary.feature.account.ui.profile_image_edit_apply_button_content_description

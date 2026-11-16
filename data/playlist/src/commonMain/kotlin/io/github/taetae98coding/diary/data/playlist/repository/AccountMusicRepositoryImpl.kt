@@ -38,16 +38,6 @@ internal class AccountMusicRepositoryImpl(
             transform = { local -> local.toDomain() },
         )
 
-    override suspend fun readList(
-        account: Account,
-        sort: ListSort,
-    ): List<Music> =
-        accountMusicLocalDataSource
-            .readList(
-                accountId = account.id,
-                sort = sort.toLocal(),
-            ).map { local -> local.toDomain() }
-
     override fun find(
         account: Account,
         musicId: Uuid,

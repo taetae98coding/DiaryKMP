@@ -28,8 +28,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 import kotlinx.datetime.LocalDate
@@ -41,7 +41,7 @@ public const val ROUTINE_PROGRESS_BAR_TEST_TAG: String = "RoutineProgressBar"
 private const val PERCENT: Float = 100F
 
 @Composable
-public fun RoutineCard(
+internal fun RoutineCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: RoutineListState = rememberRoutineListState(),

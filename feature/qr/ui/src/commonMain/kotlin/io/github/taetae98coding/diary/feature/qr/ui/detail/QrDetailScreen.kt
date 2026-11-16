@@ -18,13 +18,14 @@ import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrScannedResultEffect
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
-import io.github.taetae98coding.diary.feature.qr.ui.add.form.handleQrFormEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.qrValueEmptyMessageMap
 import io.github.taetae98coding.diary.feature.qr.ui.add.rememberQrScanStarter
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.rememberQrActionController
@@ -32,7 +33,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.detail.share.QrCodePngEncode
 import io.github.taetae98coding.diary.feature.qr.ui.detail.share.QrShareController
 import io.github.taetae98coding.diary.feature.qr.ui.detail.share.rememberQrShareController
 import io.github.taetae98coding.diary.feature.qr.ui.qr_camera_permission_denied_message
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
@@ -98,12 +98,12 @@ internal fun QrDetailScreen(
                     state = state,
                     qrViewModel = qrViewModel,
                     launchAction = { action -> coroutineScope.launch { actionController.launch(action = action, snackbarHostState = state.snackbarHostState) } },
-                    share = { coroutineScope.launch { shareQr(state = state, savedTitle = content?.detail?.title.orEmpty(), shareController = shareController, emptyMessageMap = emptyMessageMap, coroutineScope = coroutineScope) } },
+                    share = { coroutineScope.launch { shareQr(state = state, savedTitle = content?.detail?.title.orEmpty(), shareController = shareController, emptyMessageMap = emptyMessageMap) } },
                     startScan = { coroutineScope.launch { scanStarter.startIfIdle(onGranted = navigateToScan, onDenied = showPermissionDenied) } },
                     navigateUp = navigateUp,
                 )
             },
-            onFormEvent = { event -> handleQrFormEvent(event = event, state = state, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
+            onFormEvent = { event -> handleEntityTagInputEvent(event = event, tagPickerDialogState = state.tagPickerDialogState, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
             onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             modifier = modifier,
             state = state,
@@ -141,12 +141,14 @@ private suspend fun shareQr(
     savedTitle: String,
     shareController: QrShareController,
     emptyMessageMap: Map<QrFormat, String>,
-    coroutineScope: CoroutineScope,
 ) {
     val qrValue = state.contentState.qrValue
 
     if (qrValue.isEmpty()) {
-        state.showValueEmpty(emptyMessageMap = emptyMessageMap, coroutineScope = coroutineScope)
+        val message = emptyMessageMap.getValue(state.contentState.format)
+
+        state.focusEmptyValue()
+        state.snackbarHostState.showImmediate(message = message)
     } else {
         shareController.share(
             title = state.detail.title.ifBlank { savedTitle },

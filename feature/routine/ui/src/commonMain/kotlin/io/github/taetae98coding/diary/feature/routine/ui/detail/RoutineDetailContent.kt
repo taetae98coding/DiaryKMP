@@ -19,26 +19,27 @@ import androidx.compose.ui.unit.Dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryDatePickerDialogHost
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.RoutineIcon
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.RoutineIcon
 import io.github.taetae98coding.diary.compose.routine.previewRoutineDetail
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.routine.RoutineDetail
 import io.github.taetae98coding.diary.core.model.routine.RoutineRecord
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.detail.record.RoutineDetailRecordUiState
 import io.github.taetae98coding.diary.feature.routine.ui.detail.record.RoutineRecordInputRow
 import io.github.taetae98coding.diary.feature.routine.ui.detail.record.RoutineRecordRow
 import io.github.taetae98coding.diary.feature.routine.ui.form.RoutineForm
-import io.github.taetae98coding.diary.feature.routine.ui.form.RoutineFormEvent
 import io.github.taetae98coding.diary.feature.routine.ui.previewRoutineRecord
 import io.github.taetae98coding.diary.feature.routine.ui.routine_detail_record_empty_description
 import io.github.taetae98coding.diary.feature.routine.ui.routine_detail_record_empty_title
@@ -50,11 +51,12 @@ private const val FORM_KEY = "form"
 private const val RECORD_TITLE_KEY = "recordTitle"
 private const val RECORD_INPUT_KEY = "recordInput"
 private const val RECORD_EMPTY_KEY = "recordEmpty"
+private const val RECORD_CONTENT_TYPE = "record"
 
 @Composable
 internal fun RoutineDetailContent(
     onEvent: (RoutineDetailScaffoldEvent) -> Unit,
-    onFormEvent: (RoutineFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     detail: RoutineDetail,
     modifier: Modifier = Modifier,
     state: RoutineDetailScaffoldState = rememberRoutineDetailScaffoldState(),
@@ -75,7 +77,7 @@ internal fun RoutineDetailContent(
                 bottom = DiaryTheme.dimens.floatingActionButtonClearance,
             ),
     ) {
-        item(key = FORM_KEY) {
+        item(key = FORM_KEY, contentType = FORM_KEY) {
             RoutineForm(
                 onEvent = onFormEvent,
                 modifier =
@@ -119,7 +121,7 @@ private fun LazyListScope.recordInputs(
     componentSpacing: Dp,
     itemSpacing: Dp,
 ) {
-    item(key = RECORD_TITLE_KEY) {
+    item(key = RECORD_TITLE_KEY, contentType = RECORD_TITLE_KEY) {
         Text(
             text = stringResource(Res.string.routine_detail_record_title),
             modifier =
@@ -132,7 +134,7 @@ private fun LazyListScope.recordInputs(
             style = DiaryTheme.typography.titleSmall,
         )
     }
-    item(key = RECORD_INPUT_KEY) {
+    item(key = RECORD_INPUT_KEY, contentType = RECORD_INPUT_KEY) {
         RoutineRecordInputRow(
             onAdd = { onEvent(RoutineDetailScaffoldEvent.ClickRecordAdd) },
             unit = detail.unit,
@@ -155,6 +157,7 @@ private fun LazyListScope.records(
     items(
         count = recordPagingItems.itemCount,
         key = recordPagingItems.itemKey { record -> record.id.toString() },
+        contentType = recordPagingItems.itemContentType { RECORD_CONTENT_TYPE },
     ) { index ->
         val record = recordPagingItems[index]
 
@@ -169,7 +172,7 @@ private fun LazyListScope.records(
         )
     }
     if (recordPagingItems.isLoadedEmpty()) {
-        item(key = RECORD_EMPTY_KEY) {
+        item(key = RECORD_EMPTY_KEY, contentType = RECORD_EMPTY_KEY) {
             DiaryEmptyBox(
                 title = stringResource(Res.string.routine_detail_record_empty_title),
                 modifier =

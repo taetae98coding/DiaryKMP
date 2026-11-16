@@ -1,25 +1,16 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.McpSettingDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.McpSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.annotation.ComponentScan
@@ -34,74 +25,66 @@ public class DataStoreModule {
     @Single
     @MapSettingDataStore
     internal fun providesMapSettingDataStore(
-        @MapSettingStorage
-        storage: Storage<MapSettingData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<MapSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = MapSettingSerializer)
+    ): DataStore<MapSettingData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = MapSettingSerializer, name = MAP_SETTING_NAME)
 
     @Single
     @McpSettingDataStore
     internal fun providesMcpSettingDataStore(
-        @McpSettingStorage
-        storage: Storage<McpSettingData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<McpSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = McpSettingSerializer)
+    ): DataStore<McpSettingData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = McpSettingSerializer, name = MCP_SETTING_NAME)
 
     @Single
     @HolidaySettingDataStore
     internal fun providesHolidaySettingDataStore(
-        @HolidaySettingStorage
-        storage: Storage<HolidaySettingData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<HolidaySettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = HolidaySettingSerializer)
+    ): DataStore<HolidaySettingData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = HolidaySettingSerializer, name = HOLIDAY_SETTING_NAME)
 
     @Single
     @GeminiSettingDataStore
     internal fun providesGeminiSettingDataStore(
-        @GeminiSettingStorage
-        storage: Storage<GeminiSettingData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<GeminiSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = GeminiSettingSerializer)
+    ): DataStore<GeminiSettingData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = GeminiSettingSerializer, name = GEMINI_SETTING_NAME)
 
     @Single
     @FileDownloadSettingDataStore
     internal fun providesFileDownloadSettingDataStore(
-        @FileDownloadSettingStorage
-        storage: Storage<FileDownloadSettingData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<FileDownloadSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = FileDownloadSettingSerializer)
+    ): DataStore<FileDownloadSettingData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = FileDownloadSettingSerializer, name = FILE_DOWNLOAD_SETTING_NAME)
 
     @Single
     @SyncTimeDataStore
     internal fun providesSyncTimeDataStore(
-        @SyncTimeStorage
-        storage: Storage<SyncTimeData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<SyncTimeData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = SyncTimeSerializer)
+    ): DataStore<SyncTimeData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = SyncTimeSerializer, name = SYNC_TIME_NAME)
 
     @Single
     @WebLoginDataStore
     internal fun providesWebLoginDataStore(
-        @WebLoginStorage
-        storage: Storage<WebLoginData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<WebLoginData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = WebLoginSerializer)
+    ): DataStore<WebLoginData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = WebLoginSerializer, name = WEB_LOGIN_NAME)
 
     @Single
     @LoginProviderDataStore
     internal fun providesLoginProviderDataStore(
-        @LoginProviderStorage
-        storage: Storage<LoginProviderData>,
+        storageFactory: SettingStorageFactory,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<LoginProviderData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = LoginProviderSerializer)
+    ): DataStore<LoginProviderData> = createSettingDataStore(storageFactory = storageFactory, dispatcher = dispatcher, serializer = LoginProviderSerializer, name = LOGIN_PROVIDER_NAME)
 
     internal companion object {
         const val MAP_SETTING_NAME: String = "map-setting.json"
@@ -116,13 +99,14 @@ public class DataStoreModule {
 }
 
 private fun <T> createSettingDataStore(
-    storage: Storage<T>,
+    storageFactory: SettingStorageFactory,
     dispatcher: CoroutineDispatcher,
     serializer: SettingSerializer<T>,
+    name: String,
 ): DataStore<T> =
     DataStore
         .Builder(
-            storage = storage,
+            storage = storageFactory.create(serializer = serializer, name = name),
             context = dispatcher + SupervisorJob(),
         ).setCorruptionHandler(ReplaceFileCorruptionHandler { serializer.defaultValue })
         .build()

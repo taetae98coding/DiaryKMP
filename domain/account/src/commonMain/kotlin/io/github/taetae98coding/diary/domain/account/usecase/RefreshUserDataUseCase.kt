@@ -13,6 +13,7 @@ public class RefreshUserDataUseCase internal constructor(
     private val userDataRepository: UserDataRepository,
 ) : UseCase<Unit, Unit>() {
     override suspend fun execute(parameter: Unit) {
+        // 계정 확인에 실패하면 게스트일 때와 같이 다시 확인할 사용자 정보가 없으므로 요청하지 않고 끝낸다.
         val account = getAccountUseCase().first().getOrNull()
 
         if (account !is Account.User) return

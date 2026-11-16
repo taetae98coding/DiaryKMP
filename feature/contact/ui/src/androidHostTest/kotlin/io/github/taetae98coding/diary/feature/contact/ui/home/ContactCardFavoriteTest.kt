@@ -13,7 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.contact.ContactListEvent
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow

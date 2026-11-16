@@ -12,7 +12,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MORE_HOME_ACCOUNT_PLACEHOLDER_CHIP_TEST_TAG
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.dday.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.dday.DDayDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
@@ -18,14 +19,13 @@ import kotlin.uuid.Uuid
 public class UpdateDDayUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findDDayUseCase: FindDDayUseCase,
     private val accountDDayRepository: AccountDDayRepository,
     private val clock: Clock,
 ) : UseCase<UpdateDDayUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
         val inputDetail = parameter.input.toDetail()
         val account = getAccountUseCase.requireAccount()
-        val detail = inputDetail.withStoredTitleForBlank(id = parameter.id)
+        val detail = inputDetail.withStoredTitleForBlank(account = account, id = parameter.id)
 
         val updatedCount =
             accountDDayRepository.updateDetail(
@@ -40,13 +40,16 @@ public class UpdateDDayUseCase internal constructor(
         return updatedCount
     }
 
-    private suspend fun DDayDetail.withStoredTitleForBlank(id: Uuid): DDayDetail {
+    private suspend fun DDayDetail.withStoredTitleForBlank(
+        account: Account,
+        id: Uuid,
+    ): DDayDetail {
         if (title.isNotBlank()) return this
 
         val stored =
-            findDDayUseCase(parameter = id)
+            accountDDayRepository
+                .find(account = account, ddayId = id)
                 .first()
-                .getOrThrow()
                 ?.detail
 
         return copy(title = stored?.title.orEmpty())

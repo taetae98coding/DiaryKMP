@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.core.invoke
-import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.GetSyncPendingExistsUseCase
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -29,6 +29,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -132,12 +133,12 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val signOutUseCase = stubSignOutUseCase()
                 val syncPending = MutableStateFlow(Result.success(true))
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns syncPending
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns syncPending
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = signOutUseCase,
                     )
 
@@ -163,6 +164,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                 val savedStateHandle = SavedStateHandle()
                 val viewModel =
                     viewModel(hasPending = true, signOutUseCase = stubSignOutUseCase(), savedStateHandle = savedStateHandle)
+                backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.signOut()
                 advanceUntilIdle()
                 viewModel.uiState.value shouldBe MoreHomeSignOutUiState(isConfirmVisible = true)
@@ -203,13 +205,13 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
         test("TC-4b2a218b-2732-486b-a42f-e1ebb39267f1 업로드 대기 항목을 확인하지 못하면 확인 없이 로그아웃한다") {
             runTest(mainDispatcher) {
                 val signOutUseCase = stubSignOutUseCase()
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns
                     flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = signOutUseCase,
                     )
 
@@ -246,6 +248,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                 val signOutUseCase = mockk<SignOutUseCase>()
                 coEvery { signOutUseCase() } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(hasPending = false, signOutUseCase = signOutUseCase)
+                backgroundScope.launch { viewModel.uiState.collect {} }
 
                 accountViewModel.uiState.test {
                     awaitItem() shouldBe MoreHomeAccountUiState.Loading
@@ -264,30 +267,30 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
 
         test("TC-4ee2634b-a9fe-41a7-8f9c-5db073eae4fe 로그아웃 동작을 선택하면 업로드 대기 여부를 한 번 조회한다") {
             runTest(mainDispatcher) {
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns flowOf(Result.success(true))
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns flowOf(Result.success(true))
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = stubSignOutUseCase(),
                     )
 
                 viewModel.signOut()
                 advanceUntilIdle()
 
-                verify(exactly = 1) { findSyncPendingUseCase() }
+                verify(exactly = 1) { getSyncPendingExistsUseCase() }
             }
         }
 
         test("TC-ed16b7dd-6081-4893-a56f-9a2301d0fbe9 업로드 대기 항목을 확인하는 동안 진행 상태와 다이얼로그를 표시하지 않는다") {
             runTest(mainDispatcher) {
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns MutableSharedFlow()
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns MutableSharedFlow()
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = stubSignOutUseCase(),
                     )
 
@@ -322,6 +325,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                 val signOutUseCase = mockk<SignOutUseCase>()
                 coEvery { signOutUseCase() } coAnswers { awaitCancellation() }
                 val viewModel = viewModel(hasPending = false, signOutUseCase = signOutUseCase)
+                backgroundScope.launch { viewModel.uiState.collect {} }
 
                 accountViewModel.uiState.test {
                     awaitItem() shouldBe MoreHomeAccountUiState.Loading
@@ -342,15 +346,16 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
             test("TC-f8af2b1d-f38e-4e1a-abbc-802d215f2f63 업로드 대기 항목이 ${if (hasPending) "있을" else "없을"} 때 처리 중 다시 선택해도 진행 중인 처리만 이어진다") {
                 runTest(mainDispatcher) {
                     val pendingFlow = MutableSharedFlow<Result<Boolean>>(replay = 1)
-                    val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                    every { findSyncPendingUseCase() } returns pendingFlow
+                    val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                    every { getSyncPendingExistsUseCase() } returns pendingFlow
                     val signOutUseCase = stubSignOutUseCase()
                     val viewModel =
                         MoreHomeSignOutViewModel(
                             savedStateHandle = SavedStateHandle(),
-                            findSyncPendingUseCase = findSyncPendingUseCase,
+                            getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                             signOutUseCase = signOutUseCase,
                         )
+                    backgroundScope.launch { viewModel.uiState.collect {} }
 
                     viewModel.signOut()
                     viewModel.signOut()
@@ -358,7 +363,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                     pendingFlow.emit(Result.success(hasPending))
                     advanceUntilIdle()
 
-                    verify(exactly = 1) { findSyncPendingUseCase() }
+                    verify(exactly = 1) { getSyncPendingExistsUseCase() }
                     viewModel.uiState.value shouldBe MoreHomeSignOutUiState(isConfirmVisible = hasPending)
                     coVerify(exactly = if (hasPending) 0 else 1) { signOutUseCase() }
                 }
@@ -367,16 +372,17 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
 
         test("TC-66e5e6ca-c4f9-428b-9ca9-f17630bcc3c0 로그아웃 요청이 끝나기 전에 다시 선택해도 다시 요청하지 않는다") {
             runTest(mainDispatcher) {
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns flowOf(Result.success(false))
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns flowOf(Result.success(false))
                 val signOutUseCase = mockk<SignOutUseCase>()
                 coEvery { signOutUseCase() } coAnswers { awaitCancellation() }
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = signOutUseCase,
                     )
+                backgroundScope.launch { viewModel.uiState.collect {} }
 
                 viewModel.signOut()
                 advanceUntilIdle()
@@ -385,7 +391,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                 viewModel.signOut()
                 advanceUntilIdle()
 
-                verify(exactly = 1) { findSyncPendingUseCase() }
+                verify(exactly = 1) { getSyncPendingExistsUseCase() }
                 coVerify(exactly = 1) { signOutUseCase() }
                 viewModel.uiState.value shouldBe MoreHomeSignOutUiState()
             }
@@ -393,24 +399,26 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
 
         test("TC-f9537148-5e37-44bc-804d-aa3fadc86c92 취소로 끝난 뒤 다시 선택하면 다시 확인해 다이얼로그를 연다") {
             runTest(mainDispatcher) {
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns flowOf(Result.success(true))
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns flowOf(Result.success(true))
                 val signOutUseCase = stubSignOutUseCase()
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = signOutUseCase,
                     )
+                backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.signOut()
                 advanceUntilIdle()
                 viewModel.cancelSignOut()
+                advanceUntilIdle()
                 viewModel.uiState.value shouldBe MoreHomeSignOutUiState(isConfirmVisible = false)
 
                 viewModel.signOut()
                 advanceUntilIdle()
 
-                verify(exactly = 2) { findSyncPendingUseCase() }
+                verify(exactly = 2) { getSyncPendingExistsUseCase() }
                 viewModel.uiState.value shouldBe MoreHomeSignOutUiState(isConfirmVisible = true)
                 coVerify(exactly = 0) { signOutUseCase() }
             }
@@ -418,16 +426,17 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
 
         test("TC-f9537148-5e37-44bc-804d-aa3fadc86c92 로그아웃 실패로 끝난 뒤 다시 선택하면 다시 확인해 로그아웃을 요청한다") {
             runTest(mainDispatcher) {
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns flowOf(Result.success(false))
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns flowOf(Result.success(false))
                 val signOutUseCase = mockk<SignOutUseCase>()
                 coEvery { signOutUseCase() } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = signOutUseCase,
                     )
+                backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.signOut()
                 advanceUntilIdle()
                 coVerify(exactly = 1) { signOutUseCase() }
@@ -435,7 +444,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                 viewModel.signOut()
                 advanceUntilIdle()
 
-                verify(exactly = 2) { findSyncPendingUseCase() }
+                verify(exactly = 2) { getSyncPendingExistsUseCase() }
                 coVerify(exactly = 2) { signOutUseCase() }
                 viewModel.uiState.value shouldBe MoreHomeSignOutUiState()
             }
@@ -443,12 +452,12 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
 
         test("확인 다이얼로그를 거친 로그아웃은 업로드 대기 여부를 다시 조회하지 않는다") {
             runTest(mainDispatcher) {
-                val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-                every { findSyncPendingUseCase() } returns flowOf(Result.success(true))
+                val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+                every { getSyncPendingExistsUseCase() } returns flowOf(Result.success(true))
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
-                        findSyncPendingUseCase = findSyncPendingUseCase,
+                        getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                         signOutUseCase = stubSignOutUseCase(),
                     )
 
@@ -457,7 +466,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                 viewModel.confirmSignOut()
                 advanceUntilIdle()
 
-                verify(exactly = 1) { findSyncPendingUseCase() }
+                verify(exactly = 1) { getSyncPendingExistsUseCase() }
             }
         }
     }
@@ -477,12 +486,12 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
             signOutUseCase: SignOutUseCase,
             savedStateHandle: SavedStateHandle = SavedStateHandle(),
         ): MoreHomeSignOutViewModel {
-            val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
-            every { findSyncPendingUseCase() } returns flowOf(Result.success(hasPending))
+            val getSyncPendingExistsUseCase = mockk<GetSyncPendingExistsUseCase>()
+            every { getSyncPendingExistsUseCase() } returns flowOf(Result.success(hasPending))
 
             return MoreHomeSignOutViewModel(
                 savedStateHandle = savedStateHandle,
-                findSyncPendingUseCase = findSyncPendingUseCase,
+                getSyncPendingExistsUseCase = getSyncPendingExistsUseCase,
                 signOutUseCase = signOutUseCase,
             )
         }

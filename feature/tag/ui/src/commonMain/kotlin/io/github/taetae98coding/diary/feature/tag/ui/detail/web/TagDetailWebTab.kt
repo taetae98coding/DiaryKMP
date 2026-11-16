@@ -20,16 +20,16 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.WebIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.web.SwipeWebCard
 import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -44,6 +44,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TagDetailWebTab(
     onEvent: (TagDetailWebContentEvent) -> Unit,
+    onWebListEvent: (WebListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     gridState: LazyGridState = rememberLazyGridState(),
@@ -91,12 +92,7 @@ internal fun TagDetailWebTab(
                         val web = webPagingItems[index]
 
                         SwipeWebCard(
-                            onEvent = { event ->
-                                when (event) {
-                                    is WebListEvent.ClickWeb -> onEvent(TagDetailWebContentEvent.ClickWeb(id = event.id))
-                                    is WebListEvent.SwipeDelete -> onEvent(TagDetailWebContentEvent.DeleteWeb(id = event.id))
-                                }
-                            },
+                            onEvent = onWebListEvent,
                             modifier =
                                 Modifier
                                     .animateItem()
@@ -142,6 +138,7 @@ private fun TagDetailWebTabPreview() {
         Surface {
             TagDetailWebTab(
                 onEvent = {},
+                onWebListEvent = {},
                 modifier = Modifier.fillMaxSize(),
             )
         }

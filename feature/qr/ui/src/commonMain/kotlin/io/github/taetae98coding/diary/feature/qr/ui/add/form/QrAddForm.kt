@@ -12,11 +12,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.layout.DiaryInputColumn
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.qr.QrCodeImage
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScaffoldDefaults
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddTabRow
@@ -24,7 +25,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.qrAddTabList
 
 @Composable
 internal fun QrAddForm(
-    onEvent: (QrFormEvent) -> Unit,
+    onEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: QrAddFormState = rememberQrAddFormState(),
     isMapDisplayedProvider: () -> Boolean = { false },
@@ -56,8 +57,8 @@ internal fun QrAddForm(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 EntityTagInput(
-                    onTagClick = { id -> onEvent(QrFormEvent.ClickTag(id = id)) },
-                    onAddClick = { onEvent(QrFormEvent.ClickTagAdd) },
+                    onTagClick = { id -> onEvent(EntityTagInputEvent.ClickTag(id = id)) },
+                    onAddClick = { onEvent(EntityTagInputEvent.ClickAdd) },
                     modifier = Modifier.fillMaxWidth(),
                     uiStateProvider = tagUiStateProvider,
                 )

@@ -12,9 +12,9 @@ import androidx.compose.ui.semantics.semantics
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.routineAmountText
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.routine.CalendarRoutineRecord
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.home.press.longPress
@@ -27,6 +27,7 @@ import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 internal const val ROUTINE_HOME_CALENDAR_RECORD_TEST_TAG: String = "RoutineHomeCalendarRecord"
+private const val RECORD_CONTENT_TYPE = "record"
 
 internal fun CalendarWeekOfMonthGridGroupScope.routineRecordItem(
     recordProvider: () -> List<CalendarRoutineRecord>,
@@ -37,6 +38,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.routineRecordItem(
             dateRange = LocalDateRange(start = record.date, endInclusive = record.date),
             // 한 루틴이 여러 날짜에 놓이므로 날짜까지 더해 구분하고, 목록 키로 저장할 수 있도록 문자열로 둔다.
             key = "${record.routineId}/${record.date}",
+            contentType = RECORD_CONTENT_TYPE,
         ) {
             RoutineHomeCalendarRecordText(
                 onClick = { onRecordClick(record.routineId) },

@@ -7,6 +7,7 @@ import androidx.room3.useWriterConnection
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutineRecord
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.CalendarRoutineRecordLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCurrentCycleLocalEntity
@@ -24,7 +25,6 @@ import io.github.taetae98coding.diary.core.database.impl.routine.transaction.Acc
 import io.github.taetae98coding.diary.core.database.impl.routinefilter.entity.RoutineFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.routinerecord.entity.AccountRoutineRecordLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
-import io.github.taetae98coding.diary.core.testing.routine.localRoutineRecord
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb

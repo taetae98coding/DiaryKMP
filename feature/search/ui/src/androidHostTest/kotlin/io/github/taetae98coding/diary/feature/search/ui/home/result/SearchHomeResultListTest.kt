@@ -15,7 +15,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
@@ -24,6 +23,7 @@ import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.routine.ROUTINE_PROGRESS_BAR_TEST_TAG
 import io.github.taetae98coding.diary.compose.routine.RoutineListEvent
 import io.github.taetae98coding.diary.compose.routine.rememberRoutineListState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime

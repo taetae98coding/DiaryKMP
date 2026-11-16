@@ -17,11 +17,11 @@ import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialog
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.place.previewPlace
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.memo.ui.Res

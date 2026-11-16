@@ -14,7 +14,6 @@ kotlin {
                 implementation(projects.domain.memo)
                 implementation(projects.domain.place)
                 implementation(projects.domain.setting)
-                implementation(projects.domain.sync)
                 implementation(projects.domain.tag)
                 implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
@@ -35,6 +34,7 @@ kotlin {
 
         androidHostTest {
             dependencies {
+                implementation(projects.domain.sync)
                 implementation(libs.androidx.paging.testing)
             }
         }

@@ -18,8 +18,8 @@ import androidx.compose.ui.text.TextLayoutResult
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarItemDefaults
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -177,7 +177,6 @@ class CalendarHomeScreenColorTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarHomeMemoUiState(memoList = memoList) }
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 
         composeRule.setContent {
@@ -199,6 +198,7 @@ class CalendarHomeScreenColorTest {
                     state = state,
                     holidayViewModel = holidayViewModel(holidayListFlow = holidayListFlow),
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),

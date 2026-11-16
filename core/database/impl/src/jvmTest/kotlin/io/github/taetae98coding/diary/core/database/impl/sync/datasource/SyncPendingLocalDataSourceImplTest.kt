@@ -183,7 +183,7 @@ class SyncPendingLocalDataSourceImplTest :
 
                 write(database, accountId, true)
 
-                withClue(kind) { dataSource.hasPending(accountId = accountId).first() shouldBe true }
+                withClue(kind) { dataSource.getPendingExists(accountId = accountId).first() shouldBe true }
             }
         }
 
@@ -192,7 +192,7 @@ class SyncPendingLocalDataSourceImplTest :
 
             pendingWriterMap.forEach { (_, write) -> write(database, accountId, false) }
 
-            dataSource.hasPending(accountId = accountId).first() shouldBe false
+            dataSource.getPendingExists(accountId = accountId).first() shouldBe false
         }
 
         test("다른 계정의 업로드 대기 항목은 대기 항목으로 보지 않는다") {
@@ -201,11 +201,11 @@ class SyncPendingLocalDataSourceImplTest :
 
             pendingWriterMap.forEach { (_, write) -> write(database, otherAccountId, true) }
 
-            dataSource.hasPending(accountId = accountId).first() shouldBe false
+            dataSource.getPendingExists(accountId = accountId).first() shouldBe false
         }
 
         test("아무 항목도 없으면 대기 항목이 없다고 알린다") {
-            dataSource.hasPending(accountId = Arb.kotlinUuid().next()).first() shouldBe false
+            dataSource.getPendingExists(accountId = Arb.kotlinUuid().next()).first() shouldBe false
         }
 
         test("TC-d6a9c2f7-0d4b-4475-ac62-dce3d62f6f20 데이터베이스를 닫고 다시 열어도 업로드 대기 상태가 그대로 조회된다") {
@@ -222,7 +222,7 @@ class SyncPendingLocalDataSourceImplTest :
 
                     try {
                         withClue(kind) {
-                            SyncPendingLocalDataSourceImpl(database = secondDatabase).hasPending(accountId = accountId).first() shouldBe true
+                            SyncPendingLocalDataSourceImpl(database = secondDatabase).getPendingExists(accountId = accountId).first() shouldBe true
                         }
                     } finally {
                         secondDatabase.close()

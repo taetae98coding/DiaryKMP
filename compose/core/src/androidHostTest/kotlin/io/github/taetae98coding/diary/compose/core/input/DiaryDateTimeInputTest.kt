@@ -28,7 +28,7 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestF
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.defaultTimeText
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.hasRole
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.toDefaultDisplayText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn

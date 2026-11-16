@@ -6,17 +6,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.web.previewWebPage
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.PreviewWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPage
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun WebDetailPageArea(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
+    webViewContent: WebViewContent,
     modifier: Modifier = Modifier,
     state: WebDetailScaffoldState = rememberWebDetailScaffoldState(),
     uiStateProvider: () -> WebDetailUiState = { WebDetailUiState.Loading },
@@ -29,6 +32,7 @@ internal fun WebDetailPageArea(
         if (isContent) {
             WebDetailPage(
                 onEvent = onEvent,
+                webViewContent = webViewContent,
                 modifier = Modifier.fillMaxSize(),
                 state = state,
                 urlProvider = { uiStateProvider().urlOrEmpty() },
@@ -47,6 +51,7 @@ private fun WebDetailPageAreaPreview() {
         Surface {
             WebDetailPageArea(
                 onEvent = {},
+                webViewContent = PreviewWebViewContent,
                 modifier = Modifier.fillMaxSize(),
                 uiStateProvider = { WebDetailUiState.Content(id = Uuid.NIL, detail = previewWebDetail()) },
                 pageUiStateProvider = { WebDetailPageUiState.Content(page = previewWebPage()) },

@@ -43,14 +43,14 @@ class LunarRepositoryImplTest :
             val remoteList = listOf(remoteLunarDate(year = year, day = 1), remoteLunarDate(year = year, day = 2))
             val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } returns remoteList
+            coEvery { remoteDataSource.read(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
             repository.fetch(year = year) shouldBe expectedLocalList.map { local -> local.toDomain() }
 
-            coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(year = year) }
             coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) }
             coVerify(exactly = 0) { transaction.upsert(solarYear = match { solarYear -> solarYear != year }, lunarDateList = any()) }
         }
@@ -58,7 +58,7 @@ class LunarRepositoryImplTest :
         test("TC-77a8f0ae-7aa7-4553-a40a-d70cca1e0f3d 원격이 자료를 제공하지 않으면 요청한 연도의 캐시를 제거한다") {
             val year = solarYear()
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } returns emptyList()
+            coEvery { remoteDataSource.read(year = year) } returns emptyList()
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = year, lunarDateList = emptyList()) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
@@ -72,7 +72,7 @@ class LunarRepositoryImplTest :
             val year = solarYear()
             val failure = TestException(Arb.string().next())
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } throws failure
+            coEvery { remoteDataSource.read(year = year) } throws failure
             val transaction = mockk<LunarTransaction>(relaxed = true)
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
@@ -87,7 +87,7 @@ class LunarRepositoryImplTest :
             val failure = TestException(Arb.string().next())
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } returns remoteList
+            coEvery { remoteDataSource.read(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = year, lunarDateList = any()) } throws failure
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
@@ -102,7 +102,7 @@ class LunarRepositoryImplTest :
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } returns remoteList
+            coEvery { remoteDataSource.read(year = year) } returns remoteList
             val localDataSource = mockk<LunarLocalDataSource>()
             every { localDataSource.get(dateRange = LocalDate(year, 1, 1)..LocalDate(year, 12, 31)) } returns flowOf(localList)
             val transaction = mockk<LunarTransaction>()
@@ -112,7 +112,7 @@ class LunarRepositoryImplTest :
             repository.fetch(year = year)
 
             repository.fetch(year = year) shouldBe localList.map { local -> local.toDomain() }
-            coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(year = year) }
             coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = localList) }
         }
 
@@ -121,7 +121,7 @@ class LunarRepositoryImplTest :
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } returns remoteList
+            coEvery { remoteDataSource.read(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = year, lunarDateList = localList) } just Runs
             repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = year)
@@ -129,7 +129,7 @@ class LunarRepositoryImplTest :
             // 저장소를 새로 만들어 빈 동기화 이력으로 시작하는 새 프로세스를 흉내 낸다.
             repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 2) { remoteDataSource.read(year = year) }
         }
 
         test("TC-5adc31f5-980a-44e7-a704-261fa601dc5c 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {
@@ -138,7 +138,7 @@ class LunarRepositoryImplTest :
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } throws failure andThen remoteList
+            coEvery { remoteDataSource.read(year = year) } throws failure andThen remoteList
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
@@ -146,7 +146,7 @@ class LunarRepositoryImplTest :
             shouldThrowExactly<TestException> { repository.fetch(year = year) }
             repository.fetch(year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 2) { remoteDataSource.read(year = year) }
             coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) }
         }
 
@@ -156,7 +156,7 @@ class LunarRepositoryImplTest :
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } returns remoteList
+            coEvery { remoteDataSource.read(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) } throws failure andThenJust Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
@@ -164,7 +164,7 @@ class LunarRepositoryImplTest :
             shouldThrowExactly<TestException> { repository.fetch(year = year) }
             repository.fetch(year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 2) { remoteDataSource.read(year = year) }
             coVerify(exactly = 2) { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) }
         }
 
@@ -172,7 +172,7 @@ class LunarRepositoryImplTest :
             val year = solarYear()
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = any()) } returns remoteList
+            coEvery { remoteDataSource.read(year = any()) } returns remoteList
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = any(), lunarDateList = any()) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
@@ -180,14 +180,14 @@ class LunarRepositoryImplTest :
             repository.fetch(year = year)
             repository.fetch(year = year + 1)
 
-            coVerify(exactly = 1) { remoteDataSource.get(year = year + 1) }
+            coVerify(exactly = 1) { remoteDataSource.read(year = year + 1) }
             coVerify(exactly = 1) { transaction.upsert(solarYear = year + 1, lunarDateList = remoteList.map { remote -> remote.toLocal(solarYear = year + 1) }) }
         }
 
         test("TC-057e5aa1-675f-4b27-82f7-0350a818aca6 자료를 제공하지 않은 연도도 다시 요청하면 원격 조회를 생략한다") {
             val year = solarYear()
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = year) } returns emptyList()
+            coEvery { remoteDataSource.read(year = year) } returns emptyList()
             val localDataSource = mockk<LunarLocalDataSource>()
             every { localDataSource.get(dateRange = any()) } returns flowOf(emptyList())
             val transaction = mockk<LunarTransaction>()
@@ -197,7 +197,7 @@ class LunarRepositoryImplTest :
             repository.fetch(year = year)
             repository.fetch(year = year) shouldBe emptyList()
 
-            coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(year = year) }
             coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = emptyList()) }
         }
 
@@ -208,7 +208,7 @@ class LunarRepositoryImplTest :
                 val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
                 val response = CompletableDeferred<List<LunarDateRemoteEntity>>()
                 val remoteDataSource = mockk<LunarRemoteDataSource>()
-                coEvery { remoteDataSource.get(year = year) } coAnswers { response.await() }
+                coEvery { remoteDataSource.read(year = year) } coAnswers { response.await() }
                 val localDataSource = mockk<LunarLocalDataSource>()
                 every { localDataSource.get(dateRange = LocalDate(year, 1, 1)..LocalDate(year, 12, 31)) } returns flowOf(localList)
                 val transaction = mockk<LunarTransaction>()
@@ -226,7 +226,7 @@ class LunarRepositoryImplTest :
                 first.await()
 
                 second.await() shouldBe localList.map { local -> local.toDomain() }
-                coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+                coVerify(exactly = 1) { remoteDataSource.read(year = year) }
             }
         }
 
@@ -237,7 +237,7 @@ class LunarRepositoryImplTest :
                 val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
                 val response = CompletableDeferred<List<LunarDateRemoteEntity>>()
                 val remoteDataSource = mockk<LunarRemoteDataSource>()
-                coEvery { remoteDataSource.get(year = year) } coAnswers { response.await() } andThen remoteList
+                coEvery { remoteDataSource.read(year = year) } coAnswers { response.await() } andThen remoteList
                 val transaction = mockk<LunarTransaction>()
                 coEvery { transaction.upsert(solarYear = year, lunarDateList = localList) } just Runs
                 val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
@@ -251,7 +251,7 @@ class LunarRepositoryImplTest :
 
                 first.await().shouldBeFailure<TestException>()
                 second.await() shouldBe localList.map { local -> local.toDomain() }
-                coVerify(exactly = 2) { remoteDataSource.get(year = year) }
+                coVerify(exactly = 2) { remoteDataSource.read(year = year) }
             }
         }
 
@@ -261,8 +261,8 @@ class LunarRepositoryImplTest :
                 val remoteList = listOf(remoteLunarDate(year = year + 1, day = 1))
                 val response = CompletableDeferred<List<LunarDateRemoteEntity>>()
                 val remoteDataSource = mockk<LunarRemoteDataSource>()
-                coEvery { remoteDataSource.get(year = year) } coAnswers { response.await() }
-                coEvery { remoteDataSource.get(year = year + 1) } returns remoteList
+                coEvery { remoteDataSource.read(year = year) } coAnswers { response.await() }
+                coEvery { remoteDataSource.read(year = year + 1) } returns remoteList
                 val transaction = mockk<LunarTransaction>()
                 coEvery { transaction.upsert(solarYear = any(), lunarDateList = any()) } just Runs
                 val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)

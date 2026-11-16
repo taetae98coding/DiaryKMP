@@ -15,12 +15,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_GOOGLE_LABEL
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_NAVER_LABEL
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_PROVIDER_CONTENT_DESCRIPTION
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.LAYOUT_TEST_TAG
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.MAP_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule

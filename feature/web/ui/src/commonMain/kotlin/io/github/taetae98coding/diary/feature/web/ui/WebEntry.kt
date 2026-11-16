@@ -5,8 +5,10 @@ package io.github.taetae98coding.diary.feature.web.ui
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
@@ -33,6 +35,7 @@ import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScaffoldComponent
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScreen
 import io.github.taetae98coding.diary.feature.web.ui.add.initialDetail
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScreen
 import io.github.taetae98coding.diary.feature.web.ui.memo.finished.WebMemoFinishedListViewModel
@@ -44,10 +47,11 @@ import org.koin.core.parameter.parametersOf
 internal fun EntryProviderScope<ScreenNavKey>.webEntry(
     backStack: NavBackStack<ScreenNavKey>,
     contentSharerFactory: ContentSharerFactory,
+    webViewContent: WebViewContent,
 ) {
     webHomeEntry(backStack = backStack)
     webAddEntry(backStack = backStack)
-    webDetailEntry(backStack = backStack, contentSharerFactory = contentSharerFactory)
+    webDetailEntry(backStack = backStack, contentSharerFactory = contentSharerFactory, webViewContent = webViewContent)
     webMemoFinishedListEntry(backStack = backStack)
 }
 
@@ -60,9 +64,9 @@ private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStac
 
         WebHomeScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToSearch = { backStack.add(SearchHomeNavKey(initialType = SearchHomeType.WEB)) },
-            navigateToAdd = backStack::navigateToWebAddFromHome,
-            navigateToDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToSearch = dropUnlessResumed { backStack.add(SearchHomeNavKey(initialType = SearchHomeType.WEB)) },
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToWebAddFromHome),
+            navigateToDetail = dropUnlessResumedWithArg { id -> backStack.add(WebDetailNavKey(id = id)) },
             componentVisibleProvider = { WebHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible) },
             webViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
@@ -81,8 +85,8 @@ internal fun webHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map
 
                 WebAddScreen(
                     navigateUp = {},
-                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     addedResultRequestKey = null,
                     initialDetail = WebDetail.EMPTY,
@@ -103,8 +107,8 @@ private fun EntryProviderScope<ScreenNavKey>.webAddEntry(backStack: NavBackStack
 
         WebAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             addedResultRequestKey = key.requestKey,
             initialDetail = key.initialDetail(),
@@ -118,23 +122,25 @@ private fun EntryProviderScope<ScreenNavKey>.webAddEntry(backStack: NavBackStack
 private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(
     backStack: NavBackStack<ScreenNavKey>,
     contentSharerFactory: ContentSharerFactory,
+    webViewContent: WebViewContent,
 ) {
     entry<WebDetailNavKey> { key ->
         val tagAddRequestKey = rememberResultRequestKey()
 
         WebDetailScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
-            navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialWebId = key.id)) },
-            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
-            navigateToMemoFinishedList = { backStack.add(WebMemoFinishedListNavKey(webId = key.id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToMemoAdd = dropUnlessResumed { backStack.add(MemoAddNavKey(initialWebId = key.id)) },
+            navigateToMemoDetail = dropUnlessResumedWithArg { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            navigateToMemoFinishedList = dropUnlessResumed { backStack.add(WebMemoFinishedListNavKey(webId = key.id)) },
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
             webViewModel = koinViewModel { parametersOf(key.id) },
             pageViewModel = koinViewModel { parametersOf(key.id) },
             tagViewModel = koinViewModel { parametersOf(EntityTagKind.WEB, key.id) },
             contentSharerFactory = contentSharerFactory,
+            webViewContent = webViewContent,
         )
     }
 }

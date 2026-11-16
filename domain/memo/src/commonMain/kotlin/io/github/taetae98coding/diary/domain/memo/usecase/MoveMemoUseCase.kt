@@ -17,17 +17,15 @@ import kotlin.uuid.Uuid
 @Factory
 public class MoveMemoUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
-    private val findMemoUseCase: FindMemoUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
     private val accountMemoRepository: AccountMemoRepository,
     private val clock: Clock,
 ) : UseCase<MoveMemoUseCase.Parameter, Unit>() {
     override suspend fun execute(parameter: Parameter) {
-        val memo = findMemoUseCase(parameter = parameter.id).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
+        val memo = accountMemoRepository.find(account = account, memoId = parameter.id).first()
 
         if (memo == null || memo.isDeleted) return
-
-        val account = getAccountUseCase.requireAccount()
 
         accountMemoRepository.updateDetail(
             account = account,

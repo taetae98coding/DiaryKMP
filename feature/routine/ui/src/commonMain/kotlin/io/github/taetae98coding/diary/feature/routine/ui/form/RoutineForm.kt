@@ -9,10 +9,11 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.input.DiaryColorInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.routine_amount_per_record_label
 import io.github.taetae98coding.diary.feature.routine.ui.routine_goal_amount_label
@@ -21,7 +22,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun RoutineForm(
-    onEvent: (RoutineFormEvent) -> Unit,
+    onEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: RoutineFormState = rememberRoutineAddFormState(),
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
@@ -68,8 +69,8 @@ internal fun RoutineForm(
             state = state.colorState,
         )
         EntityTagInput(
-            onTagClick = { id -> onEvent(RoutineFormEvent.ClickTag(id = id)) },
-            onAddClick = { onEvent(RoutineFormEvent.ClickTagAdd) },
+            onTagClick = { id -> onEvent(EntityTagInputEvent.ClickTag(id = id)) },
+            onAddClick = { onEvent(EntityTagInputEvent.ClickAdd) },
             modifier = Modifier.fillMaxWidth(),
             uiStateProvider = tagUiStateProvider,
         )

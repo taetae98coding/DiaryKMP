@@ -19,8 +19,8 @@ import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthG
 import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.scroll.rememberCalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarBarText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.library.kotlinx.datetime.DAYS_PER_WEEK
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -67,11 +67,13 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
                         item(
                             key = item.key?.let { PREFIX_SPACER_KEY to it },
                             span = { GridItemSpan(prefixSpan) },
+                            contentType = SPACER_CONTENT_TYPE,
                         ) { }
                     }
                     item(
                         key = item.key,
                         span = { GridItemSpan(item.dateRange.size) },
+                        contentType = item.contentType,
                     ) {
                         item.content(CalendarWeekOfMonthGridItemScopeVerticalGridImpl(this))
                     }
@@ -82,6 +84,7 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
                     item(
                         key = list.last().key?.let { POSTFIX_SPACER_KEY to it },
                         span = { GridItemSpan(postfixSpan) },
+                        contentType = SPACER_CONTENT_TYPE,
                     ) { }
                 }
             }
@@ -91,6 +94,7 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
 // 첫 칸이 빈 칸인 줄에서도 스크롤 위치가 유지되도록 빈 칸에도 옆 아이템에서 만든 고정 키를 준다.
 private const val PREFIX_SPACER_KEY = "CalendarWeekOfMonthPrefixSpacer"
 private const val POSTFIX_SPACER_KEY = "CalendarWeekOfMonthPostfixSpacer"
+private const val SPACER_CONTENT_TYPE = "CalendarWeekOfMonthSpacer"
 
 @ComponentPreview
 @Composable

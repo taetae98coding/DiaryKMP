@@ -20,8 +20,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.testing.asPagingSourceFactory
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag

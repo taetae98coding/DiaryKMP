@@ -17,22 +17,22 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.dday.ui.Res
 import io.github.taetae98coding.diary.feature.dday.ui.dday_add_button_content_description
 import io.github.taetae98coding.diary.feature.dday.ui.dday_add_title
 import io.github.taetae98coding.diary.feature.dday.ui.dday_navigate_up_button_content_description
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDayForm
-import io.github.taetae98coding.diary.feature.dday.ui.form.DDayFormEvent
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDayFormState
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDayPresetRow
 import io.github.taetae98coding.diary.feature.dday.ui.form.rememberDDayAddFormState
@@ -42,7 +42,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun DDayAddScaffold(
     onEvent: (DDayAddScaffoldEvent) -> Unit,
-    onFormEvent: (DDayFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: DDayFormState = rememberDDayAddFormState(),

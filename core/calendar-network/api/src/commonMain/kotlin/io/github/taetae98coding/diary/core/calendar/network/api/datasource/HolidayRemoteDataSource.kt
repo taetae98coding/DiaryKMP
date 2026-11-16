@@ -4,7 +4,7 @@ import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCo
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
 
 public interface HolidayRemoteDataSource {
-    public suspend fun get(
+    public suspend fun read(
         country: HolidayCountryRemoteEntity,
         year: Int,
     ): List<HolidayRemoteEntity>

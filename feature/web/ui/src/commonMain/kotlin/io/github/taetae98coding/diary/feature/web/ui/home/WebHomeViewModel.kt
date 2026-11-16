@@ -12,15 +12,14 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListItemDeleteActions
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -28,8 +27,8 @@ import kotlin.uuid.Uuid
 @KoinViewModel
 internal class WebHomeViewModel(
     pageWebUseCase: PageWebUseCase,
-    private val deleteWebUseCase: DeleteWebUseCase,
-    private val restoreWebUseCase: RestoreWebUseCase,
+    deleteWebUseCase: DeleteWebUseCase,
+    restoreWebUseCase: RestoreWebUseCase,
 ) : ViewModel() {
     val sortUiState: StateFlow<ListSortUiState>
         field = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
@@ -40,38 +39,24 @@ internal class WebHomeViewModel(
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
-    private val _effect = Channel<WebListEffect>(Channel.BUFFERED)
-    val effect: Flow<WebListEffect> = _effect.receiveAsFlow()
+    private val webActions =
+        ListItemDeleteActions<WebListEffect>(
+            deleteUseCase = deleteWebUseCase,
+            restoreUseCase = restoreWebUseCase,
+            deletedEffect = WebListEffect::Deleted,
+        )
 
-    private val deletingIdSet = mutableSetOf<Uuid>()
-    private val restoringIdSet = mutableSetOf<Uuid>()
+    val effect: Flow<WebListEffect> = webActions.effect
 
     fun select(sort: ListSort) {
         sortUiState.value = ListSortUiState(sort = sort)
     }
 
     fun delete(id: Uuid) {
-        if (!deletingIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                deleteWebUseCase(parameter = id)
-                    .onSuccess { _effect.send(WebListEffect.Deleted(id = id)) }
-            } finally {
-                deletingIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { webActions.delete(id = id) }
     }
 
     fun restore(id: Uuid) {
-        if (!restoringIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                restoreWebUseCase(parameter = id)
-            } finally {
-                restoringIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { webActions.restore(id = id) }
     }
 }

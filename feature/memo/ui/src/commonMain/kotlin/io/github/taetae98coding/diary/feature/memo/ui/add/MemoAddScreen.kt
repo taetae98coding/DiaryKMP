@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEff
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
+import io.github.taetae98coding.diary.feature.memo.ui.contact.handleMemoContactPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.collectMemoFormSelectablePagingItems
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
@@ -23,8 +24,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceAddedResult
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.handleMemoPlacePickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.memo.ui.tag.handleMemoTagPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebAddedResultEffect
+import io.github.taetae98coding.diary.feature.memo.ui.web.handleMemoWebPickerEvent
 import kotlin.uuid.Uuid
 
 @Composable
@@ -95,10 +99,10 @@ internal fun MemoAddScreen(
                 navigateToPlaceDetail = navigateToPlaceDetail,
             )
         },
-        onTagPickerEvent = { event -> handleMemoAddTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
-        onWebPickerEvent = { event -> handleMemoAddWebPickerEvent(event = event, webViewModel = webViewModel, navigateToWebAdd = navigateToWebAdd) },
-        onContactPickerEvent = { event -> handleMemoAddContactPickerEvent(event = event, contactViewModel = contactViewModel, navigateToContactAdd = navigateToContactAdd) },
-        onPlacePickerEvent = { event -> handleMemoAddPlacePickerEvent(event = event, placeViewModel = placeViewModel, placePickerMapViewModel = placePickerMapViewModel, navigateToPlaceAdd = navigateToPlaceAdd) },
+        onTagPickerEvent = { event -> handleMemoTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
+        onWebPickerEvent = { event -> handleMemoWebPickerEvent(event = event, webViewModel = webViewModel, navigateToWebAdd = navigateToWebAdd) },
+        onContactPickerEvent = { event -> handleMemoContactPickerEvent(event = event, contactViewModel = contactViewModel, navigateToContactAdd = navigateToContactAdd) },
+        onPlacePickerEvent = { event -> handleMemoPlacePickerEvent(event = event, placeViewModel = placeViewModel, placePickerMapViewModel = placePickerMapViewModel, navigateToPlaceAdd = navigateToPlaceAdd) },
         onGeminiEvent = { event -> handleMemoGeminiEvent(event = event, geminiViewModel = geminiViewModel, state = scaffoldState) },
         onGeminiDismissRequest = geminiViewModel::close,
         modifier = modifier,

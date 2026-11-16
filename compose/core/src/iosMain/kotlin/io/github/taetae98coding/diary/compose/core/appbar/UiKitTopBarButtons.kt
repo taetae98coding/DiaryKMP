@@ -2,8 +2,8 @@ package io.github.taetae98coding.diary.compose.core.appbar
 
 import androidx.compose.runtime.Composable
 import io.github.taetae98coding.diary.compose.core.graphics.rememberTemplateUIImage
-import io.github.taetae98coding.diary.compose.core.icon.ArrowBack
-import io.github.taetae98coding.diary.compose.core.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.ArrowBack
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
 
 @Composable
 internal fun rememberUiKitTopBarNavigateUpButton(navigateUp: DiaryTopBarNavigateUp): UiKitTopBarButton =

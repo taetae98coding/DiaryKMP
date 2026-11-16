@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.account.usecase.RefreshUserDataUseCase
 import io.github.taetae98coding.diary.domain.core.invoke
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -12,14 +11,18 @@ import org.koin.core.annotation.KoinViewModel
 internal class MoreHomeRefreshViewModel(
     private val refreshUserDataUseCase: RefreshUserDataUseCase,
 ) : ViewModel() {
-    private var refreshJob: Job? = null
+    private var isRefreshInProgress = false
 
     fun refresh() {
-        if (refreshJob?.isActive == true) return
+        if (isRefreshInProgress) return
 
-        refreshJob =
-            viewModelScope.launch {
+        isRefreshInProgress = true
+        viewModelScope.launch {
+            try {
                 refreshUserDataUseCase()
+            } finally {
+                isRefreshInProgress = false
             }
+        }
     }
 }

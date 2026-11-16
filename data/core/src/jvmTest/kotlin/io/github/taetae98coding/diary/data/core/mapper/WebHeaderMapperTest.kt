@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.web.webHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.testing.web.webHeader
-import io.github.taetae98coding.diary.core.testing.web.webHeaderLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

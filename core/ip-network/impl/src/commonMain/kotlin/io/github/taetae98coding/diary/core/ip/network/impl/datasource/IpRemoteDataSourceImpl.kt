@@ -13,5 +13,5 @@ internal class IpRemoteDataSourceImpl(
     @IpHttpClient
     private val httpClient: HttpClient,
 ) : IpRemoteDataSource {
-    override suspend fun get(): IpRemoteEntity = httpClient.get("json").body()
+    override suspend fun read(): IpRemoteEntity = httpClient.get("json").body()
 }

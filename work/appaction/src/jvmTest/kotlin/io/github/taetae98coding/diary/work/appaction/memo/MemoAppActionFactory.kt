@@ -35,7 +35,7 @@ internal fun memoListAppActionOf(vararg useCaseArray: Any): MemoListAppAction {
         findPlaceUseCase = useCaseList.findUseCase { Arb.place().next().copy(isDeleted = false) },
         findWebUseCase = useCaseList.findUseCase { Arb.web().next().copy(isDeleted = false) },
         findContactUseCase = useCaseList.findUseCase { Arb.contact().next().copy(isDeleted = false) },
-        pageMemoHomeUseCase = useCaseList.useCase(),
+        pageMemoUseCase = useCaseList.useCase(),
         pageFinishedMemoUseCase = useCaseList.useCase(),
         pagePlaceMemoUseCase = useCaseList.useCase(),
         pageFinishedPlaceMemoUseCase = useCaseList.useCase(),

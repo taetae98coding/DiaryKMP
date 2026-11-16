@@ -7,8 +7,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.calendar.title.calendarYearMonthTitle
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.home.viewmode.RoutineHomeViewMode
 import io.github.taetae98coding.diary.feature.routine.ui.home.viewmode.RoutineHomeViewModePreviewParameter

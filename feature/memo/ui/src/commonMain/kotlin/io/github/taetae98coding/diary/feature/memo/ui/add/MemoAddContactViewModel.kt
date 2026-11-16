@@ -5,9 +5,11 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputController
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.picker.MemoSelectablePaging
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
@@ -29,7 +31,8 @@ internal class MemoAddContactViewModel(
     @InjectedParam initialContactId: Uuid?,
     pageMemoSelectableContactUseCase: PageMemoSelectableContactUseCase,
     getSelectedContactUseCase: GetSelectedContactUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    MemoContactInputController {
     val selectionUiState: StateFlow<MemoAddContactSelectionUiState>
         field = MutableStateFlow(MemoAddContactSelectionUiState(contactIdSet = setOfNotNull(initialContactId)))
 
@@ -44,21 +47,21 @@ internal class MemoAddContactViewModel(
             )
 
     private val selectablePaging =
-        MemoSelectablePaging(scope = viewModelScope) { query -> pageMemoSelectableContactUseCase(parameter = query) }
+        MemoSelectablePaging { query -> pageMemoSelectableContactUseCase(parameter = query) }
 
-    val contactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.pagingData
+    val contactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
-    val selectableContactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.selectablePagingData
+    val selectableContactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
-    fun updateQuery(query: String) {
+    override fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }
 
-    fun selectContact(id: Uuid) {
-        selectionUiState.update { value -> value.copy(contactIdSet = value.contactIdSet + id) }
+    override fun selectContact(contactId: Uuid) {
+        selectionUiState.update { value -> value.copy(contactIdSet = value.contactIdSet + contactId) }
     }
 
-    fun unselectContact(id: Uuid) {
-        selectionUiState.update { value -> value.copy(contactIdSet = value.contactIdSet - id) }
+    override fun unselectContact(contactId: Uuid) {
+        selectionUiState.update { value -> value.copy(contactIdSet = value.contactIdSet - contactId) }
     }
 }

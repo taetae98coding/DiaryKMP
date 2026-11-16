@@ -3,10 +3,10 @@ package io.github.taetae98coding.diary.data.file.paging
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
+import io.github.taetae98coding.diary.core.data.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
-import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull

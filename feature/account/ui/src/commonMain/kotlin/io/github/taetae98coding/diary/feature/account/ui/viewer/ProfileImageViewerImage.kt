@@ -24,15 +24,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.BrokenImageIcon
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.BrokenImageIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.account.ui.Res
 import io.github.taetae98coding.diary.feature.account.ui.profile_image_content_description
 import io.github.taetae98coding.diary.feature.account.ui.profile_image_viewer_failed_message
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.exp
@@ -92,7 +91,9 @@ private fun ZoomableImage(
                 }.pointerInput(zoomState) {
                     detectTapGestures(
                         onDoubleTap = { position ->
-                            coroutineScope.toggleZoom(zoomState = zoomState, focal = position - size.toSize().center())
+                            val focal = position - size.toSize().center()
+
+                            coroutineScope.launch { toggleZoom(zoomState = zoomState, focal = focal) }
                         },
                     )
                 }.pointerInput(zoomState) {
@@ -122,7 +123,7 @@ private fun ZoomableImage(
 
 private fun Size.center(): Offset = Offset(x = width / 2, y = height / 2)
 
-private fun CoroutineScope.toggleZoom(
+private suspend fun toggleZoom(
     zoomState: ProfileImageViewerZoomState,
     focal: Offset,
 ) {
@@ -132,13 +133,11 @@ private fun CoroutineScope.toggleZoom(
     val targetScale = if (isZoomedIn) ProfileImageViewerZoomState.MIN_SCALE else ProfileImageViewerDefaults.DOUBLE_TAP_SCALE
     val targetOffset = if (isZoomedIn) Offset.Zero else -focal * (targetScale - 1F)
 
-    launch {
-        animate(initialValue = 0F, targetValue = 1F) { fraction, _ ->
-            zoomState.snapTo(
-                scale = startScale + (targetScale - startScale) * fraction,
-                offset = startOffset + (targetOffset - startOffset) * fraction,
-            )
-        }
+    animate(initialValue = 0F, targetValue = 1F) { fraction, _ ->
+        zoomState.snapTo(
+            scale = startScale + (targetScale - startScale) * fraction,
+            offset = startOffset + (targetOffset - startOffset) * fraction,
+        )
     }
 }
 

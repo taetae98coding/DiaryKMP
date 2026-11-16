@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.compose.icon)
                 api(projects.core.model)
                 implementation(projects.domain.routine)
                 implementation(projects.library.composeUi)

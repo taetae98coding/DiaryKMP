@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.timetable.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
@@ -19,10 +20,10 @@ private fun EntryProviderScope<ScreenNavKey>.calendarTimetableEntry(backStack: N
     entry<CalendarTimetableNavKey> { key ->
         CalendarTimetableScreen(
             navigateUp = { backStack.removeLastOrNull() },
-            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
-            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
-            navigateToMemoAdd = { dateTime -> backStack.add(dateTime.toMemoAddNavKey()) },
-            navigateToContactDetail = { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
+            navigateToMemoDetail = dropUnlessResumedWithArg { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateToDDayDetail = dropUnlessResumedWithArg { id -> backStack.add(DDayDetailNavKey(id = id)) },
+            navigateToMemoAdd = dropUnlessResumedWithArg { dateTime -> backStack.add(dateTime.toMemoAddNavKey()) },
+            navigateToContactDetail = dropUnlessResumedWithArg { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
             state = rememberCalendarTimetableScaffoldState(type = key.type, initialDate = key.date),
             memoViewModel = koinViewModel(),
             holidayViewModel = koinViewModel(),

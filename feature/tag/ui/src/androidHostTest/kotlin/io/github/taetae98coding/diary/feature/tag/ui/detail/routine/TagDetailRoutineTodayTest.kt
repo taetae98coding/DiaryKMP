@@ -15,12 +15,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.routine.RoutineListState
 import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.domain.routine.usecase.PageTagRoutineUseCase
+import io.github.taetae98coding.diary.feature.core.routine.UpdateRoutineTodayEffect
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagRoutine
@@ -116,7 +117,7 @@ class TagDetailRoutineTodayTest {
                 DiaryTheme {
                     if (isTagDetailShown) {
                         UpdateRoutineListTodayEffect(state = state)
-                        UpdateTagDetailRoutineTodayEffect(routineViewModel = viewModel, listState = state)
+                        UpdateRoutineTodayEffect(onUpdate = viewModel::updateToday, listState = state)
                         TagDetailRoutineTab(
                             onEvent = {},
                             onRoutineListEvent = {},

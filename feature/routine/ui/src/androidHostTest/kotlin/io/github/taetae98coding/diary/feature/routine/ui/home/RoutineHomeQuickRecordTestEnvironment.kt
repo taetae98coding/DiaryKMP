@@ -37,8 +37,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.routine.CalendarRoutineRecord
 import io.github.taetae98coding.diary.core.model.routine.Routine
 import io.github.taetae98coding.diary.core.model.routine.RoutineCycle

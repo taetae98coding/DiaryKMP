@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.qr.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
@@ -17,7 +18,6 @@ import kotlin.uuid.Uuid
 public class UpdateQrUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findQrUseCase: FindQrUseCase,
     private val accountQrRepository: AccountQrRepository,
     private val clock: Clock,
 ) : UseCase<UpdateQrUseCase.Parameter, Int>() {
@@ -25,7 +25,7 @@ public class UpdateQrUseCase internal constructor(
         if (parameter.detail.value.isEmpty()) throw QrValueEmptyException()
 
         val account = getAccountUseCase.requireAccount()
-        val detail = parameter.detail.withStoredTitleForBlank(id = parameter.id)
+        val detail = parameter.detail.withStoredTitleForBlank(account = account, id = parameter.id)
 
         val updatedCount =
             accountQrRepository.updateDetail(
@@ -40,13 +40,16 @@ public class UpdateQrUseCase internal constructor(
         return updatedCount
     }
 
-    private suspend fun QrDetail.withStoredTitleForBlank(id: Uuid): QrDetail {
+    private suspend fun QrDetail.withStoredTitleForBlank(
+        account: Account,
+        id: Uuid,
+    ): QrDetail {
         if (title.isNotBlank()) return this
 
         val stored =
-            findQrUseCase(parameter = id)
+            accountQrRepository
+                .find(account = account, qrId = id)
                 .first()
-                .getOrThrow()
                 ?.detail
 
         return copy(title = stored?.title.orEmpty())

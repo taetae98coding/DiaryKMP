@@ -1,20 +1,3 @@
 plugins {
-    alias(libs.plugins.convention.core.impl)
-}
-
-kotlin {
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation(projects.library.ktor)
-            }
-        }
-
-        jvmTest {
-            dependencies {
-                implementation(ktorLibs.client.mock)
-                implementation(projects.logger.crashlytics.api)
-            }
-        }
-    }
+    alias(libs.plugins.convention.core.network)
 }

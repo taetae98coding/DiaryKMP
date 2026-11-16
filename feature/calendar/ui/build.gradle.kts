@@ -24,7 +24,6 @@ kotlin {
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.tag.api)
                 implementation(projects.feature.timetable.api)
-                implementation(projects.library.kotlinxDatetime)
             }
         }
 
@@ -36,6 +35,7 @@ kotlin {
 
         androidHostTest {
             dependencies {
+                implementation(projects.library.kotlinxDatetime)
                 implementation(libs.androidx.paging.testing)
                 implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }

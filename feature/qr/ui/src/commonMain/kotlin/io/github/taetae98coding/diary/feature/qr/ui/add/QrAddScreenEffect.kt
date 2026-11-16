@@ -36,7 +36,7 @@ internal fun QrAddScreenEffect(
     val coroutineScope = rememberCoroutineScope()
     val addSucceededMessage = stringResource(Res.string.qr_add_succeeded_message)
     val titleBlankMessage = stringResource(Res.string.qr_add_title_blank_message)
-    val emptyMessageMap = QrFormat.entries.associateWith { format -> stringResource(format.emptyMessage) }
+    val emptyMessageMap = qrValueEmptyMessageMap()
 
     CollectEffect(effect) { value ->
         when (value) {
@@ -73,6 +73,9 @@ internal suspend fun awaitTabComposed() {
     Snapshot.sendApplyNotifications()
     withFrameNanos { }
 }
+
+@Composable
+internal fun qrValueEmptyMessageMap(): Map<QrFormat, String> = QrFormat.entries.associateWith { format -> stringResource(format.emptyMessage) }
 
 internal val QrFormat.emptyMessage: StringResource
     get() =

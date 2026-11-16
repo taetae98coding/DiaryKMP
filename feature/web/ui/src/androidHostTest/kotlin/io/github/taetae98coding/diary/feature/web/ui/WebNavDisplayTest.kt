@@ -38,8 +38,8 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -67,6 +67,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_MEMO_TAB_DES
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
@@ -332,7 +333,7 @@ class WebNavDisplayTest {
                 entryProvider =
                     entryProvider {
                         entry<WebNavDisplayMoreNavKey> { Text(text = MORE_CONTENT) }
-                        webEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
+                        webEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory(), webViewContent = AndroidWebViewContent())
                         entry<SearchHomeNavKey> { Text(text = ROUTE_CONTENT) }
                         entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                         entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }

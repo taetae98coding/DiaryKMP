@@ -9,7 +9,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.testing.asPagingSourceFactory
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
@@ -62,6 +62,7 @@ class PlaceHomePagingTest {
 
             DiaryTheme {
                 PlaceHomeScaffold(
+                    onPlaceListEvent = {},
                     onEvent = {},
                     state = remember { PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST) },
                     placePagingItems = placePagingItems,

@@ -17,7 +17,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.DpRect
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestRealViewModel
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.floats.plusOrMinus
@@ -217,8 +217,8 @@ class MemoContactPickerDialogAddTest {
                     onDismissRequest = {},
                     onEvent = { event ->
                         when (event) {
-                            is MemoContactPickerEvent.Select -> viewModel.selectContact(id = event.id)
-                            is MemoContactPickerEvent.Unselect -> viewModel.unselectContact(id = event.id)
+                            is MemoContactPickerEvent.Select -> viewModel.selectContact(contactId = event.id)
+                            is MemoContactPickerEvent.Unselect -> viewModel.unselectContact(contactId = event.id)
                             else -> Unit
                         }
                     },

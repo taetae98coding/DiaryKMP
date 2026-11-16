@@ -17,7 +17,7 @@ internal class LunarRemoteDataSourceImpl(
     @CalendarHttpClient
     private val httpClient: HttpClient,
 ) : LunarRemoteDataSource {
-    override suspend fun get(year: Int): List<LunarDateRemoteEntity> {
+    override suspend fun read(year: Int): List<LunarDateRemoteEntity> {
         val response = httpClient.get("lunar/$LUNAR_COUNTRY_PATH_SEGMENT/$year.json")
 
         return if (response.status == HttpStatusCode.NotFound) {

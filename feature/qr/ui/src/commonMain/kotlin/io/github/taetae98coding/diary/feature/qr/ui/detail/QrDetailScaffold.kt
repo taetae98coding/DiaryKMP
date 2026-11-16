@@ -18,20 +18,20 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddForm
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
-import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrFormEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.previewQr
 import io.github.taetae98coding.diary.feature.qr.ui.qr_detail_loading_content_description
@@ -43,7 +43,7 @@ import kotlin.uuid.Uuid
 @Composable
 internal fun QrDetailScaffold(
     onEvent: (QrDetailScaffoldEvent) -> Unit,
-    onFormEvent: (QrFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: QrAddFormState = rememberQrAddFormState(),

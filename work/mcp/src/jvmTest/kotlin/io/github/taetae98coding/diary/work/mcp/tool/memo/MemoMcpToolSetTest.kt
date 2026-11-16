@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolCallResult
 import io.github.taetae98coding.diary.work.mcp.tool.call
+import io.github.taetae98coding.diary.work.mcp.tool.toolSetOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -14,13 +15,10 @@ import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.mockkClass
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlin.reflect.KClass
-import kotlin.reflect.full.primaryConstructor
 
 class MemoMcpToolSetTest :
     FunSpec({
@@ -56,12 +54,4 @@ class MemoMcpToolSetTest :
     })
 
 // 되돌리기 외의 앱 기능은 이 테스트에서 쓰지 않으므로 mock으로 채운다.
-private fun createMemoToolSet(restoreMemoUseCase: RestoreMemoUseCase): MemoMcpToolSet {
-    val constructor = MemoMcpToolSet::class.primaryConstructor!!
-    val argumentList =
-        constructor.parameters.map { parameter ->
-            if (parameter.type.classifier == RestoreMemoUseCase::class) restoreMemoUseCase else mockkClass(parameter.type.classifier as KClass<*>)
-        }
-
-    return constructor.call(*argumentList.toTypedArray())
-}
+private fun createMemoToolSet(restoreMemoUseCase: RestoreMemoUseCase): MemoMcpToolSet = toolSetOf<MemoMcpToolSet>(restoreMemoUseCase)

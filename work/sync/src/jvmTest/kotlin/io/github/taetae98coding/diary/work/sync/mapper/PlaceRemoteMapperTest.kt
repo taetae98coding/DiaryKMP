@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.place.localPlace
+import io.github.taetae98coding.diary.core.data.testing.place.remotePlace
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.network.api.place.entity.PlaceRemoteEntity
 import io.github.taetae98coding.diary.core.testing.isDeletedCaseList
-import io.github.taetae98coding.diary.core.testing.place.localPlace
-import io.github.taetae98coding.diary.core.testing.place.remotePlace
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

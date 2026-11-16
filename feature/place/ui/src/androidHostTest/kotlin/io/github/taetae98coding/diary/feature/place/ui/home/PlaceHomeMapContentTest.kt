@@ -24,11 +24,11 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.map.MapProvider
@@ -38,7 +38,7 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -426,8 +426,8 @@ class PlaceHomeMapContentTest {
 
                 storedPlaces.map { stored -> Result.success(stored.filter { place -> bounds.contains(place.detail.coordinate) }) }
             }
-            val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-            every { pagePlaceHomeUseCase(parameter = any()) } returns placePagingDataFlowOf(placeList).map { pagingData -> Result.success(pagingData) }
+            val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+            every { pagePlaceUseCase(parameter = any()) } returns placePagingDataFlowOf(placeList).map { pagingData -> Result.success(pagingData) }
             val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
             coEvery { deletePlaceUseCase(parameter = any()) } answers {
                 val id = firstArg<Uuid>()
@@ -438,7 +438,7 @@ class PlaceHomeMapContentTest {
 
             return PlaceHomePlaceListViewModel(
                 getPlaceListUseCase = getPlaceListUseCase,
-                pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                pagePlaceUseCase = pagePlaceUseCase,
                 deletePlaceUseCase = deletePlaceUseCase,
                 restorePlaceUseCase = mockk(),
             )

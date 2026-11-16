@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.data.place.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.naver.naverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceDisplayNameRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
-import io.github.taetae98coding.diary.core.testing.google.googlePlaceRemoteEntity
-import io.github.taetae98coding.diary.core.testing.naver.naverPlaceRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.doubles.plusOrMinus

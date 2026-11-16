@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.naver.network.impl.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.naver.naverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinModule
 import io.github.taetae98coding.diary.core.naver.network.impl.createNaverHttpClient
 import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
-import io.github.taetae98coding.diary.core.testing.naver.naverPlaceRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

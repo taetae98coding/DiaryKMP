@@ -8,7 +8,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState

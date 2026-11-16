@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.data.file.repository
 
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.file.continuedFileUploadRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUpload
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUploadResult
@@ -12,8 +14,6 @@ import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFile
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadResultRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLargeRemoteException
-import io.github.taetae98coding.diary.core.testing.file.continuedFileUploadRemoteEntity
-import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder

@@ -8,9 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
-import io.github.taetae98coding.diary.feature.checklist.ui.tag.handleChecklistTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
@@ -74,7 +74,7 @@ internal fun ChecklistAddScreen(
             }
         },
         onTagInputEvent = { event ->
-            handleChecklistTagInputEvent(
+            handleEntityTagInputEvent(
                 event = event,
                 tagPickerDialogState = state.tagPickerDialogState,
                 selectableTagPagingItems = selectableTagPagingItems,

@@ -23,8 +23,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.lifecycle.Lifecycle
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
@@ -34,7 +34,7 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
@@ -266,14 +266,14 @@ class MemoHomeExecutionBoundaryTest {
         every { getMemoFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
         every { getMemoExistenceFilterUseCase() } returns flowOf(Result.success(existence))
-        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-        every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
+        val pageMemoUseCase = mockk<PageMemoUseCase>()
+        every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
 
         return MemoHomeViewModel(
             getMemoFilterUseCase = getMemoFilterUseCase,
             getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
             getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
-            pageMemoHomeUseCase = pageMemoHomeUseCase,
+            pageMemoUseCase = pageMemoUseCase,
             finishMemoUseCase = mockk(),
             restartMemoUseCase = mockk(),
             deleteMemoUseCase = mockk(),

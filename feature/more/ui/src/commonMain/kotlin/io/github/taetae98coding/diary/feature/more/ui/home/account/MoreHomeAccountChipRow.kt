@@ -9,10 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
-import io.github.taetae98coding.diary.compose.core.icon.SignInIcon
-import io.github.taetae98coding.diary.compose.core.icon.SignOutIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.SignInIcon
+import io.github.taetae98coding.diary.compose.icon.SignOutIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.more.ui.Res
 import io.github.taetae98coding.diary.feature.more.ui.home.MoreHomeScaffoldEvent
 import io.github.taetae98coding.diary.feature.more.ui.more_sign_in_chip_label

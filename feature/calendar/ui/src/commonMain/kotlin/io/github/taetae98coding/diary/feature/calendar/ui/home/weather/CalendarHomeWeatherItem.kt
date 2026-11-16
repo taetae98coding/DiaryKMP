@@ -5,6 +5,8 @@ import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthG
 import io.github.taetae98coding.diary.compose.calendar.weather.CalendarWeatherItem
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 
+private const val WEATHER_CONTENT_TYPE = "weather"
+
 internal fun CalendarWeekOfMonthGridGroupScope.weatherItem(
     onWeatherClick: () -> Unit,
     weatherProvider: () -> List<CalendarWeather>,
@@ -13,6 +15,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.weatherItem(
         item(
             dateRange = weather.date..weather.date,
             key = weather.date,
+            contentType = WEATHER_CONTENT_TYPE,
         ) {
             CalendarWeatherItem(
                 weather = weather,

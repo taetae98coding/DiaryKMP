@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.tag.localTag
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.finishedAndDeletedCaseList
-import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

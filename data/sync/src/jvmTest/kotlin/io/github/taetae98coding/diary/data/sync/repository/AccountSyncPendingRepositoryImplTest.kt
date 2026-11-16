@@ -21,25 +21,25 @@ class AccountSyncPendingRepositoryImplTest :
             listOf(true, false).forEach { hasPending ->
                 val account = Arb.accountUser().next()
                 val localDataSource = mockk<SyncPendingLocalDataSource>()
-                every { localDataSource.hasPending(accountId = account.id) } returns flowOf(hasPending)
+                every { localDataSource.getPendingExists(accountId = account.id) } returns flowOf(hasPending)
                 val repository = AccountSyncPendingRepositoryImpl(syncPendingLocalDataSource = localDataSource)
 
-                repository.find(account = account).test {
+                repository.getPendingExists(account = account).test {
                     awaitItem() shouldBe hasPending
                     awaitComplete()
                 }
 
-                verify(exactly = 1) { localDataSource.hasPending(accountId = account.id) }
+                verify(exactly = 1) { localDataSource.getPendingExists(accountId = account.id) }
             }
         }
 
         test("기기 저장소의 업로드 대기 여부가 바뀌면 바뀐 값을 그대로 내보낸다") {
             val account = Arb.accountUser().next()
             val localDataSource = mockk<SyncPendingLocalDataSource>()
-            every { localDataSource.hasPending(accountId = account.id) } returns flowOf(true, false)
+            every { localDataSource.getPendingExists(accountId = account.id) } returns flowOf(true, false)
             val repository = AccountSyncPendingRepositoryImpl(syncPendingLocalDataSource = localDataSource)
 
-            repository.find(account = account).test {
+            repository.getPendingExists(account = account).test {
                 awaitItem() shouldBe true
                 awaitItem() shouldBe false
                 awaitComplete()
@@ -50,10 +50,10 @@ class AccountSyncPendingRepositoryImplTest :
             val account = Arb.accountUser().next()
             val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<SyncPendingLocalDataSource>()
-            every { localDataSource.hasPending(accountId = account.id) } returns flow { throw throwable }
+            every { localDataSource.getPendingExists(accountId = account.id) } returns flow { throw throwable }
             val repository = AccountSyncPendingRepositoryImpl(syncPendingLocalDataSource = localDataSource)
 
-            repository.find(account = account).test {
+            repository.getPendingExists(account = account).test {
                 awaitError() shouldBe throwable
             }
         }

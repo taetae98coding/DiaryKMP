@@ -19,8 +19,9 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
@@ -88,12 +89,12 @@ class TagDetailWebTabTest {
     @Test
     fun `TC-8c0c98af-b6f0-466d-ad7e-53f726ef3d7b 웹 항목을 선택하면 그 웹 항목의 상세 이동을 요청한다`() {
         val web = tagWeb(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailWebContentEvent>()
-        setWebTab(pagingData = tagEntityPagingData(itemList = listOf(web)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setWebTab(pagingData = tagEntityPagingData(itemList = listOf(web)), onEvent = eventList::add, onWebListEvent = eventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
-        eventList shouldBe listOf(TagDetailWebContentEvent.ClickWeb(id = web.id))
+        eventList shouldBe listOf(WebListEvent.ClickWeb(id = web.id))
     }
 
     @Test
@@ -124,10 +125,11 @@ class TagDetailWebTabTest {
 
     @Test
     fun `TC-5ed1f0b3-e6e6-449c-856a-d526566e9d5b 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailWebContentEvent>()
+        val eventList = mutableListOf<Any>()
         setWebTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onWebListEvent = eventList::add,
         )
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -138,8 +140,8 @@ class TagDetailWebTabTest {
 
     @Test
     fun `TC-5ed1f0b3-e6e6-449c-856a-d526566e9d5b 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailWebContentEvent>()
-        setWebTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setWebTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add, onWebListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -166,24 +168,26 @@ class TagDetailWebTabTest {
     @Test
     fun `TC-365c5415-2b42-4722-83fe-adb910874e83 웹 카드를 삭제 방향으로 밀면 그 웹 항목의 삭제를 전달한다`() {
         val web = tagWeb(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailWebContentEvent>()
+        val eventList = mutableListOf<Any>()
         setWebTab(
             pagingData = tagEntityPagingData(itemList = listOf(web)),
             onEvent = eventList::add,
+            onWebListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(WEB_CARD_TEST_TAG).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(TagDetailWebContentEvent.DeleteWeb(id = web.id))
+        eventList shouldBe listOf(WebListEvent.SwipeDelete(id = web.id))
     }
 
     @Test
     fun `TC-f5dc7344-ec22-42a5-b056-828c59b6b225 웹 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
-        val eventList = mutableListOf<TagDetailWebContentEvent>()
+        val eventList = mutableListOf<Any>()
         setWebTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onWebListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(WEB_CARD_TEST_TAG).performTouchInput { swipeRight() }
@@ -196,6 +200,7 @@ class TagDetailWebTabTest {
     private fun setWebTab(
         pagingData: PagingData<Web> = PagingData.empty(),
         onEvent: (TagDetailWebContentEvent) -> Unit = {},
+        onWebListEvent: (WebListEvent) -> Unit = {},
         isRefreshingProvider: () -> Boolean = { false },
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -204,6 +209,7 @@ class TagDetailWebTabTest {
             DiaryTheme {
                 TagDetailWebTab(
                     onEvent = onEvent,
+                    onWebListEvent = onWebListEvent,
                     modifier = Modifier.fillMaxSize(),
                     webPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     isRefreshingProvider = isRefreshingProvider,

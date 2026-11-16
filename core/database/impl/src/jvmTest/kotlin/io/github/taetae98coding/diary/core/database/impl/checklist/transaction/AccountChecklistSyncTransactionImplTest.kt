@@ -2,13 +2,13 @@ package io.github.taetae98coding.diary.core.database.impl.checklist.transaction
 
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.datasource.AccountChecklistSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec

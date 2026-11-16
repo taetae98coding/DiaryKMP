@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.core.database.impl.dday.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.dday.ddayLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.dday.localDDay
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
@@ -13,8 +15,6 @@ import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabPa
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabTc
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.loadTagTabPage
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.tagEntityTabLocalDataSourceTests
-import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
-import io.github.taetae98coding.diary.core.testing.dday.localDDay
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec

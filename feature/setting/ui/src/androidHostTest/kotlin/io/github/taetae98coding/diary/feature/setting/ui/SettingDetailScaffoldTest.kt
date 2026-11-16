@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.feature.setting.ui
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffold
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffoldComponentVisible

@@ -5,11 +5,8 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.memo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
-import io.github.taetae98coding.diary.domain.core.invoke
-import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.calendarHomeFetchDateRange
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,24 +26,11 @@ import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class CalendarHomeMemoViewModel(
-    getCalendarFilterUseCase: GetCalendarFilterUseCase,
     private val getCalendarMemoUseCase: GetCalendarMemoUseCase,
     private val moveMemoUseCase: MoveMemoUseCase,
 ) : ViewModel() {
     private val yearMonth = MutableStateFlow<YearMonth?>(null)
     private val movingIdSet = mutableSetOf<Uuid>()
-
-    val filterUiState: StateFlow<CalendarHomeScaffoldFilterUiState> =
-        getCalendarFilterUseCase()
-            .map { result ->
-                CalendarHomeScaffoldFilterUiState(
-                    isApplied = result.getOrDefault(emptyList()).isNotEmpty(),
-                )
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileUiSubscribed,
-                initialValue = CalendarHomeScaffoldFilterUiState(),
-            )
 
     val uiState: StateFlow<CalendarHomeMemoUiState> =
         yearMonth

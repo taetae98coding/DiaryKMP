@@ -2,8 +2,6 @@ package io.github.taetae98coding.diary.data.memo.mapper
 
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 
-private const val TITLE_KEY = "title"
-private const val DESCRIPTION_KEY = "description"
 private const val HEX_RADIX = 16
 private const val UNICODE_ESCAPE_LENGTH = 4
 

@@ -25,7 +25,7 @@ internal fun PlaylistHomeScreen(
 ) {
     val musicPagingItems = musicViewModel.musicPagingData.collectAsLazyPagingItems()
     val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
-    val uiState by musicViewModel.uiState.collectAsStateWithLifecycle()
+    val sortUiState by musicViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -55,7 +55,7 @@ internal fun PlaylistHomeScreen(
         sortSheetState = sortSheetState,
         musicPagingItems = musicPagingItems,
         syncUiStateProvider = { syncUiState },
-        uiStateProvider = { uiState },
+        sortProvider = { sortUiState.sort },
         snackbarHostState = snackbarHostState,
         componentVisibleProvider = componentVisibleProvider,
     )

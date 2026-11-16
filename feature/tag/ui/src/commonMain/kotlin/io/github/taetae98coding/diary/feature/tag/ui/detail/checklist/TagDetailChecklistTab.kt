@@ -20,14 +20,14 @@ import io.github.taetae98coding.diary.compose.checklist.SwipeChecklistCard
 import io.github.taetae98coding.diary.compose.checklist.previewChecklistSummary
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.ChecklistIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.ChecklistIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -39,6 +39,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TagDetailChecklistTab(
     onEvent: (TagDetailChecklistContentEvent) -> Unit,
+    onChecklistListEvent: (ChecklistListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyGridState = rememberLazyGridState(),
     checklistPagingItems: LazyPagingItems<ChecklistSummary> = remember { flowOf(PagingData.empty<ChecklistSummary>()) }.collectAsLazyPagingItems(),
@@ -64,6 +65,7 @@ internal fun TagDetailChecklistTab(
         } else {
             ChecklistGrid(
                 onEvent = onEvent,
+                onChecklistListEvent = onChecklistListEvent,
                 gridState = gridState,
                 checklistPagingItems = checklistPagingItems,
                 isRefreshingProvider = isRefreshingProvider,
@@ -75,6 +77,7 @@ internal fun TagDetailChecklistTab(
 @Composable
 private fun ChecklistGrid(
     onEvent: (TagDetailChecklistContentEvent) -> Unit,
+    onChecklistListEvent: (ChecklistListEvent) -> Unit,
     gridState: LazyGridState,
     checklistPagingItems: LazyPagingItems<ChecklistSummary>,
     modifier: Modifier = Modifier,
@@ -93,12 +96,7 @@ private fun ChecklistGrid(
             val summary = checklistPagingItems[index]
 
             SwipeChecklistCard(
-                onEvent = { event ->
-                    when (event) {
-                        is ChecklistListEvent.ClickChecklist -> onEvent(TagDetailChecklistContentEvent.ClickChecklist(id = event.id))
-                        is ChecklistListEvent.SwipeDelete -> onEvent(TagDetailChecklistContentEvent.DeleteChecklist(id = event.id))
-                    }
-                },
+                onEvent = onChecklistListEvent,
                 modifier =
                     Modifier
                         .animateItem()
@@ -137,6 +135,7 @@ private fun TagDetailChecklistTabPreview() {
         Surface {
             TagDetailChecklistTab(
                 onEvent = {},
+                onChecklistListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 checklistPagingItems = pagingData.collectAsLazyPagingItems(),
             )

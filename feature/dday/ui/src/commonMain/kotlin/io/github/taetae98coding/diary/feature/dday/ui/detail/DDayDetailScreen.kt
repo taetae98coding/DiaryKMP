@@ -8,8 +8,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
-import io.github.taetae98coding.diary.feature.dday.ui.form.handleDDayFormEvent
 import io.github.taetae98coding.diary.feature.dday.ui.form.rememberDDayDetailFormState
 import kotlin.uuid.Uuid
 
@@ -50,9 +50,9 @@ internal fun DDayDetailScreen(
                 }
             },
             onFormEvent = { event ->
-                handleDDayFormEvent(
+                handleEntityTagInputEvent(
                     event = event,
-                    state = state,
+                    tagPickerDialogState = state.tagPickerDialogState,
                     selectableTagPagingItems = selectableTagPagingItems,
                     navigateToTagAdd = navigateToTagAdd,
                     navigateToTagDetail = navigateToTagDetail,

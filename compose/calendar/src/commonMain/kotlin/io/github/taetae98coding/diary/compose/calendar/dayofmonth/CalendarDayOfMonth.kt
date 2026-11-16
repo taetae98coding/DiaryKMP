@@ -19,8 +19,8 @@ import io.github.taetae98coding.diary.compose.calendar.calendarDateContentDescri
 import io.github.taetae98coding.diary.compose.calendar.dateAt
 import io.github.taetae98coding.diary.compose.calendar.dayOfWeekColor
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonthDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange

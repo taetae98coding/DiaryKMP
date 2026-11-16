@@ -35,10 +35,10 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.dday.DDayDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -59,6 +59,7 @@ import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailEffect
 import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailUiState
 import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterUiState
+import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.filter.DDayHomeFilterUiState
 import io.github.taetae98coding.diary.feature.dday.ui.home.filter.DDayHomeFilterViewModel
@@ -142,6 +143,9 @@ internal class DDayListDetailTestEnvironment(
             factory { detailTagViewModel() }
             factory { homeViewModel().also(homeViewModelList::add) }
             factory {
+                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply { every { uiState } returns homeFilterUiState }
+            }
+            factory {
                 mockk<SyncRefreshViewModel>(relaxed = true)
                     .apply { every { uiState } returns MutableStateFlow(SyncRefreshUiState()) }
                     .also(syncViewModelList::add)
@@ -200,7 +204,6 @@ internal class DDayListDetailTestEnvironment(
 
         return mockk<DDayHomeViewModel>(relaxed = true).apply {
             every { ddayPagingData } returns homePagingData
-            every { filterUiState } returns homeFilterUiState
             every { effect } returns effectChannel.receiveAsFlow()
             // 삭제가 저장되면 목록에서 빠지고 삭제 안내가 오는 것과 같게 한다.
             every { delete(id = any()) } answers {

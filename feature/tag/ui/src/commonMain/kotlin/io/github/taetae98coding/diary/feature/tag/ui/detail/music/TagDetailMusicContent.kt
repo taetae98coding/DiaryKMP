@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
 import io.github.taetae98coding.diary.compose.music.MusicListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
@@ -55,11 +56,15 @@ internal fun TagDetailMusicContent(
         TagDetailMusicTab(
             onEvent = { event ->
                 when (event) {
-                    is TagDetailMusicContentEvent.ClickMusic -> navigateToMusicDetail(event.id)
                     is TagDetailMusicContentEvent.Refresh -> syncViewModel.refresh()
                     is TagDetailMusicContentEvent.ClickSort -> sortSheetState.show()
                     is TagDetailMusicContentEvent.SelectSort -> musicViewModel.select(sort = event.sort)
-                    is TagDetailMusicContentEvent.DeleteMusic -> musicViewModel.delete(id = event.id)
+                }
+            },
+            onMusicListEvent = { event ->
+                when (event) {
+                    is MusicListEvent.ClickMusic -> navigateToMusicDetail(event.id)
+                    is MusicListEvent.SwipeDelete -> musicViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

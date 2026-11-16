@@ -11,11 +11,11 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_GOOGLE_LABEL
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_NAVER_LABEL
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.label
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.comparables.shouldBeLessThan
 import org.junit.Rule
 import org.junit.Test

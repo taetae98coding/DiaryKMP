@@ -23,7 +23,7 @@ internal class WeatherRemoteDataSourceImpl(
 ) : WeatherRemoteDataSource {
     override val forecastInterval: Duration = 3.hours
 
-    override suspend fun getCurrentWeather(
+    override suspend fun readCurrentWeather(
         latitude: Double,
         longitude: Double,
     ): CurrentWeatherRemoteEntity =
@@ -34,7 +34,7 @@ internal class WeatherRemoteDataSourceImpl(
                 parameter("lang", LANGUAGE)
             }.body()
 
-    override suspend fun getForecast(
+    override suspend fun readForecast(
         latitude: Double,
         longitude: Double,
     ): ForecastRemoteEntity =
@@ -45,7 +45,7 @@ internal class WeatherRemoteDataSourceImpl(
                 parameter("lang", LANGUAGE)
             }.body()
 
-    override suspend fun getLocationName(
+    override suspend fun readLocationName(
         latitude: Double,
         longitude: Double,
     ): List<LocationNameRemoteEntity> =

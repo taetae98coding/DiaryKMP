@@ -147,7 +147,6 @@ private class UpdateContext(
         UpdateChecklistUseCase(
             getAccountUseCase = getAccountUseCase,
             requestSyncUseCase = requestSyncUseCase,
-            findChecklistUseCase = FindChecklistUseCase(getAccountUseCase = getAccountUseCase, accountChecklistRepository = repository),
             accountChecklistRepository = repository,
             clock = clock(now = now),
         )

@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.core.network.impl.authentication.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.authentication.sessionRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.authentication.entity.SessionRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.authentication.entity.AppleIdTokenRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.authentication.entity.GoogleAuthorizationCodeRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.authentication.entity.GoogleIdTokenRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.authentication.sessionRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe

@@ -10,7 +10,7 @@ import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenu
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuIcon
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuItem
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

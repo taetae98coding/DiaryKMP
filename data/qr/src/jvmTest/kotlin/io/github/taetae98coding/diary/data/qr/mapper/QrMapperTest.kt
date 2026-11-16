@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.data.qr.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.qr.qrDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.qr.qrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
-import io.github.taetae98coding.diary.core.testing.qr.qrDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -21,13 +21,7 @@ import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEven
 import io.github.taetae98coding.diary.app.shared.navigation.rememberScreenNavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.navigation.ScreenNavigator
-import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
-import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
-import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
-import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeFilterNavKey
-import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
-import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
-import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
+import io.github.taetae98coding.diary.core.navigation.isListDetailPane
 import kotlinx.coroutines.flow.Flow
 
 @Stable
@@ -81,28 +75,21 @@ internal class AppState(
     }
 
     private fun isTopLevelListVisible(): Boolean {
-        if (paneScaffoldDirective.maxHorizontalPartitions <= 1) return false
-
         val currentKey = currentContentKey()
+        val listKey = currentKey?.topLevelListKey
 
-        return currentKey != null &&
-            (
-                backStack.isMemoListDetailPane(currentKey) ||
-                    backStack.isTagListDetailPane(currentKey) ||
-                    backStack.isRoutineListDetailPane(currentKey)
+        return paneScaffoldDirective.maxHorizontalPartitions > 1 &&
+            currentKey != null &&
+            listKey != null &&
+            backStack.isListDetailPane(
+                key = currentKey,
+                homeKey = listKey,
+                isDetailPaneKey = { key -> key.topLevelListKey == listKey },
             )
     }
 
-    private fun currentContentKey(): ScreenNavKey? = backStack.lastOrNull { key -> key !in OverlayNavKeySet }
+    private fun currentContentKey(): ScreenNavKey? = backStack.lastOrNull { key -> !key.isOverlay }
 }
-
-private val OverlayNavKeySet: Set<ScreenNavKey> =
-    setOf(
-        MemoHomeFilterNavKey,
-        CalendarHomeFilterNavKey,
-        TagHomeFilterNavKey,
-        RoutineHomeFilterNavKey,
-    )
 
 @Composable
 internal fun rememberAppState(): AppState {

@@ -103,7 +103,7 @@ class MemoAddContactViewModelTest : FunSpec() {
                 val contact = contact()
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.failure(IllegalStateException("contact error"))))
 
-                viewModel.selectContact(id = contact.contact.id)
+                viewModel.selectContact(contactId = contact.contact.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -135,7 +135,7 @@ class MemoAddContactViewModelTest : FunSpec() {
                         contactPagingFlow = flowOf(Result.failure(IllegalStateException("contact error"))),
                         savedContactListFlow = flowOf(Result.success(listOf(contact))),
                     )
-                viewModel.selectContact(id = contact.contact.id)
+                viewModel.selectContact(contactId = contact.contact.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -180,8 +180,8 @@ class MemoAddContactViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     expectMostRecentItem().selectedContactList shouldBe listOf(target)
 
-                    viewModel.unselectContact(id = target.contact.id)
-                    viewModel.selectContact(id = other.contact.id)
+                    viewModel.unselectContact(contactId = target.contact.id)
+                    viewModel.selectContact(contactId = other.contact.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedContactList shouldBe listOf(other)
@@ -237,12 +237,12 @@ class MemoAddContactViewModelTest : FunSpec() {
 
                     expectMostRecentItem().selectedContactList.shouldBeEmpty()
 
-                    viewModel.selectContact(id = contact.contact.id)
+                    viewModel.selectContact(contactId = contact.contact.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedContactList shouldBe listOf(contact)
 
-                    viewModel.unselectContact(id = contact.contact.id)
+                    viewModel.unselectContact(contactId = contact.contact.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedContactList.shouldBeEmpty()
@@ -259,8 +259,8 @@ class MemoAddContactViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectContact(id = firstContact.contact.id)
-                    viewModel.selectContact(id = secondContact.contact.id)
+                    viewModel.selectContact(contactId = firstContact.contact.id)
+                    viewModel.selectContact(contactId = secondContact.contact.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedContactList shouldBe listOf(firstContact, secondContact)
@@ -276,7 +276,7 @@ class MemoAddContactViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectContact(id = contact.contact.id)
+                    viewModel.selectContact(contactId = contact.contact.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedContactList shouldBe listOf(contact)
@@ -300,7 +300,7 @@ class MemoAddContactViewModelTest : FunSpec() {
                 val savedContactListFlow = MutableStateFlow(Result.success(listOf(remainingContact, removedContact)))
                 val viewModel = viewModel(savedContactListFlow = savedContactListFlow)
 
-                viewModel.selectContact(id = removedContact.contact.id)
+                viewModel.selectContact(contactId = removedContact.contact.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -325,8 +325,8 @@ class MemoAddContactViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectContact(id = remainingContact.contact.id)
-                    viewModel.selectContact(id = deletedContact.contact.id)
+                    viewModel.selectContact(contactId = remainingContact.contact.id)
+                    viewModel.selectContact(contactId = deletedContact.contact.id)
                     advanceUntilIdle()
 
                     savedContactListFlow.value = Result.success(listOf(remainingContact))
@@ -344,8 +344,8 @@ class MemoAddContactViewModelTest : FunSpec() {
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.success(listOf(addedContact))))
 
                 // ContactAdd 화면에서 돌아와 자동 선택된 상태를 만든다.
-                viewModel.selectContact(id = addedContact.contact.id)
-                viewModel.unselectContact(id = addedContact.contact.id)
+                viewModel.selectContact(contactId = addedContact.contact.id)
+                viewModel.unselectContact(contactId = addedContact.contact.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -384,7 +384,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.success(listOf(contact))))
-                viewModel.selectContact(id = contact.contact.id)
+                viewModel.selectContact(contactId = contact.contact.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()

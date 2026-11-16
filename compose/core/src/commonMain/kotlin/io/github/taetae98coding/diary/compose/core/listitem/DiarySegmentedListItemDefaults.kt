@@ -8,7 +8,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 
 public object DiarySegmentedListItemDefaults {
     public val Gap: Dp = ListItemDefaults.SegmentedGap

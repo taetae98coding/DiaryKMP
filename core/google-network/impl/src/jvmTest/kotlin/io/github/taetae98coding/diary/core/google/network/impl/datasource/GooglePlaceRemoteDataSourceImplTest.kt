@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.core.google.network.impl.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceDisplayNameRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceLocationBiasRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceLocationRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceDisplayNameRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
@@ -9,10 +13,6 @@ import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTest
 import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTestKoinModule
 import io.github.taetae98coding.diary.core.google.network.impl.createGoogleHttpClient
 import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
-import io.github.taetae98coding.diary.core.testing.google.googlePlaceDisplayNameRemoteEntity
-import io.github.taetae98coding.diary.core.testing.google.googlePlaceLocationBiasRemoteEntity
-import io.github.taetae98coding.diary.core.testing.google.googlePlaceLocationRemoteEntity
-import io.github.taetae98coding.diary.core.testing.google.googlePlaceRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

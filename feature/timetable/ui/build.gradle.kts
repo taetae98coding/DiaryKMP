@@ -17,7 +17,6 @@ kotlin {
                 implementation(projects.domain.weather)
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.dday.api)
-                implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.timetable.api)
                 implementation(projects.library.composeUi)

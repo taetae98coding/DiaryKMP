@@ -19,8 +19,9 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
@@ -86,12 +87,12 @@ class TagDetailMusicTabTest {
     @Test
     fun `TC-13d845f3-f943-4de0-8c00-700b51190013 곡을 선택하면 그 곡의 상세 이동을 요청한다`() {
         val item = tagMusic(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailMusicContentEvent>()
-        setMusicTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setMusicTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add, onMusicListEvent = eventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
-        eventList shouldBe listOf(TagDetailMusicContentEvent.ClickMusic(id = item.id))
+        eventList shouldBe listOf(MusicListEvent.ClickMusic(id = item.id))
     }
 
     @Test
@@ -122,10 +123,11 @@ class TagDetailMusicTabTest {
 
     @Test
     fun `TC-9ab5829e-0226-4ad9-9a1c-7c169518d342 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailMusicContentEvent>()
+        val eventList = mutableListOf<Any>()
         setMusicTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagMusic(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onMusicListEvent = eventList::add,
         )
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -136,8 +138,8 @@ class TagDetailMusicTabTest {
 
     @Test
     fun `TC-9ab5829e-0226-4ad9-9a1c-7c169518d342 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailMusicContentEvent>()
-        setMusicTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setMusicTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add, onMusicListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -164,24 +166,26 @@ class TagDetailMusicTabTest {
     @Test
     fun `TC-13f5cb56-189d-4536-9d2b-339c2028be0d 곡 카드를 삭제 방향으로 밀면 그 곡의 삭제를 전달한다`() {
         val item = tagMusic(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailMusicContentEvent>()
+        val eventList = mutableListOf<Any>()
         setMusicTab(
             pagingData = tagEntityPagingData(itemList = listOf(item)),
             onEvent = eventList::add,
+            onMusicListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(MUSIC_CARD_TEST_TAG).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(TagDetailMusicContentEvent.DeleteMusic(id = item.id))
+        eventList shouldBe listOf(MusicListEvent.SwipeDelete(id = item.id))
     }
 
     @Test
     fun `TC-756a123e-232e-45c9-9cde-d021fc248b8b 곡 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
-        val eventList = mutableListOf<TagDetailMusicContentEvent>()
+        val eventList = mutableListOf<Any>()
         setMusicTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagMusic(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onMusicListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(MUSIC_CARD_TEST_TAG).performTouchInput { swipeRight() }
@@ -193,10 +197,11 @@ class TagDetailMusicTabTest {
 
     @Test
     fun `목록 위에 지금 정렬을 표시하고 정렬을 고르면 그 기준을 전달한다`() {
-        val eventList = mutableListOf<TagDetailMusicContentEvent>()
+        val eventList = mutableListOf<Any>()
         setMusicTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagMusic(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onMusicListEvent = eventList::add,
         )
 
         composeRule.onNodeWithText(DEFAULT_SORT_LABEL).assertIsDisplayed()
@@ -215,6 +220,7 @@ class TagDetailMusicTabTest {
     private fun setMusicTab(
         pagingData: PagingData<Music> = PagingData.empty(),
         onEvent: (TagDetailMusicContentEvent) -> Unit = {},
+        onMusicListEvent: (MusicListEvent) -> Unit = {},
         isRefreshingProvider: () -> Boolean = { false },
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -223,6 +229,7 @@ class TagDetailMusicTabTest {
             DiaryTheme {
                 TagDetailMusicTab(
                     onEvent = onEvent,
+                    onMusicListEvent = onMusicListEvent,
                     modifier = Modifier.fillMaxSize(),
                     musicPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     isRefreshingProvider = isRefreshingProvider,

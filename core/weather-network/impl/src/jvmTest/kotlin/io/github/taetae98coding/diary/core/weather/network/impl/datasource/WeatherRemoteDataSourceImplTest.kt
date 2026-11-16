@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.core.weather.network.impl.datasource
 
-import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.forecastWeatherRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.locationNameRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.currentWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.forecastRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.forecastWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.locationNameRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRemoteEntity
@@ -42,8 +42,8 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
-            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.readCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.readForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory.forEach { request ->
                 request.url.parameters["units"] shouldBe "metric"
@@ -55,8 +55,8 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
-            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.readCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.readForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory.forEach { request ->
                 request.url.parameters["lang"] shouldBe "en"
@@ -71,7 +71,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = latitude, longitude = longitude)
+            dataSource.readCurrentWeather(latitude = latitude, longitude = longitude)
 
             val request = engine.requestHistory.single()
             request.url.parameters["lat"] shouldBe latitude.toString()
@@ -84,7 +84,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine(currentWeatherContent = Json.encodeToString(currentWeather))
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
+            val actual = dataSource.readCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
 
             actual shouldBe currentWeather
         }
@@ -96,7 +96,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getForecast(latitude = latitude, longitude = longitude)
+            dataSource.readForecast(latitude = latitude, longitude = longitude)
 
             val request = engine.requestHistory.single()
             request.url.parameters["lat"] shouldBe latitude.toString()
@@ -112,7 +112,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine(forecastContent = Json.encodeToString(forecast))
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
+            val actual = dataSource.readForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             actual shouldBe forecast
         }
@@ -127,10 +127,10 @@ class WeatherRemoteDataSourceImplTest :
                 val dataSource = createDataSource(engine)
 
                 shouldThrow<ResponseException> {
-                    dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
+                    dataSource.readCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
                 }
                 shouldThrow<ResponseException> {
-                    dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
+                    dataSource.readForecast(latitude = randomLatitude(), longitude = randomLongitude())
                 }
             }
         }
@@ -142,7 +142,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getLocationName(latitude = latitude, longitude = longitude)
+            dataSource.readLocationName(latitude = latitude, longitude = longitude)
 
             val request = engine.requestHistory.single()
             request.url.parameters["lat"] shouldBe latitude.toString()
@@ -160,7 +160,7 @@ class WeatherRemoteDataSourceImplTest :
                 val dataSource = createDataSource(engine)
 
                 shouldThrow<ResponseException> {
-                    dataSource.getLocationName(latitude = randomLatitude(), longitude = randomLongitude())
+                    dataSource.readLocationName(latitude = randomLatitude(), longitude = randomLongitude())
                 }
             }
         }
@@ -170,7 +170,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine(locationNameContent = Json.encodeToString(locationNameList))
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.getLocationName(latitude = randomLatitude(), longitude = randomLongitude())
+            val actual = dataSource.readLocationName(latitude = randomLatitude(), longitude = randomLongitude())
 
             actual shouldBe locationNameList
         }
@@ -179,7 +179,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getLocationName(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.readLocationName(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory
                 .single()
@@ -191,7 +191,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.readCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory
                 .single()
@@ -203,7 +203,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.readForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory
                 .single()

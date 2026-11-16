@@ -78,9 +78,4 @@ internal class AndroidImageConverter(
         when (this) {
             ImageFormat.JPEG -> Bitmap.CompressFormat.JPEG
         }
-
-    private fun ImageFormat.extension(): String =
-        when (this) {
-            ImageFormat.JPEG -> "jpg"
-        }
 }

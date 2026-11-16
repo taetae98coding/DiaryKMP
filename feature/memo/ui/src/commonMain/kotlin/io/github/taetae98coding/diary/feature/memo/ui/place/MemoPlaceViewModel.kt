@@ -5,6 +5,8 @@ package io.github.taetae98coding.diary.feature.memo.ui.place
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoPlaceUseCase
@@ -30,7 +32,8 @@ internal class MemoPlaceViewModel(
     getMemoPlaceUseCase: GetMemoPlaceUseCase,
     private val addMemoPlaceUseCase: AddMemoPlaceUseCase,
     private val removeMemoPlaceUseCase: RemoveMemoPlaceUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    MemoPlaceInputController {
     val uiState: StateFlow<MemoPlaceInputUiState> =
         getMemoPlaceUseCase(parameter = id)
             .map { result ->
@@ -45,20 +48,20 @@ internal class MemoPlaceViewModel(
             )
 
     private val selectablePaging =
-        MemoSelectablePaging(scope = viewModelScope) { query -> pagePlaceUseCase(parameter = query) }
+        MemoSelectablePaging { query -> pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = query, sort = ListSort.DEFAULT)) }
 
-    val placePagingData: Flow<PagingData<Place>> = selectablePaging.pagingData
+    val placePagingData: Flow<PagingData<Place>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
-    val selectablePlacePagingData: Flow<PagingData<Place>> = selectablePaging.selectablePagingData
+    val selectablePlacePagingData: Flow<PagingData<Place>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
     private val inProgressSelectPlaceSet = mutableSetOf<Uuid>()
     private val inProgressUnselectPlaceSet = mutableSetOf<Uuid>()
 
-    fun updateQuery(query: String) {
+    override fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }
 
-    fun selectPlace(placeId: Uuid) {
+    override fun selectPlace(placeId: Uuid) {
         if (!inProgressSelectPlaceSet.add(placeId)) return
 
         viewModelScope.launch {
@@ -70,7 +73,7 @@ internal class MemoPlaceViewModel(
         }
     }
 
-    fun unselectPlace(placeId: Uuid) {
+    override fun unselectPlace(placeId: Uuid) {
         if (!inProgressUnselectPlaceSet.add(placeId)) return
 
         viewModelScope.launch {

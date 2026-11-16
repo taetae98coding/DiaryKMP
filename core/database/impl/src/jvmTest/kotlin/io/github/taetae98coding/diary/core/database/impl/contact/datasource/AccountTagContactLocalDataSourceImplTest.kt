@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.database.impl.contact.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.contact.contactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
@@ -12,7 +13,6 @@ import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabPa
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabTc
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.loadTagTabPage
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.tagEntityTabLocalDataSourceTests
-import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec

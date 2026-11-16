@@ -11,8 +11,8 @@ import io.github.taetae98coding.diary.app.shared.top_level_navigation_memo_label
 import io.github.taetae98coding.diary.app.shared.top_level_navigation_more_label
 import io.github.taetae98coding.diary.app.shared.top_level_navigation_routine_label
 import io.github.taetae98coding.diary.app.shared.top_level_navigation_tag_label
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

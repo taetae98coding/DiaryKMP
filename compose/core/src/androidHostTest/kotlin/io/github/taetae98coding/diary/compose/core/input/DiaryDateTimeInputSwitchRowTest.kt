@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.START_DATE_TEXT
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.allDayValue
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.hasRole
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

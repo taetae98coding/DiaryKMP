@@ -45,4 +45,4 @@ public suspend fun SnackbarHostState.showShareResult(
 public fun shareFailedMessage(): String = stringResource(Res.string.share_failed_message)
 
 @Composable
-public fun shareCopiedMessage(): String = stringResource(Res.string.share_copied_message)
+private fun shareCopiedMessage(): String = stringResource(Res.string.share_copied_message)

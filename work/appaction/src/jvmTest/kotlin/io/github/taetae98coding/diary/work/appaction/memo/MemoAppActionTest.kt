@@ -22,7 +22,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UpdateMemoUseCase
@@ -65,35 +65,35 @@ class MemoAppActionTest :
         test("목록은 정렬을 담지 않으면 처음 정렬로, 담으면 그 정렬로 조회해 MCP와 같은 항목을 돌려준다") {
             runTest {
                 val memoList = Arb.list(Arb.memo(), 1..3).next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 action.list(sort = null, cursor = null) shouldBe AppActionPage(items = memoList.map { memo -> memo.expected() }, nextCursor = null)
                 action.list(sort = "recently_updated", cursor = null).items shouldBe memoList.map { memo -> memo.expected() }
 
-                verify(exactly = 1) { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) }
-                verify(exactly = 1) { pageMemoHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) }
+                verify(exactly = 1) { pageMemoUseCase(parameter = ListSort.DEFAULT) }
+                verify(exactly = 1) { pageMemoUseCase(parameter = ListSort.RECENTLY_UPDATED) }
             }
         }
 
         test("목록이 제공하지 않는 정렬은 고를 수 있는 정렬을 알리며 실패한다") {
             runTest {
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.list(sort = "name", cursor = null) }.message shouldBe
                     "'sort' must be one of default, title, recently_updated."
-                verify(exactly = 0) { pageMemoHomeUseCase(parameter = any()) }
+                verify(exactly = 0) { pageMemoUseCase(parameter = any()) }
             }
         }
 
         test("목록은 100개씩 나눠 다음 페이지 위치를 알리고, 그 위치로 다음 페이지를 받는다") {
             runTest {
                 val memoList = Arb.list(Arb.memo(), 101..150).next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(memoList))) }
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(memoList))) }
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 val firstPage = action.list(sort = null, cursor = null)
                 val secondPage = action.list(sort = null, cursor = firstPage.nextCursor)
@@ -106,13 +106,13 @@ class MemoAppActionTest :
         test("계정이 확정되기 전 요청은 확정된 뒤의 목록을 받는다") {
             runTest {
                 val memoList = Arb.list(Arb.memo(), 1..3).next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } returns
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns
                     flow {
                         delay(ACCOUNT_CONFIRM_DELAY_MILLIS)
                         emit(Result.success(PagingData.from(memoList)))
                     }
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 action.list(sort = null, cursor = null).items shouldBe memoList.map { memo -> memo.expected() }
             }
@@ -121,9 +121,9 @@ class MemoAppActionTest :
         test("계정 조회가 실패하면 MCP와 같은 메시지로 실패를 알린다") {
             runTest {
                 val message = Arb.nonBlankString().next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(message)))
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(message)))
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.list(sort = null, cursor = null) }.message shouldBe "IllegalStateException: $message"
             }

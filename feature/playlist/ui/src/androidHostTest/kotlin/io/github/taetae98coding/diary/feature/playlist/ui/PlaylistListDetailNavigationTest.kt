@@ -42,12 +42,14 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
@@ -69,7 +71,6 @@ import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailView
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
-import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
 import io.github.taetae98coding.diary.feature.playlist.ui.home.testMusic
@@ -594,7 +595,7 @@ class PlaylistListDetailNavigationTest {
             factory<PlaylistHomeViewModel> {
                 mockk<PlaylistHomeViewModel>(relaxed = true) {
                     every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
-                    every { uiState } returns MutableStateFlow(PlaylistHomeUiState())
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
                     every { effect } returns emptyFlow()
                 }.also { viewModel -> homeViewModelList += viewModel }
             }

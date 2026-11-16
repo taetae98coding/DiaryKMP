@@ -5,12 +5,12 @@ import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.music.musicDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
-import io.github.taetae98coding.diary.core.testing.music.musicDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow

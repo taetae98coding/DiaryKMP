@@ -29,6 +29,7 @@ internal fun CalendarHomeScreen(
     memoViewModel: CalendarHomeMemoViewModel,
     ddayViewModel: CalendarHomeDDayViewModel,
     birthdayViewModel: CalendarHomeBirthdayViewModel,
+    filterViewModel: CalendarHomeScaffoldFilterViewModel,
     weatherViewModel: CalendarHomeWeatherViewModel,
     syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
@@ -37,7 +38,7 @@ internal fun CalendarHomeScreen(
     val memoUiState by memoViewModel.uiState.collectAsStateWithLifecycle()
     val ddayUiState by ddayViewModel.uiState.collectAsStateWithLifecycle()
     val birthdayUiState by birthdayViewModel.uiState.collectAsStateWithLifecycle()
-    val filterUiState by memoViewModel.filterUiState.collectAsStateWithLifecycle()
+    val filterUiState by filterViewModel.uiState.collectAsStateWithLifecycle()
     val weatherUiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
     val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
 

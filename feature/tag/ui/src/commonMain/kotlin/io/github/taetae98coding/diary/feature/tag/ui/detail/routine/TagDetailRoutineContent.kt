@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
 import io.github.taetae98coding.diary.compose.routine.RoutineListEvent
 import io.github.taetae98coding.diary.compose.routine.RoutineListState
 import io.github.taetae98coding.diary.compose.routine.RoutineListUndoSnackbarEffect
+import io.github.taetae98coding.diary.feature.core.routine.UpdateRoutineTodayEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
@@ -60,8 +61,8 @@ internal fun TagDetailRoutineContent(
             state = scopeState,
         )
 
-        UpdateTagDetailRoutineTodayEffect(
-            routineViewModel = routineViewModel,
+        UpdateRoutineTodayEffect(
+            onUpdate = routineViewModel::updateToday,
             listState = listState,
         )
 

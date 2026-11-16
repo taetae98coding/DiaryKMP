@@ -14,9 +14,9 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -136,13 +136,14 @@ class CalendarHomeScreenTagSelectTest {
         val filterViewModel = filterViewModel(getCalendarFilterUseCase = getCalendarFilterUseCase)
         val memoViewModel =
             CalendarHomeMemoViewModel(
-                getCalendarFilterUseCase = getCalendarFilterUseCase,
                 getCalendarMemoUseCase =
                     mockk<GetCalendarMemoUseCase>().also { useCase ->
                         every { useCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
                     },
                 moveMemoUseCase = mockk(),
             )
+
+        val scaffoldFilterViewModel = CalendarHomeScaffoldFilterViewModel(getCalendarFilterUseCase = getCalendarFilterUseCase)
 
         composeRule.setContent {
             val filterUiState by filterViewModel.uiState.collectAsStateWithLifecycle()
@@ -170,6 +171,7 @@ class CalendarHomeScreenTagSelectTest {
                         permissionManager = rememberPermissionManager(),
                         holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
                         memoViewModel = memoViewModel,
+                        filterViewModel = scaffoldFilterViewModel,
                         birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(birthdayList)),
                         weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(weatherReport)),
                         syncViewModel = syncViewModel(),

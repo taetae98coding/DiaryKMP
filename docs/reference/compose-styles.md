@@ -66,7 +66,7 @@ Styles API는 `@ExperimentalFoundationStyleApi`가 붙은 실험적 API다. 별�
 
 `Modifier.styleable`로 옮긴 곳과 이유다. 컴포넌트에 `style: Style` 파라미터는 아직 열지 않았다. 두 번째 호출자가 다른 모양을 요구할 때 연다.
 
-여러 화면이 함께 쓰는 묶음은 [공통 스타일](../design/styles.md)이 이름을 붙이고, `compose:core`의 `DiaryStyles`가 같은 이름의 `Style` 값으로 든다. 대응 규칙은 [Compose UI 규칙](../../DIARY_AGENTS/rules/compose.md)이 소유한다.
+여러 화면이 함께 쓰는 묶음은 [공통 스타일](../design/styles.md)이 이름을 붙이고, `compose:theme`의 `DiaryStyles`가 같은 이름의 `Style` 값으로 든다. 대응 규칙은 [Compose UI 규칙](../../DIARY_AGENTS/rules/compose.md)이 소유한다.
 
 | 공통 스타일 | 코드 | 쓰는 곳 |
 | --- | --- | --- |

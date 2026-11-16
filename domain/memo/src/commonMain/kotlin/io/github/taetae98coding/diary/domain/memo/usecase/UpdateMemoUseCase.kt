@@ -15,7 +15,6 @@ import kotlin.uuid.Uuid
 @Factory
 public class UpdateMemoUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
-    private val findMemoUseCase: FindMemoUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
     private val accountMemoRepository: AccountMemoRepository,
     private val clock: Clock,
@@ -26,9 +25,9 @@ public class UpdateMemoUseCase internal constructor(
             parameter.detail.copy(
                 title =
                     parameter.detail.title.ifBlank {
-                        findMemoUseCase(parameter.id)
+                        accountMemoRepository
+                            .find(account = account, memoId = parameter.id)
                             .first()
-                            .getOrThrow()
                             ?.detail
                             ?.title
                             .orEmpty()

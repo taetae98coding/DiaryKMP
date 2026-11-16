@@ -10,7 +10,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedContactMem
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedPlaceMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedWebMemoUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PagePlaceMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageWebMemoUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
@@ -36,7 +36,7 @@ public class MemoListAppAction internal constructor(
     private val findPlaceUseCase: FindPlaceUseCase,
     private val findWebUseCase: FindWebUseCase,
     private val findContactUseCase: FindContactUseCase,
-    private val pageMemoHomeUseCase: PageMemoHomeUseCase,
+    private val pageMemoUseCase: PageMemoUseCase,
     private val pageFinishedMemoUseCase: PageFinishedMemoUseCase,
     private val pagePlaceMemoUseCase: PagePlaceMemoUseCase,
     private val pageFinishedPlaceMemoUseCase: PageFinishedPlaceMemoUseCase,
@@ -50,7 +50,7 @@ public class MemoListAppAction internal constructor(
         cursor: String?,
     ): AppActionPage<AppActionMemo> =
         runAppAction {
-            pageMemoHomeUseCase
+            pageMemoUseCase
                 .readPage(parameter = sort.toSortArgument(memoSortList), offset = cursor.toPageOffset())
                 .map { memo -> memo.toAppActionMemo() }
         }

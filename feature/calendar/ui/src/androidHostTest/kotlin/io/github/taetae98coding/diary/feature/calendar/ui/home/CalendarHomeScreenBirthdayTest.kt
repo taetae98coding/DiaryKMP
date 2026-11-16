@@ -18,8 +18,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
@@ -277,7 +277,6 @@ class CalendarHomeScreenBirthdayTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 
         composeRule.setContent {
@@ -300,6 +299,7 @@ class CalendarHomeScreenBirthdayTest {
                     state = state,
                     holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     birthdayViewModel = birthdayViewModel,
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),

@@ -17,12 +17,10 @@ import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.domain.core.invoke
-import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterTagIdUseCase
-import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.PageDDayUseCase
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -169,19 +167,13 @@ class DDayHomeScreenTest {
     fun `TC-3c1ca627-98c7-4412-b8f9-f4232bbab368 목록을 조회하지 못하면 오류 안내 없이 빈 상태로 표시한다`() {
         val pageDDayUseCase = mockk<PageDDayUseCase>()
         every { pageDDayUseCase() } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
-        val getDDayFilterUseCase = mockk<GetDDayFilterUseCase>()
-        every { getDDayFilterUseCase() } returns flowOf(Result.success(emptyList()))
-        val getDDayFilterTagIdUseCase = mockk<GetDDayFilterTagIdUseCase>()
-        every { getDDayFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val viewModel =
             DDayHomeViewModel(
-                getDDayFilterUseCase = getDDayFilterUseCase,
-                getDDayFilterTagIdUseCase = getDDayFilterTagIdUseCase,
                 pageDDayUseCase = pageDDayUseCase,
                 deleteDDayUseCase = mockk(),
                 restoreDDayUseCase = mockk(),
             )
-        setDDayHomeScreenContent(ddayViewModel = viewModel, syncViewModel = syncViewModel(), navigation = Navigation())
+        setDDayHomeScreenContent(ddayViewModel = viewModel, filterViewModel = homeFilterViewModelOf(), syncViewModel = syncViewModel(), navigation = Navigation())
 
         composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(DEFAULT_EMPTY_TITLE).fetchSemanticsNodes().isNotEmpty()
@@ -243,17 +235,22 @@ class DDayHomeScreenTest {
     ): Navigation {
         val ddayViewModel = mockk<DDayHomeViewModel>()
         every { ddayViewModel.ddayPagingData } returns MutableStateFlow(pagingData)
-        every { ddayViewModel.filterUiState } returns MutableStateFlow(filterUiState)
         every { ddayViewModel.effect } returns emptyFlow()
         val navigation = Navigation()
 
-        setDDayHomeScreenContent(ddayViewModel = ddayViewModel, syncViewModel = syncViewModel, navigation = navigation)
+        setDDayHomeScreenContent(
+            ddayViewModel = ddayViewModel,
+            filterViewModel = homeFilterViewModelOf(uiStateFlow = MutableStateFlow(filterUiState)),
+            syncViewModel = syncViewModel,
+            navigation = navigation,
+        )
 
         return navigation
     }
 
     private fun setDDayHomeScreenContent(
         ddayViewModel: DDayHomeViewModel,
+        filterViewModel: DDayHomeScaffoldFilterViewModel,
         syncViewModel: SyncRefreshViewModel,
         navigation: Navigation,
     ) {
@@ -266,6 +263,7 @@ class DDayHomeScreenTest {
                     navigateToFilter = { navigation.filterCount += 1 },
                     componentVisibleProvider = { DDayHomeScaffoldComponentVisible() },
                     ddayViewModel = ddayViewModel,
+                    filterViewModel = filterViewModel,
                     syncViewModel = syncViewModel,
                 )
             }

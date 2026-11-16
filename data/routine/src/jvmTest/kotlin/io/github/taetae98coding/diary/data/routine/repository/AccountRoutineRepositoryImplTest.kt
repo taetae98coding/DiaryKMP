@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.data.routine.repository
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.datasource.AccountRoutineLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
@@ -8,7 +9,6 @@ import io.github.taetae98coding.diary.core.database.api.routine.transaction.Acco
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.routine.routine
 import io.github.taetae98coding.diary.core.testing.routine.routineDetail
-import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid

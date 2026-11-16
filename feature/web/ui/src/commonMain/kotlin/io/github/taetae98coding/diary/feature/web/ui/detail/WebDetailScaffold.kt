@@ -13,22 +13,24 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.web.previewWebPage
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.web.ui.Res
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.PreviewWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewModeBottomSheetHost
-import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
@@ -41,8 +43,9 @@ import kotlin.uuid.Uuid
 @Composable
 internal fun WebDetailScaffold(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
-    onFormEvent: (WebFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
+    webViewContent: WebViewContent,
     modifier: Modifier = Modifier,
     isShareVisible: Boolean = false,
     state: WebDetailScaffoldState = rememberWebDetailScaffoldState(),
@@ -80,6 +83,7 @@ internal fun WebDetailScaffold(
         WebDetailScaffoldContent(
             onEvent = onEvent,
             onFormEvent = onFormEvent,
+            webViewContent = webViewContent,
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -115,6 +119,7 @@ private fun WebDetailScaffoldPreview() {
             onEvent = {},
             onFormEvent = {},
             onTagPickerEvent = {},
+            webViewContent = PreviewWebViewContent,
             formState = rememberWebDetailFormState(initialDetail = previewWebDetail()),
             uiStateProvider = { WebDetailUiState.Content(id = Uuid.NIL, detail = previewWebDetail()) },
             pageUiStateProvider = { WebDetailPageUiState.Content(page = previewWebPage()) },

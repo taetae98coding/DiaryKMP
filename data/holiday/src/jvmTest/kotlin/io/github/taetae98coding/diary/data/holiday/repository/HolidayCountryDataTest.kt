@@ -5,12 +5,12 @@ import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayC
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.HolidayRemoteDataSource
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCountryRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.holiday.holidayLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.holiday.holidayRemoteEntity
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
-import io.github.taetae98coding.diary.core.testing.holiday.holidayLocalEntity
-import io.github.taetae98coding.diary.core.testing.holiday.holidayRemoteEntity
 import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
@@ -43,9 +43,9 @@ class HolidayCountryDataTest :
             val year = Arb.int(YEAR_RANGE).next()
             val unitedStatesRemoteList = listOf(Arb.holidayRemoteEntity().next(), Arb.holidayRemoteEntity().next())
             val context = holidayCountryDataTestContext(optionSet = BOTH_OPTION_SET)
-            coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws
+            coEvery { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws
                 IllegalStateException(Arb.string().next())
-            coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns unitedStatesRemoteList
+            coEvery { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns unitedStatesRemoteList
 
             context.koin
                 .get<FetchHolidayUseCase>()(parameter = year)
@@ -64,9 +64,9 @@ class HolidayCountryDataTest :
         test("TC-5bcf3e88-0091-49ed-a823-f72e9cb68b74 한 국가가 실패한 연도를 다시 요청하면 실패한 국가만 다시 원격 조회한다") {
             val year = Arb.int(YEAR_RANGE).next()
             val context = holidayCountryDataTestContext(optionSet = BOTH_OPTION_SET)
-            coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws
+            coEvery { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws
                 IllegalStateException(Arb.string().next()) andThen listOf(Arb.holidayRemoteEntity().next())
-            coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns listOf(Arb.holidayRemoteEntity().next())
+            coEvery { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns listOf(Arb.holidayRemoteEntity().next())
             every { context.localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.UNITED_STATES), year = year) } returns
                 MutableStateFlow(listOf(Arb.holidayLocalEntity().next().copy(year = year, country = HolidayCountryLocalEntity.UNITED_STATES)))
             val useCase = context.koin.get<FetchHolidayUseCase>()
@@ -74,8 +74,8 @@ class HolidayCountryDataTest :
 
             useCase(parameter = year).shouldBeSuccess()
 
-            coVerify(exactly = 2) { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
-            coVerify(exactly = 1) { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) }
+            coVerify(exactly = 2) { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 1) { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) }
         }
 
         test("TC-0d734f0f-dd9e-4adc-9cbd-d6095ee05e47 국가 설정을 바꿔도 기기에 저장된 공휴일은 바뀌지 않는다") {

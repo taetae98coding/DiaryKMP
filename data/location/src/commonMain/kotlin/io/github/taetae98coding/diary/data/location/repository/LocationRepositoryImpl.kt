@@ -15,5 +15,5 @@ internal class LocationRepositoryImpl(
         locationProvider
             .getCurrentLocation()
             ?.let { location -> Coordinate(latitude = location.latitude, longitude = location.longitude) }
-            ?: ipRemoteDataSource.get().let { entity -> Coordinate(latitude = entity.latitude, longitude = entity.longitude) }
+            ?: ipRemoteDataSource.read().let { entity -> Coordinate(latitude = entity.latitude, longitude = entity.longitude) }
 }

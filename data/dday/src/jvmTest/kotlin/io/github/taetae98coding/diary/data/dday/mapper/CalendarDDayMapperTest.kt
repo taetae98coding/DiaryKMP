@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.dday.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.dday.calendarDDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.CalendarDDayKindLocalEntity
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
-import io.github.taetae98coding.diary.core.testing.dday.calendarDDayLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

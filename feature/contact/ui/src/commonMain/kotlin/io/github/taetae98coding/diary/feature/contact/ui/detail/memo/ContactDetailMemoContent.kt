@@ -12,7 +12,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTab
-import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoContent
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoConnector
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoFinishedListButton
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -31,7 +31,7 @@ internal fun ContactDetailMemoContent(
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = ContactDetailTab.MEMO, provider = viewModelStoreProvider)
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-        EntityDetailMemoContent(
+        EntityDetailMemoConnector(
             memoViewModel = koinViewModel<ContactDetailMemoViewModel> { parametersOf(id) },
             syncViewModel = koinViewModel(),
             navigateToMemoDetail = navigateToMemoDetail,

@@ -7,12 +7,12 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleSignInResult
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsException
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.logger.core.DiaryLog

@@ -14,10 +14,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.window.DialogProperties
-import io.github.taetae98coding.diary.compose.core.icon.WarningIcon
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.WarningIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.account.ui.Res
 import io.github.taetae98coding.diary.feature.account.ui.profile_delete_cancel_button
 import io.github.taetae98coding.diary.feature.account.ui.profile_delete_confirm_button
@@ -30,13 +30,13 @@ import org.jetbrains.compose.resources.stringResource
 internal fun ProfileDeleteDialogHost(
     onEvent: (ProfileScaffoldEvent) -> Unit,
     uiStateProvider: () -> ProfileDeleteUiState = { ProfileDeleteUiState() },
-    isInProgressProvider: () -> Boolean = { false },
 ) {
-    if (!uiStateProvider().isConfirmVisible) return
+    val uiState = uiStateProvider()
+    if (!uiState.isConfirmVisible) return
 
     ProfileDeleteDialog(
         onEvent = onEvent,
-        isInProgress = isInProgressProvider(),
+        isInProgress = uiState.isInProgress,
     )
 }
 
@@ -95,6 +95,19 @@ private fun DeleteProgressIndicator(modifier: Modifier = Modifier) {
                 .size(DiaryTheme.dimens.inProgressIndicatorSize)
                 .semantics { this.contentDescription = contentDescription },
     )
+}
+
+@ComponentPreview
+@Composable
+private fun ProfileDeleteDialogHostPreview(
+    @PreviewParameter(BooleanPreviewParameter::class) isInProgress: Boolean,
+) {
+    DiaryTheme {
+        ProfileDeleteDialogHost(
+            onEvent = {},
+            uiStateProvider = { ProfileDeleteUiState(isConfirmVisible = true, isInProgress = isInProgress) },
+        )
+    }
 }
 
 @ComponentPreview

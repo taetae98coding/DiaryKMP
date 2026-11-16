@@ -8,7 +8,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
 import io.github.taetae98coding.diary.library.fixture.nonBlankString

@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.core.database.impl.routine.dao
 
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutine
+import io.github.taetae98coding.diary.core.data.testing.tag.localTag
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.routine.finishedRoutineSummaryList
@@ -8,8 +10,6 @@ import io.github.taetae98coding.diary.core.database.impl.routine.insertRoutineTe
 import io.github.taetae98coding.diary.core.database.impl.routine.linkRoutineTag
 import io.github.taetae98coding.diary.core.database.impl.routine.routineTestDatabase
 import io.github.taetae98coding.diary.core.database.impl.routine.selectRoutineFilterTag
-import io.github.taetae98coding.diary.core.testing.routine.localRoutine
-import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

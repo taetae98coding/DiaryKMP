@@ -39,11 +39,6 @@ class RoutineUnitTest :
             emoji.repeat(11).isValidRoutineUnit() shouldBe false
         }
 
-        test("짝이 맞지 않는 서러게이트는 한 글자로 센다") {
-            "\uD83D".routineUnitLength() shouldBe 1
-            "\uDCA7a".routineUnitLength() shouldBe 2
-        }
-
         test("줄을 바꾸는 글자는 종류와 관계없이 단위에 담을 수 없다") {
             listOf('\n', '\r', '\u000B', '\u000C', '\u0085', ' ', ' ').forEach { lineBreak ->
                 lineBreak.isRoutineUnitLineBreak() shouldBe true

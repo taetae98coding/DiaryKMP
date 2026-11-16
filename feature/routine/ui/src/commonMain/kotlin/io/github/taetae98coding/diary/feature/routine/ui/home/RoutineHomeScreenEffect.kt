@@ -22,17 +22,6 @@ internal fun ScrollToStartOnReselectEffect(
 }
 
 @Composable
-internal fun UpdateRoutineHomeTodayEffect(
-    routineViewModel: RoutineHomeViewModel,
-    state: RoutineHomeScaffoldState,
-) {
-    LaunchedEffect(state, routineViewModel) {
-        snapshotFlow { state.today }
-            .collect { today -> routineViewModel.updateToday(today = today) }
-    }
-}
-
-@Composable
 internal fun FetchCalendarRecordEffect(
     calendarViewModel: RoutineHomeCalendarViewModel,
     state: RoutineHomeScaffoldState,
@@ -51,6 +40,7 @@ internal fun FetchHolidayEffect(
 ) {
     LaunchedEffect(state, holidayViewModel) {
         snapshotFlow { state.calendarState.currentYearMonth.takeIf { state.viewMode == RoutineHomeViewMode.CALENDAR } }
-            .collect { yearMonth -> yearMonth?.let { value -> holidayViewModel.fetch(yearMonth = value) } }
+            .filterNotNull()
+            .collect { yearMonth -> holidayViewModel.fetch(yearMonth = yearMonth) }
     }
 }

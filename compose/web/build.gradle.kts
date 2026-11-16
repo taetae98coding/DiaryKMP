@@ -15,17 +15,5 @@ kotlin {
                 implementation(projects.core.testing)
             }
         }
-
-        androidMain {
-            dependencies {
-                implementation(projects.core.webCookie.api)
-            }
-        }
-
-        jvmMain {
-            dependencies {
-                implementation(projects.library.webkit)
-            }
-        }
     }
 }

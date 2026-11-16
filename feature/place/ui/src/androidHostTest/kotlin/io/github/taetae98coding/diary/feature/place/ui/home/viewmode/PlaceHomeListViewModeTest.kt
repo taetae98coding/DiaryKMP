@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.place.ui.home.DEFAULT_ADD_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeScaffoldEvent
@@ -55,16 +56,17 @@ class PlaceHomeListViewModeTest {
     @Test
     fun `TC-4bc1fcb6-558f-4c83-b1f2-88cdd3470764 목록 모드에서 장소를 선택하면 그 장소로 상세 이동을 요청한다`() {
         val place = viewModeTestPlace()
-        val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
+        val eventList = mutableListOf<Any>()
         setListViewModePlaceHomeScaffold(
             placeList = listOf(place),
             onEvent = { event -> eventList += event },
+            onPlaceListEvent = { event -> eventList += event },
         )
 
         composeRule.onNodeWithText(place.detail.title).performClick()
         composeRule.waitForIdle()
 
-        eventList.withoutMoveMap() shouldBe listOf(PlaceHomeScaffoldEvent.ClickPlace(id = place.id))
+        eventList.withoutMoveMap() shouldBe listOf(PlaceListEvent.ClickPlace(id = place.id))
     }
 
     @Test
@@ -115,6 +117,7 @@ class PlaceHomeListViewModeTest {
     private fun setListViewModePlaceHomeScaffold(
         placeList: List<Place> = emptyList(),
         onEvent: (PlaceHomeScaffoldEvent) -> Unit = {},
+        onPlaceListEvent: (PlaceListEvent) -> Unit = {},
     ) {
         val placePagingDataFlow = placePagingDataFlowOf(placeList)
 
@@ -124,6 +127,7 @@ class PlaceHomeListViewModeTest {
                 state = PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST),
                 uiState = PlaceHomeUiState.Loading,
                 placePagingDataFlow = placePagingDataFlow,
+                onPlaceListEvent = onPlaceListEvent,
             )
         }
     }

@@ -26,8 +26,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.TODAY_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.englishTitle
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
@@ -186,7 +186,6 @@ class CalendarHomeScreenPrimaryDateTest {
         val memoViewModel = mockk<CalendarHomeMemoViewModel>()
         every { memoViewModel.select(any()) } returns Unit
         every { memoViewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-        every { memoViewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
 
         val birthdayViewModel = birthdayViewModel()
         val weatherViewModel = weatherViewModel()
@@ -219,6 +218,7 @@ class CalendarHomeScreenPrimaryDateTest {
                             navigateToTimetable = {},
                             holidayViewModel = holidayViewModel,
                             memoViewModel = memoViewModel,
+                            filterViewModel = filterViewModel(),
                             weatherViewModel = weatherViewModel,
                             syncViewModel = syncViewModel,
                             state = state,

@@ -13,10 +13,12 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.music.MusicListEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.resetAndroidUiDispatcher
@@ -166,7 +168,7 @@ class PlaylistHomeDeleteTest {
         val second = testMusic(title = SECOND_TITLE)
         val effectChannel = Channel<MusicListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<PlaylistHomeViewModel>()
-        every { viewModel.uiState } returns MutableStateFlow(PlaylistHomeUiState())
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.musicPagingData } returns MutableStateFlow(musicPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {

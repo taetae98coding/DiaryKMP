@@ -7,7 +7,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.routine.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.routine.ui.routineHomeCalendarViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.routineHomeHolidayViewModel

@@ -23,6 +23,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedTagMemoUse
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListEffect
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -97,7 +99,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
                     val viewModel = viewModel(tagId = tag.id, findTagUseCase = findTagUseCase)
 
                     viewModel.uiState.test {
-                        awaitItem() shouldBe TagMemoFinishedListUiState()
+                        awaitItem() shouldBe EntityMemoFinishedListUiState()
                         advanceUntilIdle()
                         awaitItem().title shouldBe expectedTitle
                         cancelAndIgnoreRemainingEvents()
@@ -118,7 +120,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
                     val viewModel = viewModel(tagId = tagId, findTagUseCase = findTagUseCase)
 
                     viewModel.uiState.test {
-                        awaitItem() shouldBe TagMemoFinishedListUiState()
+                        awaitItem() shouldBe EntityMemoFinishedListUiState()
                         advanceUntilIdle()
                         expectNoEvents()
                         cancelAndIgnoreRemainingEvents()
@@ -138,7 +140,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
                 val viewModel = viewModel(tagId = tag.id, findTagUseCase = findTagUseCase)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe TagMemoFinishedListUiState()
+                    awaitItem() shouldBe EntityMemoFinishedListUiState()
                     advanceUntilIdle()
                     awaitItem().title shouldBe "$TAG_EMOJI $TAG_TITLE"
 
@@ -165,9 +167,9 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
                     val viewModel = viewModel(tagId = tag.id, findTagUseCase = findTagUseCase)
 
                     viewModel.uiState.test {
-                        awaitItem() shouldBe TagMemoFinishedListUiState()
+                        awaitItem() shouldBe EntityMemoFinishedListUiState()
                         advanceUntilIdle()
-                        awaitItem() shouldBe TagMemoFinishedListUiState(title = tag.detail.emojiWithTitle)
+                        awaitItem() shouldBe EntityMemoFinishedListUiState(title = tag.detail.emojiWithTitle)
                         cancelAndIgnoreRemainingEvents()
                     }
                 }
@@ -247,7 +249,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
                     viewModel.restart(id = memoId)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe TagMemoFinishedListEffect.Restarted(id = memoId)
+                    awaitItem() shouldBe EntityMemoFinishedListEffect.Restarted(id = memoId)
                     expectNoEvents()
                 }
 
@@ -300,7 +302,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
                     viewModel.delete(id = memoId)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe TagMemoFinishedListEffect.Deleted(id = memoId)
+                    awaitItem() shouldBe EntityMemoFinishedListEffect.Deleted(id = memoId)
                     expectNoEvents()
                 }
 

@@ -25,27 +25,20 @@ import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffe
 import io.github.taetae98coding.diary.compose.routine.rememberRoutineListState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.dday.TagDetailDDayContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.dday.TagDetailDDayFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTargetHost
 import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.routine.TagDetailRoutineContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.routine.TagDetailRoutineFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.rememberTagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
@@ -53,9 +46,17 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTabStat
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.rememberTagDetailTabState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.tagDetailTabShortcut
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebContent
-import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_checklist_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_contact_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_dday_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_music_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_qr_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_routine_add_button_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_web_add_button_content_description
 import kotlin.uuid.Uuid
 
 @Composable
@@ -266,15 +267,15 @@ private fun TabFloatingActionButton(
 
         DiaryScaleVisibility(visible = tab != TagDetailTab.DETAIL) {
             when (addTab) {
-                TagDetailTab.DETAIL, TagDetailTab.MEMO -> TagDetailMemoFloatingActionButton(onClick = navigation.navigateToMemoAdd)
-                TagDetailTab.WEB -> TagDetailWebFloatingActionButton(onClick = navigation.navigateToWebAdd)
-                TagDetailTab.PLACE -> TagDetailPlaceFloatingActionButton(onClick = onPlaceAdd)
-                TagDetailTab.CONTACT -> TagDetailContactFloatingActionButton(onClick = navigation.navigateToContactAdd)
-                TagDetailTab.CHECKLIST -> TagDetailChecklistFloatingActionButton(onClick = navigation.navigateToChecklistAdd)
-                TagDetailTab.MUSIC -> TagDetailMusicFloatingActionButton(onClick = navigation.navigateToMusicAdd)
-                TagDetailTab.QR -> TagDetailQrFloatingActionButton(onClick = navigation.navigateToQrAdd)
-                TagDetailTab.DDAY -> TagDetailDDayFloatingActionButton(onClick = navigation.navigateToDDayAdd)
-                TagDetailTab.ROUTINE -> TagDetailRoutineFloatingActionButton(onClick = navigation.navigateToRoutineAdd)
+                TagDetailTab.DETAIL, TagDetailTab.MEMO -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_memo_add_button_content_description, onClick = navigation.navigateToMemoAdd)
+                TagDetailTab.WEB -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_web_add_button_content_description, onClick = navigation.navigateToWebAdd)
+                TagDetailTab.PLACE -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_place_add_button_content_description, onClick = onPlaceAdd)
+                TagDetailTab.CONTACT -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_contact_add_button_content_description, onClick = navigation.navigateToContactAdd)
+                TagDetailTab.CHECKLIST -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_checklist_add_button_content_description, onClick = navigation.navigateToChecklistAdd)
+                TagDetailTab.MUSIC -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_music_add_button_content_description, onClick = navigation.navigateToMusicAdd)
+                TagDetailTab.QR -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_qr_add_button_content_description, onClick = navigation.navigateToQrAdd)
+                TagDetailTab.DDAY -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_dday_add_button_content_description, onClick = navigation.navigateToDDayAdd)
+                TagDetailTab.ROUTINE -> TagDetailAddFloatingActionButton(contentDescription = Res.string.tag_detail_routine_add_button_content_description, onClick = navigation.navigateToRoutineAdd)
             }
         }
     }

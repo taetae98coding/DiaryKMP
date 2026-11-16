@@ -30,7 +30,7 @@ import coil3.SingletonImageLoader
 import coil3.annotation.DelicateCoilApi
 import coil3.request.ErrorResult
 import coil3.test.FakeImageLoaderEngine
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey

@@ -2,8 +2,8 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
@@ -108,7 +108,6 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
             every { viewModel.select(any()) } returns Unit
             every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
-            every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 
     setContent {
@@ -128,6 +127,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
                 state = state,
                 holidayViewModel = holidayViewModel,
                 memoViewModel = memoViewModel,
+                filterViewModel = filterViewModel(),
                 weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = weatherList))),
                 syncViewModel = syncViewModel(),
                 permissionManager = rememberPermissionManager(),

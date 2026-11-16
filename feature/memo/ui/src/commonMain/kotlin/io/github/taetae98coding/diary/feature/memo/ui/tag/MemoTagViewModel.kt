@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.tag
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FindMemoUseCase
@@ -37,13 +38,14 @@ internal class MemoTagViewModel(
     private val removeMemoTagUseCase: RemoveMemoTagUseCase,
     private val setMemoPrimaryTagUseCase: SetMemoPrimaryTagUseCase,
     private val unsetMemoPrimaryTagUseCase: UnsetMemoPrimaryTagUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    MemoTagInputController {
     private val selectablePaging =
-        MemoSelectablePaging(scope = viewModelScope) { query -> pageMemoSelectableTagUseCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = query)) }
+        MemoSelectablePaging { query -> pageMemoSelectableTagUseCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = query)) }
 
-    val tagPagingData: Flow<PagingData<Tag>> = selectablePaging.pagingData
+    val tagPagingData: Flow<PagingData<Tag>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
-    val selectableTagPagingData: Flow<PagingData<Tag>> = selectablePaging.selectablePagingData
+    val selectableTagPagingData: Flow<PagingData<Tag>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
     val uiState: StateFlow<MemoTagInputUiState> =
         combine(
@@ -67,11 +69,11 @@ internal class MemoTagViewModel(
     private val inProgressSelectPrimaryTagSet = mutableSetOf<Uuid>()
     private var isUnselectPrimaryTagInProgress = false
 
-    fun updateQuery(query: String) {
+    override fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }
 
-    fun selectTag(tagId: Uuid) {
+    override fun selectTag(tagId: Uuid) {
         if (!inProgressSelectTagSet.add(tagId)) return
 
         viewModelScope.launch {
@@ -83,7 +85,7 @@ internal class MemoTagViewModel(
         }
     }
 
-    fun unselectTag(tagId: Uuid) {
+    override fun unselectTag(tagId: Uuid) {
         if (!inProgressUnselectTagSet.add(tagId)) return
 
         viewModelScope.launch {
@@ -95,7 +97,7 @@ internal class MemoTagViewModel(
         }
     }
 
-    fun selectPrimaryTag(tagId: Uuid) {
+    override fun selectPrimaryTag(tagId: Uuid) {
         if (!inProgressSelectPrimaryTagSet.add(tagId)) return
 
         viewModelScope.launch {
@@ -107,7 +109,7 @@ internal class MemoTagViewModel(
         }
     }
 
-    fun unselectPrimaryTag() {
+    override fun unselectPrimaryTag() {
         if (isUnselectPrimaryTagInProgress) return
         isUnselectPrimaryTagInProgress = true
 

@@ -29,6 +29,7 @@ import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoContent
@@ -37,7 +38,6 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTab
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.placeDetailTabShortcut
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.rememberPlaceDetailTabState
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
-import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.place_coordinate_invalid_message
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_open_external_map_failed_message
@@ -176,9 +176,9 @@ private fun TabContent(
         PlaceDetailTab.DETAIL ->
             PlaceDetailScaffoldContent(
                 onFormEvent = { event ->
-                    handlePlaceFormEvent(
+                    handleEntityTagInputEvent(
                         event = event,
-                        state = state,
+                        tagPickerDialogState = state.tagPickerDialogState,
                         selectableTagPagingItems = selectableTagPagingItems,
                         navigateToTagAdd = navigateToTagAdd,
                         navigateToTagDetail = navigateToTagDetail,

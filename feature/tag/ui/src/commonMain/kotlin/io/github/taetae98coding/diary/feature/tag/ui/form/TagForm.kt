@@ -16,8 +16,8 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryEmojiInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.layout.DiaryInputColumn
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 
 @Composable
 internal fun TagForm(

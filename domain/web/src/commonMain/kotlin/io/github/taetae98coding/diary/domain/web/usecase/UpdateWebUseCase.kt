@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
@@ -17,7 +18,6 @@ import kotlin.uuid.Uuid
 public class UpdateWebUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findWebUseCase: FindWebUseCase,
     private val accountWebRepository: AccountWebRepository,
     private val clock: Clock,
 ) : UseCase<UpdateWebUseCase.Parameter, Int>() {
@@ -25,7 +25,7 @@ public class UpdateWebUseCase internal constructor(
         if (parameter.detail.headerList.any { header -> header.name.isBlank() }) throw WebHeaderNameBlankException()
 
         val account = getAccountUseCase.requireAccount()
-        val detail = parameter.detail.withStoredValueForBlank(id = parameter.id)
+        val detail = parameter.detail.withStoredValueForBlank(account = account, id = parameter.id)
 
         val updatedCount =
             accountWebRepository.updateDetail(
@@ -40,13 +40,16 @@ public class UpdateWebUseCase internal constructor(
         return updatedCount
     }
 
-    private suspend fun WebDetail.withStoredValueForBlank(id: Uuid): WebDetail {
+    private suspend fun WebDetail.withStoredValueForBlank(
+        account: Account,
+        id: Uuid,
+    ): WebDetail {
         if (title.isNotBlank() && url.isNotBlank()) return this
 
         val stored =
-            findWebUseCase(parameter = id)
+            accountWebRepository
+                .find(account = account, webId = id)
                 .first()
-                .getOrThrow()
                 ?.detail
 
         return copy(

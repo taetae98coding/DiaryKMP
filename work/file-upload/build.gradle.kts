@@ -14,7 +14,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.navigation)
-                implementation(projects.domain.account)
                 implementation(projects.domain.file)
                 implementation(projects.library.coroutines)
                 implementation(projects.library.kotlin)
@@ -25,6 +24,7 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(projects.core.testing)
+                implementation(libs.kotlinx.io.core)
             }
         }
 

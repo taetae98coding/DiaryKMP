@@ -14,14 +14,12 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.DeleteDDayUseCase
-import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterTagIdUseCase
-import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.PageDDayUseCase
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -141,16 +139,10 @@ class DDayHomeDeleteTest {
         val dday = homeDDayOf(title = FIRST_TITLE)
         val pageDDayUseCase = mockk<PageDDayUseCase>()
         every { pageDDayUseCase() } returns flowOf(Result.success(homeDDayPagingDataOf(listOf(dday))))
-        val getDDayFilterUseCase = mockk<GetDDayFilterUseCase>()
-        every { getDDayFilterUseCase() } returns flowOf(Result.success(emptyList()))
-        val getDDayFilterTagIdUseCase = mockk<GetDDayFilterTagIdUseCase>()
-        every { getDDayFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val deleteDDayUseCase = mockk<DeleteDDayUseCase>()
         coEvery { deleteDDayUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val viewModel =
             DDayHomeViewModel(
-                getDDayFilterUseCase = getDDayFilterUseCase,
-                getDDayFilterTagIdUseCase = getDDayFilterTagIdUseCase,
                 pageDDayUseCase = pageDDayUseCase,
                 deleteDDayUseCase = deleteDDayUseCase,
                 restoreDDayUseCase = mockk(),
@@ -212,7 +204,6 @@ class DDayHomeDeleteTest {
         val effectChannel = Channel<DDayListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<DDayHomeViewModel>()
         every { viewModel.ddayPagingData } returns pagingDataFlow
-        every { viewModel.filterUiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
 
         fun publish(idSet: Set<Uuid>) {
@@ -247,6 +238,7 @@ class DDayHomeDeleteTest {
                     navigateToFilter = {},
                     componentVisibleProvider = { DDayHomeScaffoldComponentVisible() },
                     ddayViewModel = viewModel,
+                    filterViewModel = homeFilterViewModelOf(),
                     syncViewModel = syncViewModel,
                 )
             }

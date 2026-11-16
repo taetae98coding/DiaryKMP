@@ -1,8 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.scheduler
 
 import io.github.taetae98coding.diary.work.sync.di.SyncScope
-import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkScheduler
-import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkState
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

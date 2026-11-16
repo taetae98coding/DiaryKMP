@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.place.localPlace
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.isDeletedCaseList
-import io.github.taetae98coding.diary.core.testing.place.localPlace
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

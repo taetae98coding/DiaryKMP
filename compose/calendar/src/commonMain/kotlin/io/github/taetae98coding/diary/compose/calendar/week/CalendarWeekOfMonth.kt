@@ -27,8 +27,8 @@ import io.github.taetae98coding.diary.compose.calendar.select.CalendarSelectStat
 import io.github.taetae98coding.diary.compose.calendar.select.calendarSelectBackground
 import io.github.taetae98coding.diary.compose.calendar.select.rememberCalendarSelectState
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarBarText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.YearMonth

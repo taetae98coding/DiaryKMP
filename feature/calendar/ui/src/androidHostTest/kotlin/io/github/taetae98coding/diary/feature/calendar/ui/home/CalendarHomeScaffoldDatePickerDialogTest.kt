@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.DEFAULT_CANCEL
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.DEFAULT_CONFIRM
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.DROP_DOWN_DESCRIPTION

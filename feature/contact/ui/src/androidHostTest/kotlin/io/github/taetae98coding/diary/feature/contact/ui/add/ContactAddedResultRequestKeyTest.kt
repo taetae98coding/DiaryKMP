@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.navigation3.runtime.result.ResultEffect
 import androidx.navigation3.runtime.result.ResultEventBus
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddedResult
 import io.github.taetae98coding.diary.feature.contact.api.contactAddedResultKey
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher

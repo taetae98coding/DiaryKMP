@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.contact
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoContactUseCase
@@ -30,13 +31,14 @@ internal class MemoContactViewModel(
     getMemoContactUseCase: GetMemoContactUseCase,
     private val addMemoContactUseCase: AddMemoContactUseCase,
     private val removeMemoContactUseCase: RemoveMemoContactUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    MemoContactInputController {
     private val selectablePaging =
-        MemoSelectablePaging(scope = viewModelScope) { query -> pageMemoSelectableContactUseCase(parameter = query) }
+        MemoSelectablePaging { query -> pageMemoSelectableContactUseCase(parameter = query) }
 
-    val contactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.pagingData
+    val contactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
-    val selectableContactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.selectablePagingData
+    val selectableContactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
     val uiState: StateFlow<MemoContactInputUiState> =
         getMemoContactUseCase(parameter = id)
@@ -50,11 +52,11 @@ internal class MemoContactViewModel(
     private val inProgressSelectContactSet = mutableSetOf<Uuid>()
     private val inProgressUnselectContactSet = mutableSetOf<Uuid>()
 
-    fun updateQuery(query: String) {
+    override fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }
 
-    fun selectContact(contactId: Uuid) {
+    override fun selectContact(contactId: Uuid) {
         if (!inProgressSelectContactSet.add(contactId)) return
 
         viewModelScope.launch {
@@ -66,7 +68,7 @@ internal class MemoContactViewModel(
         }
     }
 
-    fun unselectContact(contactId: Uuid) {
+    override fun unselectContact(contactId: Uuid) {
         if (!inProgressUnselectContactSet.add(contactId)) return
 
         viewModelScope.launch {

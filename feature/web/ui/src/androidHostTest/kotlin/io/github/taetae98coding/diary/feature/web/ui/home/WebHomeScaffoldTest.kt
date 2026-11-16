@@ -16,8 +16,9 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.web.ui.refreshableList
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
@@ -93,12 +94,12 @@ class WebHomeScaffoldTest {
     @Test
     fun `TC-8392b3db-4a35-4d67-bc3b-fcc40f266178 웹 카드를 선택하면 그 웹 항목의 선택을 한 번 전달한다`() {
         val web = testWeb(title = FIRST_TITLE, url = FIRST_URL)
-        val eventList = mutableListOf<WebHomeScaffoldEvent>()
-        setWebHomeScaffold(webList = listOf(web), onEvent = eventList::add)
+        val eventList = mutableListOf<WebListEvent>()
+        setWebHomeScaffold(webList = listOf(web), onWebListEvent = eventList::add)
 
         composeRule.onAllNodesWithTag(WEB_CARD_TEST_TAG).onFirst().performClick()
 
-        eventList shouldBe listOf(WebHomeScaffoldEvent.ClickWeb(web.id))
+        eventList shouldBe listOf(WebListEvent.ClickWeb(web.id))
     }
 
     @Test
@@ -287,6 +288,7 @@ class WebHomeScaffoldTest {
     private fun setWebHomeScaffold(
         webList: List<Web> = emptyList(),
         onEvent: (WebHomeScaffoldEvent) -> Unit = {},
+        onWebListEvent: (WebListEvent) -> Unit = {},
         componentVisible: WebHomeScaffoldComponentVisible = WebHomeScaffoldComponentVisible(),
     ) {
         val webPagingDataFlow = MutableStateFlow(webPagingDataOf(webList))
@@ -295,6 +297,7 @@ class WebHomeScaffoldTest {
             DiaryTheme {
                 WebHomeScaffold(
                     onEvent = onEvent,
+                    onWebListEvent = onWebListEvent,
                     webPagingItems = webPagingDataFlow.collectAsLazyPagingItems(),
                     componentVisibleProvider = { componentVisible },
                 )

@@ -4,14 +4,14 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
-import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow

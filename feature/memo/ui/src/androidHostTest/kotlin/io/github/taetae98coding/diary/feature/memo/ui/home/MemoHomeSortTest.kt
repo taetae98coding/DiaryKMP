@@ -21,9 +21,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -35,7 +35,7 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
@@ -131,10 +131,10 @@ class MemoHomeSortTest {
         val titlePrefix = "SortMemo${Arb.int().next()}"
         val earlierMemo = Arb.memo(title = "${titlePrefix}A").next()
         val laterMemo = Arb.memo(title = "${titlePrefix}B").next()
-        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-        every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(laterMemo, earlierMemo))))
-        every { pageMemoHomeUseCase(parameter = sort) } returns flowOf(Result.success(PagingData.from(listOf(earlierMemo, laterMemo))))
-        val viewModel = realViewModel(pageMemoHomeUseCase = pageMemoHomeUseCase, existence = MemoExistenceFilter())
+        val pageMemoUseCase = mockk<PageMemoUseCase>()
+        every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(laterMemo, earlierMemo))))
+        every { pageMemoUseCase(parameter = sort) } returns flowOf(Result.success(PagingData.from(listOf(earlierMemo, laterMemo))))
+        val viewModel = realViewModel(pageMemoUseCase = pageMemoUseCase, existence = MemoExistenceFilter())
         composeRule.setContent {
             DiaryTheme {
                 MemoHomeScreen(
@@ -165,13 +165,13 @@ class MemoHomeSortTest {
         val titlePrefix = "SortMemo${Arb.int().next()}"
         val firstMemo = Arb.memo(title = "${titlePrefix}First").next()
         val secondMemo = Arb.memo(title = "${titlePrefix}Second").next()
-        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-        every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(firstMemo, secondMemo))))
-        every { pageMemoHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
+        val pageMemoUseCase = mockk<PageMemoUseCase>()
+        every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(firstMemo, secondMemo))))
+        every { pageMemoUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
             flowOf(Result.success(PagingData.from(listOf(secondMemo, firstMemo))))
         val viewModel =
             realViewModel(
-                pageMemoHomeUseCase = pageMemoHomeUseCase,
+                pageMemoUseCase = pageMemoUseCase,
                 existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST),
             )
         composeRule.setContent {
@@ -214,7 +214,7 @@ class MemoHomeSortTest {
     }
 
     private fun realViewModel(
-        pageMemoHomeUseCase: PageMemoHomeUseCase,
+        pageMemoUseCase: PageMemoUseCase,
         existence: MemoExistenceFilter,
     ): MemoHomeViewModel {
         val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
@@ -228,7 +228,7 @@ class MemoHomeSortTest {
             getMemoFilterUseCase = getMemoFilterUseCase,
             getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
             getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
-            pageMemoHomeUseCase = pageMemoHomeUseCase,
+            pageMemoUseCase = pageMemoUseCase,
             finishMemoUseCase = mockk(),
             restartMemoUseCase = mockk(),
             deleteMemoUseCase = mockk(),

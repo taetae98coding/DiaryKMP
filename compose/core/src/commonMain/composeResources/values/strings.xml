@@ -40,4 +40,5 @@
     <string name="share_button_content_description">Share</string>
     <string name="share_failed_message">Couldn't share.</string>
     <string name="share_copied_message">Copied to clipboard.</string>
+    <string name="delete_undo_snackbar_undo_action">Undo</string>
 </resources>

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.data.file.repository
 
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
@@ -13,7 +14,6 @@ import io.github.taetae98coding.diary.core.network.api.file.exception.FileNotFou
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.core.testing.file.diaryFileDetail
 import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
-import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString

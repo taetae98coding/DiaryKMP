@@ -17,9 +17,9 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.music.MusicListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.playlist.ui.refreshableList
 import io.kotest.matchers.shouldBe

@@ -11,4 +11,7 @@ public data class RoutineAddNavKey(
     val requestKey: Uuid? = null,
 ) : ScreenNavKey {
     override val screenName: String get() = "RoutineAdd"
+
+    // 초기 태그가 있는 RoutineAdd는 TagDetail 루틴 탭에서 진입한 것이다.
+    override val topLevelListKey: ScreenNavKey? get() = if (initialTagId == null) RoutineHomeNavKey else null
 }

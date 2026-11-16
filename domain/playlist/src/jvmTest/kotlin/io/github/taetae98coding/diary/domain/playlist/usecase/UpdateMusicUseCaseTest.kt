@@ -262,7 +262,6 @@ class UpdateMusicUseCaseTest :
                 UpdateMusicUseCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase(),
-                    findMusicUseCase = findMusicUseCase(stored = null),
                     accountMusicRepository = accountMusicRepository,
                     clock = Clock.System,
                 )
@@ -300,20 +299,14 @@ class UpdateMusicUseCaseTest :
                     mockk<Clock>().also { clock -> every { clock.now() } returns now }
                 }
 
+            every { accountMusicRepository.find(account = any(), musicId = any()) } returns flowOf(stored)
+
             return UpdateMusicUseCase(
                 getAccountUseCase = getAccountUseCase,
                 requestSyncUseCase = requestSyncUseCase,
-                findMusicUseCase = findMusicUseCase(stored = stored),
                 accountMusicRepository = accountMusicRepository,
                 clock = clock,
             )
-        }
-
-        private fun findMusicUseCase(stored: Music?): FindMusicUseCase {
-            val useCase = mockk<FindMusicUseCase>()
-            every { useCase(parameter = any()) } returns flowOf(Result.success(stored))
-
-            return useCase
         }
 
         private fun requestSyncUseCase(): RequestSyncUseCase {

@@ -4,7 +4,9 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.core.memo.finished.ENTITY_MEMO_FINISHED_LIST_DETAIL_PLACEHOLDER_ICON_TEST_TAG
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -34,7 +36,7 @@ class TagMemoFinishedListDetailPlaceholderTest {
     }
 
     private fun assertPlaceholder(message: String) {
-        composeRule.onNodeWithTag(TAG_MEMO_FINISHED_LIST_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
+        composeRule.onNodeWithTag(ENTITY_MEMO_FINISHED_LIST_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
         composeRule.onNodeWithText(message).assertExists()
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 0
     }
@@ -42,7 +44,7 @@ class TagMemoFinishedListDetailPlaceholderTest {
     private fun setTagMemoFinishedListDetailPlaceholder() {
         composeRule.setContent {
             DiaryTheme {
-                TagMemoFinishedListDetailPlaceholder()
+                EntityMemoFinishedListDetailPlaceholder()
             }
         }
     }

@@ -7,7 +7,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.input.showDiaryFormAdded
-import io.github.taetae98coding.diary.compose.core.input.showDiaryFormTitleBlank
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddedResult
 import io.github.taetae98coding.diary.feature.place.api.placeAddedResultKey
@@ -44,20 +43,19 @@ internal fun PlaceAddScreenEffect(
                 scaffoldState.addressState.clearText()
                 scaffoldState.clearCoordinate()
                 scaffoldState.mapState.selectSpot(null)
-                coroutineScope.showDiaryFormAdded(
-                    titleState = scaffoldState.titleState,
-                    colorState = scaffoldState.colorState,
-                    snackbarHostState = scaffoldState.snackbarHostState,
-                    message = addSucceededMessage,
-                )
+                scaffoldState.titleState.requestFocus()
+                coroutineScope.launch {
+                    showDiaryFormAdded(
+                        colorState = scaffoldState.colorState,
+                        snackbarHostState = scaffoldState.snackbarHostState,
+                        message = addSucceededMessage,
+                    )
+                }
             }
 
             is PlaceAddEffect.TitleBlank -> {
-                coroutineScope.showDiaryFormTitleBlank(
-                    titleState = scaffoldState.titleState,
-                    snackbarHostState = scaffoldState.snackbarHostState,
-                    message = titleBlankMessage,
-                )
+                scaffoldState.titleState.requestFocus()
+                coroutineScope.launch { scaffoldState.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
 
             is PlaceAddEffect.CoordinateInvalid -> {

@@ -4,9 +4,9 @@ import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.domain.dday.usecase.GetCalendarDDayUseCase
+import io.github.taetae98coding.diary.work.appaction.core.toColorHex
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolCallResult
 import io.github.taetae98coding.diary.work.mcp.tool.call
-import io.github.taetae98coding.diary.work.mcp.tool.json.toColorHex
 import io.github.taetae98coding.diary.work.mcp.tool.tool
 import io.github.taetae98coding.diary.work.mcp.tool.toolSetOf
 import io.kotest.core.spec.style.FunSpec

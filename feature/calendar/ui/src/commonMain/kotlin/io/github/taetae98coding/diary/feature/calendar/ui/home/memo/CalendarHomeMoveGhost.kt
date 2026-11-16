@@ -5,19 +5,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 
@@ -30,13 +30,13 @@ internal fun CalendarHomeMoveGhost(
     val moving = moveState.moving ?: return
     val memo = remember(moving) { memoProvider().firstOrNull { it.id == moving.key } } ?: return
     val density = LocalDensity.current
-    val coordinatesState = remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val coordinatesRef = remember { Ref<LayoutCoordinates>() }
 
     Box(
         modifier =
             modifier
                 .fillMaxSize()
-                .onGloballyPositioned { coordinates -> coordinatesState.value = coordinates },
+                .onPlaced { coordinates -> coordinatesRef.value = coordinates },
     ) {
         moving.pieceBoundsList.forEach { pieceBounds ->
             CalendarHomeMemoText(
@@ -44,7 +44,7 @@ internal fun CalendarHomeMoveGhost(
                 modifier =
                     Modifier
                         .offset {
-                            val coordinates = coordinatesState.value ?: return@offset IntOffset.Zero
+                            val coordinates = coordinatesRef.value ?: return@offset IntOffset.Zero
                             val dragDelta = moveState.pointerPosition - moving.startPointerPosition
 
                             coordinates.windowToLocal(pieceBounds.topLeft + dragDelta).round()

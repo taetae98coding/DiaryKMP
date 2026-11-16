@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.memo.memoDetailRemoteEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoDetailRemoteEntity
-import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.memo.memoDetailRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

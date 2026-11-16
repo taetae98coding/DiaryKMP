@@ -19,8 +19,9 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
@@ -88,12 +89,12 @@ class TagDetailChecklistTabTest {
     @Test
     fun `TC-93a86f7b-cfec-427e-a3ae-b8169779d557 체크리스트를 선택하면 그 체크리스트의 상세 이동을 요청한다`() {
         val item = Arb.checklistSummary(title = FIRST_TITLE).next()
-        val eventList = mutableListOf<TagDetailChecklistContentEvent>()
-        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setChecklistTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add, onChecklistListEvent = eventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
-        eventList shouldBe listOf(TagDetailChecklistContentEvent.ClickChecklist(id = item.checklist.id))
+        eventList shouldBe listOf(ChecklistListEvent.ClickChecklist(id = item.checklist.id))
     }
 
     @Test
@@ -124,10 +125,11 @@ class TagDetailChecklistTabTest {
 
     @Test
     fun `TC-08d27cf5-8623-4bf2-af1b-926f422bd9e5 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailChecklistContentEvent>()
+        val eventList = mutableListOf<Any>()
         setChecklistTab(
             pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next())),
             onEvent = eventList::add,
+            onChecklistListEvent = eventList::add,
         )
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -138,8 +140,8 @@ class TagDetailChecklistTabTest {
 
     @Test
     fun `TC-08d27cf5-8623-4bf2-af1b-926f422bd9e5 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailChecklistContentEvent>()
-        setChecklistTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setChecklistTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add, onChecklistListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -166,24 +168,26 @@ class TagDetailChecklistTabTest {
     @Test
     fun `TC-7e3282b8-98a9-41f0-bee2-7bd0fcbfe608 체크리스트 카드를 삭제 방향으로 밀면 그 체크리스트의 삭제를 전달한다`() {
         val item = Arb.checklistSummary(title = FIRST_TITLE).next()
-        val eventList = mutableListOf<TagDetailChecklistContentEvent>()
+        val eventList = mutableListOf<Any>()
         setChecklistTab(
             pagingData = tagEntityPagingData(itemList = listOf(item)),
             onEvent = eventList::add,
+            onChecklistListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(CHECKLIST_CARD_TEST_TAG).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(TagDetailChecklistContentEvent.DeleteChecklist(id = item.checklist.id))
+        eventList shouldBe listOf(ChecklistListEvent.SwipeDelete(id = item.checklist.id))
     }
 
     @Test
     fun `TC-46d2b79a-3029-4b06-97f0-0cd9e132e627 체크리스트 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
-        val eventList = mutableListOf<TagDetailChecklistContentEvent>()
+        val eventList = mutableListOf<Any>()
         setChecklistTab(
             pagingData = tagEntityPagingData(itemList = listOf(Arb.checklistSummary(title = FIRST_TITLE).next())),
             onEvent = eventList::add,
+            onChecklistListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(CHECKLIST_CARD_TEST_TAG).performTouchInput { swipeRight() }
@@ -212,6 +216,7 @@ class TagDetailChecklistTabTest {
     private fun setChecklistTab(
         pagingData: PagingData<ChecklistSummary> = PagingData.empty(),
         onEvent: (TagDetailChecklistContentEvent) -> Unit = {},
+        onChecklistListEvent: (ChecklistListEvent) -> Unit = {},
         isRefreshingProvider: () -> Boolean = { false },
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -220,6 +225,7 @@ class TagDetailChecklistTabTest {
             DiaryTheme {
                 TagDetailChecklistTab(
                     onEvent = onEvent,
+                    onChecklistListEvent = onChecklistListEvent,
                     modifier = Modifier.fillMaxSize(),
                     checklistPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     isRefreshingProvider = isRefreshingProvider,

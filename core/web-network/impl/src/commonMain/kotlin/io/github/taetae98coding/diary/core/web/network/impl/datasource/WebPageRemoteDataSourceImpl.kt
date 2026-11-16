@@ -16,7 +16,7 @@ internal class WebPageRemoteDataSourceImpl(
     @WebPageHttpClient
     private val httpClient: HttpClient,
 ) : WebPageRemoteDataSource {
-    override suspend fun get(
+    override suspend fun read(
         url: String,
         headerList: List<WebPageHeaderRemoteEntity>,
     ): WebPageRemoteEntity {

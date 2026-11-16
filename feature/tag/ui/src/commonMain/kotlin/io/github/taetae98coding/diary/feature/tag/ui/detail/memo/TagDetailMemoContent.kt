@@ -11,7 +11,7 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import io.github.taetae98coding.diary.compose.core.button.ListEntryButton
-import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoContent
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoConnector
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
@@ -44,7 +44,7 @@ internal fun TagDetailMemoContent(
             onSelect = { scope -> memoViewModel.select(scope = scope) },
             state = scopeState,
         )
-        EntityDetailMemoContent(
+        EntityDetailMemoConnector(
             memoViewModel = memoViewModel,
             syncViewModel = koinViewModel(),
             navigateToMemoDetail = navigateToMemoDetail,

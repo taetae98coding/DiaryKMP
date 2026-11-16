@@ -87,7 +87,7 @@ style:
     excludes:
       - '**/src/jvmTest/**'
       - '**/src/androidHostTest/**'
-      - '**/compose/core/icon/**'
+      - '**/compose/icon/**'
   MaxLineLength:
     maxLineLength: 300
   UnusedPrivateFunction:
@@ -103,7 +103,7 @@ complexity:
   NamedArguments:
     active: true
     excludes:
-      - '**/compose/core/icon/**'
+      - '**/compose/icon/**'
   NestedScopeFunctions:
     active: true
   StringLiteralDuplication:
@@ -194,6 +194,6 @@ potential-bugs:
   UnnamedParameterUse:
     active: true
     excludes:
-      - '**/compose/core/icon/**'
+      - '**/compose/icon/**'
   UnnecessaryNotNullCheck:
     active: true

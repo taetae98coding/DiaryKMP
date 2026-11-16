@@ -47,13 +47,7 @@
     <string name="tag_detail_memo_add_button_content_description">Add memo</string>
     <string name="tag_detail_memo_empty_title">No memos linked to this tag</string>
     <string name="tag_detail_memo_empty_description">Use the add button to create a memo.</string>
-    <string name="tag_memo_finished_list_detail_placeholder_message">Choose a memo</string>
-    <string name="tag_memo_finished_list_subtitle">Finished Memos</string>
-    <string name="tag_memo_finished_list_navigate_up_button_content_description">Navigate up</string>
     <string name="tag_memo_finished_list_empty_title">No finished memos for this tag</string>
-    <string name="tag_memo_finished_list_restarted_message">Memo restarted.</string>
-    <string name="tag_memo_finished_list_deleted_message">Memo deleted.</string>
-    <string name="tag_memo_finished_list_undo_action">Undo</string>
     <string name="tag_detail_tab_web_content_description">Web</string>
     <string name="tag_detail_tab_place_content_description">Place</string>
     <string name="tag_detail_web_add_button_content_description">Add web</string>

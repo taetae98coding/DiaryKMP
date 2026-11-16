@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.compose.map.provider
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_GOOGLE_LABEL
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_NAVER_LABEL
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.DEFAULT_PROVIDER_CONTENT_DESCRIPTION
@@ -11,6 +10,7 @@ import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestF
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.KOREAN_NAVER_LABEL
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTestFixture.KOREAN_PROVIDER_CONTENT_DESCRIPTION
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

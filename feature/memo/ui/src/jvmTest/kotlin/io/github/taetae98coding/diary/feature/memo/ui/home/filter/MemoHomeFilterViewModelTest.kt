@@ -33,6 +33,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -353,12 +354,13 @@ class MemoHomeFilterViewModelTest : FunSpec() {
         test("같은 필터 변경이 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
+                val pending = CompletableDeferred<Result<Unit>>()
                 val selectMemoFilterTagUseCase = mockk<SelectMemoFilterTagUseCase>()
-                coEvery { selectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                coEvery { selectMemoFilterTagUseCase(parameter = tagId) } coAnswers { pending.await() }
                 val unselectMemoFilterTagUseCase = mockk<UnselectMemoFilterTagUseCase>()
-                coEvery { unselectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                coEvery { unselectMemoFilterTagUseCase(parameter = tagId) } coAnswers { pending.await() }
                 val unselectAllMemoFilterTagUseCase = mockk<UnselectAllMemoFilterTagUseCase>()
-                coEvery { unselectAllMemoFilterTagUseCase() } returns Result.success(Unit)
+                coEvery { unselectAllMemoFilterTagUseCase() } coAnswers { pending.await() }
                 val setMemoDateExistenceFilterUseCase = mockk<SetMemoDateExistenceFilterUseCase>()
                 coEvery { setMemoDateExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) } returns Result.success(Unit)
                 val setMemoTagExistenceFilterUseCase = mockk<SetMemoTagExistenceFilterUseCase>()
@@ -391,6 +393,9 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { setMemoDateExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
                 coVerify(exactly = 1) { setMemoTagExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
                 coVerify(exactly = 1) { setMemoPlaceExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
+
+                pending.complete(Result.success(Unit))
+                advanceUntilIdle()
             }
         }
     }

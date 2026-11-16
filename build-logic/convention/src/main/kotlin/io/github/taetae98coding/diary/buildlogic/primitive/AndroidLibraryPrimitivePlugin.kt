@@ -10,6 +10,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyBuilder
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 internal class AndroidLibraryPrimitivePlugin : Plugin<Project> {
@@ -42,14 +43,14 @@ internal class AndroidLibraryPrimitivePlugin : Plugin<Project> {
             applyDefaultHierarchyTemplate {
                 common {
                     group("androidJvm") {
-                        withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
+                        withAndroidLibrary()
                         withJvm()
                     }
 
                     // iOS는 기본 템플릿의 ios 그룹을 다시 두어 iosMain이 이 그룹의 자식이 되게 한다.
                     // withIos()만 두면 타깃 소스셋만 자식이 되어 iosMain의 actual이 이 그룹의 expect를 보지 못한다.
                     group("nonWasm") {
-                        withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
+                        withAndroidLibrary()
                         withJvm()
                         group("ios") {
                             withIos()
@@ -70,13 +71,13 @@ internal class AndroidLibraryPrimitivePlugin : Plugin<Project> {
                     }
 
                     group("nonIos") {
-                        withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
+                        withAndroidLibrary()
                         withJvm()
                         withWasmJs()
                     }
 
                     group("nonJvm") {
-                        withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
+                        withAndroidLibrary()
                         withWasmJs()
                         group("ios") {
                             withIos()
@@ -85,5 +86,9 @@ internal class AndroidLibraryPrimitivePlugin : Plugin<Project> {
                 }
             }
         }
+    }
+
+    private fun KotlinHierarchyBuilder.withAndroidLibrary() {
+        withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
     }
 }

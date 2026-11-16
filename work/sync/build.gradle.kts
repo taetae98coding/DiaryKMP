@@ -19,6 +19,7 @@ kotlin {
 
         commonTest {
             dependencies {
+                implementation(projects.core.dataTesting)
                 implementation(projects.core.testing)
             }
         }

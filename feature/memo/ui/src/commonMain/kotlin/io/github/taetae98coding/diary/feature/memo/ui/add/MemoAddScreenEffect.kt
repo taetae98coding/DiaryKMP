@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.input.showDiaryFormAdded
-import io.github.taetae98coding.diary.compose.core.input.showDiaryFormTitleBlank
+import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoAddFormState
@@ -29,20 +29,19 @@ internal fun MemoAddScreenEffect(
             is MemoAddEffect.AddSucceeded -> {
                 scaffoldState.titleState.clearText()
                 coroutineScope.launch { scaffoldState.descriptionState.reset() }
-                coroutineScope.showDiaryFormAdded(
-                    titleState = scaffoldState.titleState,
-                    colorState = scaffoldState.colorState,
-                    snackbarHostState = scaffoldState.snackbarHostState,
-                    message = addSucceededMessage,
-                )
+                scaffoldState.titleState.requestFocus()
+                coroutineScope.launch {
+                    showDiaryFormAdded(
+                        colorState = scaffoldState.colorState,
+                        snackbarHostState = scaffoldState.snackbarHostState,
+                        message = addSucceededMessage,
+                    )
+                }
             }
 
             is MemoAddEffect.TitleBlank -> {
-                coroutineScope.showDiaryFormTitleBlank(
-                    titleState = scaffoldState.titleState,
-                    snackbarHostState = scaffoldState.snackbarHostState,
-                    message = titleBlankMessage,
-                )
+                scaffoldState.titleState.requestFocus()
+                coroutineScope.launch { scaffoldState.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
         }
     }

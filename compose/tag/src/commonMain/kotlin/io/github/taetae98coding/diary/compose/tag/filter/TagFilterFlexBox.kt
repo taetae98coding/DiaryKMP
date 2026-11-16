@@ -16,10 +16,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.layout.DiaryFlexBox
 import io.github.taetae98coding.diary.compose.core.layout.animatePlacement
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.core.theme.dimmed
 import io.github.taetae98coding.diary.compose.tag.previewTag
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.dimmed
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import kotlinx.coroutines.flow.flowOf
 import kotlin.uuid.Uuid
@@ -41,6 +41,8 @@ public fun TagFilterFlexBox(
                 disabled { dimmed() }
             },
     ) {
+        val selectedTagIdSet = selectedTagIdSetProvider()
+
         repeat(tagPagingItems.itemCount) { index ->
             val tag = tagPagingItems[index] ?: return@repeat
 
@@ -49,7 +51,7 @@ public fun TagFilterFlexBox(
                     tag = tag,
                     onEvent = onEvent,
                     modifier = Modifier.animatePlacement(lookaheadScope = this),
-                    isSelected = tag.id in selectedTagIdSetProvider(),
+                    isSelected = tag.id in selectedTagIdSet,
                     isEnabled = isEnabled,
                 )
             }

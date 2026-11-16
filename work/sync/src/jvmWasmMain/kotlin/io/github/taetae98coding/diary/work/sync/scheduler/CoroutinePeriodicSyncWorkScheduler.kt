@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.scheduler
 
 import io.github.taetae98coding.diary.work.sync.di.SyncScope
-import io.github.taetae98coding.diary.work.sync.scheduler.PeriodicSyncWorkScheduler
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope

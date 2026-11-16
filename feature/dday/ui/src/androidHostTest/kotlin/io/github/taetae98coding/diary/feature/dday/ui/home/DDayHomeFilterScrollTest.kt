@@ -6,7 +6,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -149,7 +149,6 @@ class DDayHomeFilterScrollTest {
         val pagingDataFlow = MutableStateFlow(homeDDayPagingDataOf(ddayList))
         val viewModel = mockk<DDayHomeViewModel>()
         every { viewModel.ddayPagingData } returns pagingDataFlow
-        every { viewModel.filterUiState } returns filterUiStateFlow
         every { viewModel.effect } returns emptyFlow()
         val syncViewModel = mockk<SyncRefreshViewModel>()
         every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
@@ -164,6 +163,7 @@ class DDayHomeFilterScrollTest {
                     navigateToFilter = {},
                     componentVisibleProvider = { DDayHomeScaffoldComponentVisible() },
                     ddayViewModel = viewModel,
+                    filterViewModel = homeFilterViewModelOf(uiStateFlow = filterUiStateFlow),
                     syncViewModel = syncViewModel,
                 )
             }

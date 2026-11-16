@@ -193,6 +193,7 @@ internal fun TagDetailTestTabContent(
         TagDetailTab.WEB ->
             TagDetailWebTab(
                 onEvent = {},
+                onWebListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 webPagingItems = webPagingItems,
             )
@@ -200,6 +201,7 @@ internal fun TagDetailTestTabContent(
         TagDetailTab.PLACE ->
             TagDetailPlaceTab(
                 onEvent = {},
+                onPlaceListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 placePagingItems = placePagingItems,
             )
@@ -207,6 +209,7 @@ internal fun TagDetailTestTabContent(
         TagDetailTab.CONTACT ->
             TagDetailContactTab(
                 onEvent = {},
+                onContactListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 contactPagingItems = contactPagingItems,
             )
@@ -214,6 +217,7 @@ internal fun TagDetailTestTabContent(
         TagDetailTab.CHECKLIST ->
             TagDetailChecklistTab(
                 onEvent = {},
+                onChecklistListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 checklistPagingItems = checklistPagingItems,
             )
@@ -221,6 +225,7 @@ internal fun TagDetailTestTabContent(
         TagDetailTab.MUSIC ->
             TagDetailMusicTab(
                 onEvent = {},
+                onMusicListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 musicPagingItems = musicPagingItems,
             )
@@ -228,19 +233,25 @@ internal fun TagDetailTestTabContent(
         TagDetailTab.QR ->
             TagDetailQrTab(
                 onEvent = {},
+                onQrListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 qrPagingItems = qrPagingItems,
             )
 
-        TagDetailTab.DDAY ->
-            TagDetailDDayTab(
-                onEvent = {},
-                modifier = Modifier.fillMaxSize(),
-                ddayPagingItems = ddayPagingItems,
-            )
+        TagDetailTab.DDAY -> TagDetailTestDDayTab(ddayPagingItems = ddayPagingItems)
 
         TagDetailTab.ROUTINE -> TagDetailTestRoutineTab(routinePagingItems = routinePagingItems)
     }
+}
+
+@Composable
+private fun TagDetailTestDDayTab(ddayPagingItems: LazyPagingItems<DDay>) {
+    TagDetailDDayTab(
+        onEvent = {},
+        onDDayListEvent = {},
+        modifier = Modifier.fillMaxSize(),
+        ddayPagingItems = ddayPagingItems,
+    )
 }
 
 @Composable

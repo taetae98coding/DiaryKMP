@@ -60,6 +60,7 @@ import io.github.taetae98coding.diary.feature.dday.ui.form.ddayPickDate
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayRepeatList
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayTitleInput
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterUiState
+import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.homeDDayPagingDataOf
 import io.github.taetae98coding.diary.feature.dday.ui.resetAndroidUiDispatcher
@@ -395,9 +396,13 @@ class DDayDetailNavDisplayTest {
                 mockk<DDayHomeViewModel>(relaxed = true)
                     .apply {
                         every { ddayPagingData } returns homePagingData
-                        every { filterUiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
                         every { effect } returns Channel<DDayListEffect>().receiveAsFlow()
                     }.also(homeViewModelList::add)
+            }
+            factory {
+                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
+                }
             }
             factory {
                 mockk<SyncRefreshViewModel>(relaxed = true)

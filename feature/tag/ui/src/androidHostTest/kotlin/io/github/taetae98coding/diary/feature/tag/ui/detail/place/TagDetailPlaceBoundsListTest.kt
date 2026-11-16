@@ -21,11 +21,12 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
@@ -61,11 +62,12 @@ class TagDetailPlaceBoundsListTest {
     @Test
     fun `TC-d00ff4e2-c903-4a74-9090-78fa2579d43a 지도 모드의 목록에서 지도 가운데에 있지 않은 장소를 누르면 그 장소의 좌표로 지도를 옮기고 상세 이동은 요청하지 않는다`() {
         val place = tagPlace(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
             mapState = mapState,
         )
 
@@ -79,12 +81,13 @@ class TagDetailPlaceBoundsListTest {
     @Test
     fun `TC-3dbf65fb-ab2d-4db8-8643-95d9d8d25c53 지도 모드에서 지도 가운데에 있는 장소를 목록에서 누르면 그 장소의 상세 이동을 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         mapState.moveTo(place.detail.coordinate.toDiaryMapCoordinate())
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
             mapState = mapState,
         )
 
@@ -107,16 +110,17 @@ class TagDetailPlaceBoundsListTest {
     @Test
     fun `TC-46e883d3-57ae-4a3c-96a6-450186f677cd 지도 모드의 목록에서 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
         )
 
         composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(TagDetailPlaceContentEvent.DeletePlace(id = place.id))
+        eventList shouldBe listOf(PlaceListEvent.SwipeDelete(id = place.id))
     }
 
     @Test
@@ -161,10 +165,11 @@ class TagDetailPlaceBoundsListTest {
     @Test
     fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 지도 모드의 목록을 당기면 새로고침을 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
         )
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -175,10 +180,11 @@ class TagDetailPlaceBoundsListTest {
 
     @Test
     fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 지도 모드의 빈 상태에서도 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = emptyList())),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
@@ -241,6 +247,7 @@ class TagDetailPlaceBoundsListTest {
         isRefreshingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false),
         scopeFlow: MutableStateFlow<TagScope> = MutableStateFlow(TagScope.SELF),
         onEvent: (TagDetailPlaceContentEvent) -> Unit = {},
+        onPlaceListEvent: (PlaceListEvent) -> Unit = {},
         mapState: DiaryMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER),
     ) {
         composeRule.setContent {
@@ -251,6 +258,7 @@ class TagDetailPlaceBoundsListTest {
             DiaryTheme {
                 TagDetailPlaceBoundsList(
                     onEvent = onEvent,
+                    onPlaceListEvent = onPlaceListEvent,
                     mapState = mapState,
                     modifier = Modifier.fillMaxSize(),
                     placeListUiStateProvider = { uiState },

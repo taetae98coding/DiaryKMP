@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.profile.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.profile.profileImageRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.profile.entity.ProfileImageRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.profile.profileImageRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf

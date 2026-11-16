@@ -1,14 +1,14 @@
 package io.github.taetae98coding.diary.data.weather.repository
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.weather.currentWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.forecastRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.forecastWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.locationNameRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.weatherConditionRemoteEntity
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.testing.location.coordinate
-import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.forecastWeatherRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.locationNameRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.weatherConditionRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRemoteEntity
@@ -52,7 +52,7 @@ class WeatherRepositoryImplTest :
             val locationRepository = mockk<LocationRepository>()
             coEvery { locationRepository.fetch() } returns location
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns emptyList()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
             val repository =
                 repository(
@@ -61,13 +61,13 @@ class WeatherRepositoryImplTest :
                 )
 
             coEvery {
-                weatherRemoteDataSource.getCurrentWeather(
+                weatherRemoteDataSource.readCurrentWeather(
                     latitude = location.latitude,
                     longitude = location.longitude,
                 )
             } returns currentWeather
             coEvery {
-                weatherRemoteDataSource.getForecast(
+                weatherRemoteDataSource.readForecast(
                     latitude = location.latitude,
                     longitude = location.longitude,
                 )
@@ -76,19 +76,19 @@ class WeatherRepositoryImplTest :
             repository.fetch()
 
             coVerify(exactly = 1) {
-                weatherRemoteDataSource.getCurrentWeather(
+                weatherRemoteDataSource.readCurrentWeather(
                     latitude = location.latitude,
                     longitude = location.longitude,
                 )
             }
             coVerify(exactly = 1) {
-                weatherRemoteDataSource.getForecast(
+                weatherRemoteDataSource.readForecast(
                     latitude = location.latitude,
                     longitude = location.longitude,
                 )
             }
             coVerify(exactly = 1) {
-                weatherRemoteDataSource.getLocationName(
+                weatherRemoteDataSource.readLocationName(
                     latitude = location.latitude,
                     longitude = location.longitude,
                 )
@@ -107,15 +107,15 @@ class WeatherRepositoryImplTest :
             coEvery { locationRepository.fetch() } returns location
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } coAnswers {
+            coEvery { weatherRemoteDataSource.readCurrentWeather(any(), any()) } coAnswers {
                 currentStarted.complete(Unit)
                 currentResponse.await()
             }
-            coEvery { weatherRemoteDataSource.getForecast(any(), any()) } coAnswers {
+            coEvery { weatherRemoteDataSource.readForecast(any(), any()) } coAnswers {
                 forecastStarted.complete(Unit)
                 forecastResponse.await()
             }
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } coAnswers {
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } coAnswers {
                 locationNameStarted.complete(Unit)
                 locationNameResponse.await()
             }
@@ -184,13 +184,13 @@ class WeatherRepositoryImplTest :
             val locationRepository = mockk<LocationRepository>()
             coEvery { locationRepository.fetch() } returns location
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns emptyList()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
             coEvery {
-                weatherRemoteDataSource.getCurrentWeather(any(), any())
+                weatherRemoteDataSource.readCurrentWeather(any(), any())
             } returns oldCurrentWeather andThen newCurrentWeather
             coEvery {
-                weatherRemoteDataSource.getForecast(any(), any())
+                weatherRemoteDataSource.readForecast(any(), any())
             } returns oldForecast andThen newForecast
             var now = Arb.secondPrecisionInstant().next()
             val repository =
@@ -224,10 +224,10 @@ class WeatherRepositoryImplTest :
                 val locationRepository = mockk<LocationRepository>()
                 coEvery { locationRepository.fetch() } returns location
                 val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
-                coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
+                coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns emptyList()
                 every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-                coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
-                coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns forecast
+                coEvery { weatherRemoteDataSource.readCurrentWeather(any(), any()) } returns currentWeather
+                coEvery { weatherRemoteDataSource.readForecast(any(), any()) } returns forecast
                 var now = Arb.secondPrecisionInstant().next()
                 val repository =
                     repository(
@@ -244,12 +244,12 @@ class WeatherRepositoryImplTest :
                 }
                 if (failurePoint == FailurePoint.CURRENT_WEATHER) {
                     coEvery {
-                        weatherRemoteDataSource.getCurrentWeather(any(), any())
+                        weatherRemoteDataSource.readCurrentWeather(any(), any())
                     } throws failure
                 }
                 if (failurePoint == FailurePoint.FORECAST) {
                     coEvery {
-                        weatherRemoteDataSource.getForecast(any(), any())
+                        weatherRemoteDataSource.readForecast(any(), any())
                     } throws failure
                 }
 
@@ -430,12 +430,12 @@ class WeatherRepositoryImplTest :
                 }
                 if (failurePoint == FailurePoint.CURRENT_WEATHER) {
                     coEvery {
-                        weatherRemoteDataSource.getCurrentWeather(any(), any())
+                        weatherRemoteDataSource.readCurrentWeather(any(), any())
                     } throws failure andThen Arb.currentWeatherRemoteEntity().next()
                 }
                 if (failurePoint == FailurePoint.FORECAST) {
                     coEvery {
-                        weatherRemoteDataSource.getForecast(any(), any())
+                        weatherRemoteDataSource.readForecast(any(), any())
                     } throws failure andThen Arb.forecastRemoteEntity().next()
                 }
                 var now = Arb.secondPrecisionInstant().next()
@@ -465,7 +465,7 @@ class WeatherRepositoryImplTest :
             val failure = WeatherRepositoryTestException(Arb.string().next())
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery {
-                weatherRemoteDataSource.getCurrentWeather(any(), any())
+                weatherRemoteDataSource.readCurrentWeather(any(), any())
             } returns Arb.currentWeatherRemoteEntity().next() andThenThrows failure andThen Arb.currentWeatherRemoteEntity().next()
             var now = Arb.secondPrecisionInstant().next()
             val repository =
@@ -483,7 +483,7 @@ class WeatherRepositoryImplTest :
             now += 1.minutes
             repository.fetch()
 
-            coVerify(exactly = 3) { weatherRemoteDataSource.getCurrentWeather(any(), any()) }
+            coVerify(exactly = 3) { weatherRemoteDataSource.readCurrentWeather(any(), any()) }
         }
 
         test("TC-4d4ff7a0-55e0-400f-abd2-6cea8b15200c 조회한 동기화가 성공할 때마다 간격 기준 시각이 갱신된다") {
@@ -508,13 +508,13 @@ class WeatherRepositoryImplTest :
         test("TC-1d2e2a26-deb9-4fba-b93f-0cf6581fdb9f 조회하지 않은 동기화는 저장된 날씨를 그대로 유지한다") {
             val locationRepository = locationRepository()
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns emptyList()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
             coEvery {
-                weatherRemoteDataSource.getCurrentWeather(any(), any())
+                weatherRemoteDataSource.readCurrentWeather(any(), any())
             } returns Arb.currentWeatherRemoteEntity().next() andThen Arb.currentWeatherRemoteEntity().next()
             coEvery {
-                weatherRemoteDataSource.getForecast(any(), any())
+                weatherRemoteDataSource.readForecast(any(), any())
             } returns Arb.forecastRemoteEntity().next() andThen Arb.forecastRemoteEntity().next()
             var now = Arb.secondPrecisionInstant().next()
             val repository =
@@ -615,7 +615,7 @@ class WeatherRepositoryImplTest :
             repository.fetch()
 
             coVerify(exactly = 1) {
-                weatherRemoteDataSource.getLocationName(
+                weatherRemoteDataSource.readLocationName(
                     latitude = location.latitude,
                     longitude = location.longitude,
                 )
@@ -634,7 +634,7 @@ class WeatherRepositoryImplTest :
                 emptyList<LocationNameRemoteEntity>() to "",
             ).forEach { (response, expected) ->
                 val weatherRemoteDataSource = weatherRemoteDataSource()
-                coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns response
+                coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns response
                 val repository =
                     repository(
                         locationRepository = locationRepository(),
@@ -654,8 +654,8 @@ class WeatherRepositoryImplTest :
         test("TC-60683bed-79d6-4a91-b49d-dcb17e89ecc8 지역명만 실패해도 동기화는 성공하고 날씨를 저장한다") {
             val currentWeather = Arb.currentWeatherRemoteEntity().next()
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } throws WeatherRepositoryTestException(Arb.string().next())
+            coEvery { weatherRemoteDataSource.readCurrentWeather(any(), any()) } returns currentWeather
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } throws WeatherRepositoryTestException(Arb.string().next())
             val repository =
                 repository(
                     locationRepository = locationRepository(),
@@ -705,7 +705,7 @@ class WeatherRepositoryImplTest :
             ).forEach { (secondResponse, expected) ->
                 var now = fetchedAt
                 val weatherRemoteDataSource = weatherRemoteDataSource()
-                coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam)
+                coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns listOf(seongnam)
                 val repository =
                     repository(
                         locationRepository = locationRepository(),
@@ -720,7 +720,7 @@ class WeatherRepositoryImplTest :
                     ?.locationName
                     .orEmpty() shouldBe "성남시"
 
-                coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } coAnswers { secondResponse.getOrThrow() }
+                coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } coAnswers { secondResponse.getOrThrow() }
                 now = fetchedAt + 1.hours
                 repository.fetch()
 
@@ -740,9 +740,9 @@ class WeatherRepositoryImplTest :
             val newCurrentWeather = Arb.currentWeatherRemoteEntity().next()
             val newForecast = Arb.forecastRemoteEntity().next()
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns oldCurrentWeather andThen newCurrentWeather
-            coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns oldForecast andThen newForecast
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam) andThen listOf(yongin)
+            coEvery { weatherRemoteDataSource.readCurrentWeather(any(), any()) } returns oldCurrentWeather andThen newCurrentWeather
+            coEvery { weatherRemoteDataSource.readForecast(any(), any()) } returns oldForecast andThen newForecast
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns listOf(seongnam) andThen listOf(yongin)
             val fetchedAt = Arb.secondPrecisionInstant().next()
             var now = fetchedAt
             val repository =
@@ -778,14 +778,14 @@ class WeatherRepositoryImplTest :
 
             val failWeatherRequestList =
                 listOf<(WeatherRemoteDataSource, Throwable) -> Unit>(
-                    { dataSource, failure -> coEvery { dataSource.getCurrentWeather(any(), any()) } throws failure },
-                    { dataSource, failure -> coEvery { dataSource.getForecast(any(), any()) } throws failure },
+                    { dataSource, failure -> coEvery { dataSource.readCurrentWeather(any(), any()) } throws failure },
+                    { dataSource, failure -> coEvery { dataSource.readForecast(any(), any()) } throws failure },
                 )
 
             failWeatherRequestList.forEach { failWeatherRequest ->
                 var now = fetchedAt
                 val weatherRemoteDataSource = weatherRemoteDataSource()
-                coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam)
+                coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns listOf(seongnam)
                 val repository =
                     repository(
                         locationRepository = locationRepository(),
@@ -796,7 +796,7 @@ class WeatherRepositoryImplTest :
                 repository.fetch()
 
                 failWeatherRequest(weatherRemoteDataSource, WeatherRepositoryTestException(Arb.string().next()))
-                coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
+                coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns emptyList()
                 now = fetchedAt + 1.hours
 
                 shouldThrowExactly<WeatherRepositoryTestException> { repository.fetch() }
@@ -826,7 +826,7 @@ class WeatherRepositoryImplTest :
         test("TC-9e24b3a6-6111-4c9c-9564-4687e216976f 새 지역명을 관찰 중인 곳에 전달한다") {
             val seongnam = Arb.locationNameRemoteEntity().next().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam)
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns listOf(seongnam)
             val repository =
                 repository(
                     locationRepository = locationRepository(),
@@ -860,15 +860,15 @@ private fun locationRepository(): LocationRepository =
 
 private fun weatherRemoteDataSource(): WeatherRemoteDataSource =
     mockk<WeatherRemoteDataSource>().also { dataSource ->
-        coEvery { dataSource.getLocationName(any(), any()) } returns emptyList()
+        coEvery { dataSource.readLocationName(any(), any()) } returns emptyList()
         every { dataSource.forecastInterval } returns 3.hours
-        coEvery { dataSource.getCurrentWeather(any(), any()) } returns Arb.currentWeatherRemoteEntity().next()
-        coEvery { dataSource.getForecast(any(), any()) } returns Arb.forecastRemoteEntity().next()
+        coEvery { dataSource.readCurrentWeather(any(), any()) } returns Arb.currentWeatherRemoteEntity().next()
+        coEvery { dataSource.readForecast(any(), any()) } returns Arb.forecastRemoteEntity().next()
     }
 
 private fun WeatherRemoteDataSource.verifyFetchCount(count: Int) {
-    coVerify(exactly = count) { getCurrentWeather(any(), any()) }
-    coVerify(exactly = count) { getForecast(any(), any()) }
+    coVerify(exactly = count) { readCurrentWeather(any(), any()) }
+    coVerify(exactly = count) { readForecast(any(), any()) }
 }
 
 private fun clock(now: () -> Instant): Clock =
@@ -899,10 +899,10 @@ private fun successfulRepository(
     val locationRepository = mockk<LocationRepository>()
     coEvery { locationRepository.fetch() } returns location
     val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
-    coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
+    coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } returns emptyList()
     every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-    coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
-    coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns forecast
+    coEvery { weatherRemoteDataSource.readCurrentWeather(any(), any()) } returns currentWeather
+    coEvery { weatherRemoteDataSource.readForecast(any(), any()) } returns forecast
 
     return repository(
         locationRepository = locationRepository,

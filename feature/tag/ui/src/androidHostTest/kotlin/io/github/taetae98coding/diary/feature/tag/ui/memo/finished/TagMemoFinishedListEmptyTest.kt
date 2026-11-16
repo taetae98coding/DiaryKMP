@@ -10,10 +10,15 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScaffold
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
+import io.github.taetae98coding.diary.feature.tag.ui.Res
+import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_empty_title
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +65,7 @@ class TagMemoFinishedListEmptyTest {
     fun `TC-70a3c5cf-1c13-471d-8225-3ef5859b3336 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setTagMemoFinishedListScaffold(
             pagingData = loadedEmptyPagingData(),
-            uiState = TagMemoFinishedListUiState(),
+            uiState = EntityMemoFinishedListUiState(),
         )
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -68,13 +73,14 @@ class TagMemoFinishedListEmptyTest {
 
     private fun setTagMemoFinishedListScaffold(
         pagingData: PagingData<MemoListItem>,
-        uiState: TagMemoFinishedListUiState = TagMemoFinishedListUiState(title = TAG_TITLE),
+        uiState: EntityMemoFinishedListUiState = EntityMemoFinishedListUiState(title = TAG_TITLE),
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
 
         composeRule.setContent {
             DiaryTheme {
-                TagMemoFinishedListScaffold(
+                EntityMemoFinishedListScaffold(
+                    emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
                     memoListState = rememberMemoListState(),
                     snackbarHostState = remember { SnackbarHostState() },
                     memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),

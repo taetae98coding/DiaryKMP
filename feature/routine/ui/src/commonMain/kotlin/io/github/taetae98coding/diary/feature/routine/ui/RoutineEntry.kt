@@ -6,8 +6,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -65,10 +67,10 @@ private fun EntryProviderScope<ScreenNavKey>.routineHomeEntry(
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
 
         RoutineHomeScreen(
-            navigateToAdd = backStack::navigateToRoutineAddFromHome,
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToRoutineAddFromHome),
             navigateToDetail = { id -> backStack.navigateToRoutineDetail(id = id) },
-            navigateToFilter = { backStack.add(RoutineHomeFilterNavKey) },
-            navigateToFinishedList = { backStack.add(RoutineFinishedListNavKey) },
+            navigateToFilter = dropUnlessResumed { backStack.add(RoutineHomeFilterNavKey) },
+            navigateToFinishedList = dropUnlessResumed { backStack.add(RoutineFinishedListNavKey) },
             componentVisibleProvider = { RoutineHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isRoutineAddOnDetailPane()) },
             homeReselectEvent = homeReselectEvent,
             routineViewModel = koinViewModel(),
@@ -90,8 +92,8 @@ internal fun routineHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>):
 
                 RoutineAddScreen(
                     navigateUp = {},
-                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { RoutineAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
                     addViewModel = koinViewModel(),
@@ -139,8 +141,8 @@ private fun EntryProviderScope<ScreenNavKey>.routineAddEntry(backStack: NavBackS
 
         RoutineAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { RoutineAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             addViewModel = koinViewModel(),
@@ -158,8 +160,8 @@ private fun EntryProviderScope<ScreenNavKey>.routineDetailEntry(backStack: NavBa
 
         RoutineDetailScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { RoutineDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             routineViewModel = koinViewModel { parametersOf(key.id) },

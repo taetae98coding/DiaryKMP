@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.web.localWebDetail
+import io.github.taetae98coding.diary.core.data.testing.web.remoteWebDetail
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebDetailRemoteEntity
-import io.github.taetae98coding.diary.core.testing.web.localWebDetail
-import io.github.taetae98coding.diary.core.testing.web.remoteWebDetail
 import io.github.taetae98coding.diary.core.testing.web.webHeaderNameCaseList
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.data.place.repository
 
+import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.naver.naverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
@@ -8,8 +10,6 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.location.CoordinateCircle
 import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
-import io.github.taetae98coding.diary.core.testing.google.googlePlaceRemoteEntity
-import io.github.taetae98coding.diary.core.testing.naver.naverPlaceRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty

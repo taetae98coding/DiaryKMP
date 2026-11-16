@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.web
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoWebUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
@@ -30,13 +31,14 @@ internal class MemoWebViewModel(
     getMemoWebUseCase: GetMemoWebUseCase,
     private val addMemoWebUseCase: AddMemoWebUseCase,
     private val removeMemoWebUseCase: RemoveMemoWebUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    MemoWebInputController {
     private val selectablePaging =
-        MemoSelectablePaging(scope = viewModelScope) { query -> pageMemoSelectableWebUseCase(parameter = query) }
+        MemoSelectablePaging { query -> pageMemoSelectableWebUseCase(parameter = query) }
 
-    val webPagingData: Flow<PagingData<Web>> = selectablePaging.pagingData
+    val webPagingData: Flow<PagingData<Web>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
-    val selectableWebPagingData: Flow<PagingData<Web>> = selectablePaging.selectablePagingData
+    val selectableWebPagingData: Flow<PagingData<Web>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
     val uiState: StateFlow<MemoWebInputUiState> =
         getMemoWebUseCase(parameter = id)
@@ -50,11 +52,11 @@ internal class MemoWebViewModel(
     private val inProgressSelectWebSet = mutableSetOf<Uuid>()
     private val inProgressUnselectWebSet = mutableSetOf<Uuid>()
 
-    fun updateQuery(query: String) {
+    override fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }
 
-    fun selectWeb(webId: Uuid) {
+    override fun selectWeb(webId: Uuid) {
         if (!inProgressSelectWebSet.add(webId)) return
 
         viewModelScope.launch {
@@ -66,7 +68,7 @@ internal class MemoWebViewModel(
         }
     }
 
-    fun unselectWeb(webId: Uuid) {
+    override fun unselectWeb(webId: Uuid) {
         if (!inProgressUnselectWebSet.add(webId)) return
 
         viewModelScope.launch {

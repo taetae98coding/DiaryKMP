@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.routine.ui.routineHomeCalendarViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.routineHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.routineHomeViewModel

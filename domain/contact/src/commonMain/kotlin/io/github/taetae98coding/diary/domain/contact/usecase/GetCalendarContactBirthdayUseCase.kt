@@ -28,6 +28,7 @@ public class GetCalendarContactBirthdayUseCase internal constructor(
         combine(
             accountCalendarContactBirthdayRepository.get(account = account, dateRange = dateRange),
             accountCalendarContactBirthdayRepository.getLunar(account = account),
+            // 음력 자료를 읽지 못해도 생일 조회 전체를 실패로 만들지 않고, 음력 생일만 빼고 양력 생일을 전달한다.
             lunarRepository.get(dateRange = dateRange).catch { emit(emptyList()) },
         ) { solarBirthdayList, lunarBirthdayList, lunarDateList ->
             val birthdayList = solarBirthdayList + lunarBirthdayList.toCalendarContactBirthdayList(lunarDateList = lunarDateList)

@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.music.musicDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.music.musicDetailRemoteEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.network.api.music.entity.MusicDetailRemoteEntity
-import io.github.taetae98coding.diary.core.testing.music.musicDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.music.musicDetailRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

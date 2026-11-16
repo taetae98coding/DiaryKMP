@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.feature.more.ui.home.signout
 
 import androidx.compose.runtime.Composable
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.more.ui.home.MoreHomeScaffoldEvent
 
 @Composable

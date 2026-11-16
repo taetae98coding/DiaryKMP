@@ -5,6 +5,8 @@ import androidx.room3.useReaderConnection
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.web.webDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
@@ -13,8 +15,6 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.web.datasource.AccountWebSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
-import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly

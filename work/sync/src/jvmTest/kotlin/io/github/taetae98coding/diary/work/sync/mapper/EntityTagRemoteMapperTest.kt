@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.entitytag.entityTagLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.entitytag.entityTagRemoteEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.network.api.entitytag.entity.EntityTagKindRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.entitytag.entity.EntityTagRemoteEntity
-import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
-import io.github.taetae98coding.diary.core.testing.entitytag.entityTagRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

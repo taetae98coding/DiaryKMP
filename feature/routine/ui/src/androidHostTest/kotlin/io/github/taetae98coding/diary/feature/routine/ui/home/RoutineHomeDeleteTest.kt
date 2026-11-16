@@ -16,8 +16,8 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.routine.CalendarRoutineRecord
 import io.github.taetae98coding.diary.core.model.routine.RoutineCycle
 import io.github.taetae98coding.diary.core.model.routine.RoutineSummary

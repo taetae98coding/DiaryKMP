@@ -9,14 +9,15 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.input.DiaryColorInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 
 @Composable
 internal fun DDayForm(
-    onEvent: (DDayFormEvent) -> Unit,
+    onEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: DDayFormState = rememberDDayAddFormState(),
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
@@ -50,8 +51,8 @@ internal fun DDayForm(
             state = state,
         )
         EntityTagInput(
-            onTagClick = { id -> onEvent(DDayFormEvent.ClickTag(id = id)) },
-            onAddClick = { onEvent(DDayFormEvent.ClickTagAdd) },
+            onTagClick = { id -> onEvent(EntityTagInputEvent.ClickTag(id = id)) },
+            onAddClick = { onEvent(EntityTagInputEvent.ClickAdd) },
             modifier = Modifier.fillMaxWidth(),
             uiStateProvider = tagUiStateProvider,
         )

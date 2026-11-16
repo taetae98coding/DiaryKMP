@@ -125,3 +125,25 @@ PrimaryTabRow(selectedTabIndex = searchHomeTypeList.indexOf(state.type)) {
 대상은 Room 컬럼과 DataStore 값, 네트워크 요청과 응답, 딥링크처럼 앱 밖이나 다음 버전으로 값이 넘어가는 경계다. 명시 문자열 프로퍼티(`MapProviderLocalEntity.NAVER("naver")`의 `persistentValue`)나 `when` 매핑으로 옮기고, `@Serializable` enum을 그 경계로 내보낼 때는 `@SerialName`으로 직렬화 이름을 고정한다.
 
 경계를 넘지 않는 값에는 `.name`과 `valueOf`를 그대로 쓴다. `rememberSaveable`의 `Saver`가 그렇다.
+
+## `CancellationException`은 삼키지 않는다
+
+**`suspend` 코드에서 `Throwable`·`Exception`을 잡거나 `runCatching`을 써서 실패를 다른 값이나 예외로 바꾸면 `CancellationException`을 먼저 다시 던진다.** 삼키면 취소된 코루틴이 멈추지 않고 다음 줄을 이어 실행하고, 호출자는 취소를 실패나 부재 값으로 받는다. 잡을 예외 타입을 알면 `Throwable` 대신 그 타입만 잡는다(`IOException`, `GetCredentialCancellationException`).
+
+- `:domain:core`의 `UseCase`가 `Result`로 감싸면서 이미 그렇게 하므로, UseCase의 `execute`는 실패를 다른 결과로 바꿀 때만 직접 잡는다.
+- 정리만 하고 잡은 예외를 그대로 다시 던지는 `catch`(쓰다 만 파일을 지우는 `saveNewFile`)와, 중단 지점이 없는 블록(문자열 파싱, 콜백 안의 변환)의 `runCatching`은 대상이 아니다.
+
+```kotlin
+private suspend fun fetchCatching(block: suspend () -> List<Holiday>): Result<List<Holiday>> =
+    try {
+        Result.success(block())
+    } catch (exception: CancellationException) {
+        throw exception
+    } catch (throwable: Throwable) {
+        Result.failure(throwable)
+    }
+```
+
+## 현재 시각은 `Clock`을 주입받는다
+
+**`domain`·`data`·`work`는 `Clock.System`을 직접 참조하지 않고 `Clock`을 생성자로 주입받는다.** `Clock.System`은 `app:shared`의 `AppModule.providesClock` 한 곳에서만 제공한다. 직접 참조하면 오늘 날짜와 경과 시간에 따라 갈리는 정책을 테스트가 고정된 시각으로 확인할 수 없다. Koin이 만들지 않는 `feature`·`compose`의 state 홀더는 대상이 아니다.

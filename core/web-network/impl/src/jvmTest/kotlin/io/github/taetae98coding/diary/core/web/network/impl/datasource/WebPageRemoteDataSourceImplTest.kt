@@ -31,7 +31,7 @@ class WebPageRemoteDataSourceImplTest :
             val engine = createMockEngine(body = body)
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.get(url = URL, headerList = emptyList())
+            val actual = dataSource.read(url = URL, headerList = emptyList())
 
             engine.requestHistory
                 .single()
@@ -51,7 +51,7 @@ class WebPageRemoteDataSourceImplTest :
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.get(url = URL, headerList = headerList)
+            dataSource.read(url = URL, headerList = headerList)
 
             val requestHeaders = engine.requestHistory.single().headers
             requestHeaders.getAll("X-Diary").shouldContainExactly("first", "second")
@@ -62,7 +62,7 @@ class WebPageRemoteDataSourceImplTest :
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.get(url = URL, headerList = listOf(WebPageHeaderRemoteEntity(name = "X-Diary", value = "value")))
+            dataSource.read(url = URL, headerList = listOf(WebPageHeaderRemoteEntity(name = "X-Diary", value = "value")))
 
             val requestHeaders = engine.requestHistory.single().headers
             requestHeaders[HttpHeaders.Authorization].shouldBeNull()
@@ -74,7 +74,7 @@ class WebPageRemoteDataSourceImplTest :
                 val body = "<html><body>${status.value}</body></html>"
                 val dataSource = createDataSource(createMockEngine(body = body, status = status))
 
-                dataSource.get(url = URL, headerList = emptyList()).body shouldBe body
+                dataSource.read(url = URL, headerList = emptyList()).body shouldBe body
             }
         }
 
@@ -94,7 +94,7 @@ class WebPageRemoteDataSourceImplTest :
                 }
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.get(url = URL, headerList = emptyList())
+            val actual = dataSource.read(url = URL, headerList = emptyList())
 
             engine.requestHistory.map { request -> request.url.toString() } shouldBe listOf(URL, REDIRECTED_URL)
             actual.url shouldBe REDIRECTED_URL

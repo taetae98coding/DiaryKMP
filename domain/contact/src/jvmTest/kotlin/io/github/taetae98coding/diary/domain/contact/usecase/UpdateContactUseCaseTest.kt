@@ -46,6 +46,7 @@ class UpdateContactUseCaseTest :
             val detailSlot = slot<ContactDetail>()
             val updatedAtSlot = slot<Instant>()
             val accountContactRepository = mockk<AccountContactRepository>()
+            every { accountContactRepository.find(account = any(), contactId = stored.id) } returns flowOf(stored)
             coEvery {
                 accountContactRepository.updateDetail(
                     account = account,
@@ -60,7 +61,6 @@ class UpdateContactUseCaseTest :
                 useCase(
                     getAccountUseCase = getAccountUseCase(account = account),
                     requestSyncUseCase = requestSyncUseCase,
-                    findContactUseCase = findContactUseCase(contact = stored),
                     accountContactRepository = accountContactRepository,
                     now = now,
                 )
@@ -269,12 +269,12 @@ class UpdateContactUseCaseTest :
                 val account = Arb.accountUser().next()
                 val stored = contact()
                 val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
+                every { accountContactRepository.find(account = any(), contactId = stored.id) } returns flowOf(stored)
                 val requestSyncUseCase = requestSyncUseCase()
                 val useCase =
                     useCase(
                         getAccountUseCase = getAccountUseCase(account = account),
                         requestSyncUseCase = requestSyncUseCase,
-                        findContactUseCase = findContactUseCase(contact = stored),
                         accountContactRepository = accountContactRepository,
                     )
 
@@ -340,11 +340,11 @@ class UpdateContactUseCaseTest :
         Given("게스트 계정이 준비되어 있다") {
             val stored = contact()
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
+            every { accountContactRepository.find(account = any(), contactId = stored.id) } returns flowOf(stored)
             val useCase =
                 useCase(
                     getAccountUseCase = getAccountUseCase(account = Account.Guest),
                     requestSyncUseCase = requestSyncUseCase(),
-                    findContactUseCase = findContactUseCase(contact = stored),
                     accountContactRepository = accountContactRepository,
                 )
 
@@ -373,7 +373,6 @@ class UpdateContactUseCaseTest :
                 useCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase(),
-                    findContactUseCase = findContactUseCase(contact = contact()),
                     accountContactRepository = accountContactRepository,
                 )
 
@@ -395,6 +394,7 @@ class UpdateContactUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val stored = contact()
             val accountContactRepository = mockk<AccountContactRepository>()
+            every { accountContactRepository.find(account = any(), contactId = stored.id) } returns flowOf(stored)
             coEvery {
                 accountContactRepository.updateDetail(account = account, contactId = any(), detail = any(), updatedAt = any())
             } throws throwable
@@ -403,7 +403,6 @@ class UpdateContactUseCaseTest :
                 useCase(
                     getAccountUseCase = getAccountUseCase(account = account),
                     requestSyncUseCase = requestSyncUseCase,
-                    findContactUseCase = findContactUseCase(contact = stored),
                     accountContactRepository = accountContactRepository,
                 )
 
@@ -422,7 +421,6 @@ class UpdateContactUseCaseTest :
         private fun useCase(
             getAccountUseCase: GetAccountUseCase,
             requestSyncUseCase: RequestSyncUseCase,
-            findContactUseCase: FindContactUseCase,
             accountContactRepository: AccountContactRepository,
             now: Instant? = null,
         ): UpdateContactUseCase {
@@ -436,7 +434,6 @@ class UpdateContactUseCaseTest :
             return UpdateContactUseCase(
                 getAccountUseCase = getAccountUseCase,
                 requestSyncUseCase = requestSyncUseCase,
-                findContactUseCase = findContactUseCase,
                 accountContactRepository = accountContactRepository,
                 clock = clock,
             )
@@ -445,13 +442,6 @@ class UpdateContactUseCaseTest :
         private fun getAccountUseCase(account: Account): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
             every { useCase() } returns flowOf(Result.success(account))
-
-            return useCase
-        }
-
-        private fun findContactUseCase(contact: Contact): FindContactUseCase {
-            val useCase = mockk<FindContactUseCase>()
-            every { useCase(parameter = contact.id) } returns flowOf(Result.success(contact))
 
             return useCase
         }

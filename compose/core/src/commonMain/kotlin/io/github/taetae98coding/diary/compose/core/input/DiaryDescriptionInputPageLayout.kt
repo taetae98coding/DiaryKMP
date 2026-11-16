@@ -15,10 +15,10 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.diary_description_input_label
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.text.DiaryMarkdown
 import io.github.taetae98coding.diary.compose.core.textfield.ClearTextField
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 

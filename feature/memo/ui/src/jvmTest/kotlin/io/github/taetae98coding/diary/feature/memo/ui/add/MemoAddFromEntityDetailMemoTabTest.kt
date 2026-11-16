@@ -86,11 +86,11 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 memoAdd.contact.uiState.value.selectedContactList
                     .shouldBeEmpty()
 
-                memoAdd.place.selectPlace(id = other.id)
+                memoAdd.place.selectPlace(placeId = other.id)
                 advanceUntilIdle()
                 memoAdd.place.uiState.value.selectedPlaceList shouldContainExactlyInAnyOrder listOf(target, other)
 
-                memoAdd.place.unselectPlace(id = target.id)
+                memoAdd.place.unselectPlace(placeId = target.id)
                 advanceUntilIdle()
                 memoAdd.place.uiState.value.selectedPlaceList shouldBe listOf(other)
             }
@@ -130,8 +130,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
                 finalSelectionList.forEach { finalSelection ->
                     val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialPlaceId = placeA.id), placeList = listOf(placeA, placeB))
-                    (finalSelection - placeA.id).forEach { id -> memoAdd.place.selectPlace(id = id) }
-                    if (placeA.id !in finalSelection) memoAdd.place.unselectPlace(id = placeA.id)
+                    (finalSelection - placeA.id).forEach { id -> memoAdd.place.selectPlace(placeId = id) }
+                    if (placeA.id !in finalSelection) memoAdd.place.unselectPlace(placeId = placeA.id)
 
                     memoAdd.save()
                     advanceUntilIdle()
@@ -159,11 +159,11 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 memoAdd.place.uiState.value.selectedPlaceList
                     .shouldBeEmpty()
 
-                memoAdd.web.selectWeb(id = other.id)
+                memoAdd.web.selectWeb(webId = other.id)
                 advanceUntilIdle()
                 memoAdd.web.uiState.value.selectedWebList shouldContainExactlyInAnyOrder listOf(target, other)
 
-                memoAdd.web.unselectWeb(id = target.id)
+                memoAdd.web.unselectWeb(webId = target.id)
                 advanceUntilIdle()
                 memoAdd.web.uiState.value.selectedWebList shouldBe listOf(other)
             }
@@ -203,8 +203,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
                 finalSelectionList.forEach { finalSelection ->
                     val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialWebId = webA.id), webList = listOf(webA, webB))
-                    (finalSelection - webA.id).forEach { id -> memoAdd.web.selectWeb(id = id) }
-                    if (webA.id !in finalSelection) memoAdd.web.unselectWeb(id = webA.id)
+                    (finalSelection - webA.id).forEach { id -> memoAdd.web.selectWeb(webId = id) }
+                    if (webA.id !in finalSelection) memoAdd.web.unselectWeb(webId = webA.id)
 
                     memoAdd.save()
                     advanceUntilIdle()
@@ -232,11 +232,11 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 memoAdd.place.uiState.value.selectedPlaceList
                     .shouldBeEmpty()
 
-                memoAdd.contact.selectContact(id = other.contact.id)
+                memoAdd.contact.selectContact(contactId = other.contact.id)
                 advanceUntilIdle()
                 memoAdd.contact.uiState.value.selectedContactList shouldContainExactlyInAnyOrder listOf(target, other)
 
-                memoAdd.contact.unselectContact(id = target.contact.id)
+                memoAdd.contact.unselectContact(contactId = target.contact.id)
                 advanceUntilIdle()
                 memoAdd.contact.uiState.value.selectedContactList shouldBe listOf(other)
             }
@@ -275,8 +275,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
                 finalSelectionList.forEach { finalSelection ->
                     val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = contactA.contact.id), contactList = listOf(contactA, contactB))
-                    (finalSelection - contactA.contact.id).forEach { id -> memoAdd.contact.selectContact(id = id) }
-                    if (contactA.contact.id !in finalSelection) memoAdd.contact.unselectContact(id = contactA.contact.id)
+                    (finalSelection - contactA.contact.id).forEach { id -> memoAdd.contact.selectContact(contactId = id) }
+                    if (contactA.contact.id !in finalSelection) memoAdd.contact.unselectContact(contactId = contactA.contact.id)
 
                     memoAdd.save()
                     advanceUntilIdle()

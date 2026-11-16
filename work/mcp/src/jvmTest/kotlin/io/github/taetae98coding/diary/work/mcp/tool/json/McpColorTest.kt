@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.mcp.tool.json
 
+import io.github.taetae98coding.diary.work.appaction.core.toColorHex
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArgumentException
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArguments
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -8,7 +9,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldMatch
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -24,12 +24,6 @@ class McpColorTest :
 
             hex shouldMatch Regex("#[0-9A-F]{6}")
             colorArguments(hex).colorOrNull() shouldBe color.toInt().toLong()
-        }
-
-        test("투명도가 있는 색도 RGB만 16진수로 바꾼다") {
-            val color = Arb.long().next()
-
-            color.toColorHex() shouldBe "#" + (color.toInt() and 0xFFFFFF).toString(16).padStart(6, '0').uppercase()
         }
 
         test("# 없이 받은 소문자 16진수 색도 읽는다") {

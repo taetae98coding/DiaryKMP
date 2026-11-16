@@ -8,9 +8,9 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.SearchButton
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 public fun DiaryTooltipBox(
@@ -36,8 +36,8 @@ public fun DiaryTooltipBox(
 @Composable
 private fun DiaryTooltipBoxPreview() {
     DiaryTheme {
-        DiaryTooltipBox(text = "검색") {
-            SearchButton(onClick = {})
+        DiaryTooltipBox(text = "뒤로") {
+            NavigateUpButton(onClick = {})
         }
     }
 }

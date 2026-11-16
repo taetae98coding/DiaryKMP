@@ -16,13 +16,14 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.compose.place.toCoordinate
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -41,6 +42,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun PlaceHomeScaffold(
     onEvent: (PlaceHomeScaffoldEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: PlaceHomeScaffoldState = rememberPlaceHomeScaffoldState(),
     sortSheetState: DialogState = rememberDialogState(),
@@ -87,6 +89,7 @@ internal fun PlaceHomeScaffold(
     ) { paddingValues ->
         Body(
             onEvent = onEvent,
+            onPlaceListEvent = onPlaceListEvent,
             mapState = mapState,
             uiState = uiState,
             modifier =
@@ -111,6 +114,7 @@ internal fun PlaceHomeScaffold(
 @Composable
 private fun Body(
     onEvent: (PlaceHomeScaffoldEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     mapState: DiaryMapState,
     uiState: PlaceHomeUiState,
     modifier: Modifier = Modifier,
@@ -132,6 +136,7 @@ private fun Body(
                     is PlaceHomeUiState.Content ->
                         PlaceHomeContent(
                             onEvent = onEvent,
+                            onPlaceListEvent = onPlaceListEvent,
                             mapState = mapState,
                             placeListUiStateProvider = placeListUiStateProvider,
                             isRefreshingProvider = { syncUiStateProvider().isRefreshing },
@@ -142,6 +147,7 @@ private fun Body(
             PlaceHomeViewMode.LIST ->
                 PlaceHomePagingList(
                     onEvent = onEvent,
+                    onPlaceListEvent = onPlaceListEvent,
                     placePagingItems = placePagingItems,
                     isRefreshingProvider = { syncUiStateProvider().isRefreshing },
                     sortProvider = sortProvider,
@@ -161,6 +167,7 @@ private fun PlaceHomeScaffoldPreview(
     DiaryTheme {
         PlaceHomeScaffold(
             onEvent = {},
+            onPlaceListEvent = {},
             state = PlaceHomeScaffoldState(initialViewMode = viewMode),
             uiStateProvider = { PlaceHomeUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = null) },
             placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = placeList) },

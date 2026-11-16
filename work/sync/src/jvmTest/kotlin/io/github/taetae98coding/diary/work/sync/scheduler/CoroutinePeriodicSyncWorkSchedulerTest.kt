@@ -2,7 +2,6 @@
 
 package io.github.taetae98coding.diary.work.sync.scheduler
 
-import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkState
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

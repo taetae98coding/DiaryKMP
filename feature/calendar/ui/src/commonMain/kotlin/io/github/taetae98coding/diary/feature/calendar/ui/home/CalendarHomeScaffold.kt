@@ -14,9 +14,9 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryDatePickerDialogHost
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState

@@ -109,12 +109,12 @@ class MemoAddTagViewModelTest : FunSpec() {
 
                     expectMostRecentItem().selectedTagList.shouldBeEmpty()
 
-                    viewModel.selectTag(id = firstTag.id)
+                    viewModel.selectTag(tagId = firstTag.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedTagList shouldBe listOf(firstTag)
 
-                    viewModel.selectTag(id = secondTag.id)
+                    viewModel.selectTag(tagId = secondTag.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedTagList shouldBe listOf(firstTag, secondTag)
@@ -128,13 +128,13 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))
 
-                viewModel.selectTag(id = tag.id)
+                viewModel.selectTag(tagId = tag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
                     expectMostRecentItem().selectedTagList shouldBe listOf(tag)
 
-                    viewModel.unselectTag(id = tag.id)
+                    viewModel.unselectTag(tagId = tag.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedTagList.shouldBeEmpty()
@@ -148,7 +148,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))
 
-                viewModel.selectPrimaryTag(id = tag.id)
+                viewModel.selectPrimaryTag(tagId = tag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -166,7 +166,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))
 
-                viewModel.selectPrimaryTag(id = tag.id)
+                viewModel.selectPrimaryTag(tagId = tag.id)
                 viewModel.unselectPrimaryTag()
 
                 viewModel.uiState.test {
@@ -188,8 +188,8 @@ class MemoAddTagViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectTag(id = secondaryTag.id)
-                    viewModel.selectPrimaryTag(id = primaryTag.id)
+                    viewModel.selectTag(tagId = secondaryTag.id)
+                    viewModel.selectPrimaryTag(tagId = primaryTag.id)
                     advanceUntilIdle()
 
                     val uiState = expectMostRecentItem()
@@ -216,8 +216,8 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val secondTag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(firstTag, secondTag))))
 
-                viewModel.selectPrimaryTag(id = firstTag.id)
-                viewModel.selectPrimaryTag(id = secondTag.id)
+                viewModel.selectPrimaryTag(tagId = firstTag.id)
+                viewModel.selectPrimaryTag(tagId = secondTag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -236,9 +236,9 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val otherTag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(primaryTag, otherTag))))
 
-                viewModel.selectTag(id = otherTag.id)
-                viewModel.selectPrimaryTag(id = primaryTag.id)
-                viewModel.unselectTag(id = primaryTag.id)
+                viewModel.selectTag(tagId = otherTag.id)
+                viewModel.selectPrimaryTag(tagId = primaryTag.id)
+                viewModel.unselectTag(tagId = primaryTag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -257,9 +257,9 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val otherTag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(primaryTag, otherTag))))
 
-                viewModel.selectTag(id = otherTag.id)
-                viewModel.selectPrimaryTag(id = primaryTag.id)
-                viewModel.unselectTag(id = otherTag.id)
+                viewModel.selectTag(tagId = otherTag.id)
+                viewModel.selectPrimaryTag(tagId = primaryTag.id)
+                viewModel.unselectTag(tagId = otherTag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -277,7 +277,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.failure(IllegalStateException())))
 
-                viewModel.selectPrimaryTag(id = tag.id)
+                viewModel.selectPrimaryTag(tagId = tag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -299,7 +299,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                         pageTagListFlow = flowOf(Result.success(emptyList())),
                     )
 
-                viewModel.selectPrimaryTag(id = tag.id)
+                viewModel.selectPrimaryTag(tagId = tag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -367,8 +367,8 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val tagListFlow = MutableStateFlow(Result.success(listOf(remainingTag, removedTag)))
                 val viewModel = viewModel(tagListFlow = tagListFlow)
 
-                viewModel.selectTag(id = remainingTag.id)
-                viewModel.selectPrimaryTag(id = removedTag.id)
+                viewModel.selectTag(tagId = remainingTag.id)
+                viewModel.selectPrimaryTag(tagId = removedTag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -399,8 +399,8 @@ class MemoAddTagViewModelTest : FunSpec() {
                     val primaryTag = tag()
                     val tagListFlow = MutableStateFlow(Result.success(listOf(nonPrimaryTag, primaryTag)))
                     val viewModel = viewModel(tagListFlow = tagListFlow)
-                    viewModel.selectTag(id = nonPrimaryTag.id)
-                    viewModel.selectPrimaryTag(id = primaryTag.id)
+                    viewModel.selectTag(tagId = nonPrimaryTag.id)
+                    viewModel.selectPrimaryTag(tagId = primaryTag.id)
 
                     viewModel.uiState.test {
                         advanceUntilIdle()
@@ -451,8 +451,8 @@ class MemoAddTagViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectTag(id = selectableTag.id)
-                    viewModel.selectPrimaryTag(id = unselectableTag.id)
+                    viewModel.selectTag(tagId = selectableTag.id)
+                    viewModel.selectPrimaryTag(tagId = unselectableTag.id)
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()
                 }
@@ -472,11 +472,11 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val rowList =
                     listOf<Triple<(MemoAddTagViewModel) -> Unit, Set<Uuid>, Uuid>>(
                         Triple({ }, setOf(tagA.id), tagA.id),
-                        Triple({ viewModel -> viewModel.selectPrimaryTag(id = tagB.id) }, setOf(tagA.id, tagB.id), tagB.id),
+                        Triple({ viewModel -> viewModel.selectPrimaryTag(tagId = tagB.id) }, setOf(tagA.id, tagB.id), tagB.id),
                         Triple(
                             { viewModel ->
-                                viewModel.selectPrimaryTag(id = tagB.id)
-                                viewModel.unselectTag(id = tagA.id)
+                                viewModel.selectPrimaryTag(tagId = tagB.id)
+                                viewModel.unselectTag(tagId = tagA.id)
                             },
                             setOf(tagB.id),
                             tagB.id,
@@ -533,8 +533,8 @@ class MemoAddTagViewModelTest : FunSpec() {
                         tagListFlow = flowOf(Result.success(listOf(initialTag, changedTag))),
                     )
 
-                viewModel.unselectTag(id = initialTag.id)
-                viewModel.selectPrimaryTag(id = changedTag.id)
+                viewModel.unselectTag(tagId = initialTag.id)
+                viewModel.selectPrimaryTag(tagId = changedTag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -584,8 +584,8 @@ class MemoAddTagViewModelTest : FunSpec() {
                     initialUiState.selectedTagList shouldBe listOf(targetTag)
                     initialUiState.primaryTagId shouldBe targetTag.id
 
-                    viewModel.selectPrimaryTag(id = otherTag.id)
-                    viewModel.unselectTag(id = targetTag.id)
+                    viewModel.selectPrimaryTag(tagId = otherTag.id)
+                    viewModel.unselectTag(tagId = targetTag.id)
                     advanceUntilIdle()
 
                     val changedUiState = expectMostRecentItem()
@@ -658,9 +658,9 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(firstTag, secondTag))))
 
                 viewModel.uiState.test {
-                    viewModel.selectTag(id = secondTag.id)
-                    viewModel.selectTag(id = firstTag.id)
-                    viewModel.selectPrimaryTag(id = secondTag.id)
+                    viewModel.selectTag(tagId = secondTag.id)
+                    viewModel.selectTag(tagId = firstTag.id)
+                    viewModel.selectPrimaryTag(tagId = secondTag.id)
                     advanceUntilIdle()
 
                     val uiState = expectMostRecentItem()
@@ -698,7 +698,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))
-                viewModel.selectTag(id = tag.id)
+                viewModel.selectTag(tagId = tag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()

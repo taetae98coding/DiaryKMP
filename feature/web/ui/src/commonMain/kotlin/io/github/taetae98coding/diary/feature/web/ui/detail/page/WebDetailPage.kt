@@ -22,12 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.web.DiaryWebView
+import io.github.taetae98coding.diary.compose.icon.WebIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
 import io.github.taetae98coding.diary.compose.web.previewWebPage
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldEvent
@@ -47,6 +47,7 @@ internal const val WEB_DETAIL_PAGE_FAILURE_TEST_TAG: String = "WebDetailPageFail
 @Composable
 internal fun WebDetailPage(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
+    webViewContent: WebViewContent,
     modifier: Modifier = Modifier,
     state: WebDetailScaffoldState = rememberWebDetailScaffoldState(),
     urlProvider: () -> String = { "" },
@@ -66,6 +67,7 @@ internal fun WebDetailPage(
             when (mode) {
                 WebDetailViewMode.URL ->
                     UrlWebView(
+                        webViewContent = webViewContent,
                         modifier = Modifier.fillMaxSize(),
                         urlProvider = urlProvider,
                     )
@@ -73,6 +75,7 @@ internal fun WebDetailPage(
                 WebDetailViewMode.RESPONSE ->
                     ResponsePage(
                         onEvent = onEvent,
+                        webViewContent = webViewContent,
                         modifier = Modifier.fillMaxSize(),
                         uiStateProvider = uiStateProvider,
                     )
@@ -83,20 +86,32 @@ internal fun WebDetailPage(
 
 @Composable
 private fun UrlWebView(
+    webViewContent: WebViewContent,
     modifier: Modifier = Modifier,
     urlProvider: () -> String = { "" },
 ) {
     val contentDescription = stringResource(Res.string.web_detail_page_content_description)
+    val url = urlProvider()
 
-    DiaryWebView(
-        url = urlProvider(),
+    DiaryCrossfade(
+        targetState = LocalDiaryWebSession.current.isRestoring,
         modifier = modifier.semantics { this.contentDescription = contentDescription },
-    )
+    ) { isRestoring ->
+        if (isRestoring) {
+            DiaryLoadingBox(modifier = Modifier.fillMaxSize())
+        } else {
+            webViewContent.UrlContent(
+                url = url,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
 }
 
 @Composable
 private fun ResponsePage(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
+    webViewContent: WebViewContent,
     modifier: Modifier = Modifier,
     uiStateProvider: () -> WebDetailPageUiState = { WebDetailPageUiState.Loading },
 ) {
@@ -111,7 +126,7 @@ private fun ResponsePage(
             is WebDetailPageUiState.Content -> {
                 val contentDescription = stringResource(Res.string.web_detail_page_content_description)
 
-                DiaryWebView(
+                webViewContent.PageContent(
                     page = uiState.page,
                     modifier =
                         Modifier
@@ -186,6 +201,7 @@ private fun WebDetailPagePreview(
         Surface {
             WebDetailPage(
                 onEvent = {},
+                webViewContent = PreviewWebViewContent,
                 modifier = Modifier.fillMaxSize(),
                 state = rememberWebDetailScaffoldState(initialViewMode = value.viewMode),
                 urlProvider = { previewWebDetail().url },

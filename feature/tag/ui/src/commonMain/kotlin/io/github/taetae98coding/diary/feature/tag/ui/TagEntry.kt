@@ -9,8 +9,10 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -19,6 +21,8 @@ import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -44,10 +48,10 @@ import io.github.taetae98coding.diary.feature.tag.ui.home.ScrollToFirstTagOnRese
 import io.github.taetae98coding.diary.feature.tag.ui.home.TagHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.home.TagHomeScreen
 import io.github.taetae98coding.diary.feature.tag.ui.home.filter.TagHomeFilterContent
-import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinishedListDetailPlaceholder
-import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinishedListScreen
+import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinishedListViewModel
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -83,17 +87,20 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
             gridState = gridState,
         )
         TagHomeScreen(
-            navigateToAdd = { backStack.navigateToTagAdd() },
+            navigateToAdd = dropUnlessResumed { backStack.navigateToTagAdd() },
             navigateToDetail = { id -> backStack.navigateToTagDetail(id) },
-            navigateToFilter = {
-                backStack.add(TagHomeFilterNavKey)
-            },
-            navigateToFinishedList = {
-                backStack.add(TagFinishedListNavKey)
-            },
-            navigateToSearch = {
-                backStack.add(SearchHomeNavKey(initialType = SearchHomeType.TAG))
-            },
+            navigateToFilter =
+                dropUnlessResumed {
+                    backStack.add(TagHomeFilterNavKey)
+                },
+            navigateToFinishedList =
+                dropUnlessResumed {
+                    backStack.add(TagFinishedListNavKey)
+                },
+            navigateToSearch =
+                dropUnlessResumed {
+                    backStack.add(SearchHomeNavKey(initialType = SearchHomeType.TAG))
+                },
             componentVisibleProvider = {
                 val isAddPaneVisible = isDetailPaneVisible && !backStack.isTagDetailOnDetailPane()
 
@@ -124,7 +131,7 @@ private fun TagAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
 
     TagAddScreen(
         navigateUp = {},
-        navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+        navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
         navigateToDetail = { id -> backStack.navigateToTagDetail(id) },
         addedResultRequestKey = null,
         tagAddRequestKey = tagAddRequestKey,
@@ -164,8 +171,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagAddEntry(backStack: NavBackStack
 
         TagAddScreen(
             navigateUp = { backStack.removeLastOrNull() },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToDetail = { id -> backStack.add(TagDetailNavKey(id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id)) },
             addedResultRequestKey = key.requestKey,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { TagAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
@@ -185,28 +192,28 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
 
         TagDetailScreen(
             navigateUp = { backStack.removeLastOrNull() },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToMemoAdd = { backStack.add(MemoAddNavKey(primaryTagId = navKey.id)) },
-            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
-            navigateToMemoFinishedList = { backStack.add(TagMemoFinishedListNavKey(tagId = navKey.id)) },
-            navigateToWebAdd = { backStack.navigateToWebAddFromTagDetail(tagId = navKey.id) },
-            navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToPlaceAdd = { coordinate -> backStack.navigateToPlaceAddFromTagDetail(tagId = navKey.id, coordinate = coordinate) },
-            navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
-            navigateToContactAdd = { backStack.navigateToContactAddFromTagDetail(tagId = navKey.id) },
-            navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
-            navigateToChecklistAdd = { backStack.navigateToChecklistAddFromTagDetail(tagId = navKey.id) },
-            navigateToChecklistDetail = { id -> backStack.add(ChecklistDetailNavKey(id = id)) },
-            navigateToMusicAdd = { backStack.navigateToMusicAddFromTagDetail(tagId = navKey.id) },
-            navigateToMusicDetail = { id -> backStack.add(MusicDetailNavKey(id = id)) },
-            navigateToQrAdd = { backStack.navigateToQrAddFromTagDetail(tagId = navKey.id) },
-            navigateToQrDetail = { id -> backStack.add(QrDetailNavKey(id = id)) },
-            navigateToDDayAdd = { backStack.navigateToDDayAddFromTagDetail(tagId = navKey.id) },
-            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
-            navigateToRoutineAdd = { backStack.navigateToRoutineAddFromTagDetail(tagId = navKey.id) },
-            navigateToRoutineDetail = { id -> backStack.add(RoutineDetailNavKey(id = id, isStandalone = true)) },
-            navigateToRoutineFinishedList = { backStack.add(TagRoutineFinishedListNavKey(tagId = navKey.id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id)) },
+            navigateToMemoAdd = dropUnlessResumed { backStack.add(MemoAddNavKey(primaryTagId = navKey.id)) },
+            navigateToMemoDetail = dropUnlessResumedWithArg { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            navigateToMemoFinishedList = dropUnlessResumed { backStack.add(TagMemoFinishedListNavKey(tagId = navKey.id)) },
+            navigateToWebAdd = dropUnlessResumed { backStack.navigateToWebAddFromTagDetail(tagId = navKey.id) },
+            navigateToWebDetail = dropUnlessResumedWithArg { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToPlaceAdd = dropUnlessResumedWithArg { coordinate -> backStack.navigateToPlaceAddFromTagDetail(tagId = navKey.id, coordinate = coordinate) },
+            navigateToPlaceDetail = dropUnlessResumedWithArg { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToContactAdd = dropUnlessResumed { backStack.navigateToContactAddFromTagDetail(tagId = navKey.id) },
+            navigateToContactDetail = dropUnlessResumedWithArg { id -> backStack.add(ContactDetailNavKey(id = id)) },
+            navigateToChecklistAdd = dropUnlessResumed { backStack.navigateToChecklistAddFromTagDetail(tagId = navKey.id) },
+            navigateToChecklistDetail = dropUnlessResumedWithArg { id -> backStack.add(ChecklistDetailNavKey(id = id)) },
+            navigateToMusicAdd = dropUnlessResumed { backStack.navigateToMusicAddFromTagDetail(tagId = navKey.id) },
+            navigateToMusicDetail = dropUnlessResumedWithArg { id -> backStack.add(MusicDetailNavKey(id = id)) },
+            navigateToQrAdd = dropUnlessResumed { backStack.navigateToQrAddFromTagDetail(tagId = navKey.id) },
+            navigateToQrDetail = dropUnlessResumedWithArg { id -> backStack.add(QrDetailNavKey(id = id)) },
+            navigateToDDayAdd = dropUnlessResumed { backStack.navigateToDDayAddFromTagDetail(tagId = navKey.id) },
+            navigateToDDayDetail = dropUnlessResumedWithArg { id -> backStack.add(DDayDetailNavKey(id = id)) },
+            navigateToRoutineAdd = dropUnlessResumed { backStack.navigateToRoutineAddFromTagDetail(tagId = navKey.id) },
+            navigateToRoutineDetail = dropUnlessResumedWithArg { id -> backStack.add(RoutineDetailNavKey(id = id, isStandalone = true)) },
+            navigateToRoutineFinishedList = dropUnlessResumed { backStack.add(TagRoutineFinishedListNavKey(tagId = navKey.id)) },
             id = navKey.id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { backStack.tagDetailScaffoldComponentVisible(key = navKey, isListPaneVisible = isListPaneVisible) },
@@ -221,10 +228,11 @@ private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack:
     entry<TagMemoFinishedListNavKey>(
         metadata = ::tagMemoFinishedListPaneMetadata,
     ) { key ->
-        TagMemoFinishedListScreen(
+        EntityMemoFinishedListScreen(
             navigateUp = backStack::navigateUpFromTagMemoFinishedList,
             navigateToMemoDetail = backStack::navigateToMemoDetail,
-            memoViewModel = koinViewModel { parametersOf(key.tagId) },
+            emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
+            memoViewModel = koinViewModel<TagMemoFinishedListViewModel> { parametersOf(key.tagId) },
             syncViewModel = koinViewModel(),
         )
     }
@@ -233,7 +241,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack:
 internal fun tagMemoFinishedListPaneMetadata(key: TagMemoFinishedListNavKey): Map<String, Any> =
     ListDetailSceneStrategy.listPane(
         sceneKey = key,
-        detailPlaceholder = { TagMemoFinishedListDetailPlaceholder() },
+        detailPlaceholder = { EntityMemoFinishedListDetailPlaceholder() },
     ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
 private fun NavBackStack<ScreenNavKey>.tagListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> {

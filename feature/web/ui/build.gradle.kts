@@ -28,9 +28,21 @@ kotlin {
             }
         }
 
+        androidMain {
+            dependencies {
+                implementation(projects.core.webCookie.api)
+            }
+        }
+
         androidHostTest {
             dependencies {
                 implementation(libs.androidx.paging.testing)
+            }
+        }
+
+        jvmMain {
+            dependencies {
+                implementation(projects.library.webkit)
             }
         }
 

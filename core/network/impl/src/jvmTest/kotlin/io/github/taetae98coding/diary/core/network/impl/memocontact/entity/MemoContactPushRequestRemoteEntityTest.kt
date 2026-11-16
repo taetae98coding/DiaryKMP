@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.core.network.impl.memocontact.entity
 
+import io.github.taetae98coding.diary.core.data.testing.memocontact.memoContactRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memocontact.entity.MemoContactRemoteEntity
-import io.github.taetae98coding.diary.core.testing.memocontact.memoContactRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

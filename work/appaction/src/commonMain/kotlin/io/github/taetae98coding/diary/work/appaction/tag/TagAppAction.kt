@@ -8,8 +8,8 @@ import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageFilteredTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageFinishedTagUseCase
-import io.github.taetae98coding.diary.domain.tag.usecase.PageTagHomeUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestoreTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.UpdateTagUseCase
@@ -38,7 +38,7 @@ internal val tagSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECEN
 
 @Factory
 public class TagAppAction internal constructor(
-    private val pageTagHomeUseCase: PageTagHomeUseCase,
+    private val pageFilteredTagUseCase: PageFilteredTagUseCase,
     private val pageFinishedTagUseCase: PageFinishedTagUseCase,
     private val findTagUseCase: FindTagUseCase,
     private val getLinkedTagUseCase: GetLinkedTagUseCase,
@@ -54,7 +54,7 @@ public class TagAppAction internal constructor(
         cursor: String?,
     ): AppActionPage<AppActionTag> =
         runAppAction {
-            pageTagHomeUseCase
+            pageFilteredTagUseCase
                 .readPage(parameter = sort.toSortArgument(tagSortList), offset = cursor.toPageOffset())
                 .map { tag -> tag.toAppActionTag() }
         }

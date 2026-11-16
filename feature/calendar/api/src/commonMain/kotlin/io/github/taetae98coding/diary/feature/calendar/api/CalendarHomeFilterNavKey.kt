@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data object CalendarHomeFilterNavKey : ScreenNavKey {
     override val screenName: String get() = "CalendarHomeFilter"
+
+    override val isOverlay: Boolean get() = true
 }

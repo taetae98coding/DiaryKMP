@@ -66,6 +66,11 @@ internal fun ddayViewModel(ddayListFlow: StateFlow<List<CalendarDDay>> = Mutable
         every { viewModel.uiState } returns ddayListFlow.mapState { ddayList -> CalendarHomeDDayUiState(ddayList = ddayList) }
     }
 
+internal fun filterViewModel(uiState: CalendarHomeScaffoldFilterUiState = CalendarHomeScaffoldFilterUiState()): CalendarHomeScaffoldFilterViewModel =
+    mockk<CalendarHomeScaffoldFilterViewModel>().also { viewModel ->
+        every { viewModel.uiState } returns MutableStateFlow(uiState)
+    }
+
 internal fun lunarObservingBirthdayViewModel(fetchLunarUseCase: FetchLunarUseCase): CalendarHomeBirthdayViewModel {
     val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
     every { getCalendarContactBirthdayUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))

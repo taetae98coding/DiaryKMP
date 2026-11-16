@@ -4,13 +4,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
-import io.github.taetae98coding.diary.compose.core.icon.CalendarIcon
-import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
-import io.github.taetae98coding.diary.compose.core.icon.MoreIcon
-import io.github.taetae98coding.diary.compose.core.icon.RoutineIcon
-import io.github.taetae98coding.diary.compose.core.icon.TagIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.CalendarIcon
+import io.github.taetae98coding.diary.compose.icon.MemoIcon
+import io.github.taetae98coding.diary.compose.icon.MoreIcon
+import io.github.taetae98coding.diary.compose.icon.RoutineIcon
+import io.github.taetae98coding.diary.compose.icon.TagIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 internal fun TopLevelNavigationIcon(

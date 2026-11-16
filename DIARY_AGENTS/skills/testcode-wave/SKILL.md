@@ -71,12 +71,15 @@ mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK
 
 생성 규칙은 리플렉션 없이 생성자를 직접 호출하는 `Arb.Companion` 확장 함수로 둔다. 이후 `commonTest`로 옮길 테스트가 iOS와 wasmJs에서도 같은 규칙을 쓰게 하기 위해서다. Kotest의 `Arb.bind<T>()`처럼 리플렉션으로 생성자를 채우는 API는 JVM에서만 동작하므로 쓰지 않는다. 예외로 화면 키 클래스처럼 대상 클래스를 런타임에야 알 수 있는 JVM 테스트만 `Arb.bind(arbs, kClass)`를 쓴다.
 
-생성 규칙은 다음 두 모듈이 소유하고 테스트 파일에서 같은 타입의 규칙을 다시 만들지 않는다. 파일마다 규칙을 두면 같은 타입을 새 테스트가 다시 만들지 못하는 함정이 반복된다.
+생성 규칙은 다음 세 모듈이 소유하고 테스트 파일에서 같은 타입의 규칙을 다시 만들지 않는다. 파일마다 규칙을 두면 같은 타입을 새 테스트가 다시 만들지 못하는 함정이 반복된다.
 
 | 모듈 | 두는 것 | 주입 |
 | --- | --- | --- |
 | `:library:fixture` | 라이브러리 타입의 규칙과 Kotest 기본 규칙을 대신하는 규칙. `kotest-property`를 함께 노출한다 | `KotestPrimitivePlugin`이 모든 모듈의 `commonTest`에 주입한다 |
-| `:core:testing` | `:core:model`과 `:core:*:api`의 모델·엔티티 규칙(`Arb.memo()`, `Arb.tagLocalEntity()` 등)과 고정 값 헬퍼 | 쓰는 모듈이 테스트 소스셋에 의존성을 직접 선언한다 |
+| `:core:testing` | `:core:model`의 모델 규칙(`Arb.memo()` 등)과 고정 값 헬퍼. `:core:*:api`에 의존하지 않는다 | 쓰는 모듈이 테스트 소스셋에 의존성을 직접 선언한다 |
+| `:core:data-testing` | `:core:*:api`의 local·remote 엔티티 규칙(`Arb.tagLocalEntity()`, `Arb.memoRemoteEntity()` 등)과 모델·엔티티를 짝지은 헬퍼(`contactDetailCaseList()` 등) | 엔티티를 다루는 `:core:*:impl`, `:data:*`, `:work:*`만 테스트 소스셋에 직접 선언한다 |
+
+feature·domain·compose·app 테스트는 `:core:data-testing`에 의존하지 않는다. 의존하면 Room·원격 엔티티가 바뀔 때마다 그 테스트까지 다시 컴파일되고, 테스트가 계층 밖의 엔티티를 볼 수 있게 된다. 모델과 엔티티가 같은 값에서 출발해야 하면 계층에 묶이지 않은 값을 `:core:testing`에 두고(`ContactDetailSource`) `:core:data-testing`이 그 값으로 엔티티를 만든다.
 
 `:library:fixture`가 Kotest 기본 규칙 대신 쓰게 하는 타입은 다음과 같다.
 
@@ -97,9 +100,9 @@ mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK
 
 공용 규칙에서 값 하나를 꺼내기만 하는 래퍼(`fun instant(): Instant = Arb.secondPrecisionInstant().next()`)는 두지 않고 `Arb.secondPrecisionInstant().next()`를 직접 쓴다. 날짜와 시각도 `Arb.int().next().mod(...)`로 조립하지 않고 `Arb.kotlinxLocalDate()`·`Arb.localDateRange()`를 쓰며, 월·연도처럼 범위가 판정에 걸리면 `Arb.int(range)`로 그 범위를 드러낸다.
 
-`:core:testing`의 규칙은 `<타입 이름의 lowerCamel>()`로 이름 짓고, 도메인 패키지(`core.testing.memo` 등)에 계층별 파일(`MemoModelArb.kt`, `MemoLocalEntityArb.kt`, `MemoRemoteEntityArb.kt`)로 둔다. enum은 `Arb.enum<T>()`, object는 `Arb.constant(T)`를 그대로 쓰고 별도 규칙을 두지 않는다. sealed 타입은 하위 타입 규칙을 `Arb.choice`로 묶는다. 생성자가 private인 타입은 공개된 생성 경로로 만든다(`Arb.length()`).
+`:core:testing`과 `:core:data-testing`의 규칙은 `<타입 이름의 lowerCamel>()`로 이름 짓고, 도메인 패키지(`core.testing.memo`, `core.data.testing.memo` 등)에 계층별 파일(`:core:testing`의 `MemoModelArb.kt`, `:core:data-testing`의 `MemoLocalEntityArb.kt`·`MemoRemoteEntityArb.kt`)로 둔다. enum은 `Arb.enum<T>()`, object는 `Arb.constant(T)`를 그대로 쓰고 별도 규칙을 두지 않는다. sealed 타입은 하위 타입 규칙을 `Arb.choice`로 묶는다. 생성자가 private인 타입은 공개된 생성 경로로 만든다(`Arb.length()`).
 
-엔티티와 모델의 일부 필드를 고정한 규칙(`Arb.localTag(isFinished, isDeleted)` 등)은 `Arb`를 돌려주는 `Arb.Companion` 확장 함수로, 여러 조건을 나열하는 목록(`contactDetailCaseList()` 등)은 일반 함수로 `:core:testing`에 둔다. 무작위 기본값이 필요한 파라미터는 `title: String? = null`로 받아 `arbitrary` 안에서 `title ?: ...`로 채워, 같은 `Arb`에서 꺼낸 값마다 새로 만들어지게 한다. 두 모듈 이상의 테스트가 같은 타입을 만들면 그 규칙은 `:core:testing`으로 옮긴다. `:core:testing`이 의존할 수 없는 타입(feature·compose·domain·impl 모듈의 타입)은 그 타입을 쓰는 모듈의 `commonTest`에 `internal`로 둔다. 다만 그 모듈에 `jvmTest` 테스트가 없으면 `commonTest`의 소스만으로도 `jvmTest`가 테스트를 찾지 못해 실패하므로, 쓰는 소스셋(`androidHostTest`)에 둔다. `androidMain`에만 있는 타입도 `androidHostTest`에 둔다.
+엔티티와 모델의 일부 필드를 고정한 규칙(`Arb.tag(isFinished, isDeleted)`, `Arb.localTag(isFinished, isDeleted)` 등)은 `Arb`를 돌려주는 `Arb.Companion` 확장 함수로, 여러 조건을 나열하는 목록(`memoCaseList()`, `contactDetailCaseList()` 등)은 일반 함수로 둔다. 모델만 다루면 `:core:testing`의 `XxxFixture.kt`에, 엔티티가 드러나면 `:core:data-testing`의 같은 이름 파일에 둔다. 무작위 기본값이 필요한 파라미터는 `title: String? = null`로 받아 `arbitrary` 안에서 `title ?: ...`로 채워, 같은 `Arb`에서 꺼낸 값마다 새로 만들어지게 한다. 두 모듈 이상의 테스트가 같은 타입을 만들면 그 규칙은 타입에 따라 `:core:testing`이나 `:core:data-testing`으로 옮긴다. 두 모듈이 의존할 수 없는 타입(feature·compose·domain·impl 모듈의 타입)은 그 타입을 쓰는 모듈의 `commonTest`에 `internal`로 둔다. 다만 그 모듈에 `jvmTest` 테스트가 없으면 `commonTest`의 소스만으로도 `jvmTest`가 테스트를 찾지 못해 실패하므로, 쓰는 소스셋(`androidHostTest`)에 둔다. `androidMain`에만 있는 타입도 `androidHostTest`에 둔다.
 
 fixture는 최상위 프로퍼티가 아니라 각 테스트 본문 안에서 생성한다. 테스트마다 다른 값이 생성되어 테스트 간 상관관계가 없고, 실패한 테스트에 쓰인 값을 그 테스트 안에서 바로 확인할 수 있다.
 
@@ -115,6 +118,7 @@ Compose UI 테스트는 `androidHostTest`에서 Robolectric을 사용해 작성�
 - 애니메이션 suspend 함수처럼 `MonotonicFrameClock` 등 Compose 런타임 서비스가 필요한 동작은 `jvmTest`에서 클록을 직접 구현하지 않고, `androidHostTest`에서 Compose 테스트 규칙이 제공하는 클록으로 검증한다. 상태 홀더는 생성자로 만들고 `setContent`의 `LaunchedEffect`에서 동작을 실행한 뒤 `waitForIdle`로 완료를 기다린다.
 - `rememberXxxState`처럼 Composable 팩토리가 제공하는 초기화, 같은 Composition 안의 인스턴스 유지, 저장·복원 동작은 그 팩토리로 상태를 생성해 `androidHostTest`에서 별도로 검증한다.
 - 스펙이 화면 재생성 후 상태 유지를 요구하고 팩토리가 `rememberSaveable` 또는 저장 가능한 내비게이션 상태를 쓰면 `StateRestorationTester`로 실제 복원을 검증한다. 이 테스트를 생성자 기반 상태 전이 테스트로 대체하지 않는다.
+- 시스템이 앱을 정리한 뒤 복원하는 경우를 `StateRestorationTester`로 흉내 낼 때는, 복원된 화면이 쓸 새 ViewModel(새 화면 객체)을 담는 변수를 snapshot state(`mutableStateOf`)가 아닌 일반 `var`로 두고 `emulateSavedInstanceStateRestore()` 직전에 바꾼다. state로 두면 저장하기 전에 옛 composition이 새 ViewModel로 다시 구성되어, 실제와 달리 불러오기 전 상태에서 저장이 일어난다. 실제로는 옛 화면 상태에서 저장되고 복원된 화면이 새 ViewModel과 새로 전달되는 생명주기 이벤트로 처음부터 구성된다. 화면을 떠났다 다시 들어오는 경우처럼 composition을 바꿔 끼워야 하는 변수는 state로 둔다.
 - `StateRestorationTester.setContent`에서 최신 상태 홀더를 캡처하고, 상태 변경과 검증은 `runOnIdle`에서 수행한다. 복원 후에는 현재 화면뿐 아니라 스펙이 요구하는 뒤로가기 결과처럼 관찰되는 전환 이력도 검증한다.
 - Pager나 Flow의 결과가 이어서 전달되기를 기다리는 Robolectric 화면 테스트는 테스트마다 시작 전에 `AndroidUiDispatcher.Main`의 남은 예약 상태를 비운다. 조회 결과는 앱 전체가 함께 쓰는 이 디스패처로 화면에 전달되는데, Robolectric은 테스트가 끝날 때 메인 스레드 대기열만 비우고 디스패처는 "이미 예약했다"는 표시와 앞선 테스트가 남긴 작업을 그대로 들고 있어 뒤이은 테스트의 작업을 다시 예약하지 않는다. 비우지 않으면 앞선 테스트에 따라 결과가 전달되지 않아 전체 실행에서만 실패한다. 비우는 함수는 모듈의 `androidHostTest` 루트 패키지에 있는 `AndroidUiDispatcherTestReset.kt`의 `resetAndroidUiDispatcher()`를 `@Before`에서 부르고, 그 파일이 없는 모듈에는 같은 파일을 둔다.
 - `FileProvider`로 파일 URI를 만드는 Robolectric 테스트는 테스트마다 시작 전에 `FileProvider`의 정적 경로 캐시(`sCache`)를 비운다. `FileProvider`는 처음 찾은 폴더 경로를 정적으로 기억하는데, Robolectric은 테스트마다 앱 폴더를 새로 만들어 이전 테스트의 경로가 남는다. 비우지 않으면 새 폴더의 파일이 설정한 경로 밖에 있다고 판단해 URI를 만들지 못한다.

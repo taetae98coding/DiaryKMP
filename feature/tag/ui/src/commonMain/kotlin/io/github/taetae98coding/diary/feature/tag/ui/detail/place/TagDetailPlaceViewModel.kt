@@ -15,11 +15,11 @@ import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetTagPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PageTagPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListItemDeleteActions
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
@@ -40,8 +39,8 @@ internal class TagDetailPlaceViewModel(
     @InjectedParam tagId: Uuid,
     getTagPlaceListUseCase: GetTagPlaceListUseCase,
     pageTagPlaceUseCase: PageTagPlaceUseCase,
-    private val deletePlaceUseCase: DeletePlaceUseCase,
-    private val restorePlaceUseCase: RestorePlaceUseCase,
+    deletePlaceUseCase: DeletePlaceUseCase,
+    restorePlaceUseCase: RestorePlaceUseCase,
 ) : ViewModel() {
     private val visibleBounds = MutableStateFlow<CoordinateBounds?>(null)
 
@@ -79,11 +78,14 @@ internal class TagDetailPlaceViewModel(
                     .map { result -> result.getOrElse { PagingData.empty() } }
             }.cachedIn(viewModelScope)
 
-    private val _effect = Channel<PlaceListEffect>(Channel.BUFFERED)
-    val effect: Flow<PlaceListEffect> = _effect.receiveAsFlow()
+    private val placeActions =
+        ListItemDeleteActions<PlaceListEffect>(
+            deleteUseCase = deletePlaceUseCase,
+            restoreUseCase = restorePlaceUseCase,
+            deletedEffect = PlaceListEffect::Deleted,
+        )
 
-    private val inProgressDeleteIdSet = mutableSetOf<Uuid>()
-    private val inProgressRestoreIdSet = mutableSetOf<Uuid>()
+    val effect: Flow<PlaceListEffect> = placeActions.effect
 
     fun updateVisibleBounds(bounds: CoordinateBounds?) {
         visibleBounds.value = bounds
@@ -98,27 +100,10 @@ internal class TagDetailPlaceViewModel(
     }
 
     fun delete(id: Uuid) {
-        if (!inProgressDeleteIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                deletePlaceUseCase(parameter = id)
-                    .onSuccess { _effect.send(PlaceListEffect.Deleted(id = id)) }
-            } finally {
-                inProgressDeleteIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { placeActions.delete(id = id) }
     }
 
     fun restore(id: Uuid) {
-        if (!inProgressRestoreIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                restorePlaceUseCase(parameter = id)
-            } finally {
-                inProgressRestoreIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { placeActions.restore(id = id) }
     }
 }

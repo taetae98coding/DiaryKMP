@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.height
 import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PICKER_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldBeEmpty

@@ -15,7 +15,7 @@ internal class HolidayRemoteDataSourceImpl(
     @CalendarHttpClient
     private val httpClient: HttpClient,
 ) : HolidayRemoteDataSource {
-    override suspend fun get(
+    override suspend fun read(
         country: HolidayCountryRemoteEntity,
         year: Int,
     ): List<HolidayRemoteEntity> {

@@ -1,6 +1,6 @@
 # Navigation 규칙
 
-화면 키(`NavKey`)와 딥링크를 어느 모듈이 소유하는지를 소유한다. 코루틴과 생명주기는 [main-safety.md](main-safety.md)와 [compose.md](compose.md)가 소유한다.
+화면 키(`NavKey`)와 딥링크를 어느 모듈이 소유하는지와, 화면 사이에 결과를 어떻게 돌려주는지를 소유한다. 코루틴과 생명주기는 [main-safety.md](main-safety.md)와 [compose.md](compose.md)가 소유한다.
 
 ## 화면과 딥링크는 feature ui가 Koin에 등록하고 앱이 모은다
 
@@ -11,6 +11,7 @@
 - 등록을 빠뜨리면 컴파일이 잡지 못하고 그 화면을 열 때 실패하므로, `AppEntryInstallerTest`가 앱과 같은 Koin 구성에서 꺼낸 `AppDependencies`로 저장 가능한 모든 화면 키에 entry가 있는지 확인한다.
 - 화면의 플랫폼 보조 class(파일 선택기 등)는 등록 클래스가 `XxxFactory`를 생성자로 받아 entry 함수의 인자로 내려보낸다([di.md](di.md)).
 - entry 함수(`fileEntry` 등)는 internal로 두어 앱이 등록을 거치지 않고 부르지 못하게 한다. 여러 feature의 화면을 함께 배치하는 `app:shared` 테스트도 앱과 같은 Koin 구성에서 모은 등록으로 entry를 만든다.
+- **앱이 내비게이션 바 표시를 정할 때 필요한 화면의 성질은 `ScreenNavKey`의 getter 프로퍼티로 화면 키가 알린다.** 아래 화면 위에 겹쳐 열리는 화면은 `isOverlay`를, 주요 목적지 목록의 상세 영역에 놓이는 화면은 `topLevelListKey`를 override하고, `AppState`는 feature의 화면 키 타입을 분기하지 않고 이 값만 읽는다. backing field를 두면 저장 상태에 함께 직렬화되므로 `screenName`처럼 getter로만 선언한다.
 
 ### 딥링크
 
@@ -22,6 +23,24 @@
 - 딥링크로 여는 상세는 화면 키의 `isStandalone = true`로 연다. 목록·상세 배치는 바로 아래 화면이 그 목록인지만 보고 참여를 판정하므로, 표시 없이 열면 목록을 보던 중 들어온 딥링크의 상세가 그 목록의 상세 영역에 놓인다. 화면 안에서 목록 항목을 눌러 여는 경로는 기본값(`false`)을 쓴다.
 
 새 화면에 딥링크를 더할 때는 `ScreenDeepLink` 상수와 ui의 등록 클래스만 바뀐다. `AppState`에 화면별 분기나 `openXxx` 함수를 두지 않는다.
+
+## 화면 간 결과 전달
+
+**다른 화면이 만든 결과(추가한 항목의 id 등)는 Navigation 3의 `ResultEventBus`로 돌려받는다.** `AppNavigation`이 `LocalResultEventBus`로 하나를 제공한다.
+
+- 결과 타입과 결과 키 함수는 결과를 보내는 화면의 `feature:*:api`에 둔다(`ContactAddedResult`, `contactAddedResultKey(requestKey)`). 같은 feature 안에서만 주고받는 결과는 `feature:*:ui`에 `internal`로 둔다(`QrScannedResult`).
+- 다른 feature의 화면을 열어 결과를 받는 화면은 entry에서 `compose:core`의 `rememberResultRequestKey()`로 요청 키를 만들어, 여는 화면 키에 실어 보낸다(`TagAddNavKey(requestKey = addRequestKey)`). 결과 키에 요청 키가 들어가므로 같은 결과를 기다리는 화면이 백스택에 둘 이상 있어도 요청한 화면만 받는다.
+- 보내는 화면은 화면 키의 `requestKey`가 `null`이 아닐 때만 `resultEventBus.sendResult(resultKey = ..., result = ...)`로 보낸다. 결과를 기다리는 화면 없이 열린 경우다.
+- 받는 쪽은 `XxxResultEffect` 컴포저블에서 `ResultEffect<T>(resultKey = ...)`로 받아 콜백으로 넘긴다(`MemoContactAddedResultEffect`). `ResultEventBus`는 `resultEventBus: ResultEventBus = LocalResultEventBus.current` 파라미터로 받는다.
+
+## 화면을 여는 콜백의 중복 이동
+
+**사용자 조작으로 불리고 백스택에 화면 키를 더하기만 하는 `navigateToXxx` 콜백은 entry에서 `dropUnlessResumed { }`로 감싸 Screen에 넘긴다.** `NavBackStack.add`는 같은 키도 그대로 쌓고, `NavDisplay`는 전환이 끝나기 전까지 entry의 `LocalLifecycleOwner`를 `STARTED`로 묶어 두므로, 감싼 콜백은 연타나 전환 중 클릭을 버린다. 인자를 받는 콜백은 `compose:core`의 `dropUnlessResumedWithArg { id -> }`를 쓴다. Screen과 Scaffold는 감싸지 않는다.
+
+다음은 감싸지 않는다.
+
+- 여러 번 불려도 화면이 하나만 남는 이동. 상세 영역의 키를 걷어 내고 더하는 `core:navigation`의 `navigateToDetail` 계열(`navigateToMemoDetail` 등)과 `navigateToSettingDetail`, 필터 시트를 닫고 여는 `navigateToTagAddFromFilter`가 그렇다. 목록·상세 배치에서 전환 중에 다른 항목을 고르는 것도 받아야 한다.
+- `RESUMED`가 아닐 때도 실행되어야 하는 이동. `navigateUp`, 딥링크, Effect가 부르는 이동(`navigateToCopiedMemo`, `navigateToGeminiSetting`, FileHome의 `navigateToAdd`)과 권한 요청 결과로 부르는 이동(`navigateToScan`)이 그렇다. 시스템 화면에서 돌아오는 중에는 아직 `RESUMED`가 아니다.
 
 ## 앱 시작 중 받은 딥링크
 

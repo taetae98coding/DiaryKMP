@@ -18,6 +18,8 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -30,7 +32,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [36])
 class AndroidWebViewCookieDataSourceTest {
     private val cookieManager = mockk<CookieManager>(relaxed = true)
-    private val dataSource = AndroidWebViewCookieDataSource(cookieManager = cookieManager)
+    private val dispatcher = StandardTestDispatcher()
+    private val dataSource = AndroidWebViewCookieDataSource(cookieManager = cookieManager, dispatcher = dispatcher)
 
     @Before
     fun setUp() {
@@ -111,7 +114,7 @@ class AndroidWebViewCookieDataSourceTest {
 
     @Test
     fun `TC-f2f9cbff-6f3d-47fe-a8cd-e5e8a527031e 웹 표시 수단의 로그인 정보를 기기에 바로 기록한다`() {
-        runBlocking { dataSource.flush() }
+        runTest(context = dispatcher) { dataSource.flush() }
 
         verify(exactly = 1) { cookieManager.flush() }
     }

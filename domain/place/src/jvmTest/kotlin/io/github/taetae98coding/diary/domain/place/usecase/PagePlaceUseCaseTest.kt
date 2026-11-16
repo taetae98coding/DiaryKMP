@@ -44,9 +44,32 @@ class PagePlaceUseCaseTest :
 
             When("검색어로 장소 목록을 페이지로 조회한다") {
                 Then("현재 계정의 장소를 페이지로 전달한다") {
-                    val pagingData = useCase(parameter = query).first().shouldBeSuccess()
+                    val pagingData = useCase(parameter = PagePlaceUseCase.Parameter(query = query, sort = ListSort.DEFAULT)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe placeList
+                }
+            }
+        }
+
+        Given("로그인한 계정과 정렬 기준으로 조회되는 장소가 준비되어 있다") {
+            val account = Arb.accountUser().next()
+            val placeList = List(2) { place() }
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
+            val accountPlaceRepository = mockk<AccountPlaceRepository>()
+            every { accountPlaceRepository.page(account = account, query = "", sort = ListSort.RECENTLY_UPDATED) } returns flowOf(PagingData.from(placeList))
+            val useCase =
+                PagePlaceUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    accountPlaceRepository = accountPlaceRepository,
+                )
+
+            When("정렬 기준으로 장소 목록을 페이지로 조회한다") {
+                Then("TC-edda8644-9fe2-4b74-b810-abb7c9a12a7a 현재 계정의 장소를 고른 정렬 기준으로 검색어 없이 조회해 페이지로 전달한다") {
+                    val pagingData = useCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.RECENTLY_UPDATED)).first().shouldBeSuccess()
+
+                    flowOf(pagingData).asSnapshot() shouldBe placeList
+                    verify(exactly = 1) { accountPlaceRepository.page(account = account, query = "", sort = ListSort.RECENTLY_UPDATED) }
                 }
             }
         }
@@ -65,7 +88,7 @@ class PagePlaceUseCaseTest :
 
             When("TC-cda116a9-739a-4c75-8747-49ee08e64212 공백만 있는 검색어로 장소 목록을 페이지로 조회한다") {
                 Then("검색어가 없는 것과 같게 조회한다") {
-                    useCase(parameter = "   ").first().shouldBeSuccess()
+                    useCase(parameter = PagePlaceUseCase.Parameter(query = "   ", sort = ListSort.DEFAULT)).first().shouldBeSuccess()
 
                     verify(exactly = 1) { accountPlaceRepository.page(account = account, query = "", sort = ListSort.DEFAULT) }
                 }
@@ -85,10 +108,33 @@ class PagePlaceUseCaseTest :
 
             When("장소 목록을 페이지로 조회한다") {
                 Then("실패를 그대로 전달한다") {
-                    useCase(parameter = "")
+                    useCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT))
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
+                }
+            }
+        }
+
+        Given("현재 계정을 확인할 수 없도록 준비되어 있다") {
+            val throwable = IllegalStateException(Arb.string().next())
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
+            val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
+            val useCase =
+                PagePlaceUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    accountPlaceRepository = accountPlaceRepository,
+                )
+
+            When("정렬 기준으로 장소 목록을 페이지로 조회한다") {
+                Then("TC-8b86ec99-2778-490f-bd5f-772bac789153 실패를 그대로 전달하고 장소를 조회하지 않는다") {
+                    useCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.TITLE))
+                        .first()
+                        .shouldBeFailure()
+                        .shouldBeSameInstanceAs(throwable)
+
+                    verify(exactly = 0) { accountPlaceRepository.page(account = any(), query = any(), sort = any()) }
                 }
             }
         }

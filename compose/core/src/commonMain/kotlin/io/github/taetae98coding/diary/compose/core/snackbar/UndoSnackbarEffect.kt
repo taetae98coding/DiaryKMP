@@ -34,20 +34,3 @@ public fun <T> UndoSnackbarEffect(
         }
     }
 }
-
-@Composable
-public fun <T> UndoSnackbarEffect(
-    actionLabel: String,
-    message: String,
-    onUndo: (T) -> Unit,
-    effect: Flow<T>,
-    snackbarHostState: SnackbarHostState,
-) {
-    UndoSnackbarEffect(
-        actionLabel = actionLabel,
-        message = { message },
-        onUndo = onUndo,
-        effect = effect,
-        hostState = snackbarHostState,
-    )
-}

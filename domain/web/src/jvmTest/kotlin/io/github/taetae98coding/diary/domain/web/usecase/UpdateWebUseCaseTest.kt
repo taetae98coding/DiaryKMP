@@ -39,8 +39,8 @@ class UpdateWebUseCaseTest :
             val detailSlot = slot<WebDetail>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = getAccountUseCase(account = account)
-            val findWebUseCase = findWebUseCase(web = stored)
             val accountWebRepository = mockk<AccountWebRepository>()
+            every { accountWebRepository.find(account = any(), webId = stored.id) } returns flowOf(stored)
             coEvery {
                 accountWebRepository.updateDetail(
                     account = account,
@@ -55,7 +55,6 @@ class UpdateWebUseCaseTest :
                 useCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase,
-                    findWebUseCase = findWebUseCase,
                     accountWebRepository = accountWebRepository,
                     now = now,
                 )
@@ -163,12 +162,12 @@ class UpdateWebUseCaseTest :
                 val stored = web()
                 val getAccountUseCase = getAccountUseCase(account = account)
                 val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
+                every { accountWebRepository.find(account = any(), webId = stored.id) } returns flowOf(stored)
                 val requestSyncUseCase = requestSyncUseCase()
                 val useCase =
                     useCase(
                         getAccountUseCase = getAccountUseCase,
                         requestSyncUseCase = requestSyncUseCase,
-                        findWebUseCase = findWebUseCase(web = stored),
                         accountWebRepository = accountWebRepository,
                     )
 
@@ -199,6 +198,7 @@ class UpdateWebUseCaseTest :
             val account = Arb.accountUser().next()
             val stored = web()
             val accountWebRepository = mockk<AccountWebRepository>()
+            every { accountWebRepository.find(account = any(), webId = stored.id) } returns flowOf(stored)
             coEvery {
                 accountWebRepository.updateDetail(account = account, webId = stored.id, detail = any(), updatedAt = any())
             } returns 1
@@ -208,7 +208,6 @@ class UpdateWebUseCaseTest :
                 useCase(
                     getAccountUseCase = getAccountUseCase(account = account),
                     requestSyncUseCase = requestSyncUseCase,
-                    findWebUseCase = findWebUseCase(web = stored),
                     accountWebRepository = accountWebRepository,
                 )
 
@@ -224,11 +223,11 @@ class UpdateWebUseCaseTest :
         Given("게스트 계정이 준비되어 있다") {
             val stored = web()
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
+            every { accountWebRepository.find(account = any(), webId = stored.id) } returns flowOf(stored)
             val useCase =
                 useCase(
                     getAccountUseCase = getAccountUseCase(account = Account.Guest),
                     requestSyncUseCase = requestSyncUseCase(),
-                    findWebUseCase = findWebUseCase(web = stored),
                     accountWebRepository = accountWebRepository,
                 )
 
@@ -252,7 +251,6 @@ class UpdateWebUseCaseTest :
                 useCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase(),
-                    findWebUseCase = findWebUseCase(web = web()),
                     accountWebRepository = accountWebRepository,
                 )
 
@@ -274,6 +272,7 @@ class UpdateWebUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val stored = web()
             val accountWebRepository = mockk<AccountWebRepository>()
+            every { accountWebRepository.find(account = any(), webId = stored.id) } returns flowOf(stored)
             coEvery {
                 accountWebRepository.updateDetail(account = account, webId = any(), detail = any(), updatedAt = any())
             } throws throwable
@@ -282,7 +281,6 @@ class UpdateWebUseCaseTest :
                 useCase(
                     getAccountUseCase = getAccountUseCase(account = account),
                     requestSyncUseCase = requestSyncUseCase,
-                    findWebUseCase = findWebUseCase(web = stored),
                     accountWebRepository = accountWebRepository,
                 )
 
@@ -301,7 +299,6 @@ class UpdateWebUseCaseTest :
         private fun useCase(
             getAccountUseCase: GetAccountUseCase,
             requestSyncUseCase: RequestSyncUseCase,
-            findWebUseCase: FindWebUseCase,
             accountWebRepository: AccountWebRepository,
             now: Instant? = null,
         ): UpdateWebUseCase {
@@ -315,7 +312,6 @@ class UpdateWebUseCaseTest :
             return UpdateWebUseCase(
                 getAccountUseCase = getAccountUseCase,
                 requestSyncUseCase = requestSyncUseCase,
-                findWebUseCase = findWebUseCase,
                 accountWebRepository = accountWebRepository,
                 clock = clock,
             )
@@ -324,13 +320,6 @@ class UpdateWebUseCaseTest :
         private fun getAccountUseCase(account: Account): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
             every { useCase() } returns flowOf(Result.success(account))
-
-            return useCase
-        }
-
-        private fun findWebUseCase(web: Web): FindWebUseCase {
-            val useCase = mockk<FindWebUseCase>()
-            every { useCase(parameter = web.id) } returns flowOf(Result.success(web))
 
             return useCase
         }

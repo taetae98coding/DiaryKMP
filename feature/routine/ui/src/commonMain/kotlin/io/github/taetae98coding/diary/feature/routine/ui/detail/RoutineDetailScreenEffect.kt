@@ -14,7 +14,7 @@ import io.github.taetae98coding.diary.feature.routine.ui.form.RoutineAmountInput
 import io.github.taetae98coding.diary.feature.routine.ui.routine_amount_per_record_invalid_message
 import io.github.taetae98coding.diary.feature.routine.ui.routine_detail_update_succeeded_message
 import io.github.taetae98coding.diary.feature.routine.ui.routine_goal_amount_invalid_message
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -39,11 +39,11 @@ internal fun RoutineDetailScreenEffect(
             }
 
             is RoutineDetailEffect.GoalAmountInvalid -> {
-                coroutineScope.showAmountInvalid(state = state, amountState = state.formState.goalAmountState, message = goalAmountInvalidMessage)
+                coroutineScope.launch { showAmountInvalid(state = state, amountState = state.formState.goalAmountState, message = goalAmountInvalidMessage) }
             }
 
             is RoutineDetailEffect.AmountPerRecordInvalid -> {
-                coroutineScope.showAmountInvalid(state = state, amountState = state.formState.amountPerRecordState, message = amountPerRecordInvalidMessage)
+                coroutineScope.launch { showAmountInvalid(state = state, amountState = state.formState.amountPerRecordState, message = amountPerRecordInvalidMessage) }
             }
 
             is RoutineDetailEffect.DeleteSucceeded -> {
@@ -84,11 +84,13 @@ internal fun RoutineDetailRecordDateRangeEffect(
     }
 }
 
-private fun CoroutineScope.showAmountInvalid(
+private suspend fun showAmountInvalid(
     state: RoutineDetailScaffoldState,
     amountState: RoutineAmountInputState,
     message: String,
 ) {
-    launch { state.focusAmount(amountState = amountState) }
-    launch { state.formState.snackbarHostState.showImmediate(message = message) }
+    coroutineScope {
+        launch { state.focusAmount(amountState = amountState) }
+        state.formState.snackbarHostState.showImmediate(message = message)
+    }
 }

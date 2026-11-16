@@ -41,8 +41,8 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -57,7 +57,7 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
@@ -642,14 +642,14 @@ class MemoEntryNavigationTest {
         every { getMemoFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
         every { getMemoExistenceFilterUseCase() } returns flowOf(Result.success(MemoExistenceFilter()))
-        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-        every { pageMemoHomeUseCase(parameter = any()) } returns storedHomeMemoList.map { memoList -> Result.success(PagingData.from(memoList)) }
+        val pageMemoUseCase = mockk<PageMemoUseCase>()
+        every { pageMemoUseCase(parameter = any()) } returns storedHomeMemoList.map { memoList -> Result.success(PagingData.from(memoList)) }
 
         return MemoHomeViewModel(
             getMemoFilterUseCase = getMemoFilterUseCase,
             getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
             getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
-            pageMemoHomeUseCase = pageMemoHomeUseCase,
+            pageMemoUseCase = pageMemoUseCase,
             finishMemoUseCase = mockk(),
             restartMemoUseCase = mockk(),
             deleteMemoUseCase = mockk(),

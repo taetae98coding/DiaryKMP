@@ -10,8 +10,6 @@ import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerDialo
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerText
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.Res
 import io.github.taetae98coding.diary.compose.tag.entity_tag_add_action
 import io.github.taetae98coding.diary.compose.tag.entity_tag_picker_add_label
@@ -20,6 +18,8 @@ import io.github.taetae98coding.diary.compose.tag.entity_tag_picker_search_empty
 import io.github.taetae98coding.diary.compose.tag.entity_tag_picker_search_placeholder
 import io.github.taetae98coding.diary.compose.tag.entity_tag_picker_title
 import io.github.taetae98coding.diary.compose.tag.previewTag
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource

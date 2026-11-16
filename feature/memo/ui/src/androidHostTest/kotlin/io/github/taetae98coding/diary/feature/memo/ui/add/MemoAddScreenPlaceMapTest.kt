@@ -740,7 +740,7 @@ class MemoAddScreenPlaceMapTest {
     ): MemoAddPlaceViewModel {
         val pagePlaceUseCase = mockk<PagePlaceUseCase>()
         every { pagePlaceUseCase(parameter = any()) } answers {
-            val query = firstArg<String>().trim()
+            val query = firstArg<PagePlaceUseCase.Parameter>().query.trim()
             placeStore.map { list -> Result.success(placePagingDataOf(list.filter { place -> !place.isDeleted && place.detail.title.contains(query, ignoreCase = true) })) }
         }
 

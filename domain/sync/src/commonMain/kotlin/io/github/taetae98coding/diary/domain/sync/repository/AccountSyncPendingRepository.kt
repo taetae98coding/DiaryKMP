@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import kotlinx.coroutines.flow.Flow
 
 public interface AccountSyncPendingRepository {
-    public fun find(account: Account): Flow<Boolean>
+    public fun getPendingExists(account: Account): Flow<Boolean>
 }

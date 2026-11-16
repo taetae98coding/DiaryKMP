@@ -22,6 +22,7 @@ Repository는 행위 해석을 담지 않고 데이터 조작을 그대로 가�
 | `addXxx`, `removeXxx` | 다수 관계인 집합에서 항목 하나를 넣고 뺀다. 예: `addHiddenKey`, `removeHiddenKey` |
 | `setXxx`, `unsetXxx` | 최대 하나인 단일 값을 지정하고 지운다. 예: `setDefaultProvider` |
 | `submitXxx` | 집합 전체를 한 번에 교체한다. 항목별 조작으로 표현하면 중간 상태가 관찰되는 일괄 변경에 쓴다. 예: `submitHiddenKeySet` |
+| `isXxx` | 지원·가능 여부처럼 값이 바뀌는 것을 관찰하지 않고 한 번 답하는 질의. `suspend`가 아닌 함수로 `Boolean`을 반환한다. 예: `FileDownloadSettingRepository.isDirectorySelectable`, `McpServerManager.isSupported` |
 | `requestXxx`, `scheduleXxx`, `cancelXxx`, `startXxx`/`stopXxx` | Manager가 작업을 실행 수단에 넣거나 예약·취소하고, 관찰 구간을 열고 닫는다. 예: `SyncManager.requestSync`, `schedulePeriodicSync`, `cancelPeriodicSync` |
 
 이 표는 `domain:*`의 Repository·Manager 이름을 정한다. `core:*` DataSource·Transaction의 이름은 [data.md](data.md)의 `DataSource 연산 이름`을 따른다.

@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.compose.calendar
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 
 public object CalendarItemDefaults {
     private val LightNonHolidayNameColor = Color(color = 0xFFBDBDBD)

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.database.impl.routine.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutine
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCycleLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineSummaryLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -8,7 +9,6 @@ import io.github.taetae98coding.diary.core.database.impl.routine.insertRoutineRe
 import io.github.taetae98coding.diary.core.database.impl.routine.routineCurrentCycleOf
 import io.github.taetae98coding.diary.core.database.impl.routine.routineTestDatabase
 import io.github.taetae98coding.diary.core.database.impl.routinerecord.datasource.AccountRoutineRecordLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.routine.localRoutine
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

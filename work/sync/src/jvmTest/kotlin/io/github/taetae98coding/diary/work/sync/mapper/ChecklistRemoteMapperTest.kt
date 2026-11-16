@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.checklist.checklistLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.checklistitem.checklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.network.api.checklistitem.entity.ChecklistItemRemoteEntity
-import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
-import io.github.taetae98coding.diary.core.testing.checklistitem.checklistItemLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

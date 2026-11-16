@@ -26,13 +26,14 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.RoutineListEvent
 import io.github.taetae98coding.diary.compose.routine.RoutineListState
 import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.routine.CalendarRoutineRecord
 import io.github.taetae98coding.diary.core.testing.routine.calendarRoutineRecord
+import io.github.taetae98coding.diary.feature.core.routine.UpdateRoutineTodayEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.FetchCalendarRecordEffect
 import io.github.taetae98coding.diary.feature.routine.ui.home.FetchHolidayEffect
@@ -41,7 +42,6 @@ import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScaffol
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScaffoldState
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.ScrollToStartOnReselectEffect
-import io.github.taetae98coding.diary.feature.routine.ui.home.UpdateRoutineHomeTodayEffect
 import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.holiday.RoutineHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.holiday.RoutineHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.rememberRoutineHomeScaffoldState
@@ -341,9 +341,9 @@ private fun RoutineHomeCalendarTestEffect(
     homeReselectEvent: Flow<Unit>,
 ) {
     UpdateRoutineListTodayEffect(state = state.listState)
-    UpdateRoutineHomeTodayEffect(
-        routineViewModel = routineViewModel,
-        state = state,
+    UpdateRoutineTodayEffect(
+        onUpdate = routineViewModel::updateToday,
+        listState = state.listState,
     )
     FetchCalendarRecordEffect(
         calendarViewModel = calendarViewModel,

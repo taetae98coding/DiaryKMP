@@ -135,8 +135,7 @@ class FileDetailScreenRetentionTest {
     @Test
     fun `TC-01b1ffb1-c07e-4123-a10e-208093cf0131 시스템이 앱을 정리한 뒤 복원하면 다시 불러오고 입력은 복원한다`() {
         val file = Arb.nonBlankDiaryFile().next().copy(title = DOCUMENTED_OLD_TITLE)
-        // 시스템이 앱을 정리하면 ViewModel도 새로 만들어지므로, 복원하는 순간 새 화면 상태로 바꾼다.
-        var screen by mutableStateOf(FileDetailTestScreen(mocks = FileDetailMocks(file = file)))
+        var screen = FileDetailTestScreen(mocks = FileDetailMocks(file = file))
         screen.mocks.downloadAnswer = { awaitCancellation() }
         val tester = StateRestorationTester(composeRule)
 

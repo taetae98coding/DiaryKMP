@@ -16,8 +16,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.calendar.search.holidaySearchUri
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
@@ -170,7 +170,6 @@ class CalendarHomeScreenHolidaySearchTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 
         composeRule.setContent {
@@ -191,6 +190,7 @@ class CalendarHomeScreenHolidaySearchTest {
                         state = state,
                         holidayViewModel = holidayViewModel,
                         memoViewModel = memoViewModel,
+                        filterViewModel = filterViewModel(),
                         weatherViewModel = weatherViewModel(),
                         syncViewModel = syncViewModel(),
                         permissionManager = rememberPermissionManager(),

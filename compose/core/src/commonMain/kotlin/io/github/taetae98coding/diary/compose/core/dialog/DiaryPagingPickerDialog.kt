@@ -20,9 +20,9 @@ import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import kotlinx.coroutines.flow.flowOf
 
 public const val DIARY_PAGING_PICKER_LIST_TEST_TAG: String = "DiaryPagingPickerList"

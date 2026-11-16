@@ -31,6 +31,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +43,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -343,10 +345,17 @@ class ContactHomeViewModelTest : FunSpec() {
         test("TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 같은 연락처의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
+                val gate = CompletableDeferred<Unit>()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
-                coEvery { deleteContactUseCase(parameter = id) } returns Result.success(1)
+                coEvery { deleteContactUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
                 val restoreContactUseCase = mockk<RestoreContactUseCase>()
-                coEvery { restoreContactUseCase(parameter = id) } returns Result.success(1)
+                coEvery { restoreContactUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
                 val viewModel =
                     viewModel(
                         pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
@@ -358,6 +367,8 @@ class ContactHomeViewModelTest : FunSpec() {
                 viewModel.delete(id = id)
                 viewModel.restore(id = id)
                 viewModel.restore(id = id)
+                runCurrent()
+                gate.complete(Unit)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { deleteContactUseCase(parameter = id) }

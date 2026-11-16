@@ -62,7 +62,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRestorableMemoAddScreen {
                 screenTestRealViewModel(initialPrimaryTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
             }
-        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(id = otherTag.id) }
+        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
 
@@ -80,7 +80,7 @@ class MemoAddScreenMemoryRestoreTest {
     fun `TC-a4cdefb7-ef84-44c5-bab8-f8828ce45883 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 장소가 유지되지 않는다`() {
         val place = testPlace(title = PLACE_TITLE)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(placeList = listOf(place)) }
-        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(id = place.id) }
+        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(placeId = place.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(PLACE_TITLE).assertExists()
 
@@ -93,7 +93,7 @@ class MemoAddScreenMemoryRestoreTest {
     fun `TC-81245be2-b619-4a1a-840a-f1be2758cbf3 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 웹 항목이 유지되지 않는다`() {
         val web = testWeb(title = WEB_TITLE)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(webList = listOf(web)) }
-        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(id = web.id) }
+        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(webId = web.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(WEB_TITLE).assertExists()
 
@@ -106,7 +106,7 @@ class MemoAddScreenMemoryRestoreTest {
     fun `TC-2903649b-8a21-4f71-b1f3-5667f5786470 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 연락처가 유지되지 않는다`() {
         val contact = testContact(name = CONTACT_NAME)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(contactList = listOf(contact)) }
-        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = contact.contact.id) }
+        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(contactId = contact.contact.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(CONTACT_NAME).assertExists()
 
@@ -157,7 +157,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialPrimaryTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
             }
-        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(id = otherTag.id) }
+        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(TARGET_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
@@ -183,7 +183,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialContactId = targetContact.contact.id, contactList = listOf(targetContact, otherContact))
             }
-        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = otherContact.contact.id) }
+        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(contactId = otherContact.contact.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(CONTACT_NAME).assertExists()
         composeRule.onNodeWithText(OTHER_CONTACT_NAME).assertExists()
@@ -205,7 +205,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialPlaceId = targetPlace.id, placeList = listOf(targetPlace, otherPlace))
             }
-        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(id = otherPlace.id) }
+        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(placeId = otherPlace.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(PLACE_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_PLACE_TITLE).assertExists()
@@ -227,7 +227,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialWebId = targetWeb.id, webList = listOf(targetWeb, otherWeb))
             }
-        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(id = otherWeb.id) }
+        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(webId = otherWeb.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(WEB_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_WEB_TITLE).assertExists()
@@ -278,11 +278,11 @@ class MemoAddScreenMemoryRestoreTest {
                 )
             }
         composeRule.runOnIdle {
-            viewModelsList.last().tagViewModel.selectTag(id = firstTag.id)
-            viewModelsList.last().tagViewModel.selectPrimaryTag(id = secondTag.id)
-            viewModelsList.last().webViewModel.selectWeb(id = web.id)
-            viewModelsList.last().contactViewModel.selectContact(id = contact.contact.id)
-            viewModelsList.last().placeViewModel.selectPlace(id = place.id)
+            viewModelsList.last().tagViewModel.selectTag(tagId = firstTag.id)
+            viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = secondTag.id)
+            viewModelsList.last().webViewModel.selectWeb(webId = web.id)
+            viewModelsList.last().contactViewModel.selectContact(contactId = contact.contact.id)
+            viewModelsList.last().placeViewModel.selectPlace(placeId = place.id)
         }
         composeRule.waitForIdle()
         listOf(TARGET_TAG_TITLE, OTHER_TAG_TITLE, WEB_TITLE, CONTACT_NAME, PLACE_TITLE).forEach { text ->

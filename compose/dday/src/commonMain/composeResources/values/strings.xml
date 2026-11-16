@@ -16,6 +16,5 @@
     </plurals>
     <string name="dday_card_period_year_month">%1$s %2$s</string>
     <string name="dday_list_deleted_message">D-Day deleted.</string>
-    <string name="dday_list_undo_action">Undo</string>
     <string name="dday_list_delete_content_description">Delete D-Day</string>
 </resources>

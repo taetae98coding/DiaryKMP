@@ -15,7 +15,7 @@ import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.place.ui.appendFailingPagingData
@@ -32,6 +32,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
@@ -326,16 +328,25 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
         test("같은 장소의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
+                val gate = CompletableDeferred<Unit>()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
-                coEvery { deletePlaceUseCase(parameter = id) } returns Result.success(1)
+                coEvery { deletePlaceUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
                 val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
-                coEvery { restorePlaceUseCase(parameter = id) } returns Result.success(1)
+                coEvery { restorePlaceUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
                 val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase, restorePlaceUseCase = restorePlaceUseCase)
 
                 viewModel.delete(id = id)
                 viewModel.delete(id = id)
                 viewModel.restore(id = id)
                 viewModel.restore(id = id)
+                runCurrent()
+                gate.complete(Unit)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { deletePlaceUseCase(parameter = id) }
@@ -372,15 +383,15 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
                 every {
                     getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.RECENTLY_UPDATED))
                 } returns flowOf(Result.success(recentlyUpdatedPlaceList))
-                val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-                every { pagePlaceHomeUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(PagingData.from(titlePlaceList)))
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.TITLE)) } returns flowOf(Result.success(PagingData.from(titlePlaceList)))
                 every {
-                    pagePlaceHomeUseCase(parameter = ListSort.RECENTLY_UPDATED)
+                    pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.RECENTLY_UPDATED))
                 } returns flowOf(Result.success(PagingData.from(recentlyUpdatedPlaceList)))
                 val viewModel =
                     viewModel(
                         getPlaceListUseCase = getPlaceListUseCase,
-                        pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                        pagePlaceUseCase = pagePlaceUseCase,
                     )
 
                 viewModel.placeListFlow().test {
@@ -463,9 +474,9 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             return useCase
         }
 
-        private fun pagePlaceHomeUseCase(placePagingFlow: Flow<Result<PagingData<Place>>>): PagePlaceHomeUseCase {
-            val useCase = mockk<PagePlaceHomeUseCase>()
-            every { useCase(parameter = ListSort.TITLE) } returns placePagingFlow
+        private fun pagePlaceUseCase(placePagingFlow: Flow<Result<PagingData<Place>>>): PagePlaceUseCase {
+            val useCase = mockk<PagePlaceUseCase>()
+            every { useCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.TITLE)) } returns placePagingFlow
 
             return useCase
         }
@@ -473,13 +484,13 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
         private fun viewModel(
             getPlaceListUseCase: GetPlaceListUseCase = getPlaceListUseCase(),
             placePagingFlow: Flow<Result<PagingData<Place>>> = emptyFlow(),
-            pagePlaceHomeUseCase: PagePlaceHomeUseCase = pagePlaceHomeUseCase(placePagingFlow),
+            pagePlaceUseCase: PagePlaceUseCase = pagePlaceUseCase(placePagingFlow),
             deletePlaceUseCase: DeletePlaceUseCase = mockk(),
             restorePlaceUseCase: RestorePlaceUseCase = mockk(),
         ): PlaceHomePlaceListViewModel =
             PlaceHomePlaceListViewModel(
                 getPlaceListUseCase = getPlaceListUseCase,
-                pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                pagePlaceUseCase = pagePlaceUseCase,
                 deletePlaceUseCase = deletePlaceUseCase,
                 restorePlaceUseCase = restorePlaceUseCase,
             )

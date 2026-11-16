@@ -20,7 +20,13 @@ internal class PlaceSearchViewModel(
     private var lastRequest: PlaceSearchRequest? = null
     private var searchJob: Job? = null
 
+    // 취소된 앞선 검색이 뒤늦게 끝나면서 지금 검색의 진행 표시를 지우지 않도록, 검색마다 번호를 올려 자기 차례일 때만 지운다.
+    private var searchGeneration = 0
+    private var inProgressRequest: PlaceSearchRequest? = null
+
     fun search(request: PlaceSearchRequest) {
+        if (request == inProgressRequest) return
+
         val previousRequest = lastRequest
 
         lastRequest = request
@@ -30,18 +36,27 @@ internal class PlaceSearchViewModel(
             uiState.value = PlaceSearchUiState.Idle
         }
 
+        val generation = ++searchGeneration
+
+        inProgressRequest = request
         searchJob =
             viewModelScope.launch {
-                uiState.value =
-                    fetchSearchedPlaceUseCase(parameter = request.toParameter()).fold(
-                        onSuccess = { placeList -> PlaceSearchUiState.Content(placeList = placeList) },
-                        onFailure = { PlaceSearchUiState.Failed },
-                    )
+                try {
+                    uiState.value =
+                        fetchSearchedPlaceUseCase(parameter = request.toParameter()).fold(
+                            onSuccess = { placeList -> PlaceSearchUiState.Content(placeList = placeList) },
+                            onFailure = { PlaceSearchUiState.Failed },
+                        )
+                } finally {
+                    if (generation == searchGeneration) inProgressRequest = null
+                }
             }
     }
 
     fun clear() {
         lastRequest = null
+        searchGeneration++
+        inProgressRequest = null
         searchJob?.cancel()
         searchJob = null
         uiState.value = PlaceSearchUiState.Idle

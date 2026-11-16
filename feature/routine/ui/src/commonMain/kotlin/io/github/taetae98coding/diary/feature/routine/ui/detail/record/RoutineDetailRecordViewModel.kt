@@ -2,14 +2,13 @@ package io.github.taetae98coding.diary.feature.routine.ui.detail.record
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.routine.RoutineRecord
 import io.github.taetae98coding.diary.domain.routine.usecase.AddRoutineRecordUseCase
 import io.github.taetae98coding.diary.domain.routine.usecase.DeleteRoutineRecordUseCase
 import io.github.taetae98coding.diary.domain.routine.usecase.PageRoutineRecordUseCase
+import io.github.taetae98coding.diary.feature.core.paging.LOADED_EMPTY_LOAD_STATES
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -81,11 +80,3 @@ internal class RoutineDetailRecordViewModel(
         }
     }
 }
-
-// 조회에 실패하면 불러오기가 끝난 빈 목록으로 두어, 불러오는 중이 아니라 기록이 없는 것으로 표시하게 한다.
-private val LOADED_EMPTY_LOAD_STATES: LoadStates =
-    LoadStates(
-        refresh = LoadState.NotLoading(endOfPaginationReached = true),
-        prepend = LoadState.NotLoading(endOfPaginationReached = true),
-        append = LoadState.NotLoading(endOfPaginationReached = true),
-    )

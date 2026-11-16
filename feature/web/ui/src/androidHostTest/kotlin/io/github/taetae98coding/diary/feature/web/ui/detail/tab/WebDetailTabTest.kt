@@ -43,6 +43,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.headerNameInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.headerValueInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.prepareWebDetailTabViewModels
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectViewMode
@@ -263,6 +264,7 @@ class WebDetailTabTest {
                         pageViewModel = memoScreenPageViewModel(),
                         tagViewModel = detailTagScreenTestViewModel(),
                         contentSharerFactory = testContentSharerFactory(),
+                        webViewContent = AndroidWebViewContent(),
                     )
                 }
             }
@@ -307,6 +309,7 @@ class WebDetailTabTest {
                         pageViewModel = launchedPageViewModelList[launchCount],
                         tagViewModel = launchedTagViewModelList[launchCount],
                         contentSharerFactory = testContentSharerFactory(),
+                        webViewContent = AndroidWebViewContent(),
                     )
                 }
             }

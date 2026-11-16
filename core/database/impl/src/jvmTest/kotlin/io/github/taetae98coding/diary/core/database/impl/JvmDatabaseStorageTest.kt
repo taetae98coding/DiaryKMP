@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl
 
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.qr.localQr
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
-import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir

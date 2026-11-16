@@ -16,5 +16,11 @@ kotlin {
                 implementation(projects.library.webkit)
             }
         }
+
+        androidHostTest {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
     }
 }

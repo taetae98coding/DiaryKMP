@@ -117,6 +117,14 @@ ViewModel의 `Flow<XxxEffect>`를 받는 방향은 `UI Effect 수집`을 따른�
 - 부모 컴포저블이 자식의 표시 여부를 정하는 것(Scaffold가 `componentVisibleProvider`로 떠 있는 버튼을 넣을지, 상단 바가 뒤로가기 버튼을 넣을지). 단, 그 결정으로 부모 자신이 통째로 비면 대상이 된다.
 - `DiaryScaleVisibility`, `DiaryScaleFadeVisibility`처럼 표시 전환 자체가 역할인 래퍼.
 
+## `koinViewModel`을 부르는 자리
+
+**`koinViewModel`은 entry 함수(`XxxEntry.kt`), Content, 앱 루트 `App` 세 곳에서만 부른다.** entry 함수는 얻은 ViewModel을 Screen의 인자로 넘기고, Screen·Scaffold·컴포넌트는 부르지 않고 파라미터로 받는다. 그 밖의 Koin 조회는 [di.md](di.md)의 `컨테이너 조회는 진입점에서만 한다`가 막는다.
+
+## `compose:*`의 domain 의존
+
+**`compose:*`는 `core:model`의 모델을 받아 그리고, `domain:*`에서는 표시 값을 계산하는 순수 함수만 쓴다.** UseCase와 Repository는 주입받지 않고, 조회하거나 저장한 결과는 `feature:*`의 ViewModel이 만들어 파라미터로 넘긴다. 같은 계산을 화면과 다른 진입점이 함께 써야 하므로 계산은 domain이 소유하고 컴포넌트는 그 함수를 부르기만 한다. 예: `DDayCard`의 `DDayDetail.count(today)`, `MusicCard`의 `toYoutubeVideoThumbnailOrNull()`, `RoutineCardText`의 `progress`·`achievementRate`·`hasCycleProgress`.
+
 ## ViewModel 파라미터 이름
 
 Screen 컴포저블이 받는 ViewModel 파라미터의 이름은 개수에 따라 정한다.
@@ -148,7 +156,7 @@ Scaffold처럼 사용자 상호작용이 있는 화면 컴포저블은 상호작
 // Scaffold: MemoTagPickerDialogHost(dialogState = state.tagPickerDialogState, onEvent = onTagPickerEvent)
 MemoAddScaffold(
     onEvent = { event -> handleMemoAddEvent(event = event, ...) },
-    onTagPickerEvent = { event -> handleMemoAddTagPickerEvent(event = event, ...) },
+    onTagPickerEvent = { event -> handleMemoTagPickerEvent(event = event, ...) },
 )
 ```
 
@@ -181,7 +189,7 @@ CameraX의 `bindToLifecycle(owner, ...)`처럼 플랫폼 API가 `LifecycleOwner`
 **UI를 그리는 `public`, `internal` 컴포저블에는 Preview를 하나 이상 둔다.** `private` 컴포저블은 필수가 아니지만, 표현이 상태에 따라 갈리면 둔다.
 
 - Preview 함수는 대상과 같은 파일에 `private`으로 두고 이름을 `대상이름Preview`로 한다.
-- 화면 단위는 `@ScreenPreview`, 그 이하 표현 단위는 `@ComponentPreview`, 아이콘 하나만 그리는 컴포저블은 `@IconPreview`(모두 `compose:core`)를 붙이고 본문을 `DiaryTheme`으로 감싼다.
+- 화면 단위는 `@ScreenPreview`, 그 이하 표현 단위는 `@ComponentPreview`, 아이콘 하나만 그리는 컴포저블은 `@IconPreview`(모두 `compose:theme`)를 붙이고 본문을 `DiaryTheme`으로 감싼다.
 
 ### Preview를 두지 않는 컴포저블
 
@@ -189,19 +197,22 @@ CameraX의 `bindToLifecycle(owner, ...)`처럼 플랫폼 API가 `LifecycleOwner`
 
 - **Screen**: ViewModel과 내비게이션을 Scaffold에 연결하는 배선이다. 대신 Scaffold에는 Preview를 반드시 둔다.
 - **Content**: Scaffold 슬롯 안에서 자기 ViewModel을 얻어 표현 컴포저블에 연결하는 배선이다.
+- **Connector**: Screen이나 Content가 얻은 ViewModel을 파라미터로 받아 표현 컴포저블에 연결하는 배선이다. Screen이 여러 ViewModel을 함께 조율해야 해서 Content가 자기 ViewModel을 직접 얻을 수 없거나(`SearchHomeScreen`이 검색어를 함께 넘기는 `SearchHomeMemoConnector` 등), 여러 화면이 ViewModel만 다른 같은 배선을 함께 쓸 때(`EntityDetailMemoConnector`)만 둔다. Content와 마찬가지로 자기 자신은 아무것도 그리지 않고, 위임받는 표현 컴포저블(`SearchHomeMemoList`, `EntityDetailMemoTab`)에 Preview를 둔다.
 - **Effect**, **`rememberXxx` 팩토리**: 아무것도 그리지 않는다.
 
 Content를 빼는 것은 다음 둘을 모두 만족할 때만이다. 하나라도 어긋나면 Preview를 둔다.
 
-- 자기 ViewModel을 직접 얻는다. Screen이 주입해 주는 것을 받기만 하면 Content가 아니다.
+- 자기 ViewModel을 직접 얻는다. Screen이 주입해 주는 것을 받기만 하면 Content가 아니라 Connector다.
 - 자기 자신은 아무것도 그리지 않고 Preview가 있는 표현 컴포저블에 전부 위임한다. 레이아웃, 여백, 분기 표현이 Content 본문에 있으면 안 된다.
+
+**탭이나 페이지처럼 한 entry 안에서 갈리는 Content는 ViewModel 범위를 자기 것으로 좁힌다.** Screen이 `rememberViewModelStoreProvider()`를 만들어 내려보내고, Content가 `rememberViewModelStoreOwner(key = 탭 또는 페이지, provider = viewModelStoreProvider)`로 얻은 owner를 `LocalViewModelStoreOwner`로 제공한 안에서 `koinViewModel`을 부른다(`WebDetailMemoContent`, `HolidayHomeYearContent`). entry의 범위에서 그대로 얻으면 같은 타입의 ViewModel(`SyncRefreshViewModel`, 연도마다 다른 `HolidayHomeYearViewModel`)이 탭과 페이지 사이에 하나로 공유된다. 필터 Bottom Sheet처럼 화면에 하나뿐인 Content(`MemoHomeFilterContent`)는 좁히지 않는다.
 
 ### 상태별 Preview는 @PreviewParameter로 공급
 
 **표현이 상태에 따라 갈리면 상태마다 Preview 함수를 만들지 않고 `@PreviewParameter`로 값을 공급한다.**
 
 - Provider 이름은 값이 되는 타입에 `PreviewParameter`를 붙인다(`MemoDetailUiStatePreviewParameter`). 한 파일에서만 쓰면 그 파일에 `private`으로, 여러 파일이 공유하면 별도 파일에 `internal`로 둔다.
-- `Boolean` 하나로 갈리는 표현은 `compose:core`의 `BooleanPreviewParameter`를 쓴다.
+- `Boolean` 하나로 갈리는 표현은 `compose:theme`의 `BooleanPreviewParameter`를 쓴다.
 - 두 개 이상의 값이 함께 달라지면 Provider 타입을 `Pair`로 두지 않고 의미가 드러나는 `private data class`로 묶는다.
 - 공급한 값에서 파생되는 나머지 인자는 Preview 본문에서 계산한다.
 
@@ -221,8 +232,8 @@ Screen이 만든 인스턴스는 파라미터로 내려보낸다. 요청과 조�
 
 1. 검증할 규칙을 담은 부분을 의도가 드러나는 이름의 컴포저블이나 함수로 분리하고 그것을 직접 테스트한다. 기다림, 재실행 판정, 조건 분기처럼 표현이 아닌 규칙은 Effect 컴포저블로 분리한다.
 2. 분리한 조각을 `internal`로 두어 같은 모듈의 테스트가 직접 구성하게 한다. 파라미터를 늘리지 않는다.
-3. 지도, 웹 표시 수단, 카메라 미리보기처럼 플랫폼 표시 요소를 그리는 부분 때문에 화면을 구성할 수 없으면, 그 부분이 `플랫폼별 표현은 Override로 바꿔 끼운다`의 Override로 그려지는지 확인하고 테스트에서 그 CompositionLocal(`LocalDiaryMapContentOverride` 등)에 대체 구현을 넣는다. Override는 운영에서 플랫폼별 구현을 바꿔 끼우는 경계라 테스트를 위한 슬롯이 아니다. 대체 구현으로 판정하는 것은 그 경계 바깥의 결과뿐이며, 경계 안쪽(실제 렌더링, 플랫폼 입력 처리, 플랫폼이 정하는 생명주기)의 결과는 대체 구현으로 판정하지 않는다.
-4. 그래도 결정적으로 자동화할 수 없으면 자동화하지 않는다. 테스트 케이스 문서에 `작성하지 않는 이유`를 남기고, 통과시키려고 운영 코드의 구조를 바꾸지 않는다. 테스트만을 위해 새 Override를 만들지 않는다.
+3. 지도, 웹 표시 수단, 카메라 미리보기처럼 플랫폼 표시 요소를 그리는 부분 때문에 화면을 구성할 수 없으면, 그 부분이 운영에서 플랫폼별 구현을 바꿔 끼우는 경계로 그려지는지 확인하고 테스트에서 그 경계에 대체 구현을 넣는다. 지도는 `플랫폼별 표현은 Override로 바꿔 끼운다`의 Override라 CompositionLocal(`LocalDiaryMapContentOverride`)에 넣고, 웹 표시 수단과 카메라 미리보기는 [di.md](di.md)의 `XxxContent`(`WebViewContent`, `QrScanCameraPreviewContent`)라 화면 컴포저블의 인자로 넘긴다. 둘 다 운영이 쓰는 경계라 테스트를 위한 슬롯이 아니다. 대체 구현으로 판정하는 것은 그 경계 바깥의 결과뿐이며, 경계 안쪽(실제 렌더링, 플랫폼 입력 처리, 플랫폼이 정하는 생명주기)의 결과는 대체 구현으로 판정하지 않는다.
+4. 그래도 결정적으로 자동화할 수 없으면 자동화하지 않는다. 테스트 케이스 문서에 `작성하지 않는 이유`를 남기고, 통과시키려고 운영 코드의 구조를 바꾸지 않는다. 테스트만을 위해 새 Override나 `XxxContent`를 만들지 않는다.
 
 ## 플랫폼별 표현은 Override로 바꿔 끼운다
 
@@ -233,7 +244,7 @@ Screen이 만든 인스턴스는 파라미터로 내려보낸다. 요청과 조�
 - iOS 구현은 `iosMain`의 `UiKitXxxOverride`로 두고, iOS Compose 루트에서 `ProvideUiKitComponentOverrides`가 한 번에 제공한다. 화면 코드는 플랫폼을 분기하지 않는다.
 - Scope에는 모든 구현이 그리는 데 필요한 값만 둔다. 테스트에서만 읽는 값을 Scope에 더하지 않는다.
 - 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니다. Composable이 만드는 보조 class는 [di.md](di.md)의 `XxxFactory`로, 그 밖의 갈래는 `expect`/`actual`로 나눈다.
-- 플랫폼 구현이 dispatcher나 서버 같은 Koin 의존을 가지면(지도) 그 구현은 의존을 생성자로 받는 class로 두고, `App` 루트가 `AppDependencies`로 받아 제공한다. 한 feature 안에서만 쓰는 표시 요소(QR 카메라 미리보기)는 Override 대신 [di.md](di.md)의 `XxxContent`로 등록 클래스가 주입받는다. 그 플랫폼의 `PlatformXxxOverride` 기본값은 제공이 빠졌음을 알리는 구현으로 둔다([di.md](di.md)의 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`).
+- 플랫폼 구현이 dispatcher나 서버 같은 Koin 의존을 가지면(지도) 그 구현은 의존을 생성자로 받는 class로 두고, `App` 루트가 `AppDependencies`로 받아 제공한다. 한 feature 안에서만 쓰는 표시 요소(QR 카메라 미리보기, 웹 상세의 웹 표시 수단)는 Koin 의존이 없어도 Override 대신 [di.md](di.md)의 `XxxContent`로 등록 클래스가 주입받는다. 표시 요소가 읽는 앱 범위 상태(웹 로그인을 되돌리는 중인지 알리는 `DiaryWebSession`)는 전역 `object`에 두지 않고 `App` 루트가 CompositionLocal(`LocalDiaryWebSession`)로 한 번 제공하며, 기본값은 `App` 없이 그리는 Preview와 테스트가 그대로 동작하는 값으로 둔다. 그 플랫폼의 `PlatformXxxOverride` 기본값은 제공이 빠졌음을 알리는 구현으로 둔다([di.md](di.md)의 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`).
 - 플랫폼별 표현을 두는 공통 컴포넌트는 [플랫폼별 컴포넌트 표현 범위](../../docs/design/platform-presentation.md)의 허용 목록에 있는 것뿐이다. 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3 컴포넌트를 그대로 쓰고 Override를 만들지 않는다. 새 컴포넌트에 플랫폼별 표현이 필요하면 그 문서의 목록에 먼저 더한다. 지도처럼 플랫폼 표시 요소를 그리는 컴포넌트는 이 목록과 관계없이 Override로 둔다.
 
 ## Recomposition Loop (Cyclic Phase Dependency) 금지
@@ -242,6 +253,8 @@ Screen이 만든 인스턴스는 파라미터로 내려보낸다. 요청과 조�
 
 - `IntrinsicSize`는 실측과 다를 수 있으므로(예: Material3 `TextField`의 intrinsic 높이) 쓰면 크기 일치를 검증하는 테스트를 함께 둔다.
 - lazy 컨테이너처럼 custom `Layout`으로 표현할 수 없을 때만 state로 넘기고, `Modifier.layout`이나 `Modifier.offset { }`처럼 배치 단계에서만 읽는다.
+- **`onGloballyPositioned`로 받은 좌표를 state에 저장해 다른 노드를 배치하지 않는다.** 콜백은 배치가 끝난 뒤에 불리므로 첫 프레임은 좌표 없이 배치되고 다음 프레임에 다시 배치된다. 자식을 부모 좌표 기준으로 배치할 때는 부모에 `Modifier.onPlaced`를 붙여 `LayoutCoordinates`를 state가 아닌 `Ref`에 담고 자식의 `Modifier.offset { }`에서 읽는다(`CalendarHomeMoveGhost`). `onPlaced`는 자식이 배치되기 전에 불린다.
+- 제스처처럼 이벤트 시점에만 좌표가 필요하거나 composition 밖 객체에 경계를 기록하는 `Modifier.Node`는 좌표를 노드의 필드나 일반 프로퍼티에 두고 state에 쓰지 않는다(`CalendarDragNode`, `CalendarMoveItem`).
 
 ## 시스템 영역 회피는 Scaffold inset이 맡는다
 
@@ -271,6 +284,25 @@ Robolectric 테스트에서는 `ViewCompat.dispatchApplyWindowInsets`를 `LocalV
 - iOS는 스크롤 영역의 자리와 맨 위 여부를 보고 한 번에 하나를 골라 돌린다. 이 modifier는 붙은 노드의 자리와 `state`의 맨 위 여부를 iOS에 그대로 알린다. 그래서 `verticalScroll`을 쓰는 본문에서는 `verticalScroll`보다 앞에 붙여, 스크롤되는 내용이 아니라 보이는 영역의 자리를 알리게 한다.
 - `DiaryRefreshableGrid`, `DiaryRefreshableStaggeredGrid`, `DiaryInputColumn`, `MemoList`는 안에서 붙이므로 이 컴포넌트를 쓰는 화면은 다시 붙이지 않는다.
 - 본문 안이나 곁의 작은 스크롤 영역에는 붙이지 않는다. 다이얼로그와 Bottom Sheet 안에서는 붙여도 반응하지 않는다. iOS 구현이 화면 위에 창이 떠 있는 동안에는 실행하지 않기 때문이다.
+
+## lazy 목록의 `key`와 `contentType`
+
+**lazy 목록의 반복 항목(`items`, `itemsIndexed`)에는 항목의 안정적인 id로 `key`를 준다.** key는 Android에서 `Bundle`에 저장할 수 있는 타입이어야 하고, paging의 `itemKey { }`가 돌려주는 값도 그대로 key가 되므로 같은 제약을 받는다. `kotlin.uuid.Uuid`는 JVM에서 `java.io.Serializable`이라 `toString()`으로 바꾸지 않아도 저장되고, 문자열은 여러 값을 합쳐야 유일해질 때만 만든다(`CalendarDDay.itemKey()`의 `"$ddayId/$date"`). ([item keys](https://developer.android.com/develop/ui/compose/lists#item-keys))
+
+**`contentType`은 한 목록에 반복 항목과 종류가 다른 항목(`item` 머리글·빈 상태, 다른 `items` 블록)이 섞일 때만 주고, 그때는 그 목록의 모든 항목에 준다.** 한 번만 놓이는 `item`에는 key 상수를 그대로, 반복 항목에는 `XXX_CONTENT_TYPE` 상수를 넘기고 paging 항목은 `itemContentType { }`으로 감싼다(`ChecklistDetailContent`, `FileHomeList`). 한 종류뿐인 목록에는 주지 않는다. ([content type](https://developer.android.com/develop/ui/compose/lists#content-type))
+
+## state 수명은 `remember`·`rememberSaveable`·`retain`으로 고른다
+
+**컴포저블이 소유한 state는 어디까지 남아야 하는지로 API를 고른다.** ([state lifespans](https://developer.android.com/develop/ui/compose/state-lifespans))
+
+| 남아야 하는 범위 | API | 예 |
+| --- | --- | --- |
+| 프로세스가 정리된 뒤에도 | `rememberSaveable`. `@Serializable` 타입은 `rememberSerializable` | 사용자 입력과 선택, 다이얼로그 표시 여부(`rememberDialogState`), 백스택(`rememberScreenNavBackStack`) |
+| 구성 변경과 백스택에 머무는 동안만. 프로세스가 정리되면 버린다 | `retain` | 진입할 때 한 번만 하는 요청을 이미 했는지(`RequestFocusEffect`, `RequestPermissionEffect`), 프로세스가 정리되면 닫혀야 하는 다이얼로그(`ChecklistDetailFormState`의 `resetDialogState`) |
+| composition에 있는 동안만 | `remember` | `SnackbarHostState` |
+
+- `retain`한 값은 `AppNavigation`의 `RetainedValuesStoreNavEntryDecorator`가 entry마다 따로 보관하고, entry가 백스택에서 빠지면 버린다.
+- `retain`에는 수명을 따로 가진 ViewModel이나, 구성 변경으로 다시 만들어지는 `Context`·`Lifecycle`을 참조하는 객체를 두지 않는다. 다시 만들어진 뒤에도 이전 것을 붙잡는다.
 
 ## 자주 바뀌는 state의 파생 값
 
@@ -304,7 +336,7 @@ Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 투�
 
 **상태에 따라 달라지는 시각 속성은 상태 블록으로 선언한다.** 활성 여부는 `rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }`로 넘기고 `disabled { }` 안에 비활성 표현을 둔다. 누름·호버·초점 표현이 필요하면 같은 `InteractionSource`를 `clickable`과 `rememberUpdatedStyleState`에 함께 넘긴다. 상태 사이의 전환은 디자인 문서가 정한 경우에만 `animate { }`로 감싼다.
 
-**[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:core`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `StyleScope` 확장 함수로 둔다. 예외로, 묶음이 `Shape`나 `Color` 하나라 `Style` 값으로 담을 수 없으면 `DiaryStyles`에 두지 않고 그 묶음을 쓰는 컴포넌트 모듈의 `XxxDefaults`에 두며 `컴포넌트 디자인 값은 XxxDefaults`를 따른다. `선택 배경`은 `CalendarDefaults.selectBackgroundColor()`와 `SELECT_BACKGROUND_ALPHA`, `캘린더 아이템 모양`은 `CalendarDefaults.itemShape`가 그 예다. 코드가 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
+**[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:theme`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `StyleScope` 확장 함수로 둔다. 예외로, 묶음이 `Shape`나 `Color` 하나라 `Style` 값으로 담을 수 없으면 `DiaryStyles`에 두지 않고 그 묶음을 쓰는 컴포넌트 모듈의 `XxxDefaults`에 두며 `컴포넌트 디자인 값은 XxxDefaults`를 따른다. `선택 배경`은 `CalendarDefaults.selectBackgroundColor()`와 `SELECT_BACKGROUND_ALPHA`, `캘린더 아이템 모양`은 `CalendarDefaults.itemShape`가 그 예다. 코드가 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
 
 **컴포넌트에 `style: Style` 파라미터는 다른 모양을 요구하는 두 번째 호출자가 생길 때 연다.** 기본값은 `Style`로 두고, 컴포넌트 안에서 `Modifier.styleable(styleState, 기본 Style, style)`처럼 기본 Style 뒤에 붙여 호출자가 속성 단위로 덮어쓰게 한다.
 
@@ -355,11 +387,11 @@ Row(
 
 ## 아이콘은 Material Symbols Rounded를 Kotlin `ImageVector`로 옮긴다
 
-**아이콘은 [Google Fonts의 Material Symbols](https://fonts.google.com/icons)에서 `Rounded` 스타일로 내려받은 Android XML을 `compose:core`의 `DiaryIcons.<PascalCase 이름>` Kotlin 파일로 옮겨 두고, `compose:core`의 아이콘 컴포저블이 감싼다(`ArrowBack.kt`와 `NavigateUpIcon`이 기준 구현이다).** Material Icons 라이브러리(`material-icons-core`, `material-icons-extended`)는 [더 이상 유지되지 않으므로](https://developer.android.com/develop/ui/compose/graphics/images/material) 의존하지 않는다. `composeResources/drawable`에 두지 않는다. 리소스는 실행 중에 XML을 읽어 파싱하고, 웹에서는 비동기로 읽혀 첫 프레임에 아이콘이 빌 수 있다.
+**아이콘은 [Google Fonts의 Material Symbols](https://fonts.google.com/icons)에서 `Rounded` 스타일로 내려받은 Android XML을 `compose:icon`의 `DiaryIcons.<PascalCase 이름>` Kotlin 파일로 옮겨 두고, `compose:icon`의 아이콘 컴포저블이 감싼다(`ArrowBack.kt`와 `NavigateUpIcon`이 기준 구현이다).** `compose:icon`은 Preview에 쓰는 `compose:theme`에만 의존하고 `compose:core`에는 의존하지 않는다. 컴포넌트를 고칠 때 아이콘을 다시 컴파일하지 않게 하기 위해서다. Material Icons 라이브러리(`material-icons-core`, `material-icons-extended`)는 [더 이상 유지되지 않으므로](https://developer.android.com/develop/ui/compose/graphics/images/material) 의존하지 않는다. `composeResources/drawable`에 두지 않는다. 리소스는 실행 중에 XML을 읽어 파싱하고, 웹에서는 비동기로 읽혀 첫 프레임에 아이콘이 빌 수 있다.
 
 - 스타일은 `Rounded`, 나머지 축은 기본값(Weight 400, Grade 0, Optical size 24)으로 둔 XML을 받는다. 파일과 프로퍼티 이름은 옛 Material Icons 이름(`clear`, `place`, `error_outline`)이 아니라 Material Symbols의 현재 이름(`close`, `location_on`, `error`)을 PascalCase로 쓴다(`location_on` → `DiaryIcons.LocationOn`, `LocationOn.kt`).
 - Fill 축은 기본값 0으로 둔다. 선택·활성 상태를 채운 모양으로 구분하는 짝의 채운 쪽(즐겨찾기 별)과 채운 도형 자체가 뜻인 아이콘(swipe 자리표시 원)만 Fill 1을 쓰고, 이름 끝에 `Fill`을 붙인다(`Star`와 `StarFill`).
 - XML의 `width`·`height`·`viewport*`·`autoMirrored`는 `ImageVector.Builder` 인자로, `pathData`는 `path { moveTo(...) }` DSL 호출로 옮긴다. 실행 중에 문자열을 파싱하지 않도록 `addPathNodes`나 `PathParser`를 쓰지 않는다. `fillColor`는 `Icon`이 tint로 덮어쓰므로 `SolidColor(Color.Black)`로 둔다. XML은 옮긴 뒤 저장소에 남기지 않는다.
 - 벡터는 처음 읽을 때 한 번만 만들도록 `by lazy`로 선언한다.
-- 화면과 컴포넌트는 `compose:core`의 `XxxIcon` 컴포저블을 쓴다. `DiaryIcons`의 아이콘은 기본으로 `internal`로 두어 `compose:core` 안에서만 쓰인다. 다른 모듈이 벡터 자체를 넘겨야 할 때만(예: iOS `UITab`이 `UIImage`를 요구하는 탭 아이콘) 그 프로퍼티를 `public`으로 둔다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`).
+- 화면과 컴포넌트는 `compose:icon`의 `XxxIcon` 컴포저블을 쓴다. `DiaryIcons`의 아이콘은 기본으로 `internal`로 두어 `compose:icon` 안에서만 쓰인다. 다른 모듈이 벡터 자체를 넘겨야 할 때만(예: iOS `UITab`이 `UIImage`를 요구하는 탭 아이콘, `compose:core`의 `DiaryTopBarIcon`처럼 enum을 `when`으로 벡터에 잇는 컴포넌트) 그 프로퍼티를 `public`으로 둔다. 아이콘 컴포저블은 쓰는 화면이나 컴포넌트가 생길 때 만들고, 벡터만 enum의 `when`으로 쓰이는 아이콘에는 두지 않는다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`).
 - Google, Apple처럼 브랜드 가이드가 모양과 색을 정하는 로고는 Material Symbols가 아니므로 각 `XxxIcon` 파일 안에서 `ImageVector.Builder`로 직접 그린다.

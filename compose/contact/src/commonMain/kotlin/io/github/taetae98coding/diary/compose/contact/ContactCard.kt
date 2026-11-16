@@ -19,9 +19,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
-import io.github.taetae98coding.diary.compose.core.icon.StarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.StarIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
@@ -32,7 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 public const val CONTACT_CARD_TEST_TAG: String = "ContactCard"
 
 @Composable
-public fun ContactCard(
+internal fun ContactCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     contact: ContactListItem? = null,

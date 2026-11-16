@@ -13,8 +13,8 @@ import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.Res
 import io.github.taetae98coding.diary.compose.calendar.calendar_day_of_week_titles
 import io.github.taetae98coding.diary.compose.calendar.dayOfWeekColor
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.library.kotlinx.datetime.sundayBasedDayOfWeek
 import org.jetbrains.compose.resources.stringArrayResource
 

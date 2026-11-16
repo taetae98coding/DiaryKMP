@@ -19,7 +19,7 @@ import io.github.taetae98coding.diary.compose.calendar.SECOND_ITEM_TEXT
 import io.github.taetae98coding.diary.compose.calendar.july
 import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.textItem
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate

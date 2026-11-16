@@ -12,8 +12,8 @@ import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
@@ -232,7 +232,6 @@ class CalendarHomeScreenLocationPermissionTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
         val registryOwner =
             object : ActivityResultRegistryOwner {
@@ -257,6 +256,7 @@ class CalendarHomeScreenLocationPermissionTest {
                         state = state,
                         holidayViewModel = holidayViewModel,
                         memoViewModel = memoViewModel,
+                        filterViewModel = filterViewModel(),
                         weatherViewModel = weatherViewModel,
                         syncViewModel = syncViewModel(),
                         permissionManager = rememberPermissionManager(),

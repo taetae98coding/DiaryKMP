@@ -18,8 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.previewGoldenHolidayGroup
 import kotlinx.datetime.LocalDateRange

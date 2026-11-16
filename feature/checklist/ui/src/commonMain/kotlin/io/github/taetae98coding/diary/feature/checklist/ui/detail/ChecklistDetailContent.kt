@@ -15,22 +15,22 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.ChecklistIcon
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.ChecklistIcon
 import io.github.taetae98coding.diary.compose.list.sort.DiaryChecklistItemSortBarHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.checklist.ui.Res
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_detail_empty_description
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_detail_empty_title
 import io.github.taetae98coding.diary.feature.checklist.ui.item.ChecklistItemInputRow
 import io.github.taetae98coding.diary.feature.checklist.ui.previewChecklistItem
-import io.github.taetae98coding.diary.feature.checklist.ui.tag.ChecklistTagInputEvent
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import org.jetbrains.compose.resources.stringResource
 
 private const val TITLE_KEY = "title"
@@ -39,11 +39,12 @@ private const val TAG_KEY = "tag"
 private const val SORT_KEY = "sort"
 private const val EMPTY_KEY = "empty"
 private const val INPUT_KEY = "input"
+private const val ITEM_CONTENT_TYPE = "item"
 
 @Composable
 internal fun ChecklistDetailContent(
     onEvent: (ChecklistDetailScaffoldEvent) -> Unit,
-    onTagInputEvent: (ChecklistTagInputEvent) -> Unit,
+    onTagInputEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ChecklistDetailFormState = rememberChecklistDetailFormState(),
     itemUiStateProvider: () -> ChecklistDetailItemUiState = { ChecklistDetailItemUiState() },
@@ -75,7 +76,7 @@ internal fun ChecklistDetailContent(
             itemUiStateProvider = itemUiStateProvider,
             componentSpacing = componentSpacing,
         )
-        item(key = INPUT_KEY) {
+        item(key = INPUT_KEY, contentType = INPUT_KEY) {
             ChecklistItemInputRow(
                 onAdd = { onEvent(ChecklistDetailScaffoldEvent.ClickItemAdd) },
                 modifier =
@@ -91,13 +92,13 @@ internal fun ChecklistDetailContent(
 }
 
 private fun LazyListScope.formInputs(
-    onTagInputEvent: (ChecklistTagInputEvent) -> Unit,
+    onTagInputEvent: (EntityTagInputEvent) -> Unit,
     state: ChecklistDetailFormState,
     tagUiStateProvider: () -> EntityTagInputUiState,
     horizontalPadding: Dp,
     componentSpacing: Dp,
 ) {
-    item(key = TITLE_KEY) {
+    item(key = TITLE_KEY, contentType = TITLE_KEY) {
         DiaryTitleInput(
             state = state.titleState,
             modifier =
@@ -106,7 +107,7 @@ private fun LazyListScope.formInputs(
                     .padding(horizontal = horizontalPadding),
         )
     }
-    item(key = DESCRIPTION_KEY) {
+    item(key = DESCRIPTION_KEY, contentType = DESCRIPTION_KEY) {
         DiaryDescriptionInput(
             state = state.descriptionState,
             modifier =
@@ -116,10 +117,10 @@ private fun LazyListScope.formInputs(
                     .padding(top = componentSpacing),
         )
     }
-    item(key = TAG_KEY) {
+    item(key = TAG_KEY, contentType = TAG_KEY) {
         EntityTagInput(
-            onTagClick = { id -> onTagInputEvent(ChecklistTagInputEvent.ClickTag(id = id)) },
-            onAddClick = { onTagInputEvent(ChecklistTagInputEvent.ClickTagAdd) },
+            onTagClick = { id -> onTagInputEvent(EntityTagInputEvent.ClickTag(id = id)) },
+            onAddClick = { onTagInputEvent(EntityTagInputEvent.ClickAdd) },
             modifier =
                 Modifier
                     .fillMaxWidth()
@@ -137,7 +138,7 @@ private fun LazyListScope.checklistItems(
     componentSpacing: Dp,
 ) {
     if (itemUiState.itemList.isNotEmpty()) {
-        stickyHeader(key = SORT_KEY) {
+        stickyHeader(key = SORT_KEY, contentType = SORT_KEY) {
             Surface(modifier = Modifier.fillMaxWidth().padding(top = componentSpacing)) {
                 DiaryChecklistItemSortBarHost(
                     onClick = { onEvent(ChecklistDetailScaffoldEvent.ClickSort) },
@@ -150,6 +151,7 @@ private fun LazyListScope.checklistItems(
     items(
         items = itemUiState.itemList,
         key = { item -> item.id.toString() },
+        contentType = { ITEM_CONTENT_TYPE },
     ) { item ->
         ChecklistItemRow(
             onClick = { onEvent(ChecklistDetailScaffoldEvent.ClickItem(id = item.id, isChecked = item.isChecked)) },
@@ -162,7 +164,7 @@ private fun LazyListScope.checklistItems(
         )
     }
     if (itemUiState.isEmpty) {
-        item(key = EMPTY_KEY) {
+        item(key = EMPTY_KEY, contentType = EMPTY_KEY) {
             DiaryEmptyBox(
                 title = stringResource(Res.string.checklist_detail_empty_title),
                 modifier =

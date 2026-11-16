@@ -22,7 +22,7 @@ class GeminiModelRepositoryImplTest :
             val remoteList = Arb.geminiModelRemoteEntity().take(3).toList()
             val remoteDataSource =
                 mockk<GeminiModelRemoteDataSource> {
-                    coEvery { getAvailableModel(apiKey) } returns remoteList
+                    coEvery { readAvailableModel(apiKey) } returns remoteList
                 }
             val repository = GeminiModelRepositoryImpl(geminiModelRemoteDataSource = remoteDataSource)
 
@@ -31,7 +31,7 @@ class GeminiModelRepositoryImplTest :
             actual.map { model -> model.id } shouldBe remoteList.map { remote -> remote.id }
             actual.map { model -> model.displayName } shouldBe remoteList.map { remote -> remote.displayName }
             actual.map { model -> model.description } shouldBe remoteList.map { remote -> remote.description }
-            coVerify(exactly = 1) { remoteDataSource.getAvailableModel(apiKey) }
+            coVerify(exactly = 1) { remoteDataSource.readAvailableModel(apiKey) }
         }
 
         test("빈 목록을 그대로 전달한다") {
@@ -39,7 +39,7 @@ class GeminiModelRepositoryImplTest :
                 GeminiModelRepositoryImpl(
                     geminiModelRemoteDataSource =
                         mockk {
-                            coEvery { getAvailableModel(any()) } returns emptyList()
+                            coEvery { readAvailableModel(any()) } returns emptyList()
                         },
                 )
 
@@ -52,7 +52,7 @@ class GeminiModelRepositoryImplTest :
                 GeminiModelRepositoryImpl(
                     geminiModelRemoteDataSource =
                         mockk {
-                            coEvery { getAvailableModel(any()) } throws cause
+                            coEvery { readAvailableModel(any()) } throws cause
                         },
                 )
 
@@ -67,7 +67,7 @@ class GeminiModelRepositoryImplTest :
                 GeminiModelRepositoryImpl(
                     geminiModelRemoteDataSource =
                         mockk {
-                            coEvery { getAvailableModel(any()) } throws failure
+                            coEvery { readAvailableModel(any()) } throws failure
                         },
                 )
 

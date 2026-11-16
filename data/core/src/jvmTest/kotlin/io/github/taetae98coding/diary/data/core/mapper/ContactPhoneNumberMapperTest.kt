@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.contact.contactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.testing.contact.contactPhoneNumber
-import io.github.taetae98coding.diary.core.testing.contact.contactPhoneNumberLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

@@ -23,17 +23,17 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.ContactIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.ContactIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.nameListSortList
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
@@ -46,6 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TagDetailContactTab(
     onEvent: (TagDetailContactContentEvent) -> Unit,
+    onContactListEvent: (ContactListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -82,6 +83,7 @@ internal fun TagDetailContactTab(
             } else {
                 ContactGrid(
                     onEvent = onEvent,
+                    onContactListEvent = onContactListEvent,
                     gridState = gridState,
                     contactPagingItems = contactPagingItems,
                     isRefreshingProvider = isRefreshingProvider,
@@ -101,6 +103,7 @@ internal fun TagDetailContactTab(
 @Composable
 private fun ContactGrid(
     onEvent: (TagDetailContactContentEvent) -> Unit,
+    onContactListEvent: (ContactListEvent) -> Unit,
     gridState: LazyStaggeredGridState,
     contactPagingItems: LazyPagingItems<ContactListItem>,
     modifier: Modifier = Modifier,
@@ -119,12 +122,7 @@ private fun ContactGrid(
             val contact = contactPagingItems[index]
 
             SwipeContactCard(
-                onEvent = { event ->
-                    when (event) {
-                        is ContactListEvent.ClickContact -> onEvent(TagDetailContactContentEvent.ClickContact(id = event.id))
-                        is ContactListEvent.SwipeDelete -> onEvent(TagDetailContactContentEvent.DeleteContact(id = event.id))
-                    }
-                },
+                onEvent = onContactListEvent,
                 modifier =
                     Modifier
                         .animateItem()
@@ -163,6 +161,7 @@ private fun TagDetailContactTabPreview() {
         Surface {
             TagDetailContactTab(
                 onEvent = {},
+                onContactListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 contactPagingItems = pagingData.collectAsLazyPagingItems(),
             )

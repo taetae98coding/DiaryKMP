@@ -17,8 +17,8 @@ import io.github.taetae98coding.diary.compose.calendar.calendar_home_birthday_co
 import io.github.taetae98coding.diary.compose.calendar.calendar_home_birthday_text
 import io.github.taetae98coding.diary.compose.calendar.previewCalendarContactBirthday
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import kotlinx.datetime.LocalDateRange
 import org.jetbrains.compose.resources.stringResource

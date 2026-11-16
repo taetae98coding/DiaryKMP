@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.data.location.repository
 
+import io.github.taetae98coding.diary.core.data.testing.ip.ipRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.location.location
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
-import io.github.taetae98coding.diary.core.testing.ip.ipRemoteEntity
-import io.github.taetae98coding.diary.core.testing.location.location
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -31,7 +31,7 @@ class LocationRepositoryImplTest :
 
             repository.fetch() shouldBe
                 Coordinate(latitude = deviceLocation.latitude, longitude = deviceLocation.longitude)
-            coVerify(exactly = 0) { ipRemoteDataSource.get() }
+            coVerify(exactly = 0) { ipRemoteDataSource.read() }
         }
 
         test("TC-ce268a63-5478-4c1c-9f6e-0e0ae222c07f 디바이스 위치를 확인하지 못한 모든 조건에서 공인 IP 기준 위치를 사용한다") {
@@ -49,7 +49,7 @@ class LocationRepositoryImplTest :
         test("TC-9fcbe51f-442e-4407-a375-fa4ff12e4175 공인 IP 기준 위치 조회에 실패하면 현재 위치를 확인하지 못한다") {
             val failure = LocationRepositoryTestException(Arb.string().next())
             val ipRemoteDataSource = mockk<IpRemoteDataSource>()
-            coEvery { ipRemoteDataSource.get() } throws failure
+            coEvery { ipRemoteDataSource.read() } throws failure
             val repository =
                 repository(
                     locationProvider = locationProvider(location = null),
@@ -71,7 +71,7 @@ class LocationRepositoryImplTest :
 
             repository.fetch()
 
-            coVerify(exactly = 1) { ipRemoteDataSource.get() }
+            coVerify(exactly = 1) { ipRemoteDataSource.read() }
         }
     })
 
@@ -88,7 +88,7 @@ private fun locationProvider(location: Location?): LocationProvider {
 
 private fun ipRemoteDataSource(entity: IpRemoteEntity): IpRemoteDataSource {
     val ipRemoteDataSource = mockk<IpRemoteDataSource>()
-    coEvery { ipRemoteDataSource.get() } returns entity
+    coEvery { ipRemoteDataSource.read() } returns entity
 
     return ipRemoteDataSource
 }

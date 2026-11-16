@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.core.calendar.database.api.entity.LunarDat
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.LunarTransaction
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.transaction.LunarTransactionImpl
-import io.github.taetae98coding.diary.core.testing.lunar.lunarDateLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.lunar.lunarDateLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe

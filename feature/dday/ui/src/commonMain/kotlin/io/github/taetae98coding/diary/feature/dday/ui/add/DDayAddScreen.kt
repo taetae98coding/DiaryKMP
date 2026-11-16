@@ -8,8 +8,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
-import io.github.taetae98coding.diary.feature.dday.ui.form.handleDDayFormEvent
 import io.github.taetae98coding.diary.feature.dday.ui.form.rememberDDayAddFormState
 import kotlin.uuid.Uuid
 
@@ -56,9 +56,9 @@ internal fun DDayAddScreen(
             }
         },
         onFormEvent = { event ->
-            handleDDayFormEvent(
+            handleEntityTagInputEvent(
                 event = event,
-                state = state,
+                tagPickerDialogState = state.tagPickerDialogState,
                 selectableTagPagingItems = selectableTagPagingItems,
                 navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,

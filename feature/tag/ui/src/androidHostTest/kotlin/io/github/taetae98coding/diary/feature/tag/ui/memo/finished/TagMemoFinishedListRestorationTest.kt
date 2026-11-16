@@ -10,13 +10,17 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_empty_title
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -24,6 +28,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +47,7 @@ class TagMemoFinishedListRestorationTest {
         val memoList = List(MEMO_COUNT) { index -> tagMemo(title = "${titlePrefix}Index$index") }
         val sortFlow = MutableStateFlow(ListSortUiState())
         val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
-        every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
+        every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
         every { viewModel.sortUiState } returns sortFlow
         every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.memoPagingData } returns
@@ -51,7 +56,8 @@ class TagMemoFinishedListRestorationTest {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
-                TagMemoFinishedListScreen(
+                EntityMemoFinishedListScreen(
+                    emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
                     navigateUp = {},
                     navigateToMemoDetail = {},
                     memoViewModel = viewModel,
@@ -89,7 +95,8 @@ class TagMemoFinishedListRestorationTest {
         restorationTester.setContent {
             val viewModel = remember { nextViewModel }
             DiaryTheme {
-                TagMemoFinishedListScreen(
+                EntityMemoFinishedListScreen(
+                    emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
                     navigateUp = {},
                     navigateToMemoDetail = {},
                     memoViewModel = viewModel,
@@ -121,7 +128,7 @@ class TagMemoFinishedListRestorationTest {
     private fun sortableViewModel(memoList: List<Memo>): TagMemoFinishedListViewModel {
         val sortFlow = MutableStateFlow(ListSortUiState())
         val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
-        every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
+        every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
         every { viewModel.sortUiState } returns sortFlow
         every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.memoPagingData } returns

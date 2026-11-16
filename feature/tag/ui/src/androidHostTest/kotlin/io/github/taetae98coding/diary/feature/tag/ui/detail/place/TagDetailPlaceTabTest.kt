@@ -21,8 +21,9 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
@@ -97,12 +98,12 @@ class TagDetailPlaceTabTest {
     @Test
     fun `TC-6b73497d-de45-4f70-bde5-7503acb47c55 장소을 선택하면 그 장소의 상세 이동을 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
-        setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(place)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(place)), onEvent = eventList::add, onPlaceListEvent = eventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
-        eventList.withoutMoveMap() shouldBe listOf(TagDetailPlaceContentEvent.ClickPlace(id = place.id))
+        eventList.withoutMoveMap() shouldBe listOf(PlaceListEvent.ClickPlace(id = place.id))
     }
 
     @Test
@@ -133,10 +134,11 @@ class TagDetailPlaceTabTest {
 
     @Test
     fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
         )
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -147,8 +149,8 @@ class TagDetailPlaceTabTest {
 
     @Test
     fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
-        setPlaceTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setPlaceTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add, onPlaceListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -174,10 +176,11 @@ class TagDetailPlaceTabTest {
 
     @Test
     fun `TC-676c9da7-92ca-4a7f-82a9-0bbc569cdb30 목록의 장소 카드를 반대 방향으로 밀면 아무 동작도 요청하지 않는다`() {
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
         )
 
         composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeRight() }
@@ -190,21 +193,23 @@ class TagDetailPlaceTabTest {
     @Test
     fun `TC-92903379-bc52-4bad-8c9a-fe9055f0e396 목록 모드의 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val eventList = mutableListOf<Any>()
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(place)),
             onEvent = eventList::add,
+            onPlaceListEvent = eventList::add,
         )
 
         composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList.withoutMoveMap() shouldBe listOf(TagDetailPlaceContentEvent.DeletePlace(id = place.id))
+        eventList.withoutMoveMap() shouldBe listOf(PlaceListEvent.SwipeDelete(id = place.id))
     }
 
     private fun setPlaceTab(
         pagingData: PagingData<Place> = PagingData.empty(),
         onEvent: (TagDetailPlaceContentEvent) -> Unit = {},
+        onPlaceListEvent: (PlaceListEvent) -> Unit = {},
         isRefreshingProvider: () -> Boolean = { false },
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -213,6 +218,7 @@ class TagDetailPlaceTabTest {
             DiaryTheme {
                 TagDetailPlaceTab(
                     onEvent = onEvent,
+                    onPlaceListEvent = onPlaceListEvent,
                     modifier = Modifier.fillMaxSize(),
                     placePagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     isRefreshingProvider = isRefreshingProvider,

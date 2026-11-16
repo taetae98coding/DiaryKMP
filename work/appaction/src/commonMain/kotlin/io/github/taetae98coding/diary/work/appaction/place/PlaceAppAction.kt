@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.UpdatePlaceUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -39,7 +39,7 @@ internal val placeSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.REC
 
 @Factory
 public class PlaceAppAction internal constructor(
-    private val pagePlaceHomeUseCase: PagePlaceHomeUseCase,
+    private val pagePlaceUseCase: PagePlaceUseCase,
     private val getPlaceListUseCase: GetPlaceListUseCase,
     private val findPlaceUseCase: FindPlaceUseCase,
     private val getEntityTagUseCase: GetEntityTagUseCase,
@@ -53,8 +53,8 @@ public class PlaceAppAction internal constructor(
         cursor: String?,
     ): AppActionPage<AppActionPlace> =
         runAppAction {
-            pagePlaceHomeUseCase
-                .readPage(parameter = sort.toSortArgument(placeSortList), offset = cursor.toPageOffset())
+            pagePlaceUseCase
+                .readPage(parameter = PagePlaceUseCase.Parameter(query = "", sort = sort.toSortArgument(placeSortList)), offset = cursor.toPageOffset())
                 .map { place -> place.toAppActionPlace() }
         }
 

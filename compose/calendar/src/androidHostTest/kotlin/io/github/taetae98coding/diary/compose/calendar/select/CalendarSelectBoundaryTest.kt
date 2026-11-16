@@ -17,7 +17,7 @@ import io.github.taetae98coding.diary.compose.calendar.Calendar
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.calendar.CalendarState
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.LocalDateRange

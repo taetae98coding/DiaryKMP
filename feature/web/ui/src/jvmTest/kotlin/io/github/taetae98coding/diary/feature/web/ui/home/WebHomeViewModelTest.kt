@@ -26,6 +26,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +38,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -224,10 +226,17 @@ class WebHomeViewModelTest : FunSpec() {
         test("TC-07a9652a-cb13-4ed4-bebd-32e69f7a419b 같은 웹 항목의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
+                val gate = CompletableDeferred<Unit>()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()
-                coEvery { deleteWebUseCase(parameter = id) } returns Result.success(1)
+                coEvery { deleteWebUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()
-                coEvery { restoreWebUseCase(parameter = id) } returns Result.success(1)
+                coEvery { restoreWebUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
                 val viewModel =
                     viewModel(
                         pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
@@ -239,6 +248,8 @@ class WebHomeViewModelTest : FunSpec() {
                 viewModel.delete(id = id)
                 viewModel.restore(id = id)
                 viewModel.restore(id = id)
+                runCurrent()
+                gate.complete(Unit)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { deleteWebUseCase(parameter = id) }

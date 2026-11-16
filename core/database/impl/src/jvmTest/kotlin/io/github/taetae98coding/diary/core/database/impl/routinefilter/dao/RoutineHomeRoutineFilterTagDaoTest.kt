@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.tag.localTag
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -14,7 +15,6 @@ import io.github.taetae98coding.diary.core.database.impl.routinefilter.datasourc
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.AccountDataTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
-import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty

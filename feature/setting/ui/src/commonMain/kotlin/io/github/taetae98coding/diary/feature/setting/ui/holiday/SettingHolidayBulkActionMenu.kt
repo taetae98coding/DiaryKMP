@@ -6,8 +6,8 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenu
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuIcon
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuItem
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.setting_holiday_bulk_action_close_content_description
 import io.github.taetae98coding.diary.feature.setting.ui.setting_holiday_bulk_action_content_description

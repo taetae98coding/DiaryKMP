@@ -17,18 +17,18 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
 import io.github.taetae98coding.diary.compose.place.previewPlace
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.place.ui.Res
@@ -41,6 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun PlaceHomePagingList(
     onEvent: (PlaceHomeScaffoldEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
@@ -81,6 +82,7 @@ internal fun PlaceHomePagingList(
             } else {
                 PlaceHomePagingGrid(
                     onEvent = onEvent,
+                    onPlaceListEvent = onPlaceListEvent,
                     gridState = gridState,
                     placePagingItems = placePagingItems,
                     isRefreshingProvider = isRefreshingProvider,
@@ -93,6 +95,7 @@ internal fun PlaceHomePagingList(
 @Composable
 private fun PlaceHomePagingGrid(
     onEvent: (PlaceHomeScaffoldEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     gridState: LazyStaggeredGridState,
     placePagingItems: LazyPagingItems<Place>,
     isRefreshingProvider: () -> Boolean,
@@ -110,12 +113,7 @@ private fun PlaceHomePagingGrid(
             val place = placePagingItems[index]
 
             SwipePlaceCard(
-                onEvent = { event ->
-                    when (event) {
-                        is PlaceListEvent.ClickPlace -> onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = event.id))
-                        is PlaceListEvent.SwipeDelete -> onEvent(PlaceHomeScaffoldEvent.DeletePlace(id = event.id))
-                    }
-                },
+                onEvent = onPlaceListEvent,
                 modifier =
                     Modifier
                         .animateItem()
@@ -141,6 +139,7 @@ private fun PlaceHomePagingListPreview() {
     DiaryTheme {
         PlaceHomePagingList(
             onEvent = {},
+            onPlaceListEvent = {},
             modifier = Modifier.fillMaxSize(),
             placePagingItems = placePagingData.collectAsLazyPagingItems(),
         )

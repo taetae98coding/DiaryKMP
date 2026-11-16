@@ -6,6 +6,9 @@ import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -17,7 +20,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
+import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebPage
@@ -28,6 +31,7 @@ import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -44,7 +48,6 @@ import io.mockk.verify
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,10 +62,7 @@ class WebDetailScreenRestoreTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
-    @After
-    fun resetSession() {
-        SingletonDiaryWebSession.set(DiaryWebSession())
-    }
+    private var webSession by mutableStateOf(DiaryWebSession())
 
     @Test
     fun `TC-05590cc5-b758-4119-a847-d5ad0b3dd5ae 로그인 정보를 되돌리는 동안에는 진행 상태를 표시하고 주소를 열지 않으며 다른 조작은 그대로 할 수 있다`() {
@@ -72,7 +72,7 @@ class WebDetailScreenRestoreTest {
         val tagViewModel = detailTagScreenTestViewModel(selectableTagList = listOf(selectableTag))
         val uriHandler = mockk<UriHandler>(relaxed = true)
         var navigateUpCount = 0
-        SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
+        webSession = DiaryWebSession(isRestoring = true)
         composeRule.setContent {
             CompositionLocalProvider(LocalUriHandler provides uriHandler) {
                 WebDetailScreenUnderTest(
@@ -123,10 +123,10 @@ class WebDetailScreenRestoreTest {
     @Test
     fun `TC-90df42c6-a0d3-4e73-a0d8-b2a10b64ea06 되돌리기가 끝나면 따로 알리지 않고 저장된 URL을 연다`() {
         val detail = testWebDetail()
-        SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
+        webSession = DiaryWebSession(isRestoring = true)
         setWebDetailScreen(webViewModel = webViewModel(detail = detail))
 
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = false)) }
+        composeRule.runOnIdle { webSession = DiaryWebSession(isRestoring = false) }
         composeRule.waitForIdle()
 
         isProgressShown() shouldBe false
@@ -149,7 +149,7 @@ class WebDetailScreenRestoreTest {
         val detail = testWebDetail()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
         coEvery { fetchWebPageUseCase(parameter = any()) } coAnswers { awaitCancellation() }
-        SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
+        webSession = DiaryWebSession(isRestoring = true)
         setWebDetailScreen(webViewModel = webViewModel(detail = detail), pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase))
 
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
@@ -170,7 +170,7 @@ class WebDetailScreenRestoreTest {
         val page = Arb.webPage().next()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
         coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(page)
-        SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
+        webSession = DiaryWebSession(isRestoring = true)
         setWebDetailScreen(webViewModel = webViewModel(detail = detail), pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase))
 
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
@@ -188,7 +188,7 @@ class WebDetailScreenRestoreTest {
         val detail = testWebDetail()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
         coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
-        SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
+        webSession = DiaryWebSession(isRestoring = true)
         setWebDetailScreen(webViewModel = webViewModel(detail = detail), pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase))
 
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
@@ -205,9 +205,9 @@ class WebDetailScreenRestoreTest {
     fun `TC-68bf8a56-f005-4f03-a1e5-e5b7113a22cb 주소를 연 뒤에는 화면을 계속 사용해도 되돌리는 중으로 돌아가지 않는다`() {
         val detail = testWebDetail()
         val webViewModel = webViewModel(detail = detail)
-        SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
+        webSession = DiaryWebSession(isRestoring = true)
         setWebDetailScreen(webViewModel = webViewModel)
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = false)) }
+        composeRule.runOnIdle { webSession = DiaryWebSession(isRestoring = false) }
         composeRule.waitForIdle()
         val webView = findWebViewList().single()
 
@@ -268,21 +268,24 @@ class WebDetailScreenRestoreTest {
         navigateUp: () -> Unit,
         tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
     ) {
-        WebDetailScreenTestTheme {
-            WebDetailScreen(
-                navigateUp = navigateUp,
-                navigateToTagAdd = {},
-                navigateToTagDetail = {},
-                navigateToMemoAdd = {},
-                navigateToMemoDetail = {},
-                navigateToMemoFinishedList = {},
-                id = FIRST_WEB_ID,
-                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
-                webViewModel = webViewModel,
-                pageViewModel = pageViewModel,
-                tagViewModel = tagViewModel,
-                contentSharerFactory = testContentSharerFactory(),
-            )
+        CompositionLocalProvider(LocalDiaryWebSession provides webSession) {
+            WebDetailScreenTestTheme {
+                WebDetailScreen(
+                    navigateUp = navigateUp,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
+                    id = FIRST_WEB_ID,
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    webViewModel = webViewModel,
+                    pageViewModel = pageViewModel,
+                    tagViewModel = tagViewModel,
+                    contentSharerFactory = testContentSharerFactory(),
+                    webViewContent = AndroidWebViewContent(),
+                )
+            }
         }
     }
 

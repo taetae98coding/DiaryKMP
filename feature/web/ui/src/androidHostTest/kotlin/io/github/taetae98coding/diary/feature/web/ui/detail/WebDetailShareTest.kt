@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.core.share.ShareResult
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.mockk.coEvery
@@ -228,6 +229,7 @@ class WebDetailShareTest {
                 pageViewModel = memoScreenPageViewModel(pageUiState = WebDetailPageUiState.Loading),
                 tagViewModel = detailTagScreenTestViewModel(),
                 contentSharerFactory = contentSharer.asFactory(),
+                webViewContent = AndroidWebViewContent(),
             )
         }
     }

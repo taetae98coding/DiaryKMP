@@ -10,8 +10,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
@@ -193,7 +193,6 @@ class CalendarHomeScreenDDayTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
         composeRule.setContent {
             val state = rememberCalendarHomeScaffoldState(calendarState = rememberCalendarState(initialYearMonth = JULY_2026))
@@ -210,6 +209,7 @@ class CalendarHomeScreenDDayTest {
                     permissionManager = rememberPermissionManager(),
                     holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     ddayViewModel = ddayViewModel,
                     birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(birthdayList)),
                     weatherViewModel = weatherViewModel(),

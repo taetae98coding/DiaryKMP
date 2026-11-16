@@ -165,8 +165,8 @@ class MemoAddInitialValueTest {
             InitialValueMemoAddScreen(key = key, viewModels = viewModels)
         }
         composeRule.runOnIdle {
-            viewModelsList.last().tagViewModel.selectTag(id = otherTag.id)
-            viewModelsList.last().tagViewModel.selectPrimaryTag(id = primaryTag.id)
+            viewModelsList.last().tagViewModel.selectTag(tagId = otherTag.id)
+            viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = primaryTag.id)
         }
         composeRule.runOnIdle {
             viewModelsList
