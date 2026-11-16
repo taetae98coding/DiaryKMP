@@ -15,6 +15,10 @@
 
 Gradle constraint로만 연결된 artifact는 실제 전이 의존성이 아니므로 판단 근거로 삼지 않는다. `org.jetbrains.compose.*`, `org.jetbrains.androidx.*`, `androidx.*`는 낮은 버전을 전이로 제공하는 경우가 많다. 예: `compose.ui`가 전이로 주는 `lifecycle-runtime-compose`는 카탈로그보다 낮아 함께 선언한다.
 
+## Gradle과 AGP는 Kotlin에 맞춘다
+
+**Gradle과 Android Gradle Plugin은 쓰고 있는 Kotlin 버전이 [호환 표](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html#version-compatibility)에서 완전히 지원한다고 적은 범위 안에서 고른다.** 각 도구의 최신 안정 버전이 그 범위를 넘으면 올리지 않고, Kotlin을 올릴 때 표의 새 범위 안에서 함께 올린다. 범위를 넘겨 쓰면 Kotlin Gradle 플러그인이 아직 맞추지 않은 Gradle·AGP 동작에서 deprecation 경고가 나거나 일부 기능이 동작하지 않을 수 있다. 예: Kotlin 2.4.21의 범위는 Gradle 9.7.0, AGP 9.3.1까지다.
+
 ## Compose Multiplatform이 짝지은 버전
 
 JetBrains가 멀티플랫폼으로 다시 배포한 라이브러리는 각 저장소의 최신 버전이 아니라, 쓰고 있는 Compose Multiplatform 버전이 [CHANGELOG](https://github.com/JetBrains/compose-multiplatform/blob/master/CHANGELOG.md)의 의존성 표에서 짝지은 버전을 쓴다. 대상은 `jetbrainsComposeMaterial3`, `jetbrainsComposeMaterial3Adaptive`, `jetbrainsLifecycle`, `jetbrainsNavigation3`이다. 최신 버전은 다음 Compose Multiplatform과 짝일 수 있다. 예: `navigation3` 1.2.0은 Compose Multiplatform 1.13.0-beta와 짝이고, 1.12.2와 짝인 버전은 1.2.0-rc01이다.

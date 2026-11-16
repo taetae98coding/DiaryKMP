@@ -15,7 +15,7 @@ jetbrainsNavigation3 = "1.2.0-rc01"
 
 iosDeploymentTarget = "26.5"
 
-androidGradlePlugin = "9.5.1" # https://developer.android.com/build/releases/gradle-plugin?hl=en
+androidGradlePlugin = "9.3.1" # https://developer.android.com/build/releases/gradle-plugin?hl=en
 
 androidxActivity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity?hl=en
 androidxAppfunctions = "1.0.0-rc01" # https://developer.android.com/jetpack/androidx/releases/appfunctions?hl=en
