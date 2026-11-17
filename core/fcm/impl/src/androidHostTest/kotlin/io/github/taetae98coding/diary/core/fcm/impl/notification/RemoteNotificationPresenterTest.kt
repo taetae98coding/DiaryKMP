@@ -156,7 +156,7 @@ class RemoteNotificationPresenterTest {
     private fun notificationManager(): NotificationManager = context.getSystemService(NotificationManager::class.java)
 
     private companion object {
-        // 서버가 2026년 11월 4일에 발생한 일일 메모 알림에 담아 보내는 주소다.
+        // 서버가 2026년 11월 4일에 발생한 일일 알림에 담아 보내는 주소다.
         private const val TIMETABLE_DEEP_LINK: String = "diary://timetable?type=day&date=2026-11-04"
 
         const val LAUNCHER_ACTIVITY_CLASS_NAME: String = "io.github.taetae98coding.diary.TestLauncherActivity"

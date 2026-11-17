@@ -26,9 +26,9 @@ create or replace function public.register_fcm_token(token text, time_zone text,
 ## Edge Function 인증
 
 - 앱이 세션 없이 보내는 `Authorization`은 호출 경로마다 다르다. supabase-kt로 부르는 함수 호출(`SupabaseFunction.invoke`)은 publishable 키(`sb_publishable_`)를 `apikey` 헤더로만 보낸다. 시스템 전송 수단이 쓰는 `SupabaseFunction.createRequest`는 그 키를 `Authorization: Bearer`로도 붙인다. 그래서 `Authorization`이 없을 수도, 있어도 로그인 세션이 아닐 수도 있다. 세션 없이 받는 처리는 `createPublicClient`로, 로그인 세션이 필요한 처리는 `createUserClient`로 데이터베이스를 부른다.
-- 세션 없이도 호출되는 함수(`v1-session-*`, `v1-fcm-token-submit`, `v1-play-integrity-decode`, `v1-daily-memo-notification-send`)는 `config.toml`에서 `verify_jwt = false`로 두고 함수 코드에서 인가한다. 로그인 세션이 있어야만 호출되는 함수는 `verify_jwt = true`로 둔다. 게이트웨이는 `Authorization`의 사용자 JWT뿐 아니라 어느 헤더로든 온 publishable·secret 키도 통과시키므로([Authorization headers](https://supabase.com/docs/guides/functions/auth-headers)), `verify_jwt = true`인 함수도 호출자를 `requireUserId`나 `createUserClient`로 부른 DB 함수의 `auth.uid()`로 확인한다.
+- 세션 없이도 호출되는 함수(`v1-session-*`, `v1-fcm-token-submit`, `v1-play-integrity-decode`, `v1-daily-notification-send`)는 `config.toml`에서 `verify_jwt = false`로 두고 함수 코드에서 인가한다. 로그인 세션이 있어야만 호출되는 함수는 `verify_jwt = true`로 둔다. 게이트웨이는 `Authorization`의 사용자 JWT뿐 아니라 어느 헤더로든 온 publishable·secret 키도 통과시키므로([Authorization headers](https://supabase.com/docs/guides/functions/auth-headers)), `verify_jwt = true`인 함수도 호출자를 `requireUserId`나 `createUserClient`로 부른 DB 함수의 `auth.uid()`로 확인한다.
 - 함수가 직접 쓰는 프로젝트 키는 `_shared/supabase.ts`의 `publishableKey()`·`secretKey()`로 읽는다. 이름별 JSON인 `SUPABASE_PUBLISHABLE_KEYS`·`SUPABASE_SECRET_KEYS`의 `default` 키다. legacy 키가 담기는 `SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`는 읽지 않는다.
-- 서버끼리 부르는 함수(`v1-daily-memo-notification-send`)는 호출자가 secret 키를 `apikey` 헤더로 보내고 함수가 `secretKey()`와 일치하는지 본다. secret 키는 JWT가 아니므로 `Authorization: Bearer`로 보내지 않는다. `pg_cron`은 Vault의 `secret_key`를 읽어 보낸다.
+- 서버끼리 부르는 함수(`v1-daily-notification-send`)는 호출자가 secret 키를 `apikey` 헤더로 보내고 함수가 `secretKey()`와 일치하는지 본다. secret 키는 JWT가 아니므로 `Authorization: Bearer`로 보내지 않는다. `pg_cron`은 Vault의 `secret_key`를 읽어 보낸다.
 - 함수를 직접 호출해 확인할 때는 앱과 같은 헤더를 쓴다. 게스트 요청은 확인하려는 호출 경로가 위에서 보내는 헤더 그대로, 사용자 요청은 `apikey`와 사용자 세션의 `Authorization`을 보낸다. 앱이 `apikey`만 보내는 경로에 `Authorization: Bearer <apikey>`를 직접 붙이면 앱에서는 실패하는 요청이 성공한다.
 
 ## 동기화 계약의 버전

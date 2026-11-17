@@ -223,7 +223,7 @@ verify_jwt = false
 verify_jwt = false
 
 # pg_cron이 secret 키를 apikey 헤더로 보내 호출하고 함수 안에서 키를 대조하므로 게이트웨이 JWT 검증은 끈다.
-[functions.v1-daily-memo-notification-send]
+[functions.v1-daily-notification-send]
 verify_jwt = false
 
 # 위 설정은 dev(project_id) 기준이며, client_id/secret은 push 시점 env로 주입된다.

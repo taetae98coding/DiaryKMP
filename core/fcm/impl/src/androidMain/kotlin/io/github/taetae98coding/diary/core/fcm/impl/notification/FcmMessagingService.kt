@@ -12,7 +12,7 @@ internal class FcmMessagingService : FirebaseMessagingService() {
             RemoteNotification(
                 title = notification.title.orEmpty(),
                 body = notification.body.orEmpty(),
-                channelId = notification.channelId ?: DAILY_MEMO_NOTIFICATION_CHANNEL_ID,
+                channelId = notification.channelId ?: DAILY_NOTIFICATION_CHANNEL_ID,
                 tag = notification.tag ?: DEFAULT_TAG,
                 deepLink = message.data[ScreenDeepLink.NOTIFICATION_DATA_KEY].orEmpty(),
             ),

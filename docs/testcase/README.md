@@ -65,7 +65,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [ContactHome](./contact-home.md) | [ContactHome 화면](../spec/client/contact-home.md) |
 | [Contact 목록·상세 배치](./contact-list-detail.md) | [Contact 목록·상세 배치](../spec/client/contact-list-detail.md) |
 | [현재 위치 확인](./current-location.md) | [현재 위치 확인](../spec/client/current-location.md) |
-| [일일 메모 알림](./daily-memo-notification.md) | [일일 메모 알림(client)](../spec/client/daily-memo-notification.md), [일일 메모 알림(common)](../spec/common/daily-memo-notification.md), [일일 메모 알림(server)](../spec/server/daily-memo-notification.md) |
+| [일일 알림](./daily-notification.md) | [일일 알림(client)](../spec/client/daily-notification.md), [일일 알림(common)](../spec/common/daily-notification.md), [일일 알림(server)](../spec/server/daily-notification.md) |
 | [데이터 동기화](./data-sync.md) | [데이터 동기화(client)](../spec/client/data-sync.md), [데이터 동기화(common)](../spec/common/data-sync.md), [데이터 동기화(server)](../spec/server/data-sync.md) |
 | [디데이](./dday.md) | [디데이(client)](../spec/client/dday.md), [디데이(common)](../spec/common/dday.md) |
 | [디데이 태그](./dday-tag.md) | [디데이 태그](../spec/client/dday-tag.md), [디데이 태그](../spec/common/dday-tag.md) |

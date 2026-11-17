@@ -14,7 +14,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
-class DailyMemoNotificationChannelTest {
+class DailyNotificationChannelTest {
     private lateinit var context: Context
 
     @Before
@@ -23,27 +23,27 @@ class DailyMemoNotificationChannelTest {
     }
 
     @Test
-    fun `TC-0fe56458-f7dd-4f4d-8277-9eef73c3bca3 일일 메모 알림 채널은 소리와 화면 위 떠오름이 없는 낮은 중요도로 디자인 문구를 갖고 만들어진다`() {
-        context.createDailyMemoNotificationChannel()
+    fun `TC-0fe56458-f7dd-4f4d-8277-9eef73c3bca3 일일 알림 채널은 소리와 화면 위 떠오름이 없는 낮은 중요도로 디자인 문구를 갖고 만들어진다`() {
+        context.createDailyNotificationChannel()
 
-        val channel = notificationManager().getNotificationChannel(DAILY_MEMO_NOTIFICATION_CHANNEL_ID)
+        val channel = notificationManager().getNotificationChannel(DAILY_NOTIFICATION_CHANNEL_ID)
 
         channel.importance shouldBe NotificationManager.IMPORTANCE_LOW
         channel.shouldVibrate() shouldBe false
         channel.canShowBadge() shouldBe false
-        channel.name shouldBe "Daily memo reminder"
-        channel.description shouldBe "Reminds you every morning to check today's memos."
+        channel.name shouldBe "Daily reminder"
+        channel.description shouldBe "Reminds you every morning of today's memos, routines, and D-days."
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-0fe56458-f7dd-4f4d-8277-9eef73c3bca3 한국어 기기에서는 일일 메모 알림 채널이 한국어 디자인 문구를 갖고 만들어진다`() {
-        context.createDailyMemoNotificationChannel()
+    fun `TC-0fe56458-f7dd-4f4d-8277-9eef73c3bca3 한국어 기기에서는 일일 알림 채널이 한국어 디자인 문구를 갖고 만들어진다`() {
+        context.createDailyNotificationChannel()
 
-        val channel = notificationManager().getNotificationChannel(DAILY_MEMO_NOTIFICATION_CHANNEL_ID)
+        val channel = notificationManager().getNotificationChannel(DAILY_NOTIFICATION_CHANNEL_ID)
 
-        channel.name shouldBe "일일 메모 알림"
-        channel.description shouldBe "매일 아침 오늘의 메모를 확인하도록 안내합니다."
+        channel.name shouldBe "일일 알림"
+        channel.description shouldBe "매일 아침 오늘의 메모, 루틴과 디데이를 알려 줍니다."
     }
 
     @Test

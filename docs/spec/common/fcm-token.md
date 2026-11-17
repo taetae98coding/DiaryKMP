@@ -2,7 +2,7 @@
 
 이 문서는 기기가 서버에서 푸시 알림을 받을 수 있도록 서버에 자기 정보를 등록하고 해제할 때 앱과 서버가 주고받는 정보와 그 의미를 다룬다.
 
-앱이 언제 등록하거나 해제하는지는 [푸시 알림 수신 등록 스펙(client)](../client/fcm-token.md)이, 서버가 받은 정보를 어떻게 검증하고 저장하는지는 [푸시 알림 수신 등록 스펙(server)](../server/fcm-token.md)이 소유한다. 등록된 정보로 보내는 알림은 [일일 메모 알림 스펙(server)](../server/daily-memo-notification.md)이 소유한다.
+앱이 언제 등록하거나 해제하는지는 [푸시 알림 수신 등록 스펙(client)](../client/fcm-token.md)이, 서버가 받은 정보를 어떻게 검증하고 저장하는지는 [푸시 알림 수신 등록 스펙(server)](../server/fcm-token.md)이 소유한다. 등록된 정보로 보내는 알림은 [일일 알림 스펙(server)](../server/daily-notification.md)이 소유한다.
 
 ## domain
 

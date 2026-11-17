@@ -227,7 +227,7 @@ class AppStateDeepLinkTest :
         private val TWO_PANE_DIRECTIVE: PaneScaffoldDirective = PaneScaffoldDirective.Default.copy(maxHorizontalPartitions = 2)
         private val NOTIFICATION_DATE: LocalDate = LocalDate(2026, 11, 4)
 
-        // 서버가 2026년 11월 4일에 발생한 일일 메모 알림에 담아 보내는 주소다.
+        // 서버가 2026년 11월 4일에 발생한 일일 알림에 담아 보내는 주소다.
         private const val NOTIFICATION_TIMETABLE: String = "diary://timetable?type=day&date=2026-11-04"
 
         private fun createAppState(

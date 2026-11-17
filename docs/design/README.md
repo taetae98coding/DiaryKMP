@@ -96,7 +96,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [ContactAdd 화면](./contact-add.md)
 - [ContactDetail 화면](./contact-detail.md)
 - [ContactHome 화면](./contact-home.md)
-- [일일 메모 알림](./daily-memo-notification.md)
+- [일일 알림](./daily-notification.md)
 - [앱 동작](./app-action.md)
 - [항목 추가 화면 공통](./entity-add.md)
 - [항목 상세 화면 공통](./entity-detail.md)

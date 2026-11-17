@@ -56,10 +56,10 @@ class FcmMessagingServiceTest {
     }
 
     @Test
-    fun `TC-8bd47d8e-d759-4876-a1b2-be83de3bddb7 메시지에 채널이 없으면 일일 메모 알림 채널로 표시한다`() {
+    fun `TC-8bd47d8e-d759-4876-a1b2-be83de3bddb7 메시지에 채널이 없으면 일일 알림 채널로 표시한다`() {
         service.onMessageReceived(remoteMessage(title = title(), body = null, channelId = null, tag = null))
 
-        shadowOf(notificationManager()).allNotifications.single().channelId shouldBe DAILY_MEMO_NOTIFICATION_CHANNEL_ID
+        shadowOf(notificationManager()).allNotifications.single().channelId shouldBe DAILY_NOTIFICATION_CHANNEL_ID
     }
 
     @Test
@@ -123,7 +123,7 @@ class FcmMessagingServiceTest {
     private fun notificationManager(): NotificationManager = context.getSystemService(NotificationManager::class.java)
 
     private companion object {
-        // 서버가 2026년 11월 4일에 발생한 일일 메모 알림에 담아 보내는 주소다.
+        // 서버가 2026년 11월 4일에 발생한 일일 알림에 담아 보내는 주소다.
         private const val TIMETABLE_DEEP_LINK: String = "diary://timetable?type=day&date=2026-11-04"
 
         const val LAUNCHER_ACTIVITY_CLASS_NAME: String = "io.github.taetae98coding.diary.TestLauncherActivity"

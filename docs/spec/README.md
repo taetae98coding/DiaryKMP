@@ -203,7 +203,7 @@
 | 웹 태그 | [client](./client/web-tag.md) | [common](./common/web-tag.md) | — | — |
 | 위치 권한 요청 | [client](./client/location-permission.md) | — | — | — |
 | 음력 자료 동기화 | [client](./client/lunar-fetch.md) | — | — | — |
-| 일일 메모 알림 | [client](./client/daily-memo-notification.md) | [common](./common/daily-memo-notification.md) | [server](./server/daily-memo-notification.md) | [일일 메모 알림 디자인](../design/daily-memo-notification.md) |
+| 일일 알림 | [client](./client/daily-notification.md) | [common](./common/daily-notification.md) | [server](./server/daily-notification.md) | [일일 알림 디자인](../design/daily-notification.md) |
 | 입력 정지 대기 시간 | [client](./client/input-idle-delay.md) | — | — | — |
 | 장소 | [client](./client/place.md) | [common](./common/place.md) | — | — |
 | 장소 검색 공통 | [client](./client/place-search.md) | — | — | — |
