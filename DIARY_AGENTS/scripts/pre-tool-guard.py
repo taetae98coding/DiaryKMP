@@ -3,7 +3,7 @@
 
 - 로컬 전용 파일(DIARY_AGENTS/local-files.md 목록)의 내용을 읽거나(Read), 검색하거나(Grep), 출력 명령에 넘기지 않는다.
 - 다른 worktree와 공유하는 stash 스택을 건드리는 stash 명령(pop·clear, 메시지 없는 push·save, 대상 없는 drop)과 강제 push를 쓰지 않는다.
-- verify-wave를 통과하지 않은 작업 트리를 커밋하지 않는다(DIARY_AGENTS/scripts/verify-stamp.sh check).
+- verify-wave와 test-wave의 통과 기록과 맞지 않는 작업 트리를 커밋하지 않는다(DIARY_AGENTS/scripts/verify-stamp.sh check).
 
 막을 때는 두 도구가 모두 이해하는 `permissionDecision: deny` JSON을 stdout에 쓰고 0으로 끝난다. 사용자가 검증 없는 커밋을 명시적으로 요청했으면
 명령 앞에 `DIARY_VERIFY_BYPASS=1`을 붙여 커밋 확인만 건너뛴다.

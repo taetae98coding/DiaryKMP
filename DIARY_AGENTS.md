@@ -33,12 +33,13 @@
 
 사용자가 커밋, 머지 또는 작업 종료를 요청했을 때만 다음 순서로 진행한다.
 
-`rebase-wave` → `commit-wave` → `merge-wave`
+`rebase-wave` → `test-wave` → `commit-wave` → `merge-wave`
 
 - 작업 iterator가 끝나도 자동으로 시작하지 않는다.
-- 요청 범위 밖의 단계는 수행하지 않는다. 커밋만 요청받으면 커밋만 한다.
+- 요청 범위 밖의 단계는 수행하지 않는다. 단, `test-wave`는 `rebase-wave`나 `commit-wave`가 범위에 있으면 함께 수행한다. 커밋만 요청받으면 `test-wave`와 `commit-wave`만, 머지만 요청받으면 `merge-wave`만 한다.
 - `rebase-wave`가 컨플릭 없이 끝나면 확인 없이 이어서 수행하고, 컨플릭을 해결했으면 결과를 보고해 승인을 받은 뒤 넘어간다.
-- 코드가 바뀐 뒤 `verify-wave`를 통과하지 않았으면 작업 iterator로 돌아가 검증부터 마친다. Claude Code와 Codex의 PreToolUse hook이 통과 기록과 다른 작업 트리의 `git commit`을 막는다.
+- `test-wave`가 하나라도 실패하면 보고하고 다음 단계로 넘어가지 않는다. 사용자가 고치라고 하면 작업 iterator로 돌아가 고치고 `verify-wave`까지 마친 뒤 종료 iterator를 처음부터 다시 시작한다.
+- 코드가 바뀐 뒤 `verify-wave`를 통과하지 않았으면 작업 iterator로 돌아가 검증부터 마친다. Claude Code와 Codex의 PreToolUse hook이 `verify-wave`와 `test-wave`의 통과 기록과 맞지 않는 `git commit`을 막는다.
 
 ## 코드 규칙
 

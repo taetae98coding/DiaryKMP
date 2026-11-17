@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Wave"
+  short_description: "커밋 전 저장소 전체 테스트와 class 파일 이름 검사 게이트"
+  default_prompt: "Use $test-wave after rebase-wave and before commit-wave to run the full jvmTest and testAndroidHostTest suite and the class file name check once, stop and report on any failure without fixing it, and record the pass with DIARY_AGENTS/scripts/verify-stamp.sh record test."
