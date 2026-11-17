@@ -8,7 +8,6 @@ import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarOverride
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarOverrideScope
 import io.github.taetae98coding.diary.compose.core.appbar.LocalDiaryTopBarOverride
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenu
-import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuIcon
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuItem
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuOverride
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuOverrideScope
@@ -17,6 +16,9 @@ import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionBut
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.button.LocalDiaryFloatingActionButtonMenuOverride
 import io.github.taetae98coding.diary.compose.core.button.LocalDiaryFloatingActionButtonOverride
+import io.github.taetae98coding.diary.compose.icon.Checklist
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.SelectAll
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
@@ -100,10 +102,10 @@ class DiaryComponentOverrideTest {
                     DiaryFloatingActionButtonMenu(
                         expanded = false,
                         onExpandedChange = {},
-                        icon = DiaryFloatingActionButtonMenuIcon.CHECKLIST,
+                        icon = DiaryIcons.Checklist,
                         contentDescription = texts.first(),
                         expandedContentDescription = texts.last(),
-                        items = texts.mapIndexed { index, text -> DiaryFloatingActionButtonMenuItem(text = text, icon = DiaryFloatingActionButtonMenuIcon.SELECT_ALL, onClick = { clicked += index }) },
+                        items = texts.mapIndexed { index, text -> DiaryFloatingActionButtonMenuItem(text = text, icon = DiaryIcons.SelectAll, onClick = { clicked += index }) },
                     )
                 }
             }

@@ -26,8 +26,8 @@ internal fun rememberUiKitTopBarButton(action: DiaryTopBarAction): UiKitTopBarBu
     when (action) {
         is DiaryTopBarAction.Icon ->
             UiKitTopBarButton(
-                id = action.icon.buttonKey,
-                image = rememberTemplateUIImage(imageVector = action.icon.imageVector, size = DiaryTopBarDefaults.IosIconSize),
+                id = action.key,
+                image = rememberTemplateUIImage(imageVector = action.icon, size = DiaryTopBarDefaults.IosIconSize),
                 text = null,
                 contentDescription = action.contentDescription,
                 stateDescription = null,
@@ -41,8 +41,8 @@ internal fun rememberUiKitTopBarButton(action: DiaryTopBarAction): UiKitTopBarBu
 
         is DiaryTopBarAction.Toggle ->
             UiKitTopBarButton(
-                id = action.icon.buttonKey,
-                image = rememberTemplateUIImage(imageVector = action.icon.imageVector, size = DiaryTopBarDefaults.IosIconSize),
+                id = action.key,
+                image = rememberTemplateUIImage(imageVector = action.icon, size = DiaryTopBarDefaults.IosIconSize),
                 text = null,
                 contentDescription = action.contentDescription,
                 stateDescription = null,
@@ -56,8 +56,8 @@ internal fun rememberUiKitTopBarButton(action: DiaryTopBarAction): UiKitTopBarBu
 
         is DiaryTopBarAction.Applied ->
             UiKitTopBarButton(
-                id = action.icon.buttonKey,
-                image = rememberTemplateUIImage(imageVector = action.icon.imageVector, size = DiaryTopBarDefaults.IosIconSize),
+                id = action.key,
+                image = rememberTemplateUIImage(imageVector = action.icon, size = DiaryTopBarDefaults.IosIconSize),
                 text = null,
                 contentDescription = action.contentDescription,
                 stateDescription = action.appliedStateDescription.takeIf { action.isApplied },

@@ -1,13 +1,15 @@
 package io.github.taetae98coding.diary.compose.core.appbar
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.vector.ImageVector
 
 internal sealed interface DiaryTopBarAction {
     val contentDescription: String
 
     @Immutable
     data class Icon(
-        val icon: DiaryTopBarIcon,
+        val icon: ImageVector,
+        val key: String,
         override val contentDescription: String,
         val onClick: () -> Unit,
         val isEnabled: Boolean,
@@ -17,7 +19,8 @@ internal sealed interface DiaryTopBarAction {
 
     @Immutable
     data class Toggle(
-        val icon: DiaryTopBarIcon,
+        val icon: ImageVector,
+        val key: String,
         override val contentDescription: String,
         val isChecked: Boolean,
         val onClick: () -> Unit,
@@ -26,7 +29,8 @@ internal sealed interface DiaryTopBarAction {
 
     @Immutable
     data class Applied(
-        val icon: DiaryTopBarIcon,
+        val icon: ImageVector,
+        val key: String,
         override val contentDescription: String,
         val isApplied: Boolean,
         val appliedStateDescription: String,

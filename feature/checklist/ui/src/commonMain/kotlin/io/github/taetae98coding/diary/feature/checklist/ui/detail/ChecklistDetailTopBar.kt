@@ -3,7 +3,9 @@ package io.github.taetae98coding.diary.feature.checklist.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.RestartAlt
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.checklist.ui.Res
@@ -47,14 +49,14 @@ internal fun ChecklistDetailTopBar(
                 val itemUiState = itemUiStateProvider()
 
                 IconAction(
-                    icon = DiaryTopBarIcon.RESET,
+                    icon = DiaryIcons.RestartAlt,
                     contentDescription = resetContentDescription,
                     onClick = { onEvent(ChecklistDetailScaffoldEvent.ClickReset) },
                     isEnabled = itemUiState.isResetEnabled,
                     isInProgress = itemUiState.isResetInProgress,
                 )
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(ChecklistDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,

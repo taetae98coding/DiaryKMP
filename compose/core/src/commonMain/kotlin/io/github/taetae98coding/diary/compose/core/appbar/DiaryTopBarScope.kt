@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @DslMarker
 public annotation class DiaryTopBarDsl
@@ -73,11 +74,13 @@ public class DiaryTopBarActionScope internal constructor(
     private val content: @Composable (DiaryTopBarAction) -> Unit,
 ) {
     // isVisible을 false로 바꾸면 크기·투명도 전환을 거쳐 사라지고, 호출하지 않으면 전환 없이 곧바로 사라진다.
+    // 같은 key를 주면 아이콘이 바뀌어도 같은 버튼으로 이어 교차 전환하고, key가 다르면 다른 버튼으로 보아 바로 바꾼다.
     @Composable
     public fun IconAction(
-        icon: DiaryTopBarIcon,
+        icon: ImageVector,
         contentDescription: String,
         onClick: () -> Unit,
+        key: String = icon.name,
         isEnabled: Boolean = true,
         isInProgress: Boolean = false,
         isVisible: Boolean = true,
@@ -85,6 +88,7 @@ public class DiaryTopBarActionScope internal constructor(
         content(
             DiaryTopBarAction.Icon(
                 icon = icon,
+                key = key,
                 contentDescription = contentDescription,
                 onClick = onClick,
                 isEnabled = isEnabled,
@@ -96,7 +100,7 @@ public class DiaryTopBarActionScope internal constructor(
 
     @Composable
     public fun ToggleAction(
-        icon: DiaryTopBarIcon,
+        icon: ImageVector,
         contentDescription: String,
         isChecked: Boolean,
         onClick: () -> Unit,
@@ -105,6 +109,7 @@ public class DiaryTopBarActionScope internal constructor(
         content(
             DiaryTopBarAction.Toggle(
                 icon = icon,
+                key = icon.name,
                 contentDescription = contentDescription,
                 isChecked = isChecked,
                 onClick = onClick,
@@ -115,7 +120,7 @@ public class DiaryTopBarActionScope internal constructor(
 
     @Composable
     public fun AppliedAction(
-        icon: DiaryTopBarIcon,
+        icon: ImageVector,
         contentDescription: String,
         isApplied: Boolean,
         appliedStateDescription: String,
@@ -124,6 +129,7 @@ public class DiaryTopBarActionScope internal constructor(
         content(
             DiaryTopBarAction.Applied(
                 icon = icon,
+                key = icon.name,
                 contentDescription = contentDescription,
                 isApplied = isApplied,
                 appliedStateDescription = appliedStateDescription,

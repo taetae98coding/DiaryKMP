@@ -8,8 +8,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenu
-import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuIcon
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuItem
+import io.github.taetae98coding.diary.compose.icon.Checklist
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.SelectAll
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
@@ -37,10 +39,10 @@ class MaterialDiaryComponentTest {
                 DiaryFloatingActionButtonMenu(
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                    icon = DiaryFloatingActionButtonMenuIcon.CHECKLIST,
+                    icon = DiaryIcons.Checklist,
                     contentDescription = texts[0],
                     expandedContentDescription = texts[1],
-                    items = listOf(DiaryFloatingActionButtonMenuItem(text = texts[2], icon = DiaryFloatingActionButtonMenuIcon.SELECT_ALL, onClick = { clickCount += 1 })),
+                    items = listOf(DiaryFloatingActionButtonMenuItem(text = texts[2], icon = DiaryIcons.SelectAll, onClick = { clickCount += 1 })),
                 )
             }
         }

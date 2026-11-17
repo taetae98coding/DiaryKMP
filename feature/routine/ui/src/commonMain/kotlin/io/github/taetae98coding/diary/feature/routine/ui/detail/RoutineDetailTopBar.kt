@@ -5,7 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Verified
 import io.github.taetae98coding.diary.compose.routine.previewRoutineDetail
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
@@ -48,7 +50,7 @@ internal fun RoutineDetailTopBar(
             if (uiState is RoutineDetailUiState.Content) {
                 RoutineDetailFinishAction(content = uiState, onEvent = onEvent)
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(RoutineDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,
@@ -64,7 +66,7 @@ private fun DiaryTopBarActionScope.RoutineDetailFinishAction(
     onEvent: (RoutineDetailScaffoldEvent) -> Unit,
 ) {
     ToggleAction(
-        icon = DiaryTopBarIcon.FINISH,
+        icon = DiaryIcons.Verified,
         contentDescription =
             if (content.isFinished) {
                 stringResource(Res.string.routine_detail_restart_button_content_description)

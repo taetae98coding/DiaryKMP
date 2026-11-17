@@ -5,7 +5,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.title.calendarYearMonthTitle
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.FilterList
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.calendar.ui.Res
@@ -56,7 +57,7 @@ internal fun CalendarHomeTopBar(
                 )
             }
             AppliedAction(
-                icon = DiaryTopBarIcon.FILTER,
+                icon = DiaryIcons.FilterList,
                 contentDescription = filterContentDescription,
                 isApplied = filterUiState.isApplied,
                 appliedStateDescription = filterAppliedStateDescription,

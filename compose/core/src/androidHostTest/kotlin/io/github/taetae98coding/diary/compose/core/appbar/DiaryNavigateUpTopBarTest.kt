@@ -9,6 +9,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Search
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -72,7 +74,7 @@ class DiaryNavigateUpTopBarTest {
                     title = TITLE,
                     onNavigateUp = {},
                     navigateUpContentDescription = NAVIGATE_UP,
-                    actions = { IconAction(icon = DiaryTopBarIcon.SEARCH, contentDescription = ACTION, onClick = {}) },
+                    actions = { IconAction(icon = DiaryIcons.Search, contentDescription = ACTION, onClick = {}) },
                 )
             }
         }

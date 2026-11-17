@@ -7,6 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import io.github.taetae98coding.diary.compose.icon.Checklist
+import io.github.taetae98coding.diary.compose.icon.Deselect
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.SelectAll
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
@@ -14,7 +19,7 @@ import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 public fun DiaryFloatingActionButtonMenu(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    icon: DiaryFloatingActionButtonMenuIcon,
+    icon: ImageVector,
     contentDescription: String,
     expandedContentDescription: String,
     items: List<DiaryFloatingActionButtonMenuItem>,
@@ -44,13 +49,13 @@ private fun DiaryFloatingActionButtonMenuPreview() {
             DiaryFloatingActionButtonMenu(
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
-                icon = DiaryFloatingActionButtonMenuIcon.CHECKLIST,
+                icon = DiaryIcons.Checklist,
                 contentDescription = "Bulk select",
                 expandedContentDescription = "Close bulk select",
                 items =
                     listOf(
-                        DiaryFloatingActionButtonMenuItem(text = "Select all", icon = DiaryFloatingActionButtonMenuIcon.SELECT_ALL, onClick = {}),
-                        DiaryFloatingActionButtonMenuItem(text = "Deselect all", icon = DiaryFloatingActionButtonMenuIcon.DESELECT, onClick = {}),
+                        DiaryFloatingActionButtonMenuItem(text = "Select all", icon = DiaryIcons.SelectAll, onClick = {}),
+                        DiaryFloatingActionButtonMenuItem(text = "Deselect all", icon = DiaryIcons.Deselect, onClick = {}),
                     ),
             )
         }

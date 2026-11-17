@@ -3,8 +3,11 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.share.ShareAction
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.OpenInNew
+import io.github.taetae98coding.diary.compose.icon.Search
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
@@ -51,19 +54,19 @@ internal fun PlaceDetailTopBar(
                     ShareAction(onClick = { onEvent(PlaceDetailScaffoldEvent.ClickShare) })
                 }
                 IconAction(
-                    icon = DiaryTopBarIcon.OPEN_IN_NEW,
+                    icon = DiaryIcons.OpenInNew,
                     contentDescription = openExternalMapContentDescription,
                     onClick = { onEvent(PlaceDetailScaffoldEvent.ClickOpenExternalMap) },
                 )
                 if (uiState.isMapDisplayed) {
                     IconAction(
-                        icon = DiaryTopBarIcon.SEARCH,
+                        icon = DiaryIcons.Search,
                         contentDescription = searchContentDescription,
                         onClick = { onEvent(PlaceDetailScaffoldEvent.ClickSearch) },
                     )
                 }
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(PlaceDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,

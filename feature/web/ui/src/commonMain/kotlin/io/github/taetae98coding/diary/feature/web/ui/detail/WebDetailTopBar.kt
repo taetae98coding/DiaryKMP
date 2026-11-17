@@ -3,8 +3,10 @@ package io.github.taetae98coding.diary.feature.web.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.share.ShareAction
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.OpenInNew
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.web.ui.Res
@@ -46,12 +48,12 @@ internal fun WebDetailTopBar(
                     ShareAction(onClick = { onEvent(WebDetailScaffoldEvent.ClickShare) })
                 }
                 IconAction(
-                    icon = DiaryTopBarIcon.OPEN_IN_NEW,
+                    icon = DiaryIcons.OpenInNew,
                     contentDescription = openInNewContentDescription,
                     onClick = { onEvent(WebDetailScaffoldEvent.ClickOpenInNew) },
                 )
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(WebDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,

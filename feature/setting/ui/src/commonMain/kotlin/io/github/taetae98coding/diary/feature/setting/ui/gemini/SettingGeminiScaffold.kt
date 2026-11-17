@@ -13,9 +13,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Key
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
@@ -60,7 +61,7 @@ internal fun SettingGeminiScaffold(
                 isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             ) {
                 IconAction(
-                    icon = DiaryTopBarIcon.KEY,
+                    icon = DiaryIcons.Key,
                     contentDescription = stringResource(Res.string.setting_gemini_api_key_issue_button_content_description),
                     onClick = { onEvent(SettingGeminiScaffoldEvent.ClickApiKeyIssue) },
                 )

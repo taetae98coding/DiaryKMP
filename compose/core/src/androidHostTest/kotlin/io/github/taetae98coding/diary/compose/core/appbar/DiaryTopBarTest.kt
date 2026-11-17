@@ -24,6 +24,12 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.FilterList
+import io.github.taetae98coding.diary.compose.icon.OpenInNew
+import io.github.taetae98coding.diary.compose.icon.Undo
+import io.github.taetae98coding.diary.compose.icon.Verified
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
@@ -51,7 +57,7 @@ class DiaryTopBarTest {
                     title = {},
                     actions = {
                         IconAction(
-                            icon = DiaryTopBarIcon.DELETE,
+                            icon = DiaryIcons.Delete,
                             contentDescription = contentDescription,
                             onClick = { clickCount += 1 },
                         )
@@ -75,7 +81,7 @@ class DiaryTopBarTest {
                     title = {},
                     actions = {
                         IconAction(
-                            icon = DiaryTopBarIcon.DELETE,
+                            icon = DiaryIcons.Delete,
                             contentDescription = contentDescription,
                             onClick = {},
                             isInProgress = true,
@@ -102,7 +108,7 @@ class DiaryTopBarTest {
                     title = {},
                     actions = {
                         IconAction(
-                            icon = DiaryTopBarIcon.UNDO,
+                            icon = DiaryIcons.Undo,
                             contentDescription = contentDescription,
                             onClick = {},
                             isEnabled = isEnabled,
@@ -129,7 +135,7 @@ class DiaryTopBarTest {
                     title = {},
                     actions = {
                         IconAction(
-                            icon = DiaryTopBarIcon.OPEN_IN_NEW,
+                            icon = DiaryIcons.OpenInNew,
                             contentDescription = contentDescription,
                             onClick = {},
                             isVisible = isVisible,
@@ -156,7 +162,7 @@ class DiaryTopBarTest {
                     title = {},
                     actions = {
                         ToggleAction(
-                            icon = DiaryTopBarIcon.FINISH,
+                            icon = DiaryIcons.Verified,
                             contentDescription = contentDescription,
                             isChecked = isChecked,
                             onClick = {},
@@ -184,7 +190,7 @@ class DiaryTopBarTest {
                     title = {},
                     actions = {
                         AppliedAction(
-                            icon = DiaryTopBarIcon.FILTER,
+                            icon = DiaryIcons.FilterList,
                             contentDescription = contentDescription,
                             isApplied = isApplied,
                             appliedStateDescription = appliedStateDescription,

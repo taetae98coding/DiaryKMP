@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.compose.core.appbar
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Search
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
@@ -32,7 +34,7 @@ private fun DiaryTopBarPreview() {
         DiaryTopBar(
             title = { Title(text = "제목") },
             navigationIcon = { NavigateUp(onClick = {}, contentDescription = "뒤로가기") },
-            actions = { IconAction(icon = DiaryTopBarIcon.SEARCH, contentDescription = "검색", onClick = {}) },
+            actions = { IconAction(icon = DiaryIcons.Search, contentDescription = "검색", onClick = {}) },
         )
     }
 }

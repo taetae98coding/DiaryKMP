@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 
 public interface DiaryFloatingActionButtonMenuOverride {
     @Composable
@@ -13,7 +14,7 @@ public interface DiaryFloatingActionButtonMenuOverride {
 public class DiaryFloatingActionButtonMenuOverrideScope internal constructor(
     public val expanded: Boolean,
     public val onExpandedChange: (Boolean) -> Unit,
-    public val icon: DiaryFloatingActionButtonMenuIcon,
+    public val icon: ImageVector,
     public val contentDescription: String,
     public val expandedContentDescription: String,
     public val items: List<DiaryFloatingActionButtonMenuItem>,

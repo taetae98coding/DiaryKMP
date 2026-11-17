@@ -12,10 +12,12 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.QrCodeScanner
+import io.github.taetae98coding.diary.compose.icon.Undo
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
@@ -61,13 +63,13 @@ internal fun QrAddScaffold(
                 isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
                 actions = {
                     IconAction(
-                        icon = DiaryTopBarIcon.UNDO,
+                        icon = DiaryIcons.Undo,
                         contentDescription = undoContentDescription,
                         onClick = { onEvent(QrAddScaffoldEvent.ClickUndo) },
                         isEnabled = state.contentState.canUndo,
                     )
                     IconAction(
-                        icon = DiaryTopBarIcon.QR_SCAN,
+                        icon = DiaryIcons.QrCodeScanner,
                         contentDescription = scanContentDescription,
                         onClick = { onEvent(QrAddScaffoldEvent.ClickScan) },
                     )

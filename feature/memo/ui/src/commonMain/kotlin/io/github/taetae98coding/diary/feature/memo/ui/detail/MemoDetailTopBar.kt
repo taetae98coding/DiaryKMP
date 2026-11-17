@@ -4,8 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.share.ShareAction
+import io.github.taetae98coding.diary.compose.icon.AutoAwesome
+import io.github.taetae98coding.diary.compose.icon.ContentCopy
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Verified
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -57,20 +61,20 @@ internal fun MemoDetailTopBar(
                 }
                 if (geminiUiStateProvider().isButtonVisible) {
                     IconAction(
-                        icon = DiaryTopBarIcon.AUTO_AWESOME,
+                        icon = DiaryIcons.AutoAwesome,
                         contentDescription = geminiContentDescription,
                         onClick = { onEvent(MemoDetailScaffoldEvent.ClickGemini) },
                     )
                 }
                 MemoDetailFinishAction(content = uiState, onEvent = onEvent)
                 IconAction(
-                    icon = DiaryTopBarIcon.COPY,
+                    icon = DiaryIcons.ContentCopy,
                     contentDescription = copyContentDescription,
                     onClick = { onEvent(MemoDetailScaffoldEvent.ClickCopy) },
                     isInProgress = uiState.isCopyInProgress,
                 )
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(MemoDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,
@@ -86,7 +90,7 @@ private fun DiaryTopBarActionScope.MemoDetailFinishAction(
     onEvent: (MemoDetailScaffoldEvent) -> Unit,
 ) {
     ToggleAction(
-        icon = DiaryTopBarIcon.FINISH,
+        icon = DiaryIcons.Verified,
         contentDescription =
             if (content.isFinished) {
                 stringResource(Res.string.memo_detail_restart_button_content_description)

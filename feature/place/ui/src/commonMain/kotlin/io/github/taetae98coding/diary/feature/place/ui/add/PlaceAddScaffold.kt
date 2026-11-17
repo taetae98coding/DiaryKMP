@@ -12,10 +12,11 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Search
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
@@ -73,7 +74,7 @@ internal fun PlaceAddScaffold(
                 actions = {
                     if (uiStateProvider().defaultProvider != null) {
                         IconAction(
-                            icon = DiaryTopBarIcon.SEARCH,
+                            icon = DiaryIcons.Search,
                             contentDescription = searchContentDescription,
                             onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
                         )

@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.List
+import io.github.taetae98coding.diary.compose.icon.Map
+import io.github.taetae98coding.diary.compose.icon.Search
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.place.ui.Res
@@ -39,23 +42,25 @@ internal fun PlaceHomeTopBar(
         },
         actions = {
             IconAction(
-                icon = DiaryTopBarIcon.SEARCH,
+                icon = DiaryIcons.Search,
                 contentDescription = searchContentDescription,
                 onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSearch) },
             )
             when (state.viewMode) {
                 PlaceHomeViewMode.MAP ->
                     IconAction(
-                        icon = DiaryTopBarIcon.LIST,
+                        icon = DiaryIcons.List,
                         contentDescription = listViewModeContentDescription,
                         onClick = state::toggleViewMode,
+                        key = VIEW_MODE_ACTION_KEY,
                     )
 
                 PlaceHomeViewMode.LIST ->
                     IconAction(
-                        icon = DiaryTopBarIcon.MAP,
+                        icon = DiaryIcons.Map,
                         contentDescription = mapViewModeContentDescription,
                         onClick = state::toggleViewMode,
+                        key = VIEW_MODE_ACTION_KEY,
                     )
             }
         },
@@ -74,3 +79,5 @@ private fun PlaceHomeTopBarPreview(
         )
     }
 }
+
+private const val VIEW_MODE_ACTION_KEY = "viewMode"

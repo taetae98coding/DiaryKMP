@@ -4,8 +4,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenu
-import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuIcon
 import io.github.taetae98coding.diary.compose.core.button.DiaryFloatingActionButtonMenuItem
+import io.github.taetae98coding.diary.compose.icon.Checklist
+import io.github.taetae98coding.diary.compose.icon.Deselect
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.SelectAll
+import io.github.taetae98coding.diary.compose.icon.Weekend
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.setting.ui.Res
@@ -25,24 +29,24 @@ internal fun SettingHolidayBulkActionMenu(
     DiaryFloatingActionButtonMenu(
         expanded = state.isBulkActionExpanded,
         onExpandedChange = { isExpanded -> if (isExpanded) state.expandBulkAction() else state.collapseBulkAction() },
-        icon = DiaryFloatingActionButtonMenuIcon.CHECKLIST,
+        icon = DiaryIcons.Checklist,
         contentDescription = stringResource(Res.string.setting_holiday_bulk_action_content_description),
         expandedContentDescription = stringResource(Res.string.setting_holiday_bulk_action_close_content_description),
         items =
             listOf(
                 DiaryFloatingActionButtonMenuItem(
                     text = stringResource(Res.string.setting_holiday_select_all),
-                    icon = DiaryFloatingActionButtonMenuIcon.SELECT_ALL,
+                    icon = DiaryIcons.SelectAll,
                     onClick = { selectBulkAction(state = state, onEvent = onEvent, event = SettingHolidayScaffoldEvent.ClickSelectAll) },
                 ),
                 DiaryFloatingActionButtonMenuItem(
                     text = stringResource(Res.string.setting_holiday_deselect_all),
-                    icon = DiaryFloatingActionButtonMenuIcon.DESELECT,
+                    icon = DiaryIcons.Deselect,
                     onClick = { selectBulkAction(state = state, onEvent = onEvent, event = SettingHolidayScaffoldEvent.ClickDeselectAll) },
                 ),
                 DiaryFloatingActionButtonMenuItem(
                     text = stringResource(Res.string.setting_holiday_select_days_off),
-                    icon = DiaryFloatingActionButtonMenuIcon.DAY_OFF,
+                    icon = DiaryIcons.Weekend,
                     onClick = { selectBulkAction(state = state, onEvent = onEvent, event = SettingHolidayScaffoldEvent.ClickSelectDaysOff) },
                 ),
             ),

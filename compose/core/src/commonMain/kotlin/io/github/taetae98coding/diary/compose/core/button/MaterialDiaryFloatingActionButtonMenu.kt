@@ -15,8 +15,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import io.github.taetae98coding.diary.compose.icon.Checklist
 import io.github.taetae98coding.diary.compose.icon.Close
 import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.SelectAll
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
@@ -24,7 +27,7 @@ import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 internal fun MaterialDiaryFloatingActionButtonMenu(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    icon: DiaryFloatingActionButtonMenuIcon,
+    icon: ImageVector,
     contentDescription: String,
     expandedContentDescription: String,
     items: List<DiaryFloatingActionButtonMenuItem>,
@@ -46,7 +49,7 @@ internal fun MaterialDiaryFloatingActionButtonMenu(
                 if (isClosing) {
                     Icon(imageVector = DiaryIcons.Close, contentDescription = expandedContentDescription, modifier = iconModifier)
                 } else {
-                    Icon(imageVector = icon.imageVector, contentDescription = contentDescription, modifier = iconModifier)
+                    Icon(imageVector = icon, contentDescription = contentDescription, modifier = iconModifier)
                 }
             }
         },
@@ -56,7 +59,7 @@ internal fun MaterialDiaryFloatingActionButtonMenu(
             FloatingActionButtonMenuItem(
                 onClick = item.onClick,
                 text = { Text(text = item.text) },
-                icon = { Icon(imageVector = item.icon.imageVector, contentDescription = null) },
+                icon = { Icon(imageVector = item.icon, contentDescription = null) },
             )
         }
     }
@@ -70,10 +73,10 @@ private fun MaterialDiaryFloatingActionButtonMenuPreview() {
             MaterialDiaryFloatingActionButtonMenu(
                 expanded = true,
                 onExpandedChange = {},
-                icon = DiaryFloatingActionButtonMenuIcon.CHECKLIST,
+                icon = DiaryIcons.Checklist,
                 contentDescription = "Bulk select",
                 expandedContentDescription = "Close bulk select",
-                items = listOf(DiaryFloatingActionButtonMenuItem(text = "Select all", icon = DiaryFloatingActionButtonMenuIcon.SELECT_ALL, onClick = {})),
+                items = listOf(DiaryFloatingActionButtonMenuItem(text = "Select all", icon = DiaryIcons.SelectAll, onClick = {})),
             )
         }
     }
