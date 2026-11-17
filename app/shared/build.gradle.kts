@@ -176,6 +176,12 @@ kotlin {
                 runtimeOnly(libs.kotlinx.coroutines.swing)
             }
         }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.kotlin.reflect)
+            }
+        }
     }
 }
 

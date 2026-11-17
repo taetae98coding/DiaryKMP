@@ -189,7 +189,6 @@ internal class SyncWorkImpl(
         } catch (exception: CancellationException) {
             throw exception
         } catch (_: Throwable) {
-            Unit
         }
     }
 

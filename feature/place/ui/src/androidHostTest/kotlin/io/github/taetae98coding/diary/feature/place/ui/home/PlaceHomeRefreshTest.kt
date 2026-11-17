@@ -107,7 +107,6 @@ class PlaceHomeRefreshTest {
                 requestSyncUseCase(parameter = SyncTrigger.USER_REQUESTED)
                 syncUiState.value = SyncRefreshUiState(isRefreshing = false)
             }
-            Unit
         }
         val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
         // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.

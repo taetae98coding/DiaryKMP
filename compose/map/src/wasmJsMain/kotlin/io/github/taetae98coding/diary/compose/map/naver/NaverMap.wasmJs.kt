@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.taetae98coding.diary.compose.map.naver
 
 import androidx.compose.runtime.Composable

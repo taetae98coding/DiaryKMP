@@ -50,7 +50,7 @@ class MemoPlaceMapStateTest {
         }
 
         composeRule.runOnIdle {
-            mapState.shouldNotBeNull().coordinate shouldBe firstPlace.detail.coordinate?.toDiaryMapCoordinate()
+            mapState.shouldNotBeNull().coordinate shouldBe firstPlace.detail.coordinate.toDiaryMapCoordinate()
         }
     }
 

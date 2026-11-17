@@ -6,7 +6,7 @@ import kotlin.coroutines.ContinuationInterceptor
 internal fun resetAndroidUiDispatcher() {
     val dispatcher = AndroidUiDispatcher.Main[ContinuationInterceptor] as AndroidUiDispatcher
     val type = AndroidUiDispatcher::class.java
-    val lock = type.getDeclaredField("lock").apply { isAccessible = true }.get(dispatcher)
+    val lock = checkNotNull(type.getDeclaredField("lock").apply { isAccessible = true }.get(dispatcher))
 
     synchronized(lock) {
         (type.getDeclaredField("toRunTrampolined").apply { isAccessible = true }.get(dispatcher) as MutableCollection<*>).clear()

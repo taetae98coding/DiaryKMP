@@ -266,7 +266,7 @@ class FileRepositoryImplTest :
                 val firstPage = List(20) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns firstPage
-                coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = any()) } returns emptyList()
+                coEvery { fileRemoteDataSource.readList(cursor = isNull(inverse = true), size = any()) } returns emptyList()
                 val repository =
                     FileRepositoryImpl(
                         fileLocalDataSource = mockk(),

@@ -303,11 +303,9 @@ internal class RoutineFinishedListTestEnvironment(
             every { effect } returns effectChannel.receiveAsFlow()
             every { finish() } answers {
                 change(id = id) { value -> value.copy(isFinished = true) }
-                Unit
             }
             every { restart() } answers {
                 change(id = id) { value -> value.copy(isFinished = false) }
-                Unit
             }
             every { delete() } answers {
                 change(id = id) { value -> value.copy(isDeleted = true) }

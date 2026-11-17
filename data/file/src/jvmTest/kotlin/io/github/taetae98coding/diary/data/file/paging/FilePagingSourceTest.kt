@@ -49,7 +49,7 @@ class FilePagingSourceTest :
                 val firstPage = List(count) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
-                coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = PAGE_SIZE) } returns emptyList()
+                coEvery { fileRemoteDataSource.readList(cursor = isNull(inverse = true), size = PAGE_SIZE) } returns emptyList()
                 val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
                 val refresh = pager.refresh().shouldBeInstanceOf<PagingSource.LoadResult.Page<FileCursorRemoteEntity, *>>()

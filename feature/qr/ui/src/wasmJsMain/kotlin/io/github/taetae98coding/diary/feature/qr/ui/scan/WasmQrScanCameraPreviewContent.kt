@@ -98,7 +98,7 @@ private suspend fun openRearCamera(): MediaStream? =
     suspendCancellableCoroutine { continuation ->
         requestRearCameraStream(
             onStream = { stream ->
-                continuation.resume(stream) { _, openedStream, _ -> openedStream?.let(::stopTracks) }
+                continuation.resume(stream) { _, openedStream, _ -> stopTracks(openedStream) }
             },
             onFailure = { continuation.resume(null) },
         )

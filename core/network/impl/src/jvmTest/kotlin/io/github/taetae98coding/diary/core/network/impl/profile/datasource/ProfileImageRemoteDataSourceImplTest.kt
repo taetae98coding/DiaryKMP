@@ -22,7 +22,7 @@ import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteChannel
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.readBuffer
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
@@ -69,7 +69,7 @@ private suspend fun OutgoingContent.WriteChannelContent.writtenBytes(): ByteArra
     writeTo(channel)
     channel.flushAndClose()
 
-    return channel.readRemaining().readByteArray()
+    return channel.readBuffer().readByteArray()
 }
 
 private suspend fun httpResponse(

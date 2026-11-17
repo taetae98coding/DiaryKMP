@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalForInheritanceCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
@@ -19,6 +21,7 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow

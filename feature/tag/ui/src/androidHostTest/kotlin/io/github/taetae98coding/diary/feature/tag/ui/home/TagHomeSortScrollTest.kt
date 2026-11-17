@@ -63,9 +63,7 @@ class TagHomeSortScrollTest {
                                 pagingDataFlow.value = tagPagingDataOf(recentlyUpdatedTagList)
                             }
 
-                            else -> {
-                                Unit
-                            }
+                            else -> Unit
                         }
                     },
                     sortSheetState = sortSheetState,
