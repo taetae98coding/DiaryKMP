@@ -1,4 +1,4 @@
 interface:
   display_name: "HTML Report"
-  short_description: "여러 결정과 trade-off를 HTML 폼으로 받는 보고서"
-  default_prompt: "Use $html-report to collect multiple user decisions with radio, checkbox, and text inputs in an HTML report."
+  short_description: "여러 결정과 trade-off를 다이어그램·코드 예시가 붙은 HTML 폼으로 받는 보고서"
+  default_prompt: "Use $html-report to collect multiple user decisions with radio, checkbox, and text inputs in an HTML report, with a Mermaid diagram per choice item, a code example per option, and a per-item request for a more detailed explanation."

@@ -62,6 +62,24 @@ def validate_figures(value, where, errors):
             errors.append(f"{figure_where}.content가 비어 있다.")
 
 
+def has_entries(holder, key):
+    value = holder.get(key) if isinstance(holder, dict) else None
+    return isinstance(value, list) and len(value) > 0
+
+
+def validate_media_presence(item, options, where, errors):
+    """선택 항목은 다이어그램 하나 이상과 선택지마다 코드 예시를 기본으로 갖춘다."""
+    if not has_entries(item, "figures") and not any(has_entries(option, "figures") for option in options):
+        errors.append(
+            f"{where}에 다이어그램(figures)이 없다. 항목이나 선택지에 붙이고, 그림으로 보일 차이가 없으면 mediaExempt에 이유를 적는다."
+        )
+    for option_index, option in enumerate(options, 1):
+        if isinstance(option, dict) and not has_entries(option, "examples"):
+            errors.append(
+                f"{where}.options[{option_index}]에 코드 예시(examples)가 없다. 선택지마다 붙이고, 코드로 보일 차이가 없으면 mediaExempt에 이유를 적는다."
+            )
+
+
 def embed_images(data, base_dir, errors):
     """로컬 이미지 경로를 data URI로 바꿔 HTML 하나로 열리게 한다."""
     holders = [data] + data["items"] + [o for item in data["items"] for o in item.get("options", [])]
@@ -125,6 +143,9 @@ def validate(data):
                 errors.append(f"{where}.default는 문자열이어야 한다.")
             continue
 
+        exempt = item.get("mediaExempt")
+        if exempt is not None and (not isinstance(exempt, str) or not exempt.strip()):
+            errors.append(f"{where}.mediaExempt는 다이어그램·코드 예시를 붙이지 않는 이유를 적은 문자열이어야 한다.")
         if "other" in item and not isinstance(item["other"], bool):
             errors.append(f"{where}.other는 true 또는 false여야 한다.")
         options = item.get("options")
@@ -157,6 +178,8 @@ def validate(data):
                 recommended += 1
         if kind == "radio" and recommended > 1:
             errors.append(f"{where}는 radio라서 recommended가 최대 하나여야 한다.")
+        if not exempt:
+            validate_media_presence(item, options, where, errors)
     return errors
 
 
