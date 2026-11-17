@@ -17,7 +17,7 @@ Gradle constraint로만 연결된 artifact는 실제 전이 의존성이 아니�
 
 ## Gradle과 AGP는 Kotlin에 맞춘다
 
-**Gradle과 Android Gradle Plugin은 쓰고 있는 Kotlin 버전이 [호환 표](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html#version-compatibility)에서 완전히 지원한다고 적은 범위 안에서 고른다.** 각 도구의 최신 안정 버전이 그 범위를 넘으면 올리지 않고, Kotlin을 올릴 때 표의 새 범위 안에서 함께 올린다. 범위를 넘겨 쓰면 Kotlin Gradle 플러그인이 아직 맞추지 않은 Gradle·AGP 동작에서 deprecation 경고가 나거나 일부 기능이 동작하지 않을 수 있다. 예: Kotlin 2.4.21의 범위는 Gradle 9.7.0, AGP 9.3.1까지다.
+**Gradle과 Android Gradle Plugin은 쓰고 있는 Kotlin 버전이 [호환 표](https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html#version-compatibility)에서 완전히 지원한다고 적은 범위 안에서 고른다.** 각 도구의 최신 안정 버전이 그 범위를 넘으면 올리지 않고, Kotlin을 올릴 때 표의 새 범위 안에서 함께 올린다. 범위를 넘겨 쓰면 Kotlin Gradle 플러그인이 아직 맞추지 않은 Gradle·AGP 동작에서 deprecation 경고가 나거나 일부 기능이 동작하지 않을 수 있다. 표의 상한과 major·minor가 같은 패치 버전은 회귀 수정만 담으므로 범위 안으로 보고 그 minor의 최신 패치를 쓴다. 예: Kotlin 2.4.21의 표 상한은 Gradle 9.7.0, AGP 9.3.1이므로 Gradle 9.7.x, AGP 9.3.x의 최신 패치까지 쓰고 Gradle 9.8, AGP 9.4로는 올리지 않는다.
 
 ## Compose Multiplatform이 짝지은 버전
 
@@ -74,7 +74,7 @@ kotlinxBrowser = "0.5.0" # https://github.com/Kotlin/kotlinx-browser
 jetbrainsCompose = "1.12.2" # https://github.com/JetBrains/compose-multiplatform/releases
 jetbrainsComposeMaterial3 = "1.12.0-alpha03"
 jetbrainsNavigation3 = "1.2.0-rc01"
-androidGradlePlugin = "9.3.1" # https://developer.android.com/build/releases/gradle-plugin?hl=en
+androidGradlePlugin = "9.3.3" # https://developer.android.com/build/releases/gradle-plugin?hl=en
 androidxActivity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity?hl=en
 androidxNavigation3 = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/navigation3?hl=en
 spotless = "8.11.0" # https://github.com/diffplug/spotless/releases
