@@ -2,7 +2,7 @@
 
 기준 스펙: [메모 태그 앱 스펙](../spec/client/memo-tag.md), [메모 태그 스펙](../spec/common/memo-tag.md)
 
-이 문서에서 `domain > 대표 태그와의 관계`, `domain > 연결의 의미`, `data > 대표 태그를 함께 바꾸는 저장` 절은 [메모 태그 앱 스펙](../spec/client/memo-tag.md)이 소유한다. `data > 연결의 저장` 절은 [항목 연결 앱 스펙](../spec/client/entity-link.md)이, `data > 공유되는 연결`, `data > 내려받기 순서와 표시`, `data > 동기화`, `domain > 연결의 상태와 시각`, `domain > 항목의 상태 변화와 연결` 절은 [항목 연결 공통 스펙](../spec/common/entity-link.md)이 소유한다. `domain > 연결된 태그의 조회` 절은 [항목 태그 연결 앱 스펙](../spec/client/entity-tag.md)이, `domain > 대상 항목과 태그의 연결`, `domain > 연결할 수 있는 태그`, `domain > 태그와 대상 항목의 상태 변화` 절은 [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)이 소유한다. 다만 `domain > 연결의 의미` 가운데 다른 종류의 연결에 관한 규칙은 [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)의 `연결의 의미`가 소유하므로, 그 케이스의 근거는 해당 절을 직접 링크한다.
+이 문서에서 `domain > 연결의 의미` 절은 [메모 태그 앱 스펙](../spec/client/memo-tag.md)이, `domain > 대표 태그와 연결의 관계`, `data > 대표 태그를 함께 바꾸는 저장` 절은 [대표 태그 앱 스펙](../spec/client/primary-tag.md)이 소유한다. `data > 연결의 저장` 절은 [항목 연결 앱 스펙](../spec/client/entity-link.md)이, `data > 공유되는 연결`, `data > 내려받기 순서와 표시`, `data > 동기화`, `domain > 연결의 상태와 시각`, `domain > 항목의 상태 변화와 연결` 절은 [항목 연결 공통 스펙](../spec/common/entity-link.md)이 소유한다. `domain > 연결된 태그의 조회` 절은 [항목 태그 연결 앱 스펙](../spec/client/entity-tag.md)이, `domain > 대상 항목과 태그의 연결`, `domain > 연결할 수 있는 태그`, `domain > 태그와 대상 항목의 상태 변화` 절은 [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)이 소유한다. 다만 `domain > 연결의 의미` 가운데 다른 종류의 연결에 관한 규칙은 [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)의 `연결의 의미`가 소유하므로, 그 케이스의 근거는 해당 절을 직접 링크한다.
 
 ## domain
 
@@ -36,7 +36,7 @@
 
 ### TC-6e084cdf-c840-440d-9420-a8a2c48371b5: 기기에서 대표 태그로 지정한 태그는 연결된 태그에도 포함된다
 
-- 근거: `domain > 대표 태그와의 관계`
+- 근거: `domain > 대표 태그와 연결의 관계`
 - Given: 계정과 연결된 태그 하나를 대표 태그로 지정한 새 메모가 준비되어 있다.
 - When: 그 메모를 저장한다.
 - Then: 저장한 메모의 대표 태그가 그 태그이고, 같은 태그가 그 메모에 연결된 태그로도 조회된다.
@@ -76,7 +76,7 @@
 
 ### TC-e24e3b75-903d-4aa6-bdf9-01d1b57956b4: 기기에서 연결을 해제하면 해제 상태로 남고 대표 태그 지정도 해제된다
 
-- 근거: `domain > 연결의 상태와 시각`, `domain > 대표 태그와의 관계`
+- 근거: `domain > 연결의 상태와 시각`, `domain > 대표 태그와 연결의 관계`
 - Given: 대표 태그로 지정된 태그가 메모와 연결되어 저장되어 있다.
 - When: 그 메모와 태그의 연결을 해제한다.
 - Then: 그 태그는 메모에 연결된 태그로 조회되지 않지만 해제된 연결로 남아 있고, 메모의 대표 태그 지정도 해제된다.

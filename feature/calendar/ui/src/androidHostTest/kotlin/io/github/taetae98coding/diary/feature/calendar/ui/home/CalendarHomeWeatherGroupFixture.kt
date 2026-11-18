@@ -39,7 +39,7 @@ internal object CalendarHomeWeatherGroupFixture {
     const val BIRTHDAY_NAME = "홍길동"
     const val BIRTHDAY_TEXT = "🎂 홍길동"
     const val DDAY_TITLE = "수능"
-    const val DDAY_TEXT = "🎉 수능 D-Day"
+    const val DDAY_TEXT = "수능 D-Day"
 
     val JULY_2026: YearMonth = YearMonth(year = 2026, month = Month.JULY)
 

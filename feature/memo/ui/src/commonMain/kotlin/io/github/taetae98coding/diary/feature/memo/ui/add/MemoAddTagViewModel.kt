@@ -1,29 +1,22 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagInputController
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionState
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import io.github.taetae98coding.diary.feature.memo.ui.picker.MemoSelectablePaging
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputController
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -34,38 +27,27 @@ internal class MemoAddTagViewModel(
     pageTagUseCase: PageTagUseCase,
     getSelectedTagUseCase: GetSelectedTagUseCase,
 ) : ViewModel(),
-    MemoTagInputController {
-    val selectionUiState: StateFlow<MemoTagSelectionUiState>
-        field =
-        MutableStateFlow(
-            MemoTagSelectionUiState(
-                tagIdSet = setOfNotNull(initialPrimaryTagId),
-                primaryTagId = initialPrimaryTagId,
-            ),
+    PrimaryTagInputController {
+    private val selectionState =
+        PrimaryTagSelectionState(
+            initialPrimaryTagId = initialPrimaryTagId,
+            getSelectedTag = { tagIdSet -> getSelectedTagUseCase(parameter = tagIdSet) },
         )
 
     private val selectablePaging =
         MemoSelectablePaging { query -> pageTagUseCase(parameter = query) }
 
+    val selectionUiState: StateFlow<PrimaryTagSelectionUiState> = selectionState.selectionUiState
+
     val tagPagingData: Flow<PagingData<Tag>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
     val selectableTagPagingData: Flow<PagingData<Tag>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
-    private val selectedTagList: Flow<List<Tag>> =
-        selectionUiState
-            .flatMapLatest { value -> getSelectedTagUseCase(parameter = value.tagIdSet) }
-            .map { result -> result.getOrNull().orEmpty() }
-
-    val uiState: StateFlow<MemoTagInputUiState> =
-        combine(selectedTagList, selectionUiState) { selectedTagList, selection ->
-            MemoTagInputUiState(
-                selectedTagList = selectedTagList,
-                primaryTagId = selection.selectableIn(tagList = selectedTagList).primaryTagId,
-            )
-        }.stateIn(
+    val uiState: StateFlow<PrimaryTagInputUiState> =
+        selectionState.uiState.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileUiSubscribed,
-            initialValue = MemoTagInputUiState(),
+            initialValue = PrimaryTagInputUiState(),
         )
 
     override fun updateQuery(query: String) {
@@ -73,37 +55,18 @@ internal class MemoAddTagViewModel(
     }
 
     override fun selectTag(tagId: Uuid) {
-        selectionUiState.update { value -> value.copy(tagIdSet = value.tagIdSet + tagId) }
+        selectionState.selectTag(tagId = tagId)
     }
 
     override fun unselectTag(tagId: Uuid) {
-        selectionUiState.update { value ->
-            value.copy(
-                tagIdSet = value.tagIdSet - tagId,
-                primaryTagId = value.primaryTagId?.takeIf { primaryTagId -> primaryTagId != tagId },
-            )
-        }
+        selectionState.unselectTag(tagId = tagId)
     }
 
     override fun selectPrimaryTag(tagId: Uuid) {
-        selectionUiState.update { value ->
-            value.copy(
-                tagIdSet = value.tagIdSet + tagId,
-                primaryTagId = tagId,
-            )
-        }
+        selectionState.selectPrimaryTag(tagId = tagId)
     }
 
     override fun unselectPrimaryTag() {
-        selectionUiState.update { value -> value.copy(primaryTagId = null) }
-    }
-
-    private fun MemoTagSelectionUiState.selectableIn(tagList: List<Tag>): MemoTagSelectionUiState {
-        val selectableIdSet = tagList.mapTo(mutableSetOf()) { tag -> tag.id }
-
-        return MemoTagSelectionUiState(
-            tagIdSet = tagIdSet.intersect(selectableIdSet),
-            primaryTagId = primaryTagId?.takeIf { tagId -> tagId in selectableIdSet },
-        )
+        selectionState.unselectPrimaryTag()
     }
 }

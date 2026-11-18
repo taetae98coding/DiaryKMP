@@ -138,6 +138,9 @@ verify_jwt = true
 [functions.v1-sync-push-dday]
 verify_jwt = true
 
+[functions.v2-sync-push-dday]
+verify_jwt = true
+
 [functions.v1-sync-pull-dday]
 verify_jwt = true
 

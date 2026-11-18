@@ -88,6 +88,7 @@ internal class SyncWorkImpl(
             )
             val dday =
                 step(
+                    prerequisiteList = listOf(tag),
                     push = { accountId -> ddaySyncWork.push(accountId = accountId) },
                     pull = { accountId -> ddaySyncWork.pull(accountId = accountId) },
                 )

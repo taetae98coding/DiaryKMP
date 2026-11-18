@@ -39,6 +39,7 @@ public fun Arb.Companion.ddayLocalEntity(): Arb<DDayLocalEntity> =
         DDayLocalEntity(
             id = Arb.kotlinUuid().bind(),
             detail = Arb.ddayDetailLocalEntity().bind(),
+            primaryTagId = Arb.kotlinUuid().orNull().bind(),
             isDeleted = Arb.boolean().bind(),
             updatedAt = Arb.secondPrecisionInstant().bind(),
             createdAt = Arb.secondPrecisionInstant().bind(),

@@ -16,7 +16,6 @@ import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.dday.api.DDayAddNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeFilterNavKey
@@ -128,7 +127,7 @@ private fun EntryProviderScope<ScreenNavKey>.dDayDetailEntry(backStack: NavBackS
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { DDayDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             ddayViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.DDAY, key.id) },
+            tagViewModel = koinViewModel { parametersOf(key.id) },
         )
     }
 }

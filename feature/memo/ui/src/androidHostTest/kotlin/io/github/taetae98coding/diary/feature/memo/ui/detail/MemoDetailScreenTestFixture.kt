@@ -5,10 +5,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.kotest.property.Arb
@@ -55,7 +55,7 @@ internal fun memoDetailUiState(
     )
 
 internal fun screenTestTagViewModel(
-    uiState: StateFlow<MemoTagInputUiState> = MutableStateFlow(MemoTagInputUiState()),
+    uiState: StateFlow<PrimaryTagInputUiState> = MutableStateFlow(PrimaryTagInputUiState()),
     tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingDataOf(emptyList())),
 ): MemoTagViewModel {
     val viewModel = mockk<MemoTagViewModel>(relaxed = true)

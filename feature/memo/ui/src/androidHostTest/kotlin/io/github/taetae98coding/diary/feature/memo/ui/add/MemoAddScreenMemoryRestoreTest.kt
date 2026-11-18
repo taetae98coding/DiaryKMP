@@ -22,6 +22,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
@@ -30,10 +31,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -56,8 +58,8 @@ class MemoAddScreenMemoryRestoreTest {
 
     @Test
     fun `TC-a97443d4-bf42-4ed0-8f26-c6ae3eda0d8c 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 태그가 진입 경로의 초기 선택으로 돌아간다`() {
-        val targetTag = testTag(title = TARGET_TAG_TITLE)
-        val otherTag = testTag(title = OTHER_TAG_TITLE)
+        val targetTag = Arb.tag(title = TARGET_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = OTHER_TAG_TITLE, isFinished = false).next()
         val viewModelsList =
             setRestorableMemoAddScreen {
                 screenTestRealViewModel(initialPrimaryTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
@@ -151,8 +153,8 @@ class MemoAddScreenMemoryRestoreTest {
 
     @Test
     fun `TC-00ba6723-b40c-46de-85bc-d879183158b1 앱을 다시 실행한 뒤 TagDetail 메모 탭에서 새로 진입하면 대상 태그만 대표 태그로 선택된다`() {
-        val targetTag = testTag(title = TARGET_TAG_TITLE)
-        val otherTag = testTag(title = OTHER_TAG_TITLE)
+        val targetTag = Arb.tag(title = TARGET_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = OTHER_TAG_TITLE, isFinished = false).next()
         val viewModelsList =
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialPrimaryTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
@@ -263,8 +265,8 @@ class MemoAddScreenMemoryRestoreTest {
     }
 
     private fun assertSelectionClearedAfterRelaunch(navKey: MemoAddNavKey) {
-        val firstTag = testTag(title = TARGET_TAG_TITLE)
-        val secondTag = testTag(title = OTHER_TAG_TITLE)
+        val firstTag = Arb.tag(title = TARGET_TAG_TITLE, isFinished = false).next()
+        val secondTag = Arb.tag(title = OTHER_TAG_TITLE, isFinished = false).next()
         val web = testWeb(title = WEB_TITLE)
         val contact = testContact(name = CONTACT_NAME)
         val place = testPlace(title = PLACE_TITLE)

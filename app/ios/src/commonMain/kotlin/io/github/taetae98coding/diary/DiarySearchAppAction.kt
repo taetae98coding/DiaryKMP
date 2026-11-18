@@ -62,7 +62,7 @@ public object DiarySearchAppAction {
     ): DiaryAppActionDDayPage {
         val page = readNumberedPage(pageNumber = pageNumber) { cursor -> searchAppAction().dday(query = query, sort = sort.toSortValue(), cursor = cursor) }
 
-        return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
+        return DiaryAppActionDDayPage(items = page.items.toDiaryDDayList(), nextPageNumber = page.nextPageNumber)
     }
 
     public suspend fun routine(

@@ -1,9 +1,14 @@
 package io.github.taetae98coding.diary.work.mcp.tool.memo
 
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoPrimaryTagUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.UnsetMemoPrimaryTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolCallResult
 import io.github.taetae98coding.diary.work.mcp.tool.call
+import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundMemo
+import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundTag
+import io.github.taetae98coding.diary.work.mcp.tool.tool
 import io.github.taetae98coding.diary.work.mcp.tool.toolSetOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -15,6 +20,7 @@ import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -50,6 +56,25 @@ class MemoMcpToolSetTest :
 
             tool.call(arguments = JsonObject(emptyMap())) shouldBe McpToolCallResult.Failure(message = "'memoId' is required.")
             coVerify(exactly = 0) { restoreMemoUseCase(parameter = any()) }
+        }
+
+        test("TC-451290c7-912e-4b4d-bf15-e61caacbe1ca 대표 태그 지정과 해제는 받은 메모와 태그로 앱 기능을 실행한다") {
+            runTest {
+                val memo = stubFoundMemo(isDeleted = false)
+                val tag = stubFoundTag(isDeleted = false)
+                val setMemoPrimaryTagUseCase = mockk<SetMemoPrimaryTagUseCase>()
+                val unsetMemoPrimaryTagUseCase = mockk<UnsetMemoPrimaryTagUseCase>()
+                coEvery { setMemoPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                coEvery { unsetMemoPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val toolSet = toolSetOf<MemoLinkMcpToolSet>(setMemoPrimaryTagUseCase, unsetMemoPrimaryTagUseCase, *memo.useCaseList.toTypedArray(), *tag.useCaseList.toTypedArray())
+                val done = McpToolCallResult.Success(content = buildJsonObject { put("done", true) })
+
+                toolSet.tool(name = "memo_primary_tag_set").call(arguments = JsonObject(mapOf("memoId" to JsonPrimitive(memo.id.toString()), "tagId" to JsonPrimitive(tag.id.toString())))) shouldBe done
+                toolSet.tool(name = "memo_primary_tag_unset").call(arguments = JsonObject(mapOf("memoId" to JsonPrimitive(memo.id.toString())))) shouldBe done
+
+                coVerify(exactly = 1) { setMemoPrimaryTagUseCase(parameter = SetMemoPrimaryTagUseCase.Parameter(memoId = memo.id, tagId = tag.id)) }
+                coVerify(exactly = 1) { unsetMemoPrimaryTagUseCase(parameter = memo.id) }
+            }
         }
     })
 

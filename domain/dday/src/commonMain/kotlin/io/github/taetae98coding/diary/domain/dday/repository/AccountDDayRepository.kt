@@ -35,4 +35,11 @@ public interface AccountDDayRepository {
         isDeleted: Boolean,
         updatedAt: Instant,
     ): Int
+
+    public suspend fun updatePrimaryTagId(
+        account: Account,
+        ddayId: Uuid,
+        primaryTagId: Uuid?,
+        updatedAt: Instant,
+    ): Int
 }

@@ -1428,7 +1428,7 @@ class CalendarHomeScreenMoveTest {
         private const val SUNNY_DESCRIPTION = "맑음"
         private const val WEATHER_TEMPERATURE_TEXT = "17.8°/28.2°"
         private const val EXAM_TITLE = "수능"
-        private const val EXAM_DDAY_TEXT = "🎉 수능 D-Day"
+        private const val EXAM_DDAY_TEXT = "수능 D-Day"
 
         // 두 주에 걸친 메모는 원본 조각 2개와 같은 수의 고스트 아이템이 표시된다.
         private const val PIECE_COUNT = 2

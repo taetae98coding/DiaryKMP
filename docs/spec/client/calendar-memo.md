@@ -4,7 +4,7 @@
 
 메모를 캘린더의 어느 자리에 어떤 모양으로 배치하는지는 [Calendar 컴포넌트 디자인](../../design/calendar.md)과 [CalendarWeekOfMonth 컴포넌트 디자인](../../design/calendar-week-of-month.md)의 아이템 배치를 따르며, 메모를 캘린더에 실제로 배치하는 화면 구성은 [CalendarHome 디자인](../../design/calendar-home.md)과 [CalendarTimetable 디자인](../../design/calendar-timetable.md)에서 다룬다. 이 문서에는 직접 수행하는 사용자 조작이 없어 `feature` 영역을 두지 않는다.
 
-메모의 기간과 상태 개념은 [MemoAdd 화면 스펙](./memo-add.md)을, 대표 태그 개념은 [메모 대표 태그 스펙](../common/memo-primary-tag.md)을 따른다.
+메모의 기간과 상태 개념은 [MemoAdd 화면 스펙](./memo-add.md)을, 대표 태그 개념은 [대표 태그 공통 스펙](../common/primary-tag.md)을 따른다.
 
 ## domain
 
@@ -48,7 +48,7 @@
 
 ### 표시 색상
 
-캘린더 메모의 표시 색상은 [메모 대표 태그 앱 스펙](./memo-primary-tag.md)의 `캘린더 표시 색상`을 따른다.
+캘린더 메모의 표시 색상은 [대표 태그 앱 스펙](./primary-tag.md)의 `캘린더 표시 색상`을 따른다.
 
 캘린더 메모는 이미 정해진 표시 색상만 가진다. 캘린더는 대표 태그를 따로 확인하지 않고 전달받은 표시 색상을 그대로 사용한다.
 

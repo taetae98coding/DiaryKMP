@@ -107,7 +107,7 @@ public object DiaryTagItemAppAction {
     ): DiaryAppActionTagMemoPage {
         val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().memoList(tagId = tagId, scope = scope.toScopeValue(), sort = sort.toSortValue(), cursor = cursor) }
 
-        return DiaryAppActionTagMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
+        return DiaryAppActionTagMemoPage(items = page.items.toDiaryMemoList(), nextPageNumber = page.nextPageNumber)
     }
 
     public suspend fun memoFinishedList(
@@ -117,7 +117,7 @@ public object DiaryTagItemAppAction {
     ): DiaryAppActionTagMemoPage {
         val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().memoFinishedList(tagId = tagId, sort = sort.toSortValue(), cursor = cursor) }
 
-        return DiaryAppActionTagMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
+        return DiaryAppActionTagMemoPage(items = page.items.toDiaryMemoList(), nextPageNumber = page.nextPageNumber)
     }
 
     public suspend fun webList(
@@ -191,7 +191,7 @@ public object DiaryTagItemAppAction {
     ): DiaryAppActionDDayPage {
         val page = readNumberedPage(pageNumber = pageNumber) { cursor -> tagItemAppAction().ddayList(tagId = tagId, scope = scope.toScopeValue(), cursor = cursor) }
 
-        return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
+        return DiaryAppActionDDayPage(items = page.items.toDiaryDDayList(), nextPageNumber = page.nextPageNumber)
     }
 
     public suspend fun routineList(

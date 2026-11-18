@@ -27,6 +27,7 @@ public fun previewDDay(
                 endDate = null,
                 overflowPolicy = DDayOverflowPolicy.CLAMP_TO_MONTH_END,
             ),
+        primaryTagId = null,
         isDeleted = false,
         updatedAt = Instant.DISTANT_PAST,
         createdAt = Instant.DISTANT_PAST,

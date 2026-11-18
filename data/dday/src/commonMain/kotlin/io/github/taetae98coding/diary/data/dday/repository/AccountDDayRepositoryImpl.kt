@@ -75,4 +75,17 @@ internal class AccountDDayRepositoryImpl(
             isDeleted = isDeleted,
             updatedAt = updatedAt,
         )
+
+    override suspend fun updatePrimaryTagId(
+        account: Account,
+        ddayId: Uuid,
+        primaryTagId: Uuid?,
+        updatedAt: Instant,
+    ): Int =
+        accountDDayTransaction.updatePrimaryTagId(
+            accountId = account.id,
+            ddayId = ddayId,
+            primaryTagId = primaryTagId,
+            updatedAt = updatedAt,
+        )
 }

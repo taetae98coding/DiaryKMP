@@ -23,6 +23,7 @@ internal fun entityTagToolList(
     kind: AppActionEntityTagKind,
     entityIdParameter: McpToolParameter,
     entityTagAppAction: EntityTagAppAction,
+    tagRemoveDescription: String = "Unlinks a tag from $entityName.",
 ): List<McpTool> {
     val parameterList =
         listOf(
@@ -41,7 +42,7 @@ internal fun entityTagToolList(
         },
         McpTool(
             name = "${toolNamePrefix}_tag_remove",
-            description = "Unlinks a tag from $entityName. $NOT_DONE_DESCRIPTION",
+            description = "$tagRemoveDescription $NOT_DONE_DESCRIPTION",
             parameterList = parameterList,
             kind = McpToolKind.WRITE,
         ) { arguments ->

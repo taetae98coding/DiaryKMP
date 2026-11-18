@@ -35,23 +35,6 @@
         }
       }
     },
-    "Cleared the primary tag.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cleared the primary tag."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "대표 태그를 해제했어요."
-          }
-        }
-      }
-    },
     "Clears the primary tag of a memo. The tag stays linked.": {
       "extractionState": "manual",
       "localizations": {
@@ -371,23 +354,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "메모 대표 태그 지정"
-          }
-        }
-      }
-    },
-    "Set the primary tag.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set the primary tag."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "대표 태그를 지정했어요."
           }
         }
       }

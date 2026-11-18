@@ -11,13 +11,13 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.Lifecycle
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.property.Arb
@@ -39,7 +39,7 @@ class MemoAddScreenBackgroundTest {
         val title = "title-${Arb.nonBlankString().next()}"
         val description = "description-${Arb.nonBlankString().next()}"
         val tagTitle = Arb.alphanumericString(prefix = "BackgroundTag").next()
-        val tag = testTag(title = tagTitle)
+        val tag = Arb.tag(title = tagTitle, isFinished = false).next()
         val viewModels = screenTestRealViewModel(initialPrimaryTagId = tag.id, tagList = listOf(tag))
         composeRule.setContent {
             MemoAddScreenTestTheme {

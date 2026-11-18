@@ -354,8 +354,8 @@ class CalendarHomeScreenBirthdayTest {
         private const val TRIP_TITLE = "여행"
         private const val FIRST_DDAY_TITLE = "가"
         private const val SECOND_DDAY_TITLE = "나"
-        private const val FIRST_DDAY_TEXT = "🎉 가 D-Day"
-        private const val SECOND_DDAY_TEXT = "🎉 나 D-Day"
+        private const val FIRST_DDAY_TEXT = "가 D-Day"
+        private const val SECOND_DDAY_TEXT = "나 D-Day"
         private const val CONSTITUTION_DAY_NAME = "제헌절"
         private const val BIRTHDAY_DESCRIPTION = "홍길동's birthday"
         private val JULY_2026 = YearMonth(year = 2026, month = Month.JULY)

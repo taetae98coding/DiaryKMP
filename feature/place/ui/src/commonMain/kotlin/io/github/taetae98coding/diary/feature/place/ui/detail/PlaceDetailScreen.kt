@@ -28,7 +28,7 @@ import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.place.ui.Res
@@ -76,7 +76,7 @@ internal fun PlaceDetailScreen(
     val contentSharer = contentSharerFactory.rememberContentSharer()
     val share = rememberSharePlace(scaffoldState = scaffoldState, contentSharer = contentSharer, savedTitleProvider = { content?.detail?.title.orEmpty() })
 
-    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
+    TagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
     PlaceDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp)
     DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.snackbarHostState)
 

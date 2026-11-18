@@ -30,8 +30,10 @@ import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.localDateOrNull
 import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParameter
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import io.github.taetae98coding.diary.work.mcp.tool.tag.NOT_DONE_DESCRIPTION
 import io.github.taetae98coding.diary.work.mcp.tool.tag.entityTagToolList
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
+import io.github.taetae98coding.diary.work.mcp.tool.uuidOrNull
 import io.github.taetae98coding.diary.work.mcp.tool.uuidSet
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -47,6 +49,8 @@ private const val COUNTS_BASE_DAY = "countsBaseDay"
 private const val DDAY_ID = "ddayId"
 private const val DESCRIPTION = "description"
 private const val END_DATE = "endDate"
+private const val PRIMARY_TAG_ID = "primaryTagId"
+private const val TAG_ID = "tagId"
 private const val TITLE = "title"
 
 private val ddayIdParameter: McpToolParameter =
@@ -93,6 +97,7 @@ internal class DDayMcpToolSet(
                         repeatsParameter(description = "Intervals of anniversaries after the base date."),
                         McpToolParameter(name = END_DATE, type = McpToolParameterType.STRING, description = "Last date anniversaries are shown, like 2026-12-31."),
                         overflowPolicyParameter,
+                        McpToolParameter(name = PRIMARY_TAG_ID, type = McpToolParameterType.STRING, description = "Id of the primary tag. It is linked too."),
                         McpToolParameter(name = "tagIds", type = McpToolParameterType.STRING_LIST, description = "Ids of tags to link."),
                     ),
                 kind = McpToolKind.WRITE,
@@ -136,6 +141,26 @@ internal class DDayMcpToolSet(
                 kind = AppActionEntityTagKind.DDAY,
                 entityIdParameter = ddayIdParameter,
                 entityTagAppAction = entityTagAppAction,
+                tagRemoveDescription = "Unlinks a tag from a D-Day. If it is the primary tag, the primary tag is cleared too.",
+            ) +
+            listOf(
+                McpTool(
+                    name = "dday_primary_tag_set",
+                    description =
+                        "Sets the primary tag of a D-Day. The tag is linked too when it is not linked yet. The calendar shows the D-Day in the primary tag's color. $NOT_DONE_DESCRIPTION",
+                    parameterList =
+                        listOf(
+                            ddayIdParameter,
+                            McpToolParameter(name = TAG_ID, type = McpToolParameterType.STRING, description = "Id of the tag.", isRequired = true),
+                        ),
+                    kind = McpToolKind.WRITE,
+                ) { arguments -> appActionCall { ddayAppAction.primaryTagSet(ddayId = arguments.idText(DDAY_ID), tagId = arguments.idText(TAG_ID)) }.toJson() },
+                McpTool(
+                    name = "dday_primary_tag_unset",
+                    description = "Clears the primary tag of a D-Day. The tag stays linked. Returns done false and changes nothing when the D-Day does not exist or is deleted.",
+                    parameterList = listOf(ddayIdParameter),
+                    kind = McpToolKind.WRITE,
+                ) { arguments -> appActionCall { ddayAppAction.primaryTagUnset(ddayId = arguments.idText(DDAY_ID)) }.toJson() },
             )
 
     private suspend fun addDDay(arguments: McpToolArguments): JsonElement {
@@ -150,7 +175,13 @@ internal class DDayMcpToolSet(
                 endDate = arguments.localDateOrNull(END_DATE),
                 overflowPolicy = arguments.overflowPolicyOrNull() ?: DDayOverflowPolicy.CLAMP_TO_MONTH_END,
             ).requireEndDateNotBeforeBaseDate()
-        val id = addDDayUseCase(parameter = AddDDayUseCase.Parameter(input = input, tagIdSet = arguments.uuidSet("tagIds"))).getOrThrow()
+        val parameter =
+            AddDDayUseCase.Parameter(
+                input = input,
+                tagIdSet = arguments.uuidSet("tagIds"),
+                primaryTagId = arguments.uuidOrNull(PRIMARY_TAG_ID),
+            )
+        val id = addDDayUseCase(parameter = parameter).getOrThrow()
 
         return idResult(id)
     }

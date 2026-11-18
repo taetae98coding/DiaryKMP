@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.data.testing.dday.ddayRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayRepeatRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -44,6 +45,26 @@ class DDayPushRequestRemoteEntityTest :
                     detail.getValue("baseDate") shouldBe JsonPrimitive("2026-03-01")
                     detail.getValue("endDate") shouldBe expectedEndDate
                 }
+            }
+        }
+
+        test("TC-ef9ab8da-d0ab-46fb-8a64-b2155478acfb 대표 태그가 없으면 비어 있는 값으로, 있으면 그 태그로 담긴다") {
+            val primaryTagId = Arb.kotlinUuid().next()
+
+            encodeDDay(dday = Arb.ddayRemoteEntity().next().copy(primaryTagId = null)).getValue("primaryTagId") shouldBe JsonNull
+            encodeDDay(dday = Arb.ddayRemoteEntity().next().copy(primaryTagId = primaryTagId)).getValue("primaryTagId") shouldBe JsonPrimitive(primaryTagId.toString())
+        }
+
+        test("TC-2566329d-2444-42ed-847f-02e8ebadca54 응답의 대표 태그가 비어 있으면 없음으로, 있으면 그 태그로 읽는다") {
+            listOf(null, Arb.kotlinUuid().next()).forEach { primaryTagId ->
+                val dday = Arb.ddayRemoteEntity().next().copy(primaryTagId = primaryTagId)
+                val responseText = supabaseRequestJson.encodeToJsonElement(DDayPullResponseRemoteEntity(ddayList = listOf(DDayPullRemoteEntity(dday = dday, usn = 1L)))).toString()
+
+                supabaseRequestJson
+                    .decodeFromString<DDayPullResponseRemoteEntity>(responseText)
+                    .ddayList
+                    .single()
+                    .dday.primaryTagId shouldBe primaryTagId
             }
         }
 
@@ -105,7 +126,7 @@ private val supabaseRequestJson: Json =
         encodeDefaults = false
     }
 
-private val DDAY_KEY_SET: Set<String> = setOf("id", "detail", "isDeleted", "updatedAt", "createdAt")
+private val DDAY_KEY_SET: Set<String> = setOf("id", "detail", "primaryTagId", "isDeleted", "updatedAt", "createdAt")
 
 private val DETAIL_KEY_SET: Set<String> =
     setOf("title", "description", "color", "baseDate", "countsBaseDay", "repeats", "endDate", "overflowPolicy")

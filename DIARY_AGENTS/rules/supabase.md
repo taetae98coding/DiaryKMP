@@ -5,7 +5,7 @@
 - dev나 real에 배포한 마이그레이션 파일은 고치지 않는다. 바꿀 내용은 새 마이그레이션으로 더한다. 아직 어디에도 배포하지 않은 마이그레이션은 고치거나 합쳐도 된다.
 - 새 테이블은 같은 마이그레이션에서 `enable row level security`로 RLS를 켜고, 앱이 직접 읽는 역할에만 `grant`한다. 함수로만 다루는 테이블(`fcm_token`)에는 `grant`하지 않는다. 2026-10-30부터 `public` 스키마의 새 테이블에는 `anon`·`authenticated`·`service_role`의 기본 권한이 붙지 않아, `grant`가 없으면 Data API로 읽을 수 없다([Supabase changelog](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically)).
 - 마이그레이션을 더하거나 고쳤으면 배포 전에 `supabase/scripts/plpgsql-check.sh`를 통과시킨다. PL/pgSQL 본문은 함수를 만들 때가 아니라 처음 실행할 때 검사되므로, 배포가 성공해도 함수가 동작한다는 뜻이 아니다.
-- 태그 행을 지우는 함수는 지우기 전에 그 태그를 가리키는 `memo.primary_tag_id`를 직접 해제해 순번을 올린다. 행을 지우면 외래 키가 `null`로 바꾸지만 순번을 올리지 않아 기기가 해제를 내려받지 못한다.
+- 태그 행을 지우는 함수는 지우기 전에 그 태그를 가리키는 `memo.primary_tag_id`와 `dday.primary_tag_id`를 직접 해제해 순번을 올린다. 행을 지우면 외래 키가 `null`로 바꾸지만 순번을 올리지 않아 기기가 해제를 내려받지 못한다.
 
 ## PL/pgSQL 함수
 
@@ -61,6 +61,7 @@ coalesce(item -> 'detail' ->> 'howWeMet', ''),
 - 이미 있는 키의 타입이나 의미가 바뀐다.
 - 이전 앱이 보내지 않는 키를 반드시 받아야 한다.
 - 응답에서 이전 앱이 읽는 키를 빼거나 형식을 바꾼다.
+- 키가 없을 때 저장된 값을 유지하는 확장으로도 동작하지만, 그 값을 아는 앱의 요청에서 키가 빠지면 거절해야 한다. 확장하면 새 앱이 키를 빠뜨린 요청도 이전 앱의 요청으로 보여 저장된 값이 조용히 남는다. 이때 이전 버전은 그 키를 받지 않고 저장된 값을 바꾸지 않으며, 새 버전은 그 키를 필수로 받는다(디데이 대표 태그의 `push_ddays`·`push_ddays_v2`).
 
 새 버전은 서버에서만 이름을 나눈다. Edge Function은 `v2-sync-push-contact`, DB 함수는 `push_contacts_v2`, `supabase/functions/_shared`의 요청 스키마는 `contactPushRequestSchemaV2`처럼 버전을 붙이고, 하나뿐인 버전의 스키마에는 버전을 붙이지 않는다(`contactPushRequestSchema`). 이전 버전은 이전 앱이 쓰는 동안 남긴다. 그 버전을 쓰는 앱이 내부 테스트 빌드뿐이어서 사용자가 지원을 끝내도 된다고 정하면 지운다.
 

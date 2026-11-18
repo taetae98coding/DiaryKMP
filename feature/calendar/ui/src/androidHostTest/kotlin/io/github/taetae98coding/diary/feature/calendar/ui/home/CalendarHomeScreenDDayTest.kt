@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -96,7 +97,7 @@ class CalendarHomeScreenDDayTest {
             memoList = listOf(memo(title = WALK_TITLE, date = july(day = 10))),
         )
         composeRule.onNodeWithText(WALK_TITLE).assertIsDisplayed()
-        composeRule.onAllNodesWithText(DDAY_TEXT_PREFIX, substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithContentDescription(DDAY_ITEM_DESCRIPTION_SUFFIX, substring = true).assertCountEquals(0)
 
         ddayListFlow.value = listOf(dday(title = EXAM_TITLE, date = july(day = 15), label = CalendarDDayLabel.BaseDay))
         composeRule.waitForIdle()
@@ -175,7 +176,7 @@ class CalendarHomeScreenDDayTest {
         composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
         composeRule.onNodeWithText(APPOINTMENT_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
-        composeRule.onAllNodesWithText(DDAY_TEXT_PREFIX, substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithContentDescription(DDAY_ITEM_DESCRIPTION_SUFFIX, substring = true).assertCountEquals(0)
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
         composeRule.onAllNodes(isPopup()).assertCountEquals(0)
         composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
@@ -261,15 +262,15 @@ class CalendarHomeScreenDDayTest {
     private companion object {
         val JULY_2026 = YearMonth(year = 2026, month = Month.JULY)
         const val JULY_15_DESCRIPTION = "7월 15일"
-        const val DDAY_TEXT_PREFIX = "🎉"
+        const val DDAY_ITEM_DESCRIPTION_SUFFIX = ", 디데이"
         const val EXAM_TITLE = "수능"
-        const val EXAM_BASE_DAY_TEXT = "🎉 수능 D-Day"
+        const val EXAM_BASE_DAY_TEXT = "수능 D-Day"
         const val US_TITLE = "우리"
-        const val US_HUNDRED_DAYS_TEXT = "🎉 우리 100일"
+        const val US_HUNDRED_DAYS_TEXT = "우리 100일"
         const val SPRING_TITLE = "봄"
         const val BABY_TITLE = "아기"
-        const val BABY_BASE_DAY_TEXT = "🎉 아기 D-Day"
-        const val BABY_ONE_MONTH_TEXT = "🎉 아기 1개월"
+        const val BABY_BASE_DAY_TEXT = "아기 D-Day"
+        const val BABY_ONE_MONTH_TEXT = "아기 1개월"
         const val WALK_TITLE = "산책"
         const val APPOINTMENT_TITLE = "약속"
         const val CONSTITUTION_DAY_NAME = "제헌절"

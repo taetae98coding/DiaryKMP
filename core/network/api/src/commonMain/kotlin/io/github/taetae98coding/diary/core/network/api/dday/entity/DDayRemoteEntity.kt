@@ -9,6 +9,7 @@ import kotlin.uuid.Uuid
 public data class DDayRemoteEntity(
     @SerialName("id") val id: Uuid,
     @SerialName("detail") val detail: DDayDetailRemoteEntity,
+    @SerialName("primaryTagId") val primaryTagId: Uuid?,
     @SerialName("isDeleted") val isDeleted: Boolean,
     @SerialName("updatedAt") val updatedAt: Instant,
     @SerialName("createdAt") val createdAt: Instant,

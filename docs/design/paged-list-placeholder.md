@@ -38,7 +38,7 @@
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | 장소 선택 행 |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | 웹 선택 항목 |
 | [메모 연락처 입력 컴포넌트](./memo-contact-input.md) | 연락처 선택 항목 |
-| [태그 선택 입력 공통](./tag-select-input.md) | 태그 선택 항목. [메모 태그 입력](./memo-tag-input.md), [태그 연결 입력](./tag-link-input.md), [항목 태그 입력](./entity-tag-input.md)이 함께 쓴다 |
+| [태그 선택 입력 공통](./tag-select-input.md) | 태그 선택 항목. [대표 태그 입력](./primary-tag-input.md), [태그 연결 입력](./tag-link-input.md), [항목 태그 입력](./entity-tag-input.md)이 함께 쓴다 |
 
 ## 자리 표시 항목
 

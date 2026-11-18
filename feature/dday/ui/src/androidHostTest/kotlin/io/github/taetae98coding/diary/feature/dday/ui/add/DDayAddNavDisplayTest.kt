@@ -95,7 +95,7 @@ class DDayAddNavDisplayTest {
 
         backStack.toList() shouldBe listOf(DDayAddNavDisplayMoreNavKey, DDayHomeNavKey)
         composeRule.onNodeWithText(DDAY_HOME_TITLE).assertIsDisplayed()
-        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagIdSet = any()) } }
+        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagSelection = any()) } }
     }
 
     @Test
@@ -115,7 +115,7 @@ class DDayAddNavDisplayTest {
 
         backStack.toList() shouldBe listOf(DDayAddNavDisplayMoreNavKey, tagDetailKey)
         composeRule.onNodeWithText("$TAG_DETAIL_SELECTED_TAB_PREFIX$TAG_DETAIL_DDAY_TAB").assertIsDisplayed()
-        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagIdSet = any()) } }
+        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagSelection = any()) } }
     }
 
     private fun setNavDisplay(backStack: NavBackStack<ScreenNavKey>) {

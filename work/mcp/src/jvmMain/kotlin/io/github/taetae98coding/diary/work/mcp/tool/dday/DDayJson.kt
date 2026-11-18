@@ -68,6 +68,7 @@ internal fun AppActionDDay.toJson(): JsonObject =
         put(REPEATS, JsonArray(repeats.map(::JsonPrimitive)))
         put("endDate", endDate)
         put(OVERFLOW_POLICY, overflowPolicy)
+        put("primaryTagId", primaryTagId)
         put("createdAt", createdAt)
         put("updatedAt", updatedAt)
         put("count", count.toJson())

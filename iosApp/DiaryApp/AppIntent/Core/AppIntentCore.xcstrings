@@ -239,6 +239,23 @@
         }
       }
     },
+    "Cleared the primary tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cleared the primary tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대표 태그를 해제했어요."
+          }
+        }
+      }
+    },
     "Color": {
       "extractionState": "manual",
       "localizations": {
@@ -1153,6 +1170,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "검색어"
+          }
+        }
+      }
+    },
+    "Set the primary tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the primary tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대표 태그를 지정했어요."
           }
         }
       }

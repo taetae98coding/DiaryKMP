@@ -10,11 +10,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_QUERY
 import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.setMemoPlacePickerDialog
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
-import io.github.taetae98coding.diary.feature.memo.ui.tag.WORK_TAG_QUERY
-import io.github.taetae98coding.diary.feature.memo.ui.tag.WORK_TAG_TITLE
-import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
-import io.github.taetae98coding.diary.feature.memo.ui.tag.setMemoTagPickerDialog
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,32 +22,6 @@ import org.robolectric.annotation.Config
 class MemoPickerDialogSizeTest {
     @get:Rule
     val composeRule = createComposeRule()
-
-    @Test
-    fun `태그 선택 목록의 자리 높이는 항목이 하나여도 고정된다`() {
-        composeRule.setMemoTagPickerDialog(tagList = listOf(testTag(title = WORK_TAG_TITLE)))
-        composeRule.awaitTagPickerRows()
-
-        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
-    }
-
-    @Test
-    fun `태그 선택 목록의 자리 높이는 항목이 자리를 넘겨도 고정된다`() {
-        composeRule.setMemoTagPickerDialog(tagList = List(ROW_COUNT_OVER_AREA) { index -> testTag(title = "$WORK_TAG_TITLE$index") })
-        composeRule.awaitTagPickerRows()
-
-        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
-    }
-
-    @Test
-    fun `태그 선택 목록의 검색 결과 없음 안내도 같은 자리 높이를 쓴다`() {
-        composeRule.setMemoTagPickerDialog(
-            tagList = emptyList(),
-            query = WORK_TAG_QUERY,
-        )
-
-        composeRule.onNode(hasTestTag(DIARY_PICKER_EMPTY_BOX_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
-    }
 
     @Test
     fun `장소 선택 목록의 자리 높이는 항목 수와 관계없이 고정된다`() {
@@ -74,6 +43,5 @@ class MemoPickerDialogSizeTest {
 
     private companion object {
         private val PICKER_LIST_HEIGHT = 288.dp
-        private const val ROW_COUNT_OVER_AREA: Int = 10
     }
 }

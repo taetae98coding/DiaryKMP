@@ -362,7 +362,7 @@ private fun taggedEntityChangeCaseList(): List<TargetCase> =
         TargetCase(name = "루틴 삭제") { state -> routineTarget(state).let { routine -> routineAppActionOf(routine.findUseCase).delete(routineId = routine.id) } },
     )
 
-private fun linkCaseList(): List<TargetCase> = memoLinkCaseList() + entityTagLinkCaseList() + tagLinkCaseList()
+private fun linkCaseList(): List<TargetCase> = memoLinkCaseList() + ddayPrimaryTagCaseList() + entityTagLinkCaseList() + tagLinkCaseList()
 
 // 지정한 두 항목 가운데 한쪽만 삭제되었거나 없고, 다른 쪽은 삭제되지 않은 채 저장되어 있다.
 private fun memoLinkCaseList(): List<TargetCase> =
@@ -385,6 +385,17 @@ private fun memoLinkCase(
     listOf(
         TargetCase(name = "$name: 메모", expected = notDone) { state -> memoTarget(state).let { memo -> request(memoLinkAppActionOf(memo.findUseCase), memo.id, activeId()) } },
         TargetCase(name = "$name: 연결 대상", expected = notDone) { state -> target(state).let { linked -> request(memoLinkAppActionOf(linked.findUseCase), activeId(), linked.id) } },
+    )
+
+private fun ddayPrimaryTagCaseList(): List<TargetCase> =
+    listOf(
+        TargetCase(name = "디데이 대표 태그 지정: 디데이", expected = notDone) { state ->
+            ddayTarget(state).let { dday -> ddayAppActionOf(dday.findUseCase).primaryTagSet(ddayId = dday.id, tagId = activeId()) }
+        },
+        TargetCase(name = "디데이 대표 태그 지정: 태그", expected = notDone) { state ->
+            tagTarget(state).let { tag -> ddayAppActionOf(tag.findUseCase).primaryTagSet(ddayId = activeId(), tagId = tag.id) }
+        },
+        TargetCase(name = "디데이 대표 태그 해제", expected = notDone) { state -> ddayTarget(state).let { dday -> ddayAppActionOf(dday.findUseCase).primaryTagUnset(ddayId = dday.id) } },
     )
 
 private fun entityTagLinkCaseList(): List<TargetCase> =

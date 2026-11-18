@@ -65,7 +65,7 @@ class MemoLinkAppFunctionServiceTest {
                     "memoTagAdd",
                     "memoTagRemove",
                     "memoPrimaryTagSet",
-                    "memoPrimaryTagUnset",
+                    MEMO_PRIMARY_TAG_UNSET,
                     "memoPlaceAdd",
                     "memoPlaceRemove",
                     "memoWebAdd",
@@ -86,12 +86,12 @@ class MemoLinkAppFunctionServiceTest {
             val addResponse =
                 tester.execute(name = "memoTagAdd") {
                     setString(MEMO_ID, memoId)
-                    setString("tagId", tagId)
+                    setString(TAG_ID, tagId)
                 }
             val removeResponse =
                 tester.execute(name = "memoTagRemove") {
                     setString(MEMO_ID, memoId)
-                    setString("tagId", tagId)
+                    setString(TAG_ID, tagId)
                 }
 
             addResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
@@ -101,12 +101,33 @@ class MemoLinkAppFunctionServiceTest {
         }
 
     @Test
+    fun `TC-451290c7-912e-4b4d-bf15-e61caacbe1ca 메모 대표 태그 지정과 해제는 공통 동작에 넘기고 완료를 돌려준다`() =
+        runBlocking<Unit> {
+            val memoId = Arb.kotlinUuid().next().toString()
+            val tagId = Arb.kotlinUuid().next().toString()
+            coEvery { memoLinkAppAction.primaryTagSet(memoId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { memoLinkAppAction.primaryTagUnset(memoId = any()) } returns AppActionDone(done = true)
+
+            val setResponse =
+                tester.execute(name = "memoPrimaryTagSet") {
+                    setString(MEMO_ID, memoId)
+                    setString(TAG_ID, tagId)
+                }
+            val unsetResponse = tester.execute(name = MEMO_PRIMARY_TAG_UNSET) { setString(MEMO_ID, memoId) }
+
+            setResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            unsetResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { memoLinkAppAction.primaryTagSet(memoId = memoId, tagId = tagId) }
+            coVerify(exactly = 1) { memoLinkAppAction.primaryTagUnset(memoId = memoId) }
+        }
+
+    @Test
     fun `대표 태그 해제는 메모 id만 받아 완료 결과를 돌려준다`() =
         runBlocking<Unit> {
             val memoId = Arb.kotlinUuid().next().toString()
             coEvery { memoLinkAppAction.primaryTagUnset(memoId = any()) } returns AppActionDone(done = true)
 
-            val response = tester.execute(name = "memoPrimaryTagUnset") { setString(MEMO_ID, memoId) }
+            val response = tester.execute(name = MEMO_PRIMARY_TAG_UNSET) { setString(MEMO_ID, memoId) }
 
             response.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
             coVerify(exactly = 1) { memoLinkAppAction.primaryTagUnset(memoId = memoId) }
@@ -165,3 +186,5 @@ class MemoLinkAppFunctionServiceTest {
 }
 
 private const val MEMO_ID = "memoId"
+private const val TAG_ID = "tagId"
+private const val MEMO_PRIMARY_TAG_UNSET = "memoPrimaryTagUnset"

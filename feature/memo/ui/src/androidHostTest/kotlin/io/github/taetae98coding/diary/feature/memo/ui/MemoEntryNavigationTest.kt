@@ -42,6 +42,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
@@ -53,6 +54,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
@@ -108,9 +110,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
@@ -547,7 +547,7 @@ class MemoEntryNavigationTest {
             factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
             factory<MemoDetailViewModel> { parameters -> detailViewModel(id = parameters.get<Uuid>()) }
             factory<MemoTagViewModel> { parameters ->
-                screenTestTagViewModel(uiState = MutableStateFlow(MemoTagInputUiState(selectedTagList = listOf(detailContentOf(parameters.get<Uuid>()).tag))))
+                screenTestTagViewModel(uiState = MutableStateFlow(PrimaryTagInputUiState(selectedTagList = listOf(detailContentOf(parameters.get<Uuid>()).tag))))
             }
             factory<MemoWebViewModel> { parameters ->
                 screenTestWebViewModel(uiState = MutableStateFlow(MemoWebInputUiState(selectedWebList = listOf(detailContentOf(parameters.get<Uuid>()).web))))
@@ -761,7 +761,7 @@ class MemoEntryNavigationTest {
                 description = "$prefix-description",
                 color = color,
                 dateTime = dateTime,
-                tag = testTag(title = "$prefix-tag"),
+                tag = Arb.tag(title = "$prefix-tag", isFinished = false).next(),
                 web = testWeb(title = "$prefix-web"),
                 contact = testContact(name = "$prefix-contact"),
                 place = testPlace(title = "$prefix-place"),

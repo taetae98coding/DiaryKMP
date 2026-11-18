@@ -37,4 +37,17 @@ internal fun DiaryDatabase.ddayTagTable(): EntityTagTable<DDayTagLocalEntity, Ac
                 isDirty = isDirty,
             )
         },
+        clearPrimaryTagIdIfMatched = { accountId, entityId, tagId, updatedAt ->
+            val clearedCount =
+                accountDDayDao().clearPrimaryTagIdIfMatched(
+                    accountId = accountId,
+                    ddayId = entityId,
+                    tagId = tagId,
+                    updatedAt = updatedAt,
+                )
+
+            if (clearedCount > 0) {
+                accountDDayDao().markPending(accountId = accountId, ddayId = entityId)
+            }
+        },
     )

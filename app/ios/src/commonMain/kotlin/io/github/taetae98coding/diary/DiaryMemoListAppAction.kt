@@ -57,7 +57,7 @@ public object DiaryMemoListAppAction {
     ): DiaryAppActionContactMemoPage {
         val page = readNumberedPage(pageNumber = pageNumber) { cursor -> memoListAppAction().contactList(contactId = contactId, sort = sort.toSortValue(), cursor = cursor) }
 
-        return DiaryAppActionContactMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
+        return DiaryAppActionContactMemoPage(items = page.items.toDiaryMemoList(), nextPageNumber = page.nextPageNumber)
     }
 
     public suspend fun contactFinishedList(
@@ -67,7 +67,7 @@ public object DiaryMemoListAppAction {
     ): DiaryAppActionContactMemoPage {
         val page = readNumberedPage(pageNumber = pageNumber) { cursor -> memoListAppAction().contactFinishedList(contactId = contactId, sort = sort.toSortValue(), cursor = cursor) }
 
-        return DiaryAppActionContactMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
+        return DiaryAppActionContactMemoPage(items = page.items.toDiaryMemoList(), nextPageNumber = page.nextPageNumber)
     }
 }
 
@@ -79,5 +79,5 @@ internal suspend fun readMemoPage(
 ): DiaryAppActionMemoPage {
     val page = readNumberedPage(pageNumber = pageNumber, read = read)
 
-    return DiaryAppActionMemoPage(items = page.items.map { memo -> memo.toDiary() }, nextPageNumber = page.nextPageNumber)
+    return DiaryAppActionMemoPage(items = page.items.toDiaryMemoList(), nextPageNumber = page.nextPageNumber)
 }

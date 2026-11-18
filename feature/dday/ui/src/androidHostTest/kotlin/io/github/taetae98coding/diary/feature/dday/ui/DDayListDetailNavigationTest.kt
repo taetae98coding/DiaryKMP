@@ -753,7 +753,7 @@ class DDayListDetailNavigationTest {
             val tag = Arb.tag(title = TAG_TITLE).next()
             environment.tagList = listOf(tag)
             pickDate(currentText = DEFAULT_END_DATE_NOT_SET, date = PLACEHOLDER_END_DATE)
-            composeRule.runOnIdle { environment.addTagViewModelList.last().add(tagId = tag.id) }
+            composeRule.runOnIdle { environment.addTagViewModelList.last().selectTag(tagId = tag.id) }
             composeRule.waitForIdle()
             composeRule.onNodeWithText(TAG_TITLE).assertExists()
         }

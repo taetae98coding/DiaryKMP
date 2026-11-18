@@ -10,13 +10,18 @@ import androidx.compose.ui.test.performTextInput
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerEvent
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -42,8 +47,8 @@ class MemoTagPickerDialogMemoryRestoreTest {
 
     @Test
     fun `TC-683dd7b5-f406-48c0-8263-6e0243e4ec8c 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다`() {
-        val workTag = testTag(title = WORK_TAG_TITLE)
-        val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
+        val workTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val exerciseTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val tagList = listOf(workTag, exerciseTag)
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -51,9 +56,9 @@ class MemoTagPickerDialogMemoryRestoreTest {
             val viewModel = remember { viewModel(tagList = tagList, queryList = mutableListOf<String>().also(requestedQueryList::add)) }
 
             DiaryTheme {
-                MemoTagPickerDialogHost(
+                PrimaryTagPickerDialogHost(
                     dialogState = rememberDialogState(initialVisible = true),
-                    onEvent = { event -> if (event is MemoTagPickerEvent.ChangeQuery) viewModel.updateQuery(query = event.query) },
+                    onEvent = { event -> if (event is PrimaryTagPickerEvent.ChangeQuery) viewModel.updateQuery(query = event.query) },
                     tagPagingItems = viewModel.tagPagingData.collectAsLazyPagingItems(),
                 )
             }

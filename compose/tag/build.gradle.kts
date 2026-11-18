@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(projects.core.model)
+                implementation(projects.compose.icon)
                 implementation(projects.library.composeUi)
                 api(libs.androidx.paging.compose)
             }

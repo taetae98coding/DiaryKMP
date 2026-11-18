@@ -11,8 +11,8 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -436,7 +436,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                 }
 
                 viewModel.selectionUiState.value shouldBe
-                    MemoTagSelectionUiState(
+                    PrimaryTagSelectionUiState(
                         tagIdSet = setOf(targetTag.id),
                         primaryTagId = targetTag.id,
                     )
@@ -458,7 +458,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                 }
 
                 viewModel.selectionUiState.value shouldBe
-                    MemoTagSelectionUiState(
+                    PrimaryTagSelectionUiState(
                         tagIdSet = setOf(selectableTag.id, unselectableTag.id),
                         primaryTagId = unselectableTag.id,
                     )
@@ -498,7 +498,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                         cancelAndIgnoreRemainingEvents()
                     }
 
-                    viewModel.selectionUiState.value shouldBe MemoTagSelectionUiState(tagIdSet = expectedTagIdSet, primaryTagId = expectedPrimaryTagId)
+                    viewModel.selectionUiState.value shouldBe PrimaryTagSelectionUiState(tagIdSet = expectedTagIdSet, primaryTagId = expectedPrimaryTagId)
                 }
             }
         }
@@ -618,7 +618,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                         uiState.primaryTagId shouldBe null
                         cancelAndIgnoreRemainingEvents()
                     }
-                    viewModel.selectionUiState.value shouldBe MemoTagSelectionUiState(tagIdSet = setOf(targetTag.id), primaryTagId = targetTag.id)
+                    viewModel.selectionUiState.value shouldBe PrimaryTagSelectionUiState(tagIdSet = setOf(targetTag.id), primaryTagId = targetTag.id)
                 }
             }
         }

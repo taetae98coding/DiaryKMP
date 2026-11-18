@@ -7,6 +7,7 @@ public fun DDay.toLocal(): DDayLocalEntity =
     DDayLocalEntity(
         id = id,
         detail = detail.toLocal(),
+        primaryTagId = primaryTagId,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,
@@ -16,6 +17,7 @@ public fun DDayLocalEntity.toDomain(): DDay =
     DDay(
         id = id,
         detail = detail.toDomain(),
+        primaryTagId = primaryTagId,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,

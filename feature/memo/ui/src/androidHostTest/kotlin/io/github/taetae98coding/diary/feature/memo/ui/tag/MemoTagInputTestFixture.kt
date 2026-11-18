@@ -26,12 +26,13 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerEvent
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 internal const val MEMO_TAG_INPUT_TAG: String = "MemoTagInput"
@@ -61,101 +62,11 @@ internal const val DEFAULT_PICKER_SEARCH_EMPTY_DESCRIPTION: String = "Try a diff
 internal const val KOREAN_PICKER_SEARCH_EMPTY_TITLE: String = "검색 결과가 없습니다"
 internal const val KOREAN_PICKER_SEARCH_EMPTY_DESCRIPTION: String = "다른 검색어로 찾아보세요"
 
-internal fun testTag(
-    title: String,
-    emoji: String = "",
-    updatedAt: Instant = Instant.DISTANT_PAST,
-    createdAt: Instant = Instant.DISTANT_PAST,
-): Tag =
-    Tag(
-        id = Uuid.random(),
-        detail = TagDetail(emoji = emoji, title = title, description = "", color = 0xFF3A7BD5),
-        isFinished = false,
-        isDeleted = false,
-        updatedAt = updatedAt,
-        createdAt = createdAt,
-    )
-
-internal fun ComposeContentTestRule.setMemoTagInput(
-    uiState: MemoTagInputUiState = MemoTagInputUiState(),
-    onTagClick: (Uuid) -> Unit = {},
-    onAddClick: () -> Unit = {},
-) {
-    setContent {
-        DiaryTheme {
-            MemoTagInput(
-                uiStateProvider = { uiState },
-                onTagClick = onTagClick,
-                onAddClick = onAddClick,
-                modifier = Modifier.testTag(MEMO_TAG_INPUT_TAG),
-            )
-        }
-    }
-}
-
-/**
- * 선택한 태그를 테스트에서 바꿀 수 있도록 상태를 끌어올려 [MemoTagInput]을 배치하고, 선택을 바꾸는 함수를 돌려준다.
- */
-internal fun ComposeContentTestRule.setMemoTagInputWithSelection(): (List<Tag>, Uuid?) -> Unit {
-    var uiState by mutableStateOf(MemoTagInputUiState())
-
-    setContent {
-        DiaryTheme {
-            MemoTagInput(
-                uiStateProvider = { uiState },
-                onTagClick = {},
-                onAddClick = {},
-                modifier = Modifier.testTag(MEMO_TAG_INPUT_TAG),
-            )
-        }
-    }
-
-    return { selectedTagList, primaryTagId ->
-        uiState = uiState.copy(selectedTagList = selectedTagList, primaryTagId = primaryTagId)
-        waitForIdle()
-    }
-}
-
-internal fun ComposeContentTestRule.setMemoTagPickerDialog(
-    tagList: List<Tag> = emptyList(),
-    uiState: MemoTagInputUiState = MemoTagInputUiState(),
-    tagPagingData: PagingData<Tag> = tagPagingDataOf(tagList),
-    tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingData),
-    query: String = "",
-    onDismissRequest: () -> Unit = {},
-    onTagSelect: (Uuid) -> Unit = {},
-    onTagUnselect: (Uuid) -> Unit = {},
-    onPrimaryTagSelect: (Uuid) -> Unit = {},
-    onPrimaryTagUnselect: () -> Unit = {},
-    onTagAdd: () -> Unit = {},
-) {
-    setContent {
-        DiaryTheme {
-            MemoTagPickerDialog(
-                searchFieldState = rememberDiaryPickerSearchFieldState(initialText = query),
-                tagPagingItems = remember(tagPagingDataFlow) { tagPagingDataFlow }.collectAsLazyPagingItems(),
-                uiStateProvider = { uiState },
-                onDismissRequest = onDismissRequest,
-                onEvent = { event ->
-                    when (event) {
-                        is MemoTagPickerEvent.Select -> onTagSelect(event.id)
-                        is MemoTagPickerEvent.Unselect -> onTagUnselect(event.id)
-                        is MemoTagPickerEvent.SelectPrimary -> onPrimaryTagSelect(event.id)
-                        is MemoTagPickerEvent.UnselectPrimary -> onPrimaryTagUnselect()
-                        is MemoTagPickerEvent.ClickAdd -> onTagAdd()
-                        is MemoTagPickerEvent.ChangeQuery -> Unit
-                    }
-                },
-            )
-        }
-    }
-}
-
 internal fun ComposeContentTestRule.setMemoTagPickerDialogHost(
     dialogState: DialogState = DialogState(isVisible = true),
     tagList: List<Tag> = emptyList(),
     tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingDataOf(tagList)),
-    uiState: MemoTagInputUiState = MemoTagInputUiState(),
+    uiState: PrimaryTagInputUiState = PrimaryTagInputUiState(),
     onQueryChange: (String) -> Unit = {},
     onTagSelect: (Uuid) -> Unit = {},
     onPrimaryTagSelect: (Uuid) -> Unit = {},
@@ -163,20 +74,20 @@ internal fun ComposeContentTestRule.setMemoTagPickerDialogHost(
 ) {
     setContent {
         DiaryTheme {
-            MemoTagPickerDialogHost(
+            PrimaryTagPickerDialogHost(
                 dialogState = dialogState,
                 onEvent = { event ->
                     when (event) {
-                        is MemoTagPickerEvent.Select -> onTagSelect(event.id)
+                        is PrimaryTagPickerEvent.Select -> onTagSelect(event.id)
 
-                        is MemoTagPickerEvent.SelectPrimary -> onPrimaryTagSelect(event.id)
+                        is PrimaryTagPickerEvent.SelectPrimary -> onPrimaryTagSelect(event.id)
 
-                        is MemoTagPickerEvent.ClickAdd -> onTagAdd()
+                        is PrimaryTagPickerEvent.ClickAdd -> onTagAdd()
 
-                        is MemoTagPickerEvent.ChangeQuery -> onQueryChange(event.query)
+                        is PrimaryTagPickerEvent.ChangeQuery -> onQueryChange(event.query)
 
-                        is MemoTagPickerEvent.Unselect,
-                        is MemoTagPickerEvent.UnselectPrimary,
+                        is PrimaryTagPickerEvent.Unselect,
+                        is PrimaryTagPickerEvent.UnselectPrimary,
                         -> Unit
                     }
                 },

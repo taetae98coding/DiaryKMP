@@ -53,6 +53,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
@@ -82,7 +83,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapViewMode
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
@@ -528,7 +528,7 @@ class MemoListDetailPlaceholderTest {
             PlaceholderInput(
                 title = "title-${Arb.nonBlankString().next()}",
                 description = "description-${Arb.nonBlankString().next()}",
-                tag = testTag(title = "tag-${Arb.nonBlankString().next()}"),
+                tag = Arb.tag(title = "tag-${Arb.nonBlankString().next()}", isFinished = false).next(),
                 web = testWeb(title = "web-${Arb.nonBlankString().next()}"),
                 contact = testContact(name = "contact-${Arb.nonBlankString().next()}"),
                 place = testPlace(title = "place-${Arb.nonBlankString().next()}"),

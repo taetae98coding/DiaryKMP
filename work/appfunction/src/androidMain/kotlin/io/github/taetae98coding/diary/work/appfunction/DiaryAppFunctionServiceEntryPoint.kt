@@ -1738,6 +1738,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      * @param repeats Intervals of anniversaries after the base date. Each interval is an ISO 8601 period of days only or of years and months only, 1 or greater, like P100D (100 days), P3M (3 months) or P1Y (1 year). Weeks and times are not accepted.
      * @param endDate Last date anniversaries are shown, like 2026-12-31.
      * @param overflowPolicy What to do when a monthly anniversary falls on a date the month does not have. clamp_to_month_end uses the last day of the month, skip does not show it, next_month_first_day uses the 1st of the next month.
+     * @param primaryTagId Id of the primary tag. It is linked too.
      * @param tagIds Ids of tags to link.
      * @return Id of the added D-Day.
      */
@@ -1752,6 +1753,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         endDate: String? = null,
         @AppFunctionStringValueConstraint(enumValues = [AppActionDDayOverflowPolicyValue.CLAMP_TO_MONTH_END, AppActionDDayOverflowPolicyValue.SKIP, AppActionDDayOverflowPolicyValue.NEXT_MONTH_FIRST_DAY])
         overflowPolicy: String? = null,
+        primaryTagId: String? = null,
         tagIds: List<String> = emptyList(),
     ): AppFunctionId =
         appFunctionCall {
@@ -1765,6 +1767,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
                     repeats = repeats,
                     endDate = endDate,
                     overflowPolicy = overflowPolicy,
+                    primaryTagId = primaryTagId,
                     tagIds = tagIds,
                 ).toAppFunctionId()
         }
@@ -1846,7 +1849,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     ): AppFunctionDone = appFunctionCall { entityTagAppAction.add(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId).toAppFunctionDone() }
 
     /**
-     * Unlinks a tag from a D-Day. Returns done false and changes nothing when either item does not exist or is deleted.
+     * Unlinks a tag from a D-Day. If it is the primary tag, the primary tag is cleared too. Returns done false and changes nothing when either item does not exist or is deleted.
      *
      * @param ddayId Id of the D-Day.
      * @param tagId Id of the tag.
@@ -1857,6 +1860,28 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         ddayId: String,
         tagId: String,
     ): AppFunctionDone = appFunctionCall { entityTagAppAction.remove(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId).toAppFunctionDone() }
+
+    /**
+     * Sets the primary tag of a D-Day. The tag is linked too when it is not linked yet. The calendar shows the D-Day in the primary tag's color. Returns done false and changes nothing when either item does not exist or is deleted.
+     *
+     * @param ddayId Id of the D-Day.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayPrimaryTagSet(
+        ddayId: String,
+        tagId: String,
+    ): AppFunctionDone = appFunctionCall { ddayAppAction.primaryTagSet(ddayId = ddayId, tagId = tagId).toAppFunctionDone() }
+
+    /**
+     * Clears the primary tag of a D-Day. The tag stays linked. Returns done false and changes nothing when the D-Day does not exist or is deleted.
+     *
+     * @param ddayId Id of the D-Day.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayPrimaryTagUnset(ddayId: String): AppFunctionDone = appFunctionCall { ddayAppAction.primaryTagUnset(ddayId = ddayId).toAppFunctionDone() }
 
     // endregion
 

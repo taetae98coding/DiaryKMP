@@ -28,6 +28,7 @@ internal class EntityTagTable<L : Any, A : Any>(
     private val toLink: (EntityTagLocalEntity) -> L,
     private val toEntityTag: (L) -> EntityTagLocalEntity,
     private val toAccountLink: (accountId: Uuid, entityId: Uuid, tagId: Uuid, isDirty: Boolean) -> A,
+    val clearPrimaryTagIdIfMatched: suspend (accountId: Uuid, entityId: Uuid, tagId: Uuid, updatedAt: Instant) -> Unit = { _, _, _, _ -> },
 ) {
     suspend fun upsert(entityTagList: List<EntityTagLocalEntity>) {
         linkDao.upsert(entityTagList.map(toLink))

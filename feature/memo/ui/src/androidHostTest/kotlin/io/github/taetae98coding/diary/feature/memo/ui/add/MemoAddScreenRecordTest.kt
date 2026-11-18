@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
@@ -25,7 +26,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LAB
 import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodesWithContentDescription
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toHexString
 import io.kotest.matchers.shouldBe
@@ -120,7 +120,7 @@ class MemoAddScreenRecordTest {
 
     @Test
     fun `TC-39612edc-1b21-4f1a-a60d-9b5e2a1175a2 태그를 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
-        val tag = testTag(title = randomText(prefix = TAG_PREFIX))
+        val tag = Arb.tag(title = randomText(prefix = TAG_PREFIX), isFinished = false).next()
         val addMemoUseCase = mockk<AddMemoUseCase>()
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(tag), addMemoUseCase = addMemoUseCase))
 

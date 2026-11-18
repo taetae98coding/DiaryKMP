@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UpdateMemoUseCase
+import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
@@ -37,6 +38,7 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
+import io.github.taetae98coding.diary.work.appaction.search.searchAppActionOf
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.kotest.assertions.throwables.shouldThrow
@@ -311,6 +313,69 @@ class MemoAppActionTest :
 
                 result shouldBe AppActionId(id = addedId.toString())
                 parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
+        test("TC-b2ac485f-e2d1-44a0-8f3b-09b8e42d7f81 추가 요청에 담은 대표 태그를 연결할 태그와 함께 넘긴다") {
+            runTest {
+                val tagIdA = Arb.kotlinUuid().next()
+                val tagIdB = Arb.kotlinUuid().next()
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddMemoUseCase.Parameter>()
+                val addMemoUseCase = mockk<AddMemoUseCase>()
+                coEvery { addMemoUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = memoAppActionOf(addMemoUseCase)
+
+                action.add(
+                    title = Arb.nonBlankString().next(),
+                    description = null,
+                    color = null,
+                    dateTime = null,
+                    primaryTagId = tagIdB.toString(),
+                    tagIds = listOf(tagIdA.toString()),
+                    placeIds = emptyList(),
+                    webIds = emptyList(),
+                    contactIds = emptyList(),
+                ) shouldBe AppActionId(id = addedId.toString())
+
+                parameter.captured.tagIdSet shouldBe setOf(tagIdA)
+                parameter.captured.primaryTagId shouldBe tagIdB
+            }
+        }
+
+        test("TC-35ed7a8a-37ce-4218-b82d-88c6ad0dd1b8 목록, 상세와 검색 결과에 대표 태그를 담는다") {
+            runTest {
+                val primaryTagId = Arb.kotlinUuid().next()
+                val memo = Arb.memo().next().copy(isDeleted = false, primaryTagId = primaryTagId)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                val getMemoTagUseCase = mockk<GetMemoTagUseCase>()
+                val getMemoPlaceUseCase = mockk<GetMemoPlaceUseCase>()
+                val getMemoWebUseCase = mockk<GetMemoWebUseCase>()
+                val getMemoContactUseCase = mockk<GetMemoContactUseCase>()
+                val searchMemoUseCase = mockk<SearchMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
+                every { getMemoTagUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoPlaceUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoWebUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoContactUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { searchMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                val action = memoAppActionOf(findMemoUseCase, getMemoTagUseCase, getMemoPlaceUseCase, getMemoWebUseCase, getMemoContactUseCase)
+                val listAction = memoListAppActionOf(pageMemoUseCase)
+                val searchAction = searchAppActionOf(searchMemoUseCase)
+
+                listAction
+                    .list(sort = null, cursor = null)
+                    .items
+                    .single()
+                    .primaryTagId shouldBe primaryTagId.toString()
+                action.get(memoId = memo.id.toString())?.memo?.primaryTagId shouldBe primaryTagId.toString()
+                searchAction
+                    .memo(query = memo.detail.title, sort = null, cursor = null)
+                    .items
+                    .single()
+                    .primaryTagId shouldBe primaryTagId.toString()
             }
         }
 

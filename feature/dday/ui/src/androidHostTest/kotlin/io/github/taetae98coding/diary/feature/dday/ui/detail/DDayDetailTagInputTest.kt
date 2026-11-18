@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.feature.dday.ui.detail
 
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
@@ -9,12 +11,15 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_PRIMARY_TAG_SET
+import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_PRIMARY_TAG_UNSET
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_REPEAT_BLANK
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_UNIT_DAY
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayEditableText
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayInputRepeatNumber
+import io.github.taetae98coding.diary.feature.dday.ui.form.ddayPrimaryTagChip
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayRepeatList
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayTitleInput
 import io.github.taetae98coding.diary.feature.dday.ui.resetAndroidUiDispatcher
@@ -49,13 +54,56 @@ class DDayDetailTagInputTest {
         editInput()
 
         composeRule.ddayDetailLinkTag(title = LINK_TAG_TITLE)
-        verify(exactly = 1) { environment.tagViewModel.add(tagId = linkTag.id) }
+        verify(exactly = 1) { environment.tagViewModel.selectTag(tagId = linkTag.id) }
         composeRule.ddayDetailUnlinkTag(title = LINKED_TAG_TITLE)
-        verify(exactly = 1) { environment.tagViewModel.remove(tagId = linkedTag.id) }
+        verify(exactly = 1) { environment.tagViewModel.unselectTag(tagId = linkedTag.id) }
 
         verify(exactly = 0) { environment.ddayViewModel.update(input = any()) }
         assertEditedInput()
         composeRule.onNodeWithText(DDAY_DETAIL_DEFAULT_UPDATE_SUCCEEDED).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-3e664aa6-b831-4e72-b0d7-38b42cb3166b 대표 태그를 지정하고 해제하면 바로 반영을 요청하고 고친 입력은 그대로다`() {
+        val linkedTag = Arb.tag(title = LINKED_TAG_TITLE).next()
+        val environment = DDayDetailTestEnvironment(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        setScreen(environment)
+        editInput()
+        val updateButtonCount = composeRule.onAllNodes(ddayDetailUpdateButton()).fetchSemanticsNodes().size
+
+        composeRule.ddayDetailClickPrimaryTagButton(title = LINKED_TAG_TITLE, description = DDAY_FORM_DEFAULT_PRIMARY_TAG_SET)
+        verify(exactly = 1) { environment.tagViewModel.selectPrimaryTag(tagId = linkedTag.id) }
+        // 저장된 대표 태그가 바뀌면 태그 입력에 그대로 반영된다.
+        environment.tagUiState.value = PrimaryTagInputUiState(selectedTagList = listOf(linkedTag), primaryTagId = linkedTag.id)
+        composeRule.waitForIdle()
+        composeRule.onNode(ddayPrimaryTagChip()).assert(hasText(LINKED_TAG_TITLE))
+        composeRule.onNodeWithText(DDAY_DETAIL_DEFAULT_UPDATE_SUCCEEDED).assertDoesNotExist()
+        composeRule.onAllNodes(ddayDetailUpdateButton()).fetchSemanticsNodes().size shouldBe updateButtonCount
+
+        composeRule.ddayDetailClickPrimaryTagButton(title = LINKED_TAG_TITLE, description = DDAY_FORM_DEFAULT_PRIMARY_TAG_UNSET)
+        verify(exactly = 1) { environment.tagViewModel.unselectPrimaryTag() }
+        environment.tagUiState.value = PrimaryTagInputUiState(selectedTagList = listOf(linkedTag))
+        composeRule.waitForIdle()
+        composeRule.onNode(ddayPrimaryTagChip()).assertDoesNotExist()
+
+        verify(exactly = 0) { environment.ddayViewModel.update(input = any()) }
+        assertEditedInput()
+        composeRule.onNodeWithText(DDAY_DETAIL_DEFAULT_UPDATE_SUCCEEDED).assertDoesNotExist()
+        composeRule.onAllNodes(ddayDetailUpdateButton()).fetchSemanticsNodes().size shouldBe updateButtonCount
+    }
+
+    @Test
+    fun `TC-07e0044e-806c-40ca-8b91-792d8d5ab5a9 태그 입력에 저장된 대표 태그가 표시된다`() {
+        val tagA = Arb.tag(title = LINK_TAG_TITLE).next()
+        val tagB = Arb.tag(title = LINKED_TAG_TITLE).next()
+        val environment = DDayDetailTestEnvironment()
+        environment.tagUiState.value = PrimaryTagInputUiState(selectedTagList = listOf(tagA, tagB), primaryTagId = tagB.id)
+        setScreen(environment)
+
+        composeRule.onNode(tagChip(LINK_TAG_TITLE)).assertExists()
+        composeRule.onNode(tagChip(LINKED_TAG_TITLE)).assertExists()
+        composeRule.onAllNodes(ddayPrimaryTagChip()).assertCountEquals(1)
+        composeRule.onNode(ddayPrimaryTagChip()).assert(hasText(LINKED_TAG_TITLE))
     }
 
     @Test
@@ -83,7 +131,7 @@ class DDayDetailTagInputTest {
         composeRule.waitForIdle()
         composeRule.onNode(tagChip(LINK_TAG_TITLE)).assertDoesNotExist()
 
-        environment.tagUiState.value = EntityTagInputUiState(tagList = listOf(storedTag, newTag))
+        environment.tagUiState.value = PrimaryTagInputUiState(selectedTagList = listOf(storedTag, newTag))
         composeRule.waitForIdle()
 
         composeRule.onNode(tagChip(LINKED_TAG_TITLE)).assertExists()
@@ -103,8 +151,8 @@ class DDayDetailTagInputTest {
         composeRule.ddayDetailUnlinkTag(title = LINKED_TAG_TITLE)
         composeRule.ddayDetailLinkTag(title = LINK_TAG_TITLE)
 
-        verify(exactly = 2) { environment.tagViewModel.add(tagId = otherTag.id) }
-        verify(exactly = 1) { environment.tagViewModel.remove(tagId = storedTag.id) }
+        verify(exactly = 2) { environment.tagViewModel.selectTag(tagId = otherTag.id) }
+        verify(exactly = 1) { environment.tagViewModel.unselectTag(tagId = storedTag.id) }
         composeRule.onNode(tagChip(LINKED_TAG_TITLE)).assertExists()
         composeRule.onNode(tagChip(LINK_TAG_TITLE)).assertDoesNotExist()
         composeRule.onNodeWithText(DDAY_DETAIL_DEFAULT_UPDATE_SUCCEEDED).assertDoesNotExist()
@@ -133,8 +181,8 @@ class DDayDetailTagInputTest {
         composeRule.ddayDetailLinkTag(title = LINK_TAG_TITLE)
         composeRule.ddayDetailUnlinkTag(title = LINKED_TAG_TITLE)
 
-        verify(exactly = 1) { environment.tagViewModel.add(tagId = linkTag.id) }
-        verify(exactly = 1) { environment.tagViewModel.remove(tagId = linkedTag.id) }
+        verify(exactly = 1) { environment.tagViewModel.selectTag(tagId = linkTag.id) }
+        verify(exactly = 1) { environment.tagViewModel.unselectTag(tagId = linkedTag.id) }
     }
 
     @Test

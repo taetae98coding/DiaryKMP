@@ -44,6 +44,8 @@ public data class AppFunctionDDay(
     val endDate: String?,
     /** What to do when a monthly anniversary falls on a date the month does not have: clamp_to_month_end, skip or next_month_first_day. */
     val overflowPolicy: String,
+    /** Id of the primary tag. Null when the D-Day has no primary tag. */
+    val primaryTagId: String?,
     /** When the D-Day was created, in ISO-8601. */
     val createdAt: String,
     /** When the D-Day was last updated, in ISO-8601. */
@@ -85,6 +87,7 @@ internal fun AppActionDDay.toAppFunctionDDay(): AppFunctionDDay =
         repeats = repeats,
         endDate = endDate,
         overflowPolicy = overflowPolicy,
+        primaryTagId = primaryTagId,
         createdAt = createdAt,
         updatedAt = updatedAt,
         count = count.toAppFunctionDDayCount(),

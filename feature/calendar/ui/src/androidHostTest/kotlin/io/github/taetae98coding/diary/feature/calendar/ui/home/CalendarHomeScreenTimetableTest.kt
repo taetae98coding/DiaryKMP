@@ -264,7 +264,7 @@ class CalendarHomeScreenTimetableTest {
         const val BIRTHDAY_NAME = "Hong"
         const val HOLIDAY_NAME = "Holiday"
         const val EXAM_TITLE = "수능"
-        const val EXAM_BASE_DAY_TEXT = "🎉 수능 D-Day"
+        const val EXAM_BASE_DAY_TEXT = "수능 D-Day"
         const val LONG_PRESS_MARGIN_MILLIS = 100L
     }
 }

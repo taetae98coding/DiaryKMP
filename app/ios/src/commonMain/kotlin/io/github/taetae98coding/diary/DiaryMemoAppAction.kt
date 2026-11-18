@@ -14,7 +14,7 @@ public data class DiaryAppActionMemo(
     val memoDescription: String,
     val color: String,
     val dateTime: DiaryAppActionMemoDateTime?,
-    val primaryTagId: String?,
+    val primaryTag: DiaryAppActionTag?,
     val isFinished: Boolean,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
@@ -98,23 +98,32 @@ public object DiaryMemoAppAction {
 
 private fun memoAppAction(): MemoAppAction = diaryAppAction()
 
-private fun AppActionMemoDetail.toDiary(): DiaryAppActionMemoDetail =
-    DiaryAppActionMemoDetail(
-        memo = memo.toDiary(),
-        tags = tags.map { tag -> tag.toDiary() },
+private fun AppActionMemoDetail.toDiary(): DiaryAppActionMemoDetail {
+    val tagList = tags.map { tag -> tag.toDiary() }
+
+    return DiaryAppActionMemoDetail(
+        memo = memo.toDiary(primaryTag = tagList.firstOrNull { tag -> tag.id == memo.primaryTagId }),
+        tags = tagList,
         places = places.map { place -> place.toDiary() },
         webs = webs.map { web -> web.toDiary() },
         contacts = contacts.map { contact -> contact.toDiary() },
     )
+}
 
-internal fun AppActionMemo.toDiary(): DiaryAppActionMemo =
+internal suspend fun List<AppActionMemo>.toDiaryMemoList(): List<DiaryAppActionMemo> {
+    val primaryTagMap = readPrimaryTagMap(primaryTagIdList = map { memo -> memo.primaryTagId })
+
+    return map { memo -> memo.toDiary(primaryTag = memo.primaryTagId?.let(primaryTagMap::get)) }
+}
+
+private fun AppActionMemo.toDiary(primaryTag: DiaryAppActionTag?): DiaryAppActionMemo =
     DiaryAppActionMemo(
         id = id,
         title = title,
         memoDescription = description,
         color = color,
         dateTime = dateTime?.toEpochDateTime()?.toDiary(),
-        primaryTagId = primaryTagId,
+        primaryTag = primaryTag,
         isFinished = isFinished,
         createdAtEpochMillis = appActionEpochMillis(instant = createdAt),
         updatedAtEpochMillis = appActionEpochMillis(instant = updatedAt),

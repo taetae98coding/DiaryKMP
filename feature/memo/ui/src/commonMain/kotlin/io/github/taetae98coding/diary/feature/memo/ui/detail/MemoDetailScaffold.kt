@@ -22,6 +22,9 @@ import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefault
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.toCoordinate
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerEvent
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
@@ -43,9 +46,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerDialogHost
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.place.rememberMemoPlaceMapState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagPickerDialogHost
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebPickerDialogHost
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebPickerEvent
@@ -56,7 +56,7 @@ import kotlin.uuid.Uuid
 internal fun MemoDetailScaffold(
     onEvent: (MemoDetailScaffoldEvent) -> Unit,
     onFormEvent: (MemoFormEvent) -> Unit,
-    onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
+    onTagPickerEvent: (PrimaryTagPickerEvent) -> Unit,
     onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
     onContactPickerEvent: (MemoContactPickerEvent) -> Unit,
     onPlacePickerEvent: (MemoPlacePickerEvent) -> Unit,
@@ -66,7 +66,7 @@ internal fun MemoDetailScaffold(
     uiStateProvider: () -> MemoDetailUiState = { MemoDetailUiState.Loading },
     state: MemoFormState = rememberMemoDetailFormState(initialDetail = MemoDetail.EMPTY),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
-    tagUiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
+    tagUiStateProvider: () -> PrimaryTagInputUiState = { PrimaryTagInputUiState() },
     webUiStateProvider: () -> MemoWebInputUiState = { MemoWebInputUiState() },
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     contactUiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
@@ -153,7 +153,7 @@ private fun rememberMemoDetailChanged(
 @Composable
 private fun MemoDetailDialogHost(
     onEvent: (MemoDetailScaffoldEvent) -> Unit,
-    onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
+    onTagPickerEvent: (PrimaryTagPickerEvent) -> Unit,
     onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
     onContactPickerEvent: (MemoContactPickerEvent) -> Unit,
     onPlacePickerEvent: (MemoPlacePickerEvent) -> Unit,
@@ -161,7 +161,7 @@ private fun MemoDetailDialogHost(
     onGeminiDismissRequest: () -> Unit,
     state: MemoFormState,
     tagPagingItems: LazyPagingItems<Tag>,
-    tagUiStateProvider: () -> MemoTagInputUiState,
+    tagUiStateProvider: () -> PrimaryTagInputUiState,
     webPagingItems: LazyPagingItems<Web>,
     webUiStateProvider: () -> MemoWebInputUiState,
     contactPagingItems: LazyPagingItems<ContactListItem>,
@@ -172,7 +172,7 @@ private fun MemoDetailDialogHost(
     geminiUiStateProvider: () -> MemoGeminiUiState,
     shareSheetState: DialogState,
 ) {
-    MemoTagPickerDialogHost(
+    PrimaryTagPickerDialogHost(
         dialogState = state.tagPickerDialogState,
         onEvent = onTagPickerEvent,
         tagPagingItems = tagPagingItems,

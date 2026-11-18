@@ -265,6 +265,57 @@
         }
       }
     },
+    "Clear D-Day Primary Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear D-Day Primary Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 대표 태그 해제"
+          }
+        }
+      }
+    },
+    "Clear primary tag of ${dday}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear primary tag of ${dday}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday} 대표 태그 해제"
+          }
+        }
+      }
+    },
+    "Clears the primary tag of a D-Day. The tag stays linked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clears the primary tag of a D-Day. The tag stays linked."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이의 대표 태그를 해제합니다. 태그 연결은 그대로 둡니다."
+          }
+        }
+      }
+    },
     "Couldn't find the D-Day.": {
       "extractionState": "manual",
       "localizations": {
@@ -872,6 +923,57 @@
         }
       }
     },
+    "Set ${tag} as primary tag of ${dday}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set ${tag} as primary tag of ${dday}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday} 대표 태그 지정: ${tag}"
+          }
+        }
+      }
+    },
+    "Set D-Day Primary Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set D-Day Primary Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 대표 태그 지정"
+          }
+        }
+      }
+    },
+    "Sets the primary tag of a D-Day. The tag is linked too if it isn't linked yet. The calendar shows the D-Day in the primary tag's color.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sets the primary tag of a D-Day. The tag is linked too if it isn't linked yet. The calendar shows the D-Day in the primary tag's color."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이의 대표 태그를 정합니다. 연결되지 않은 태그이면 함께 연결합니다. 캘린더에서는 대표 태그의 색으로 보입니다."
+          }
+        }
+      }
+    },
     "Skip": {
       "extractionState": "manual",
       "localizations": {
@@ -1025,19 +1127,19 @@
         }
       }
     },
-    "Unlinks a tag from a D-Day.": {
+    "Unlinks a tag from a D-Day. If it was the primary tag, the primary tag is cleared too.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlinks a tag from a D-Day."
+            "value": "Unlinks a tag from a D-Day. If it was the primary tag, the primary tag is cleared too."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "디데이에서 태그 연결을 해제합니다."
+            "value": "디데이에서 태그 연결을 해제합니다. 대표 태그였으면 대표 태그도 해제됩니다."
           }
         }
       }

@@ -32,7 +32,7 @@ import io.github.taetae98coding.diary.domain.dday.repeat.DDayRepeatInput
 import io.github.taetae98coding.diary.domain.dday.repeat.DDayRepeatUnit
 import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatSetOrNull
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
-import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_COUNTS_BASE_DAY_LABEL
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_DESCRIPTION_LABEL
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_END_DATE_CLEAR
@@ -256,7 +256,7 @@ class DDayAddScreenTest {
                         endDate = FILLED_END_DATE,
                         overflowPolicy = DDayOverflowPolicy.SKIP,
                     ),
-                tagIdSet = emptySet(),
+                tagSelection = PrimaryTagSelectionUiState(),
             )
         }
         composeRule.ddayTitleInput().ddayEditableText() shouldBe ""
@@ -479,7 +479,7 @@ class DDayAddScreenTest {
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
-        verify(exactly = 0) { viewModel.add(input = any(), tagIdSet = any()) }
+        verify(exactly = 0) { viewModel.add(input = any(), tagSelection = any()) }
     }
 
     @Test
@@ -743,7 +743,7 @@ class DDayAddScreenTest {
         clickAdd()
 
         val input = slot<DDayInput>()
-        verify(exactly = 1) { viewModel.add(input = capture(input), tagIdSet = any()) }
+        verify(exactly = 1) { viewModel.add(input = capture(input), tagSelection = any()) }
         input.captured.color shouldBe colorA.toColorLong()
     }
 
@@ -751,7 +751,7 @@ class DDayAddScreenTest {
     fun `TC-ae452255-0216-45c8-99e4-ca93f790a2cb 프리셋으로 채운 디데이는 같은 값을 직접 입력한 디데이와 같은 정보로 추가를 요청한다`() {
         val viewModel = relaxedViewModel()
         val inputList = mutableListOf<DDayInput>()
-        every { viewModel.add(input = capture(inputList), tagIdSet = any()) } returns Unit
+        every { viewModel.add(input = capture(inputList), tagSelection = any()) } returns Unit
         setScreen(viewModel = viewModel)
         composeRule.ddayTitleInput().performTextInput(MARRIAGE)
         composeRule.onNodeWithText(DDAY_FORM_DEFAULT_PRESET_COUPLE).performClick()
@@ -804,7 +804,7 @@ class DDayAddScreenTest {
         clickAdd()
 
         val input = slot<DDayInput>()
-        verify(exactly = 1) { viewModel.add(input = capture(input), tagIdSet = any()) }
+        verify(exactly = 1) { viewModel.add(input = capture(input), tagSelection = any()) }
         input.captured shouldBe
             DDayInput(
                 title = SPACED_TITLE,
@@ -828,7 +828,7 @@ class DDayAddScreenTest {
         clickAdd()
 
         val input = slot<DDayInput>()
-        verify(exactly = 1) { viewModel.add(input = capture(input), tagIdSet = emptySet()) }
+        verify(exactly = 1) { viewModel.add(input = capture(input), tagSelection = PrimaryTagSelectionUiState()) }
         input.captured.title shouldBe EXAM
         input.captured.description shouldBe ""
         input.captured.repeatList.shouldBeEmpty()
@@ -874,7 +874,7 @@ class DDayAddScreenTest {
     private fun assertRecordedRepeat(caseList: List<Pair<List<Pair<String, String>>, Set<DateTimeUnit.DateBased>>>) {
         val viewModel = relaxedViewModel()
         val inputList = mutableListOf<DDayInput>()
-        every { viewModel.add(input = capture(inputList), tagIdSet = any()) } returns Unit
+        every { viewModel.add(input = capture(inputList), tagSelection = any()) } returns Unit
         setScreen(viewModel = viewModel)
         composeRule.ddayTitleInput().performTextInput(MARRIAGE)
 
@@ -902,7 +902,7 @@ class DDayAddScreenTest {
         composeRule.waitForIdle()
 
         val input = slot<DDayInput>()
-        verify(exactly = 1) { viewModel.add(input = capture(input), tagIdSet = emptySet()) }
+        verify(exactly = 1) { viewModel.add(input = capture(input), tagSelection = PrimaryTagSelectionUiState()) }
         input.captured.title shouldBe MARRIAGE
     }
 
@@ -937,7 +937,7 @@ class DDayAddScreenTest {
     private fun setScreen(
         viewModel: DDayAddViewModel = relaxedViewModel(),
         navigateUp: () -> Unit = {},
-        tagViewModel: EntityAddTagViewModel = ddayFormAddTagViewModel(),
+        tagViewModel: DDayAddTagViewModel = ddayFormAddTagViewModel(),
     ) {
         val tagAddRequestKey = Arb.kotlinUuid().next()
         composeRule.setContent {
@@ -988,7 +988,7 @@ class DDayAddScreenTest {
         return mockk<DDayAddViewModel>(relaxed = true).apply {
             every { uiState } returns MutableStateFlow(DDayAddUiState())
             every { this@apply.effect } returns channel.receiveAsFlow()
-            every { add(input = any(), tagIdSet = any()) } answers { channel.trySend(effect) }
+            every { add(input = any(), tagSelection = any()) } answers { channel.trySend(effect) }
         }
     }
 

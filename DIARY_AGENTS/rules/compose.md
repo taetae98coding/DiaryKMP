@@ -146,17 +146,17 @@ Scaffold처럼 사용자 상호작용이 있는 화면 컴포저블은 상호작
 
 **`public`, `internal`로 재사용하는 컴포저블이 콜백을 3개 이상 노출하면 그 컴포저블이 소유하는 Event를 선언하고 `onEvent` 하나로 받는다.**
 
-- Event 이름은 그 컴포저블 묶음을 가리키는 이름으로 두고(`MemoListEvent`, `MemoTagPickerEvent`), 같은 묶음의 하위 컴포저블(목록, 행, 버튼)은 콜백이 3개 미만이어도 새 Event를 만들지 않고 그 Event를 그대로 올린다.
+- Event 이름은 그 컴포저블 묶음을 가리키는 이름으로 두고(`MemoListEvent`, `PrimaryTagPickerEvent`), 같은 묶음의 하위 컴포저블(목록, 행, 버튼)은 콜백이 3개 미만이어도 새 Event를 만들지 않고 그 Event를 그대로 올린다.
 - 다이얼로그의 표시 여부를 Host 컴포저블이 소유하면 `onDismissRequest`는 Event에 넣지 않고 파라미터로 남긴다.
 - 처리에 필요한 값을 그 컴포저블이 모르면 `xxxProvider: () -> T` 파라미터로 받아 Event를 만들 때 읽는다. 상위에서 Event를 다시 감싸 값을 채우지 않는다.
 
 **Scaffold가 그런 컴포저블을 쓰면 자기 `XxxScaffoldEvent`와 섞지 않고 `onEvent`, `onXxxEvent`를 따로 받아 그대로 넘긴다.** Scaffold는 하위 컴포저블의 Event를 자기 Event로 번역하지 않고, 해석은 Screen이 각 Event별 핸들러에서 한다. 여러 Scaffold가 같은 컴포저블을 쓰면 해석에 ViewModel이 필요 없는 핸들러는 그 컴포저블과 같은 패키지에 두고 함께 쓴다.
 
 ```kotlin
-// Scaffold: MemoTagPickerDialogHost(dialogState = state.tagPickerDialogState, onEvent = onTagPickerEvent)
+// Scaffold: PrimaryTagPickerDialogHost(dialogState = state.tagPickerDialogState, onEvent = onTagPickerEvent)
 MemoAddScaffold(
     onEvent = { event -> handleMemoAddEvent(event = event, ...) },
-    onTagPickerEvent = { event -> handleMemoTagPickerEvent(event = event, ...) },
+    onTagPickerEvent = { event -> handlePrimaryTagPickerEvent(event = event, ...) },
 )
 ```
 

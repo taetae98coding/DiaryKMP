@@ -17,10 +17,11 @@ import kotlin.uuid.Uuid
 class SyncWorkMemoPrimaryTagTest :
     FunSpec({
         listOf(
-            "대표 태그가 없는" to null,
-            "대표 태그가 있는" to Arb.kotlinUuid().next(),
-        ).forEach { (label, primaryTagId) ->
+            "대표 태그가 없는" to false,
+            "대표 태그가 있는" to true,
+        ).forEach { (label, hasPrimaryTag) ->
             test("TC-c5626833-a022-4c4c-8eec-cee8f1eeba89 $label 메모를 업로드하면 그 대표 태그가 요청에 담긴다") {
+                val primaryTagId = if (hasPrimaryTag) Arb.kotlinUuid().next() else null
                 val memoList = listOf(memo().copy(primaryTagId = primaryTagId))
                 val context = context(memoList = memoList)
                 val requests = mutableListOf<List<MemoRemoteEntity>>()

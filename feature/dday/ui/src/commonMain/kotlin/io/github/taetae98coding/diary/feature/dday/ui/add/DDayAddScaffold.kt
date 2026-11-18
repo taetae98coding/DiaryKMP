@@ -20,9 +20,9 @@ import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerEvent
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
@@ -43,12 +43,12 @@ import org.jetbrains.compose.resources.stringResource
 internal fun DDayAddScaffold(
     onEvent: (DDayAddScaffoldEvent) -> Unit,
     onFormEvent: (EntityTagInputEvent) -> Unit,
-    onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
+    onTagPickerEvent: (PrimaryTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: DDayFormState = rememberDDayAddFormState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> DDayAddUiState = { DDayAddUiState() },
-    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
+    tagUiStateProvider: () -> PrimaryTagInputUiState = { PrimaryTagInputUiState() },
     componentVisibleProvider: () -> DDayAddScaffoldComponentVisible = { DDayAddScaffoldComponentVisible() },
 ) {
     Scaffold(
@@ -99,7 +99,7 @@ internal fun DDayAddScaffold(
         }
     }
 
-    EntityTagPickerDialogHost(
+    PrimaryTagPickerDialogHost(
         dialogState = state.tagPickerDialogState,
         onEvent = onTagPickerEvent,
         tagPagingItems = tagPagingItems,

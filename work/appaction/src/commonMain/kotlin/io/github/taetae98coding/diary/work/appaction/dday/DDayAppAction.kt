@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.appaction.dday
 
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatInputList
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
@@ -9,14 +10,21 @@ import io.github.taetae98coding.diary.domain.dday.usecase.DeleteDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.FindDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.PageDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.RestoreDDayUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.SetDDayPrimaryTagUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.UnsetDDayPrimaryTagUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UpdateDDayUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
+import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.core.appActionDone
+import io.github.taetae98coding.diary.work.appaction.core.appActionNotDone
 import io.github.taetae98coding.diary.work.appaction.core.changeActive
 import io.github.taetae98coding.diary.work.appaction.core.invalidArgument
+import io.github.taetae98coding.diary.work.appaction.core.isActive
 import io.github.taetae98coding.diary.work.appaction.core.map
 import io.github.taetae98coding.diary.work.appaction.core.readActive
 import io.github.taetae98coding.diary.work.appaction.core.readFirst
@@ -29,6 +37,7 @@ import io.github.taetae98coding.diary.work.appaction.core.toColorArgumentOrRando
 import io.github.taetae98coding.diary.work.appaction.core.toLocalDateArgumentOrNull
 import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
+import io.github.taetae98coding.diary.work.appaction.core.toUuidArgumentOrNull
 import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
 import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
 import kotlinx.datetime.LocalDate
@@ -40,6 +49,8 @@ import kotlin.time.Clock
 private const val BASE_DATE = "baseDate"
 private const val DDAY_ID = "ddayId"
 private const val END_DATE = "endDate"
+private const val PRIMARY_TAG_ID = "primaryTagId"
+private const val TAG_ID = "tagId"
 
 @Factory
 public class DDayAppAction internal constructor(
@@ -50,6 +61,9 @@ public class DDayAppAction internal constructor(
     private val updateDDayUseCase: UpdateDDayUseCase,
     private val deleteDDayUseCase: DeleteDDayUseCase,
     private val restoreDDayUseCase: RestoreDDayUseCase,
+    private val findTagUseCase: FindTagUseCase,
+    private val setDDayPrimaryTagUseCase: SetDDayPrimaryTagUseCase,
+    private val unsetDDayPrimaryTagUseCase: UnsetDDayPrimaryTagUseCase,
     private val clock: Clock,
 ) {
     public suspend fun list(cursor: String?): AppActionPage<AppActionDDay> =
@@ -87,6 +101,7 @@ public class DDayAppAction internal constructor(
         repeats: List<String>,
         endDate: String?,
         overflowPolicy: String?,
+        primaryTagId: String?,
         tagIds: List<String>,
     ): AppActionId =
         runAppAction {
@@ -101,7 +116,12 @@ public class DDayAppAction internal constructor(
                     endDate = endDate.toLocalDateArgumentOrNull(name = END_DATE),
                     overflowPolicy = overflowPolicy.toDDayOverflowPolicyArgumentOrNull() ?: DDayOverflowPolicy.CLAMP_TO_MONTH_END,
                 ).requireEndDateNotBeforeBaseDate()
-            val parameter = AddDDayUseCase.Parameter(input = input, tagIdSet = tagIds.toUuidSetArgument(name = "tagIds"))
+            val parameter =
+                AddDDayUseCase.Parameter(
+                    input = input,
+                    tagIdSet = tagIds.toUuidSetArgument(name = "tagIds"),
+                    primaryTagId = primaryTagId.toUuidArgumentOrNull(name = PRIMARY_TAG_ID),
+                )
 
             addDDayUseCase(parameter = parameter).getOrThrow().toAppActionId()
         }
@@ -150,6 +170,31 @@ public class DDayAppAction internal constructor(
         }
 
     public suspend fun restore(ddayId: String): AppActionChangedCount = runAppAction { restoreDDayUseCase(parameter = ddayId.toUuidArgument(name = DDAY_ID)).getOrThrow().toAppActionChangedCount() }
+
+    public suspend fun primaryTagSet(
+        ddayId: String,
+        tagId: String,
+    ): AppActionDone =
+        runAppAction {
+            val dday = ddayId.toUuidArgument(name = DDAY_ID)
+            val tag = tagId.toUuidArgument(name = TAG_ID)
+            val isLinkable = findDDayUseCase.isActive(id = dday, isDeleted = DDay::isDeleted) && findTagUseCase.isActive(id = tag, isDeleted = Tag::isDeleted)
+
+            if (!isLinkable) return@runAppAction appActionNotDone
+
+            setDDayPrimaryTagUseCase(parameter = SetDDayPrimaryTagUseCase.Parameter(ddayId = dday, tagId = tag)).getOrThrow()
+            appActionDone
+        }
+
+    public suspend fun primaryTagUnset(ddayId: String): AppActionDone =
+        runAppAction {
+            val dday = ddayId.toUuidArgument(name = DDAY_ID)
+
+            if (!findDDayUseCase.isActive(id = dday, isDeleted = DDay::isDeleted)) return@runAppAction appActionNotDone
+
+            unsetDDayPrimaryTagUseCase(parameter = dday).getOrThrow()
+            appActionDone
+        }
 
     private fun today(): LocalDate = clock.todayIn(TimeZone.currentSystemDefault())
 }

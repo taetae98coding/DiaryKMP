@@ -7,7 +7,6 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
-import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -52,8 +51,8 @@ class DDayAddTargetTagStateTest : FunSpec() {
                         flowOf(Result.success(listOf(tag).filter { value -> value.id in idSet && !value.isFinished && !value.isDeleted }))
                     }
                     val viewModel =
-                        EntityAddTagViewModel(
-                            initialTagId = tag.id,
+                        DDayAddTagViewModel(
+                            initialPrimaryTagId = tag.id,
                             pageTagUseCase = mockk<PageTagUseCase>(relaxed = true),
                             getSelectedTagUseCase = getSelectedTagUseCase,
                         )
@@ -61,7 +60,7 @@ class DDayAddTargetTagStateTest : FunSpec() {
                     viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
                     viewModel.uiState.test {
                         advanceUntilIdle()
-                        expectMostRecentItem().tagList.shouldBeEmpty()
+                        expectMostRecentItem().selectedTagList.shouldBeEmpty()
                         cancelAndIgnoreRemainingEvents()
                     }
                     viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)

@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.memo.memo
@@ -191,7 +192,7 @@ class MemoTagViewModelTest : FunSpec() {
                 val viewModel = viewModel(memoTagFlow = emptyFlow())
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe MemoTagInputUiState()
+                    awaitItem() shouldBe PrimaryTagInputUiState()
                     advanceUntilIdle()
                     expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
@@ -259,11 +260,11 @@ class MemoTagViewModelTest : FunSpec() {
                     )
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe MemoTagInputUiState()
+                    awaitItem() shouldBe PrimaryTagInputUiState()
                     advanceUntilIdle()
 
                     expectMostRecentItem() shouldBe
-                        MemoTagInputUiState(selectedTagList = listOf(workTag, exerciseTag), primaryTagId = workTag.id)
+                        PrimaryTagInputUiState(selectedTagList = listOf(workTag, exerciseTag), primaryTagId = workTag.id)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -283,11 +284,11 @@ class MemoTagViewModelTest : FunSpec() {
                     )
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe MemoTagInputUiState()
+                    awaitItem() shouldBe PrimaryTagInputUiState()
                     advanceUntilIdle()
 
                     expectMostRecentItem() shouldBe
-                        MemoTagInputUiState(selectedTagList = listOf(selectableTag), primaryTagId = null)
+                        PrimaryTagInputUiState(selectedTagList = listOf(selectableTag), primaryTagId = null)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -307,11 +308,11 @@ class MemoTagViewModelTest : FunSpec() {
                     )
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe MemoTagInputUiState()
+                    awaitItem() shouldBe PrimaryTagInputUiState()
                     advanceUntilIdle()
 
                     expectMostRecentItem() shouldBe
-                        MemoTagInputUiState(selectedTagList = listOf(selectableTag, finishedTag), primaryTagId = finishedTag.id)
+                        PrimaryTagInputUiState(selectedTagList = listOf(selectableTag, finishedTag), primaryTagId = finishedTag.id)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -331,11 +332,11 @@ class MemoTagViewModelTest : FunSpec() {
                     )
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe MemoTagInputUiState()
+                    awaitItem() shouldBe PrimaryTagInputUiState()
                     advanceUntilIdle()
 
                     expectMostRecentItem() shouldBe
-                        MemoTagInputUiState(selectedTagList = listOf(finishedTag), primaryTagId = null)
+                        PrimaryTagInputUiState(selectedTagList = listOf(finishedTag), primaryTagId = null)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -354,14 +355,14 @@ class MemoTagViewModelTest : FunSpec() {
                     )
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe MemoTagInputUiState()
+                    awaitItem() shouldBe PrimaryTagInputUiState()
                     advanceUntilIdle()
-                    expectMostRecentItem() shouldBe MemoTagInputUiState(selectedTagList = listOf(finishedTag), primaryTagId = null)
+                    expectMostRecentItem() shouldBe PrimaryTagInputUiState(selectedTagList = listOf(finishedTag), primaryTagId = null)
 
                     memoTagFlow.value = Result.success(emptyList())
                     advanceUntilIdle()
 
-                    expectMostRecentItem() shouldBe MemoTagInputUiState(selectedTagList = emptyList(), primaryTagId = null)
+                    expectMostRecentItem() shouldBe PrimaryTagInputUiState(selectedTagList = emptyList(), primaryTagId = null)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -581,7 +582,7 @@ class MemoTagViewModelTest : FunSpec() {
                     )
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe MemoTagInputUiState()
+                    awaitItem() shouldBe PrimaryTagInputUiState()
                     advanceUntilIdle()
                     expectMostRecentItem().selectedTagList shouldBe selectedTagList
 

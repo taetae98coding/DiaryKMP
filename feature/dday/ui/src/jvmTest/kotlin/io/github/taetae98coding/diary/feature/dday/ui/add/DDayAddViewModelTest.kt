@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.domain.dday.exception.DDayRepeatBlankException
 import io.github.taetae98coding.diary.domain.dday.exception.DDayTitleBlankException
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayInput
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
@@ -48,7 +49,7 @@ class DDayAddViewModelTest : FunSpec() {
                 val viewModel = DDayAddViewModel(addDDayUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                    viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
 
                     awaitItem() shouldBe DDayAddEffect.AddSucceeded
                     expectNoEvents()
@@ -64,7 +65,7 @@ class DDayAddViewModelTest : FunSpec() {
                 coEvery { useCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = DDayAddViewModel(addDDayUseCase = useCase)
 
-                viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { useCase(parameter = parameter) }
@@ -85,7 +86,7 @@ class DDayAddViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe DDayAddUiState(isInProgress = false)
 
-                    viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                    viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                     awaitItem() shouldBe DDayAddUiState(isInProgress = true)
 
                     gate.complete(Unit)
@@ -102,10 +103,10 @@ class DDayAddViewModelTest : FunSpec() {
                 val viewModel = DDayAddViewModel(addDDayUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                    viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                     advanceUntilIdle()
                     viewModel.uiState.value shouldBe DDayAddUiState(isInProgress = false)
-                    viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                    viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -122,7 +123,7 @@ class DDayAddViewModelTest : FunSpec() {
                 val viewModel = DDayAddViewModel(addDDayUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                    viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
 
                     awaitItem() shouldBe DDayAddEffect.TitleBlank
                     expectNoEvents()
@@ -138,7 +139,7 @@ class DDayAddViewModelTest : FunSpec() {
                 val viewModel = DDayAddViewModel(addDDayUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                    viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
 
                     awaitItem() shouldBe DDayAddEffect.RepeatBlank
                     expectNoEvents()
@@ -157,9 +158,9 @@ class DDayAddViewModelTest : FunSpec() {
                 }
                 val viewModel = DDayAddViewModel(addDDayUseCase = useCase)
 
-                viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                 runCurrent()
-                viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                 gate.complete(Unit)
                 advanceUntilIdle()
 
@@ -174,9 +175,9 @@ class DDayAddViewModelTest : FunSpec() {
                 coEvery { useCase(parameter = parameter) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = DDayAddViewModel(addDDayUseCase = useCase)
 
-                viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                 advanceUntilIdle()
-                viewModel.add(input = parameter.input, tagIdSet = parameter.tagIdSet)
+                viewModel.add(input = parameter.input, tagSelection = PrimaryTagSelectionUiState(tagIdSet = parameter.tagIdSet, primaryTagId = parameter.primaryTagId))
                 advanceUntilIdle()
 
                 coVerify(exactly = 2) { useCase(parameter = parameter) }

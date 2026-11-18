@@ -320,7 +320,7 @@ class CalendarNavigationReturnTest {
         const val DDAY_DETAIL_CONTENT = "DDayDetailContent"
         const val DDAY_DAY = 15
         const val DDAY_TITLE = "Exam"
-        const val DDAY_TEXT = "🎉 Exam D-Day"
+        const val DDAY_TEXT = "Exam D-Day"
         const val TIMETABLE_CONTENT = "CalendarTimetableContent"
     }
 }

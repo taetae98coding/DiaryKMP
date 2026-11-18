@@ -33,6 +33,7 @@ public data class DiaryAppActionDDay(
     val repeats: List<String>,
     val endDateEpochMillis: Long?,
     val overflowPolicy: DiaryAppActionDDayOverflowPolicy,
+    val primaryTag: DiaryAppActionTag?,
     val status: DiaryAppActionDDayStatus,
     val remainingDays: Int?,
     val passedDays: Int?,
@@ -56,7 +57,7 @@ public object DiaryDDayAppAction {
     public suspend fun list(pageNumber: Int): DiaryAppActionDDayPage {
         val page = readNumberedPage(pageNumber = pageNumber) { cursor -> ddayAppAction().list(cursor = cursor) }
 
-        return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
+        return DiaryAppActionDDayPage(items = page.items.toDiaryDDayList(), nextPageNumber = page.nextPageNumber)
     }
 
     public suspend fun get(ddayId: String): DiaryAppActionDDayDetail? = ddayAppAction().get(ddayId = ddayId)?.toDiary()
@@ -72,6 +73,7 @@ public object DiaryDDayAppAction {
         repeats: List<String>,
         endDateEpochMillis: Long?,
         overflowPolicy: DiaryAppActionDDayOverflowPolicy?,
+        primaryTagId: String?,
         tagIds: List<String>,
     ): String =
         ddayAppAction()
@@ -84,6 +86,7 @@ public object DiaryDDayAppAction {
                 repeats = repeats,
                 endDate = endDateEpochMillis?.let { millis -> appActionDate(epochMillis = millis) },
                 overflowPolicy = overflowPolicy?.toValue(),
+                primaryTagId = primaryTagId,
                 tagIds = tagIds,
             ).id
 
@@ -116,13 +119,30 @@ public object DiaryDDayAppAction {
     public suspend fun delete(ddayId: String): Int = ddayAppAction().delete(ddayId = ddayId).changedCount
 
     public suspend fun restore(ddayId: String): Int = ddayAppAction().restore(ddayId = ddayId).changedCount
+
+    public suspend fun primaryTagSet(
+        ddayId: String,
+        tagId: String,
+    ): Boolean = ddayAppAction().primaryTagSet(ddayId = ddayId, tagId = tagId).done
+
+    public suspend fun primaryTagUnset(ddayId: String): Boolean = ddayAppAction().primaryTagUnset(ddayId = ddayId).done
 }
 
 private fun ddayAppAction(): DDayAppAction = diaryAppAction()
 
-private fun AppActionDDayDetail.toDiary(): DiaryAppActionDDayDetail = DiaryAppActionDDayDetail(dday = dday.toDiary(), tags = tags.map { tag -> tag.toDiary() })
+private fun AppActionDDayDetail.toDiary(): DiaryAppActionDDayDetail {
+    val tagList = tags.map { tag -> tag.toDiary() }
 
-internal fun AppActionDDay.toDiary(): DiaryAppActionDDay =
+    return DiaryAppActionDDayDetail(dday = dday.toDiary(primaryTag = tagList.firstOrNull { tag -> tag.id == dday.primaryTagId }), tags = tagList)
+}
+
+internal suspend fun List<AppActionDDay>.toDiaryDDayList(): List<DiaryAppActionDDay> {
+    val primaryTagMap = readPrimaryTagMap(primaryTagIdList = map { dday -> dday.primaryTagId })
+
+    return map { dday -> dday.toDiary(primaryTag = dday.primaryTagId?.let(primaryTagMap::get)) }
+}
+
+private fun AppActionDDay.toDiary(primaryTag: DiaryAppActionTag?): DiaryAppActionDDay =
     DiaryAppActionDDay(
         id = id,
         title = title,
@@ -133,6 +153,7 @@ internal fun AppActionDDay.toDiary(): DiaryAppActionDDay =
         repeats = repeats,
         endDateEpochMillis = endDate?.let { date -> appActionDateEpochMillis(date = date) },
         overflowPolicy = overflowPolicy.toDiaryOverflowPolicy(),
+        primaryTag = primaryTag,
         status = count.status.toDiaryStatus(),
         remainingDays = count.remainingDays,
         passedDays = count.passedDays,

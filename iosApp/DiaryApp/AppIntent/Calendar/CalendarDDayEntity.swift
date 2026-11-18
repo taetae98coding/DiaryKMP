@@ -35,7 +35,7 @@ struct CalendarDDayEntity: TransientAppEntity {
 
     var displayRepresentation: DisplayRepresentation {
         DisplayRepresentation(
-            title: LocalizedStringResource("🎉 \(title) \(dateLabel)", table: "AppIntentCalendar"),
+            title: LocalizedStringResource("\(title) \(dateLabel)", table: "AppIntentCalendar"),
             subtitle: "\(date.formatted(date: .abbreviated, time: .omitted))",
             image: AppIntentItemImage.symbol("calendar", hexColor: color)
         )

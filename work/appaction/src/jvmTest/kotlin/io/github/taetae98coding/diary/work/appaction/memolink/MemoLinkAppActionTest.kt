@@ -26,7 +26,7 @@ import kotlinx.coroutines.test.runTest
 
 class MemoLinkAppActionTest :
     FunSpec({
-        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 태그 연결, 해제, 대표 태그 지정은 받은 id로 앱 기능을 실행하고 MCP와 같은 완료 결과를 돌려준다") {
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc TC-9909c106-55bc-408b-9ec1-136efcaf239f 태그 연결, 해제, 대표 태그 지정은 받은 id로 앱 기능을 실행하고 MCP와 같은 완료 결과를 돌려준다") {
             runTest {
                 val memoId = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
@@ -48,14 +48,19 @@ class MemoLinkAppActionTest :
             }
         }
 
-        test("대표 태그 해제는 메모 id로 앱 기능을 실행하고 완료 결과를 돌려준다") {
+        test("TC-451290c7-912e-4b4d-bf15-e61caacbe1ca 대표 태그 지정과 해제는 받은 id로 앱 기능을 실행하고 완료 결과를 돌려준다") {
             runTest {
                 val memoId = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val setMemoPrimaryTagUseCase = mockk<SetMemoPrimaryTagUseCase>()
                 val unsetMemoPrimaryTagUseCase = mockk<UnsetMemoPrimaryTagUseCase>()
+                coEvery { setMemoPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
                 coEvery { unsetMemoPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val action = memoLinkAppActionOf(unsetMemoPrimaryTagUseCase)
+                val action = memoLinkAppActionOf(setMemoPrimaryTagUseCase, unsetMemoPrimaryTagUseCase)
 
+                action.primaryTagSet(memoId = memoId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
                 action.primaryTagUnset(memoId = memoId.toString()) shouldBe AppActionDone(done = true)
+                coVerify(exactly = 1) { setMemoPrimaryTagUseCase(parameter = SetMemoPrimaryTagUseCase.Parameter(memoId = memoId, tagId = tagId)) }
                 coVerify(exactly = 1) { unsetMemoPrimaryTagUseCase(parameter = memoId) }
             }
         }

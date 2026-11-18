@@ -66,6 +66,8 @@ private val mcpToolNameList: List<String> =
         "dday_delete",
         "dday_get",
         "dday_list",
+        "dday_primary_tag_set",
+        "dday_primary_tag_unset",
         "dday_restore",
         "dday_tag_add",
         "dday_tag_remove",

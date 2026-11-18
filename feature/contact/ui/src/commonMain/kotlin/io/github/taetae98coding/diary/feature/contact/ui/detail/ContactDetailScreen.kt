@@ -34,7 +34,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.rememberCont
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import kotlinx.coroutines.launch
@@ -67,7 +67,7 @@ internal fun ContactDetailScreen(
     val isUpdateEnabled by rememberIsUpdateEnabled(state = state, uiStateProvider = { uiState })
     val share = rememberShareContact(state = state, contentSharer = contentSharerFactory.rememberContentSharer(), storedNameProvider = { content?.detail?.name.orEmpty() })
 
-    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
+    TagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
     ContactDetailScreenEffect(
         navigateUp = navigateUp,
         effect = contactViewModel.effect,

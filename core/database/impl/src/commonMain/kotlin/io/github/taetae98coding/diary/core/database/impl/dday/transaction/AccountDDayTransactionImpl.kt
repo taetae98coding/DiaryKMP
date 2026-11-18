@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityT
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.ddaytag.ddayTagTable
+import io.github.taetae98coding.diary.core.database.impl.entitytag.restoreLink
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -73,6 +74,28 @@ internal class AccountDDayTransactionImpl(
                 accountId = accountId,
                 ddayId = ddayId,
                 isDeleted = isDeleted,
+                updatedAt = updatedAt,
+            )
+        }
+
+    override suspend fun updatePrimaryTagId(
+        accountId: Uuid,
+        ddayId: Uuid,
+        primaryTagId: Uuid?,
+        updatedAt: Instant,
+    ): Int =
+        updateAndMarkPending(
+            accountId = accountId,
+            ddayId = ddayId,
+        ) {
+            if (primaryTagId != null) {
+                database.ddayTagTable().restoreLink(accountId = accountId, entityId = ddayId, tagId = primaryTagId, updatedAt = updatedAt)
+            }
+
+            database.accountDDayDao().updatePrimaryTagId(
+                accountId = accountId,
+                ddayId = ddayId,
+                primaryTagId = primaryTagId,
                 updatedAt = updatedAt,
             )
         }

@@ -100,7 +100,7 @@ class DDayAppFunctionServiceTest {
     fun `디데이 동작을 모두 제공한다`() =
         runBlocking<Unit> {
             tester.functionNameList().filter { name -> name.startsWith("dday") } shouldContainExactlyInAnyOrder
-                listOf("ddayList", DDAY_GET, DDAY_ADD, "ddayUpdate", "ddayDelete", "ddayRestore", DDAY_TAG_ADD, DDAY_TAG_REMOVE)
+                listOf("ddayList", DDAY_GET, DDAY_ADD, "ddayUpdate", "ddayDelete", "ddayRestore", DDAY_TAG_ADD, DDAY_TAG_REMOVE, "ddayPrimaryTagSet", "ddayPrimaryTagUnset")
             tester.functionNameList() shouldContainAll listOf("searchDday", "calendarDdayList")
         }
 
@@ -141,10 +141,11 @@ class DDayAppFunctionServiceTest {
         }
 
     @Test
-    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 디데이 추가는 받은 값과 태그를 공통 동작에 넘기고 id를 돌려준다`() =
+    fun `TC-edf2f510-aac0-4a31-afdb-2f9368763906 디데이 추가는 받은 값, 대표 태그와 태그를 공통 동작에 넘기고 id를 돌려준다`() =
         runBlocking<Unit> {
             val title = Arb.nonBlankString().next()
             val tagIdList = listOf(Arb.kotlinUuid().next().toString(), Arb.kotlinUuid().next().toString())
+            val primaryTagId = Arb.kotlinUuid().next().toString()
             val addedId = Arb.kotlinUuid().next().toString()
             coEvery {
                 ddayAppAction.add(
@@ -156,6 +157,7 @@ class DDayAppFunctionServiceTest {
                     repeats = any(),
                     endDate = any(),
                     overflowPolicy = any(),
+                    primaryTagId = any(),
                     tagIds = any(),
                 )
             } returns AppActionId(id = addedId)
@@ -163,6 +165,7 @@ class DDayAppFunctionServiceTest {
             val response =
                 tester.execute(name = DDAY_ADD) {
                     setString("title", title)
+                    setString("primaryTagId", primaryTagId)
                     setStringList("tagIds", tagIdList)
                 }
 
@@ -177,6 +180,7 @@ class DDayAppFunctionServiceTest {
                     repeats = emptyList(),
                     endDate = null,
                     overflowPolicy = null,
+                    primaryTagId = primaryTagId,
                     tagIds = tagIdList,
                 )
             }
@@ -197,6 +201,7 @@ class DDayAppFunctionServiceTest {
                     repeats = any(),
                     endDate = any(),
                     overflowPolicy = any(),
+                    primaryTagId = any(),
                     tagIds = any(),
                 )
             } returns AppActionId(id = addedId)
@@ -219,6 +224,7 @@ class DDayAppFunctionServiceTest {
                     repeats = requestedRepeatList,
                     endDate = null,
                     overflowPolicy = AppActionDDayOverflowPolicyValue.SKIP,
+                    primaryTagId = null,
                     tagIds = emptyList(),
                 )
             }
@@ -300,6 +306,27 @@ class DDayAppFunctionServiceTest {
             removeResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
             coVerify(exactly = 1) { entityTagAppAction.add(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId) }
             coVerify(exactly = 1) { entityTagAppAction.remove(kind = AppActionEntityTagKind.DDAY, entityId = ddayId, tagId = tagId) }
+        }
+
+    @Test
+    fun `TC-0298ccbb-3953-4f5c-a1ce-a184189a92fa 디데이 대표 태그 지정과 해제는 공통 동작에 넘기고 완료를 돌려준다`() =
+        runBlocking<Unit> {
+            val ddayId = Arb.kotlinUuid().next().toString()
+            val tagId = Arb.kotlinUuid().next().toString()
+            coEvery { ddayAppAction.primaryTagSet(ddayId = any(), tagId = any()) } returns AppActionDone(done = true)
+            coEvery { ddayAppAction.primaryTagUnset(ddayId = any()) } returns AppActionDone(done = true)
+
+            val setResponse =
+                tester.execute(name = "ddayPrimaryTagSet") {
+                    setString(DDAY_ID, ddayId)
+                    setString(TAG_ID, tagId)
+                }
+            val unsetResponse = tester.execute(name = "ddayPrimaryTagUnset") { setString(DDAY_ID, ddayId) }
+
+            setResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            unsetResponse.returnValueAs<AppFunctionDone>() shouldBe AppFunctionDone(done = true)
+            coVerify(exactly = 1) { ddayAppAction.primaryTagSet(ddayId = ddayId, tagId = tagId) }
+            coVerify(exactly = 1) { ddayAppAction.primaryTagUnset(ddayId = ddayId) }
         }
 
     @Test
@@ -390,6 +417,7 @@ private fun appActionDDay(count: AppActionDDayCount): AppActionDDay =
         repeats = requestedRepeatList,
         endDate = null,
         overflowPolicy = AppActionDDayOverflowPolicyValue.CLAMP_TO_MONTH_END,
+        primaryTagId = Arb.kotlinUuid().next().toString(),
         createdAt = Arb.string().next(),
         updatedAt = Arb.string().next(),
         count = count,
@@ -406,6 +434,7 @@ private fun AppActionDDay.expected(): AppFunctionDDay =
         repeats = repeats,
         endDate = endDate,
         overflowPolicy = overflowPolicy,
+        primaryTagId = primaryTagId,
         createdAt = createdAt,
         updatedAt = updatedAt,
         count =

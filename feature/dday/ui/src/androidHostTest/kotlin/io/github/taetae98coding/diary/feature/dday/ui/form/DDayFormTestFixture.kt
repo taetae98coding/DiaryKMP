@@ -8,10 +8,12 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -22,12 +24,12 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
-import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
+import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddTagViewModel
+import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailTagViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,6 +62,9 @@ internal const val DDAY_FORM_DEFAULT_UNIT_MONTH = "Months"
 internal const val DDAY_FORM_DEFAULT_UNIT_YEAR = "Years"
 internal const val DDAY_FORM_DEFAULT_REPEAT_BLANK = "Please enter a number of 1 or more for each interval."
 internal const val DDAY_FORM_DEFAULT_TAG_LABEL = "Select tag"
+internal const val DDAY_FORM_DEFAULT_PRIMARY_TAG_STATE = "Primary tag"
+internal const val DDAY_FORM_DEFAULT_PRIMARY_TAG_SET = "Set as primary tag"
+internal const val DDAY_FORM_DEFAULT_PRIMARY_TAG_UNSET = "Unset primary tag"
 internal const val DDAY_FORM_DEFAULT_DATE_PICKER_CONFIRM = "OK"
 internal const val DDAY_FORM_DEFAULT_DATE_PICKER_CANCEL = "Cancel"
 
@@ -82,10 +87,10 @@ internal fun DDayFormTestTheme(
     }
 }
 
-internal fun ddayFormAddTagViewModel(tagList: List<Tag> = emptyList()): EntityAddTagViewModel {
-    val viewModel = mockk<EntityAddTagViewModel>(relaxed = true)
-    every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
-    every { viewModel.selectionUiState } returns MutableStateFlow(EntityAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
+internal fun ddayFormAddTagViewModel(tagList: List<Tag> = emptyList()): DDayAddTagViewModel {
+    val viewModel = mockk<DDayAddTagViewModel>(relaxed = true)
+    every { viewModel.uiState } returns MutableStateFlow(PrimaryTagInputUiState(selectedTagList = tagList))
+    every { viewModel.selectionUiState } returns MutableStateFlow(PrimaryTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     return viewModel
@@ -94,13 +99,18 @@ internal fun ddayFormAddTagViewModel(tagList: List<Tag> = emptyList()): EntityAd
 internal fun ddayFormDetailTagViewModel(
     tagList: List<Tag> = emptyList(),
     selectableTagList: List<Tag> = emptyList(),
-): EntityDetailTagViewModel {
-    val viewModel = mockk<EntityDetailTagViewModel>(relaxed = true)
-    every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
+): DDayDetailTagViewModel {
+    val viewModel = mockk<DDayDetailTagViewModel>(relaxed = true)
+    every { viewModel.uiState } returns MutableStateFlow(PrimaryTagInputUiState(selectedTagList = tagList))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     return viewModel
 }
+
+// 태그 입력에서 대표 태그로 표시된 태그다. 태그 선택 목록의 행과 구분한다.
+internal fun ddayPrimaryTagChip(): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, DDAY_FORM_DEFAULT_PRIMARY_TAG_STATE) and !hasAnyAncestor(isDialog())
+
+internal fun ddayPrimaryTagButton(description: String): SemanticsMatcher = hasContentDescription(description) and hasAnyAncestor(isDialog())
 
 internal fun SemanticsNodeInteractionsProvider.ddayTitleInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[0]
 

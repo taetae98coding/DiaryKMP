@@ -354,12 +354,13 @@ class SyncWorkKindTest :
                     val delayedEndIndex = eventList.indexOf("end:$delayedLabel")
                     independentLabelList
                         .filterNot { label -> label == delayedLabel }
+                        .filterNot { label -> setOf(delayedLabel, label) == setOf(TAG, DDAY) }
                         .forEach { label -> (eventList.indexOf("start:$label") < delayedEndIndex) shouldBe true }
                 }
             }
         }
 
-        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 묶음이 실패하면 이후 태그와 메모, 열세 종류의 연결을 모두 시도하지 않는다") {
+        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 묶음이 실패하면 이후 태그와 메모, 디데이, 열세 종류의 연결을 모두 시도하지 않는다") {
             val linkLabelList = listOf(MEMO_TAG, MEMO_PLACE, MEMO_WEB, MEMO_CONTACT, TAG_LINK) + entityTagLabelMap.keys
             val context =
                 kindContext(
@@ -373,6 +374,7 @@ class SyncWorkKindTest :
             actual.message shouldBe failure.message
             tagRequestSizeList shouldContainExactly listOf(100, 100)
             context.verifyPushCount(label = MEMO, exactly = 0)
+            context.verifyPushCount(label = DDAY, exactly = 0)
             linkLabelList.forEach { label -> context.verifyPushCount(label = label, exactly = 0) }
         }
 
@@ -478,7 +480,6 @@ class SyncWorkKindTest :
 
         listOf(
             PLACE to listOf(TAG),
-            TAG to listOf(DDAY),
             TAG to listOf(ROUTINE, ROUTINE_RECORD),
             ROUTINE to listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST, CHECKLIST_ITEM, DDAY),
             ROUTINE_RECORD to listOf(ROUTINE_TAG),

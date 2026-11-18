@@ -29,6 +29,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
@@ -36,11 +37,12 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiVie
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
@@ -162,7 +164,7 @@ class MemoAddScreenTest {
 
     @Test
     fun `TC-97d15054-fbd5-4499-8c8b-4a78a6dfb008 TagDetail 메모 탭에서 진입해도 날짜·시간 입력이 스위치가 꺼진 상태로 표시된다`() {
-        val tag = testTag(title = ENTRY_TARGET_TITLE)
+        val tag = Arb.tag(title = ENTRY_TARGET_TITLE, isFinished = false).next()
 
         assertDateTimeOffOnEntry(viewModels = screenTestRealViewModel(initialPrimaryTagId = tag.id, tagList = listOf(tag)))
     }

@@ -5,7 +5,7 @@
 이 문서를 따르는 입력 컴포넌트 스펙은 다음과 같다.
 
 - [항목 태그 입력 컴포넌트 스펙](./entity-tag-input.md)
-- [메모 태그 입력 컴포넌트 스펙](./memo-tag-input.md)
+- [대표 태그 입력 컴포넌트 스펙](./primary-tag-input.md)
 - [태그 연결 입력 컴포넌트 스펙](./tag-link-input.md)
 
 디자인: [태그 선택 입력 공통 디자인](../../design/tag-select-input.md)

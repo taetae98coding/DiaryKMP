@@ -1,0 +1,77 @@
+package io.github.taetae98coding.diary.compose.tag.primary
+
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
+import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
+import io.github.taetae98coding.diary.compose.tag.Res
+import io.github.taetae98coding.diary.compose.tag.previewTag
+import io.github.taetae98coding.diary.compose.tag.primary_tag_detail_action
+import io.github.taetae98coding.diary.compose.tag.primary_tag_state_description
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.library.compose.ui.color.contentColor
+import io.github.taetae98coding.diary.library.compose.ui.color.toColor
+import org.jetbrains.compose.resources.stringResource
+
+@Composable
+internal fun PrimaryTagChip(
+    tag: Tag,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isPrimary: Boolean = false,
+) {
+    val color = tag.detail.color.toColor()
+    val primaryStateDescription = stringResource(Res.string.primary_tag_state_description)
+    val detailActionLabel = stringResource(Res.string.primary_tag_detail_action)
+    val leadingIcon: (@Composable () -> Unit)? =
+        if (isPrimary) {
+            null
+        } else {
+            { DiaryColorIndicator(color = color) }
+        }
+
+    DiaryAssistChip(
+        onClick = onClick,
+        label = tag.detail.emojiWithTitle,
+        modifier =
+            modifier.semantics {
+                onClick(label = detailActionLabel, action = null)
+                if (isPrimary) stateDescription = primaryStateDescription
+            },
+        leadingIcon = leadingIcon,
+        colors =
+            if (isPrimary) {
+                AssistChipDefaults.assistChipColors(
+                    containerColor = color,
+                    labelColor = color.contentColor(),
+                )
+            } else {
+                AssistChipDefaults.assistChipColors()
+            },
+        border = if (isPrimary) null else AssistChipDefaults.assistChipBorder(enabled = true),
+    )
+}
+
+@ComponentPreview
+@Composable
+private fun PrimaryTagChipPreview() {
+    val tag = remember { previewTag(emoji = "💼", title = "업무", color = 0xFF3A7BD5) }
+
+    DiaryTheme {
+        Surface {
+            PrimaryTagChip(
+                tag = tag,
+                onClick = {},
+                isPrimary = true,
+            )
+        }
+    }
+}

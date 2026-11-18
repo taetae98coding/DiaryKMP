@@ -686,7 +686,7 @@ class AccountMemoTransactionImplTest :
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe primaryTagId
         }
 
-        test("TC-e24e3b75-903d-4aa6-bdf9-01d1b57956b4 대표 태그를 제거하면 연결 해제와 대표 태그 해제가 함께 반영된다") {
+        test("TC-e24e3b75-903d-4aa6-bdf9-01d1b57956b4 TC-9909c106-55bc-408b-9ec1-136efcaf239f 대표 태그를 제거하면 연결 해제와 대표 태그 해제가 함께 반영된다") {
             val accountId = Arb.kotlinUuid().next()
             val tagId = Arb.kotlinUuid().next()
             val memo = memo()
@@ -732,7 +732,7 @@ class AccountMemoTransactionImplTest :
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe tagId
         }
 
-        test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 연결되지 않은 태그를 대표 태그로 지정하면 연결도 함께 저장된다") {
+        test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 TC-451290c7-912e-4b4d-bf15-e61caacbe1ca 연결되지 않은 태그를 대표 태그로 지정하면 연결도 함께 저장된다") {
             val accountId = Arb.kotlinUuid().next()
             val tagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = null)
@@ -767,7 +767,7 @@ class AccountMemoTransactionImplTest :
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId.shouldBeNull()
         }
 
-        test("TC-8f163fe3-4081-49db-adc8-22e85df13732 대표 태그 지정을 해제하면 대표 태그만 비워지고 연결은 유지된다") {
+        test("TC-8f163fe3-4081-49db-adc8-22e85df13732 TC-451290c7-912e-4b4d-bf15-e61caacbe1ca 대표 태그 지정을 해제하면 대표 태그만 비워지고 연결은 유지된다") {
             val accountId = Arb.kotlinUuid().next()
             val tagId = Arb.kotlinUuid().next()
             val memo = memo()

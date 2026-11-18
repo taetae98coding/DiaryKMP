@@ -17,7 +17,7 @@ import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.qr.ui.Res
@@ -66,7 +66,7 @@ internal fun QrDetailScreen(
     val shareController = rememberQrShareController(sharerFactory = contentSharerFactory, encoder = qrCodePngEncoder)
     val emptyMessageMap = qrValueEmptyMessageMap()
 
-    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add, resultEventBus = resultEventBus)
+    TagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add, resultEventBus = resultEventBus)
 
     key(content?.id) {
         val state =

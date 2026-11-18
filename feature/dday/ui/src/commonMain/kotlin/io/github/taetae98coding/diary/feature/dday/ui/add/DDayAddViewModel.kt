@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.exception.DDayRepeatBlankException
 import io.github.taetae98coding.diary.domain.dday.exception.DDayTitleBlankException
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
-import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class DDayAddViewModel(
@@ -28,14 +28,14 @@ internal class DDayAddViewModel(
 
     fun add(
         input: DDayInput,
-        tagIdSet: Set<Uuid>,
+        tagSelection: PrimaryTagSelectionUiState,
     ) {
         if (uiState.value.isInProgress) return
 
         viewModelScope.launch {
             uiState.update { value -> value.copy(isInProgress = true) }
             try {
-                addDDayUseCase(parameter = AddDDayUseCase.Parameter(input = input, tagIdSet = tagIdSet))
+                addDDayUseCase(parameter = AddDDayUseCase.Parameter(input = input, tagIdSet = tagSelection.tagIdSet, primaryTagId = tagSelection.primaryTagId))
                     .onSuccess { _effect.send(DDayAddEffect.AddSucceeded) }
                     .onFailure { throwable ->
                         when (throwable) {

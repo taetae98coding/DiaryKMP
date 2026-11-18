@@ -19,6 +19,8 @@ import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handlePrimaryTagPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.contact.handleMemoContactPickerEvent
@@ -38,9 +40,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapViewMode
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.handleMemoPlacePickerEvent
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
-import io.github.taetae98coding.diary.feature.memo.ui.tag.handleMemoTagPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.handleMemoWebPickerEvent
@@ -114,7 +114,7 @@ internal fun MemoDetailScreen(
                     navigateToPlaceDetail = navigateToPlaceDetail,
                 )
             },
-            onTagPickerEvent = { event -> handleMemoTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
+            onTagPickerEvent = { event -> handlePrimaryTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             onWebPickerEvent = { event -> handleMemoWebPickerEvent(event = event, webViewModel = webViewModel, navigateToWebAdd = navigateToWebAdd) },
             onContactPickerEvent = { event -> handleMemoContactPickerEvent(event = event, contactViewModel = contactViewModel, navigateToContactAdd = navigateToContactAdd) },
             onPlacePickerEvent = { event -> handleMemoPlacePickerEvent(event = event, placeViewModel = placeViewModel, placePickerMapViewModel = placePickerMapViewModel, navigateToPlaceAdd = navigateToPlaceAdd) },
@@ -238,7 +238,7 @@ private fun MemoDetailEnterEffect(
         placeMapViewModel.fetchCurrentLocation()
     }
 
-    MemoTagAddedResultEffect(
+    TagAddedResultEffect(
         requestKey = addRequestKey,
         onTagAdded = tagViewModel::selectTag,
     )

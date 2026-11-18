@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -16,7 +17,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import kotlin.uuid.Uuid
 
@@ -28,7 +28,7 @@ internal fun MemoDetailScaffoldContent(
     state: MemoFormState = rememberMemoDetailFormState(initialDetail = MemoDetail.EMPTY),
     placeMapState: DiaryMapState? = null,
     isStandalone: Boolean = true,
-    tagUiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
+    tagUiStateProvider: () -> PrimaryTagInputUiState = { PrimaryTagInputUiState() },
     webUiStateProvider: () -> MemoWebInputUiState = { MemoWebInputUiState() },
     contactUiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },

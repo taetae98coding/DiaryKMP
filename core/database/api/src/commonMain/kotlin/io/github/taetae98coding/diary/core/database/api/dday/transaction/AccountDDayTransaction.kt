@@ -26,4 +26,11 @@ public interface AccountDDayTransaction {
         isDeleted: Boolean,
         updatedAt: Instant,
     ): Int
+
+    public suspend fun updatePrimaryTagId(
+        accountId: Uuid,
+        ddayId: Uuid,
+        primaryTagId: Uuid?,
+        updatedAt: Instant,
+    ): Int
 }

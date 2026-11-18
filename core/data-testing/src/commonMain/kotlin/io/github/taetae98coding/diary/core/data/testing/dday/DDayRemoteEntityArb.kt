@@ -45,6 +45,7 @@ public fun Arb.Companion.ddayRemoteEntity(): Arb<DDayRemoteEntity> =
         DDayRemoteEntity(
             id = Arb.kotlinUuid().bind(),
             detail = Arb.ddayDetailRemoteEntity().bind(),
+            primaryTagId = Arb.kotlinUuid().orNull().bind(),
             isDeleted = Arb.boolean().bind(),
             updatedAt = Arb.secondPrecisionInstant().bind(),
             createdAt = Arb.secondPrecisionInstant().bind(),

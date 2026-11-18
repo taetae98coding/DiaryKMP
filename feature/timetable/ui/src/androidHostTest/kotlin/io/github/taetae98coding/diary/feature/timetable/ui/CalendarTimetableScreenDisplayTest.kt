@@ -664,7 +664,7 @@ class CalendarTimetableScreenDisplayTest {
         const val BIRTHDAY_TEXT = "🎂 홍길동"
         const val FIRST_DDAY_TITLE = "가"
         const val SECOND_DDAY_TITLE = "나"
-        const val FIRST_DDAY_TEXT = "🎉 가 D-Day"
-        const val SECOND_DDAY_TEXT = "🎉 나 D-Day"
+        const val FIRST_DDAY_TEXT = "가 D-Day"
+        const val SECOND_DDAY_TEXT = "나 D-Day"
     }
 }
