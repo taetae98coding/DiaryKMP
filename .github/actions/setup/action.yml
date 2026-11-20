@@ -1,5 +1,5 @@
 name: 🧰 빌드 환경 준비
-description: JDK 21과 Gradle·Kotlin/Native 캐시를 준비하고 local.properties를 복원한다
+description: JDK 21과 CI 전용 Gradle User Home을 준비하고 local.properties를 복원한다
 
 inputs:
   local-properties:
@@ -13,19 +13,20 @@ inputs:
 runs:
   using: composite
   steps:
-    # 러너 메모리에 맞춘 CI 전용 값이 프로젝트 gradle.properties보다 우선하도록 Gradle User Home에 둔다.
-    # 공통 값 뒤에 러너 OS별 값을 붙여, 같은 키는 OS별 값이 이긴다.
+    # 셀프호스트 러너는 개인 PC라 ~/.gradle의 개인 설정을 덮어쓰지 않도록 CI 전용 Gradle User Home을 따로 둔다.
+    # 러너 메모리에 맞춘 CI 전용 값이 프로젝트 gradle.properties보다 우선하도록 그 Gradle User Home에 둔다.
     - name: 📝 CI gradle.properties 복사
       shell: bash
       run: |
         set -euo pipefail
-        case "$RUNNER_OS" in
-          Linux) os=linux ;;
-          macOS) os=macos ;;
-          *) echo "::error::CI gradle.properties가 없는 러너 OS입니다: $RUNNER_OS"; exit 1 ;;
-        esac
-        mkdir -p ~/.gradle
-        cat .github/ci.gradle.properties ".github/ci-$os.gradle.properties" > ~/.gradle/gradle.properties
+        if [ "$RUNNER_OS" != "macOS" ]; then
+          echo "::error::CI gradle.properties가 없는 러너 OS입니다: $RUNNER_OS"
+          exit 1
+        fi
+        gradle_home="$HOME/.gradle-ci"
+        mkdir -p "$gradle_home"
+        cat .github/ci.gradle.properties .github/ci-macos.gradle.properties > "$gradle_home/gradle.properties"
+        echo "GRADLE_USER_HOME=$gradle_home" >> "$GITHUB_ENV"
 
     - name: ☕ JDK 21 설치
       uses: actions/setup-java@v6
@@ -33,24 +34,15 @@ runs:
         distribution: temurin
         java-version: 21
 
-    # GitHub 호스팅 러너는 잡마다 새 VM이라 의존성·wrapper를 매번 내려받지 않도록 Gradle User Home을 캐시한다.
-    - name: 🐘 Gradle 캐시 준비
+    # 셀프호스트 러너는 Gradle User Home과 ~/.konan이 잡 사이에 남으므로 GitHub 캐시로 저장·복원하지 않는다.
+    - name: 🐘 Gradle 준비
       uses: gradle/actions/setup-gradle@v6
       with:
-        # 기본값은 기본 브랜치(develop)에서만 캐시를 쓰지만 CI는 main 대상 PR과 main 배포에서만 돌므로, PR을 뺀 실행이 캐시를 갱신한다.
-        cache-read-only: ${{ github.event_name == 'pull_request' }}
+        cache-disabled: true
         # 실패 원인과 태스크별 소요 시간을 작업 요약의 링크로 바로 보도록 CI 빌드마다 scans.gradle.com에 올린다.
         build-scan-publish: true
         build-scan-terms-of-use-url: https://gradle.com/help/legal-terms-of-use
         build-scan-terms-of-use-agree: 'yes'
-
-    # Kotlin/Native 툴체인과 의존성(~/.konan)은 Gradle User Home 밖에 있어 따로 캐시한다.
-    - name: 🗂️ Kotlin/Native 캐시 복원
-      uses: actions/cache@v6
-      with:
-        path: ~/.konan
-        key: konan-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('gradle/libs.versions.toml') }}
-        restore-keys: konan-${{ runner.os }}-${{ runner.arch }}-
 
     - name: 🔐 local.properties 복원
       shell: bash
