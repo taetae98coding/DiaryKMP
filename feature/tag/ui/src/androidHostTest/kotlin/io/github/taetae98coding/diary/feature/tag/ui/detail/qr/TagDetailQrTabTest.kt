@@ -19,8 +19,9 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
@@ -86,12 +87,12 @@ class TagDetailQrTabTest {
     @Test
     fun `TC-3f21d090-ae88-4965-8026-4ceb4631a8c7 QR을 선택하면 그 QR의 상세 이동을 요청한다`() {
         val item = tagQr(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailQrContentEvent>()
-        setQrTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setQrTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add, onQrListEvent = eventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
-        eventList shouldBe listOf(TagDetailQrContentEvent.ClickQr(id = item.id))
+        eventList shouldBe listOf(QrListEvent.ClickQr(id = item.id))
     }
 
     @Test
@@ -122,10 +123,11 @@ class TagDetailQrTabTest {
 
     @Test
     fun `TC-20a6d574-a4b6-464d-87fe-16cfa558c6ce 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailQrContentEvent>()
+        val eventList = mutableListOf<Any>()
         setQrTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagQr(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onQrListEvent = eventList::add,
         )
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -136,8 +138,8 @@ class TagDetailQrTabTest {
 
     @Test
     fun `TC-20a6d574-a4b6-464d-87fe-16cfa558c6ce 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailQrContentEvent>()
-        setQrTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setQrTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add, onQrListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -164,24 +166,26 @@ class TagDetailQrTabTest {
     @Test
     fun `TC-e08dea60-9f1d-4018-b2b0-785fd14aa058 QR 카드를 삭제 방향으로 밀면 그 QR의 삭제를 전달한다`() {
         val item = tagQr(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailQrContentEvent>()
+        val eventList = mutableListOf<Any>()
         setQrTab(
             pagingData = tagEntityPagingData(itemList = listOf(item)),
             onEvent = eventList::add,
+            onQrListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(QR_CARD_TEST_TAG).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(TagDetailQrContentEvent.DeleteQr(id = item.id))
+        eventList shouldBe listOf(QrListEvent.SwipeDelete(id = item.id))
     }
 
     @Test
     fun `TC-0d8a0ca6-5dbd-49e8-b9d4-a26457b1280b QR 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
-        val eventList = mutableListOf<TagDetailQrContentEvent>()
+        val eventList = mutableListOf<Any>()
         setQrTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagQr(title = FIRST_TITLE))),
             onEvent = eventList::add,
+            onQrListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(QR_CARD_TEST_TAG).performTouchInput { swipeRight() }
@@ -201,6 +205,7 @@ class TagDetailQrTabTest {
     private fun setQrTab(
         pagingData: PagingData<Qr> = PagingData.empty(),
         onEvent: (TagDetailQrContentEvent) -> Unit = {},
+        onQrListEvent: (QrListEvent) -> Unit = {},
         isRefreshingProvider: () -> Boolean = { false },
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -209,6 +214,7 @@ class TagDetailQrTabTest {
             DiaryTheme {
                 TagDetailQrTab(
                     onEvent = onEvent,
+                    onQrListEvent = onQrListEvent,
                     modifier = Modifier.fillMaxSize(),
                     qrPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     isRefreshingProvider = isRefreshingProvider,

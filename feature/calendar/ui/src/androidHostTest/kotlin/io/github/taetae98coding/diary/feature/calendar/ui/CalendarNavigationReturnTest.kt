@@ -16,20 +16,20 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScreen
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture
 import io.github.taetae98coding.diary.feature.calendar.ui.home.ScrollToTodayOnReselectEffect
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.ddayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.filterViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
@@ -238,6 +238,7 @@ class CalendarNavigationReturnTest {
                                     permissionManager = rememberPermissionManager(),
                                     holidayViewModel = homeHolidayViewModel,
                                     memoViewModel = memoViewModel,
+                                    filterViewModel = filterViewModel(),
                                     birthdayViewModel = birthdayViewModel,
                                     weatherViewModel = weatherViewModel,
                                     syncViewModel = syncViewModel,
@@ -261,7 +262,6 @@ class CalendarNavigationReturnTest {
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
             every { viewModel.select(any()) } returns Unit
             every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-            every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 
     private fun LocalDateRange.toMemoAddNavKey(): MemoAddNavKey =
@@ -320,7 +320,7 @@ class CalendarNavigationReturnTest {
         const val DDAY_DETAIL_CONTENT = "DDayDetailContent"
         const val DDAY_DAY = 15
         const val DDAY_TITLE = "Exam"
-        const val DDAY_TEXT = "🎉 Exam D-Day"
+        const val DDAY_TEXT = "Exam D-Day"
         const val TIMETABLE_CONTENT = "CalendarTimetableContent"
     }
 }

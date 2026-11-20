@@ -29,7 +29,7 @@ internal class DDayRemoteDataSourceImpl(
         ).body<DDayPullResponseRemoteEntity>().ddayList
 
     private companion object {
-        const val PUSH_DDAY_FUNCTION: String = "v1-sync-push-dday"
+        const val PUSH_DDAY_FUNCTION: String = "v2-sync-push-dday"
         const val PULL_DDAY_FUNCTION: String = "v1-sync-pull-dday"
     }
 }

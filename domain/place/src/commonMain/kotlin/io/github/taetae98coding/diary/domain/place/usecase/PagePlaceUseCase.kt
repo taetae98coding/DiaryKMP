@@ -15,11 +15,16 @@ import org.koin.core.annotation.Factory
 public class PagePlaceUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountPlaceRepository: AccountPlaceRepository,
-) : FlowUseCase<String, PagingData<Place>>() {
-    override fun execute(parameter: String): Flow<Result<PagingData<Place>>> =
+) : FlowUseCase<PagePlaceUseCase.Parameter, PagingData<Place>>() {
+    override fun execute(parameter: Parameter): Flow<Result<PagingData<Place>>> =
         getAccountUseCase.flatMapAccount { account ->
             accountPlaceRepository
-                .page(account = account, query = parameter.trim(), sort = ListSort.DEFAULT)
+                .page(account = account, query = parameter.query.trim(), sort = parameter.sort)
                 .map { pagingData -> Result.success(pagingData) }
         }
+
+    public data class Parameter(
+        val query: String,
+        val sort: ListSort,
+    )
 }

@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutine
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutineRecord
 import io.github.taetae98coding.diary.core.network.api.routine.entity.RoutineRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.routinerecord.entity.RoutineRecordRemoteEntity
-import io.github.taetae98coding.diary.core.testing.routine.localRoutine
-import io.github.taetae98coding.diary.core.testing.routine.localRoutineRecord
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly

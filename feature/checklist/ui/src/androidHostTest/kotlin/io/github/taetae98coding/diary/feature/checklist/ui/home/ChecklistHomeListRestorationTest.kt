@@ -12,7 +12,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf

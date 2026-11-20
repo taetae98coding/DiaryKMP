@@ -30,7 +30,7 @@ internal class LunarRepositoryImpl(
             fetch = {
                 val lunarDateList =
                     lunarRemoteDataSource
-                        .get(year = year)
+                        .read(year = year)
                         .map { remote -> remote.toLocal(solarYear = year) }
 
                 lunarTransaction.upsert(

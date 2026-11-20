@@ -641,19 +641,19 @@
         }
       }
     },
-    "🎉 %@ %@": {
+    "%@ %@": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "🎉 %1$@ %2$@"
+            "value": "%1$@ %2$@"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "🎉 %1$@ %2$@"
+            "value": "%1$@ %2$@"
           }
         }
       }

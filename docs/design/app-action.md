@@ -68,7 +68,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 공휴일 | `공휴일` | `Holiday` / `Holidays` | `flag` |
 | 음력 날짜 | `음력 날짜` | `Lunar Date` / `Lunar Dates` | `moon` |
 
-메모, 태그, 장소, 디데이, 루틴, 캘린더 메모의 아이콘은 그 항목의 색으로, 캘린더 디데이의 아이콘은 그 디데이의 색으로 칠하고, 나머지는 앱의 주 색으로 칠한다.
+메모, 태그, 장소, 디데이, 루틴, 캘린더 메모의 아이콘은 그 항목의 색으로, 캘린더 디데이의 아이콘은 그 캘린더 디데이의 표시 색상으로 칠하고, 나머지는 앱의 주 색으로 칠한다.
 
 ## 기능 영역별 동작
 
@@ -229,7 +229,9 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `dday_delete` | `ddayDelete` | 디데이 삭제<br/>Delete D-Day | 디데이를 삭제합니다. 같은 디데이로 ‘삭제한 디데이 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a D-Day. Run Restore Deleted D-Day with the same D-Day to undo. |
 | `dday_restore` | `ddayRestore` | 삭제한 디데이 되돌리기<br/>Restore Deleted D-Day | 삭제한 디데이를 되돌립니다.<br/>Restores a deleted D-Day. |
 | `dday_tag_add` | `ddayTagAdd` | 디데이에 태그 연결<br/>Link Tag to D-Day | 디데이에 태그를 연결합니다.<br/>Links a tag to a D-Day. |
-| `dday_tag_remove` | `ddayTagRemove` | 디데이에서 태그 연결 해제<br/>Unlink Tag from D-Day | 디데이에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a D-Day. |
+| `dday_tag_remove` | `ddayTagRemove` | 디데이에서 태그 연결 해제<br/>Unlink Tag from D-Day | 디데이에서 태그 연결을 해제합니다. 대표 태그였으면 대표 태그도 해제됩니다.<br/>Unlinks a tag from a D-Day. If it was the primary tag, the primary tag is cleared too. |
+| `dday_primary_tag_set` | `ddayPrimaryTagSet` | 디데이 대표 태그 지정<br/>Set D-Day Primary Tag | 디데이의 대표 태그를 정합니다. 연결되지 않은 태그이면 함께 연결합니다. 캘린더에서는 대표 태그의 색으로 보입니다.<br/>Sets the primary tag of a D-Day. The tag is linked too if it isn't linked yet. The calendar shows the D-Day in the primary tag's color. |
+| `dday_primary_tag_unset` | `ddayPrimaryTagUnset` | 디데이 대표 태그 해제<br/>Clear D-Day Primary Tag | 디데이의 대표 태그를 해제합니다. 태그 연결은 그대로 둡니다.<br/>Clears the primary tag of a D-Day. The tag stays linked. |
 
 ### 루틴
 
@@ -489,7 +491,7 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 | QR | 제목 | 설명 |
 | 곡 | 제목 | 가수 |
 | 디데이 | 제목 | 카드 문구 |
-| 캘린더 디데이 | `🎉 {제목} {날짜 문구}` | 날짜 |
+| 캘린더 디데이 | `{제목} {날짜 문구}` | 날짜 |
 | 루틴 | 제목 | 카드 문구. 달성률이 있으면 `{카드 문구} · {달성률}` |
 | 루틴 기록 | 양 문구 | 날짜 |
 | 생일 | `🎂 {연락처 표시 이름}` | 날짜 |

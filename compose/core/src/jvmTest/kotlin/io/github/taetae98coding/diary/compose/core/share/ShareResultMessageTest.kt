@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.compose.core.share
 
 import androidx.compose.material3.SnackbarHostState
@@ -7,6 +9,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest

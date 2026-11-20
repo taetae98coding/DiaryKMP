@@ -10,8 +10,8 @@ import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerDialo
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerText
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_contact_add_action

@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.Memo
-import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoCaseList
 import io.kotest.core.spec.style.FunSpec

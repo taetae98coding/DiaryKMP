@@ -12,20 +12,21 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Search
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceForm
-import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
@@ -42,7 +43,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun PlaceAddScaffold(
     onEvent: (PlaceAddScaffoldEvent) -> Unit,
-    onFormEvent: (PlaceFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     onSearchEvent: (PlaceSearchEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
@@ -73,7 +74,7 @@ internal fun PlaceAddScaffold(
                 actions = {
                     if (uiStateProvider().defaultProvider != null) {
                         IconAction(
-                            icon = DiaryTopBarIcon.SEARCH,
+                            icon = DiaryIcons.Search,
                             contentDescription = searchContentDescription,
                             onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
                         )

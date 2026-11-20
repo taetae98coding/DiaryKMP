@@ -2,6 +2,9 @@ package io.github.taetae98coding.diary.core.database.impl.memoplace.datasource
 
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
@@ -13,9 +16,6 @@ import io.github.taetae98coding.diary.core.database.impl.memo.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.memoplace.transaction.AccountMemoPlaceSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
-import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
-import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec

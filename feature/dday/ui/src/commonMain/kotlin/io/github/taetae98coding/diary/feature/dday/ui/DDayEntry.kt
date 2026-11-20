@@ -6,15 +6,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.dday.api.DDayAddNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeFilterNavKey
@@ -50,11 +51,12 @@ private fun EntryProviderScope<ScreenNavKey>.dDayHomeEntry(backStack: NavBackSta
 
         DDayHomeScreen(
             navigateUp = backStack::navigateUpFromDDayHome,
-            navigateToAdd = backStack::navigateToDDayAddFromHome,
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToDDayAddFromHome),
             navigateToDetail = { id -> backStack.navigateToDDayDetail(id = id) },
-            navigateToFilter = { backStack.add(DDayHomeFilterNavKey) },
+            navigateToFilter = dropUnlessResumed { backStack.add(DDayHomeFilterNavKey) },
             componentVisibleProvider = { DDayHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isDDayAddOnDetailPane()) },
             ddayViewModel = koinViewModel(),
+            filterViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
     }
@@ -71,8 +73,8 @@ internal fun dDayHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Ma
 
                 DDayAddScreen(
                     navigateUp = {},
-                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { DDayAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
                     addViewModel = koinViewModel(),
@@ -101,8 +103,8 @@ private fun EntryProviderScope<ScreenNavKey>.dDayAddEntry(backStack: NavBackStac
 
         DDayAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { DDayAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             addViewModel = koinViewModel(),
@@ -120,12 +122,12 @@ private fun EntryProviderScope<ScreenNavKey>.dDayDetailEntry(backStack: NavBackS
 
         DDayDetailScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { DDayDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             ddayViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.DDAY, key.id) },
+            tagViewModel = koinViewModel { parametersOf(key.id) },
         )
     }
 }

@@ -7,14 +7,18 @@ import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieDataSource
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewSessionCookieEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewVisitedUrlRegistry
+import io.github.taetae98coding.diary.core.webcookie.impl.di.WebCookieDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import kotlin.coroutines.resume
 
-// CookieManager는 쿠키를 넣은 결과를 부른 스레드의 Looper로 돌려주므로, 앱 화면이 메인 스레드에서 부르는 것을 전제로 스레드를 옮기지 않는다.
+// CookieManager는 쿠키를 넣은 결과를 부른 스레드의 Looper로 돌려주므로, 앱 화면이 메인 스레드에서 부르는 것을 전제로 쿠키를 넣는 일은 스레드를 옮기지 않는다.
 @Factory
 internal class AndroidWebViewCookieDataSource(
     private val cookieManager: CookieManager,
+    @WebCookieDispatcher private val dispatcher: CoroutineDispatcher,
 ) : WebViewCookieDataSource {
     // Android WebView는 쿠키 목록 전체를 꺼낼 수 없고, 주소 하나에 보내는 쿠키만 속성과 함께 읽을 수 있다.
     override suspend fun readSessionCookie(siteUrlSet: Set<String>): WebViewSessionCookieEntity? {
@@ -47,6 +51,6 @@ internal class AndroidWebViewCookieDataSource(
     }
 
     override suspend fun flush() {
-        cookieManager.flush()
+        withContext(dispatcher) { cookieManager.flush() }
     }
 }

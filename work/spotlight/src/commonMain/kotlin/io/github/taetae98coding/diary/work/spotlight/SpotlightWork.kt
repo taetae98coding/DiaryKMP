@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import org.koin.core.annotation.Factory
 
 // 현재 계정의 노출 대상을 지켜보며 Spotlight 색인을 맞춘다. 끝나지 않으므로 앱 수명의 scope에서 실행한다.
+@Factory
 internal class SpotlightWork(
     private val getAccountUseCase: GetAccountUseCase,
     private val spotlightLocalDataSource: SpotlightLocalDataSource,

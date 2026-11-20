@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.data.testing.qr.localQr
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrRemoteEntity
-import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote

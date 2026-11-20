@@ -82,7 +82,6 @@ internal fun ProfileScreen(
         },
         modifier = modifier,
         deleteUiStateProvider = { deleteUiState },
-        isDeleteInProgressProvider = { deleteUiState.isInProgress },
         snackbarHostState = snackbarHostState,
     )
 }

@@ -5,15 +5,12 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.domain.checklist.exception.ChecklistTitleBlankException
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistUseCase
-import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -22,16 +19,8 @@ import kotlin.uuid.Uuid
 internal class ChecklistAddViewModel(
     private val addChecklistUseCase: AddChecklistUseCase,
 ) : ViewModel() {
-    private val isInProgress = MutableStateFlow(false)
-
-    val uiState: StateFlow<ChecklistAddUiState> =
-        isInProgress
-            .map { isInProgress -> ChecklistAddUiState(isInProgress = isInProgress) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileUiSubscribed,
-                initialValue = ChecklistAddUiState(),
-            )
+    val uiState: StateFlow<ChecklistAddUiState>
+        field = MutableStateFlow(ChecklistAddUiState())
 
     private val _effect = Channel<ChecklistAddEffect>(Channel.BUFFERED)
     val effect: Flow<ChecklistAddEffect> = _effect.receiveAsFlow()
@@ -41,10 +30,10 @@ internal class ChecklistAddViewModel(
         itemContentList: List<String>,
         tagIdSet: Set<Uuid>,
     ) {
-        if (isInProgress.value) return
+        if (uiState.value.isInProgress) return
 
         viewModelScope.launch {
-            isInProgress.value = true
+            uiState.update { value -> value.copy(isInProgress = true) }
             try {
                 addChecklistUseCase(parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = itemContentList, tagIdSet = tagIdSet))
                     .onSuccess { _effect.send(ChecklistAddEffect.AddSucceeded) }
@@ -54,7 +43,7 @@ internal class ChecklistAddViewModel(
                         }
                     }
             } finally {
-                isInProgress.value = false
+                uiState.update { value -> value.copy(isInProgress = false) }
             }
         }
     }

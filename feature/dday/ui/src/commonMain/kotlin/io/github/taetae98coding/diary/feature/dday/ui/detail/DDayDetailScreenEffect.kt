@@ -32,7 +32,7 @@ internal fun DDayDetailScreenEffect(
             }
 
             is DDayDetailEffect.RepeatBlank -> {
-                coroutineScope.showRepeatBlank(state = state, message = repeatBlankMessage)
+                coroutineScope.launch { showRepeatBlank(state = state, message = repeatBlankMessage) }
             }
 
             is DDayDetailEffect.DeleteSucceeded -> {

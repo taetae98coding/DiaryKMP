@@ -16,8 +16,8 @@ import androidx.compose.ui.test.performClick
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.routine.RoutineDetail
 import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.routine.RoutineViewScope

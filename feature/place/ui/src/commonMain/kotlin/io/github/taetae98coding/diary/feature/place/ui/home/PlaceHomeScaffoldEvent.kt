@@ -18,10 +18,6 @@ internal sealed interface PlaceHomeScaffoldEvent {
         val id: Uuid,
     ) : PlaceHomeScaffoldEvent
 
-    data class DeletePlace(
-        val id: Uuid,
-    ) : PlaceHomeScaffoldEvent
-
     data class MoveMap(
         val bounds: CoordinateBounds?,
     ) : PlaceHomeScaffoldEvent

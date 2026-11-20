@@ -15,7 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
@@ -156,6 +156,7 @@ class PlaceHomeEmptyTest {
                 val uiState by uiStateFlow.collectAsStateWithLifecycle()
 
                 PlaceList(
+                    onPlaceListEvent = {},
                     onEvent = onEvent,
                     placeListUiStateProvider = { uiState },
                 )

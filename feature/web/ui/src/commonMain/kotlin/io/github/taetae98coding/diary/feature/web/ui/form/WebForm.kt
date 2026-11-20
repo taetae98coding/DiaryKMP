@@ -7,14 +7,15 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.layout.DiaryInputColumn
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 
 @Composable
 internal fun WebForm(
-    onEvent: (WebFormEvent) -> Unit,
+    onEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: WebFormState = rememberWebAddFormState(),
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
@@ -37,8 +38,8 @@ internal fun WebForm(
             modifier = Modifier.fillMaxWidth(),
         )
         EntityTagInput(
-            onTagClick = { id -> onEvent(WebFormEvent.ClickTag(id = id)) },
-            onAddClick = { onEvent(WebFormEvent.ClickTagAdd) },
+            onTagClick = { id -> onEvent(EntityTagInputEvent.ClickTag(id = id)) },
+            onAddClick = { onEvent(EntityTagInputEvent.ClickAdd) },
             modifier = Modifier.fillMaxWidth(),
             uiStateProvider = tagUiStateProvider,
         )

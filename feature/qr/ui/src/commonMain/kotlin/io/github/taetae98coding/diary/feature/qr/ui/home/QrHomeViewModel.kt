@@ -10,10 +10,9 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.RestoreQrUseCase
-import kotlinx.coroutines.channels.Channel
+import io.github.taetae98coding.diary.feature.core.list.ListItemDeleteActions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -21,41 +20,28 @@ import kotlin.uuid.Uuid
 @KoinViewModel
 internal class QrHomeViewModel(
     pageQrUseCase: PageQrUseCase,
-    private val deleteQrUseCase: DeleteQrUseCase,
-    private val restoreQrUseCase: RestoreQrUseCase,
+    deleteQrUseCase: DeleteQrUseCase,
+    restoreQrUseCase: RestoreQrUseCase,
 ) : ViewModel() {
     val qrPagingData: Flow<PagingData<Qr>> =
         pageQrUseCase()
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
-    private val _effect = Channel<QrListEffect>(Channel.BUFFERED)
-    val effect: Flow<QrListEffect> = _effect.receiveAsFlow()
+    private val qrActions =
+        ListItemDeleteActions<QrListEffect>(
+            deleteUseCase = deleteQrUseCase,
+            restoreUseCase = restoreQrUseCase,
+            deletedEffect = QrListEffect::Deleted,
+        )
 
-    private val inProgressIds = mutableSetOf<Uuid>()
+    val effect: Flow<QrListEffect> = qrActions.effect
 
     fun delete(id: Uuid) {
-        if (!inProgressIds.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                deleteQrUseCase(parameter = id)
-                    .onSuccess { _effect.send(QrListEffect.Deleted(id = id)) }
-            } finally {
-                inProgressIds.remove(id)
-            }
-        }
+        viewModelScope.launch { qrActions.delete(id = id) }
     }
 
     fun restore(id: Uuid) {
-        if (!inProgressIds.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                restoreQrUseCase(parameter = id)
-            } finally {
-                inProgressIds.remove(id)
-            }
-        }
+        viewModelScope.launch { qrActions.restore(id = id) }
     }
 }

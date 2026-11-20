@@ -17,12 +17,13 @@ import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.music.MusicListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
@@ -40,7 +41,7 @@ internal fun PlaylistHomeScaffold(
     sortSheetState: DialogState = rememberDialogState(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
     syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
-    uiStateProvider: () -> PlaylistHomeUiState = { PlaylistHomeUiState() },
+    sortProvider: () -> ListSort = { ListSort.TITLE },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     componentVisibleProvider: () -> PlaylistHomeScaffoldComponentVisible = { PlaylistHomeScaffoldComponentVisible() },
 ) {
@@ -72,7 +73,7 @@ internal fun PlaylistHomeScaffold(
             DiaryListSortBarHost(
                 onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickSort) },
                 modifier = Modifier.fillMaxWidth(),
-                sortProvider = { uiStateProvider().sort },
+                sortProvider = sortProvider,
                 isSortVisibleProvider = { musicPagingItems.itemCount > 0 },
             )
 
@@ -83,7 +84,7 @@ internal fun PlaylistHomeScaffold(
                 musicPagingItems = musicPagingItems,
                 isRefreshingProvider = { syncUiStateProvider().isRefreshing },
                 isAddButtonVisibleProvider = { componentVisibleProvider().isAddButtonVisible },
-                sortProvider = { uiStateProvider().sort },
+                sortProvider = sortProvider,
             )
         }
     }
@@ -91,7 +92,7 @@ internal fun PlaylistHomeScaffold(
     DiaryListSortBottomSheetHost(
         onSelect = { sort -> onEvent(PlaylistHomeScaffoldEvent.SelectSort(sort = sort)) },
         state = sortSheetState,
-        sortProvider = { uiStateProvider().sort },
+        sortProvider = sortProvider,
     )
 }
 

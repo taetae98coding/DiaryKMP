@@ -2,8 +2,8 @@ package io.github.taetae98coding.diary.compose.core.appbar
 
 import androidx.compose.runtime.Composable
 import io.github.taetae98coding.diary.compose.core.graphics.rememberTemplateUIImage
-import io.github.taetae98coding.diary.compose.core.icon.ArrowBack
-import io.github.taetae98coding.diary.compose.core.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.ArrowBack
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
 
 @Composable
 internal fun rememberUiKitTopBarNavigateUpButton(navigateUp: DiaryTopBarNavigateUp): UiKitTopBarButton =
@@ -26,8 +26,8 @@ internal fun rememberUiKitTopBarButton(action: DiaryTopBarAction): UiKitTopBarBu
     when (action) {
         is DiaryTopBarAction.Icon ->
             UiKitTopBarButton(
-                id = action.icon.buttonKey,
-                image = rememberTemplateUIImage(imageVector = action.icon.imageVector, size = DiaryTopBarDefaults.IosIconSize),
+                id = action.key,
+                image = rememberTemplateUIImage(imageVector = action.icon, size = DiaryTopBarDefaults.IosIconSize),
                 text = null,
                 contentDescription = action.contentDescription,
                 stateDescription = null,
@@ -41,8 +41,8 @@ internal fun rememberUiKitTopBarButton(action: DiaryTopBarAction): UiKitTopBarBu
 
         is DiaryTopBarAction.Toggle ->
             UiKitTopBarButton(
-                id = action.icon.buttonKey,
-                image = rememberTemplateUIImage(imageVector = action.icon.imageVector, size = DiaryTopBarDefaults.IosIconSize),
+                id = action.key,
+                image = rememberTemplateUIImage(imageVector = action.icon, size = DiaryTopBarDefaults.IosIconSize),
                 text = null,
                 contentDescription = action.contentDescription,
                 stateDescription = null,
@@ -56,8 +56,8 @@ internal fun rememberUiKitTopBarButton(action: DiaryTopBarAction): UiKitTopBarBu
 
         is DiaryTopBarAction.Applied ->
             UiKitTopBarButton(
-                id = action.icon.buttonKey,
-                image = rememberTemplateUIImage(imageVector = action.icon.imageVector, size = DiaryTopBarDefaults.IosIconSize),
+                id = action.key,
+                image = rememberTemplateUIImage(imageVector = action.icon, size = DiaryTopBarDefaults.IosIconSize),
                 text = null,
                 contentDescription = action.contentDescription,
                 stateDescription = action.appliedStateDescription.takeIf { action.isApplied },

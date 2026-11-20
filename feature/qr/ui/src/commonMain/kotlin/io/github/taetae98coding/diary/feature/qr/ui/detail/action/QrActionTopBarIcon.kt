@@ -1,6 +1,15 @@
 package io.github.taetae98coding.diary.feature.qr.ui.detail.action
 
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import androidx.compose.ui.graphics.vector.ImageVector
+import io.github.taetae98coding.diary.compose.icon.CalendarAddOn
+import io.github.taetae98coding.diary.compose.icon.Call
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Mail
+import io.github.taetae98coding.diary.compose.icon.Map
+import io.github.taetae98coding.diary.compose.icon.OpenInNew
+import io.github.taetae98coding.diary.compose.icon.PersonAdd
+import io.github.taetae98coding.diary.compose.icon.Sms
+import io.github.taetae98coding.diary.compose.icon.Wifi
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.qr_action_add_contact_button_content_description
@@ -13,17 +22,17 @@ import io.github.taetae98coding.diary.feature.qr.ui.qr_action_send_sms_button_co
 import io.github.taetae98coding.diary.feature.qr.ui.qr_action_show_location_button_content_description
 import org.jetbrains.compose.resources.StringResource
 
-internal val QrAction.topBarIcon: DiaryTopBarIcon
+internal val QrAction.topBarIcon: ImageVector
     get() =
         when (this) {
-            is QrAction.OpenUrl -> DiaryTopBarIcon.OPEN_IN_NEW
-            is QrAction.Call -> DiaryTopBarIcon.CALL
-            is QrAction.SendEmail -> DiaryTopBarIcon.MAIL
-            is QrAction.SendSms -> DiaryTopBarIcon.SMS
-            is QrAction.ShowLocation -> DiaryTopBarIcon.MAP
-            is QrAction.AddContact -> DiaryTopBarIcon.PERSON_ADD
-            is QrAction.AddEvent -> DiaryTopBarIcon.CALENDAR_ADD_ON
-            is QrAction.JoinWifi -> DiaryTopBarIcon.WIFI
+            is QrAction.OpenUrl -> DiaryIcons.OpenInNew
+            is QrAction.Call -> DiaryIcons.Call
+            is QrAction.SendEmail -> DiaryIcons.Mail
+            is QrAction.SendSms -> DiaryIcons.Sms
+            is QrAction.ShowLocation -> DiaryIcons.Map
+            is QrAction.AddContact -> DiaryIcons.PersonAdd
+            is QrAction.AddEvent -> DiaryIcons.CalendarAddOn
+            is QrAction.JoinWifi -> DiaryIcons.Wifi
         }
 
 internal val QrAction.contentDescription: StringResource

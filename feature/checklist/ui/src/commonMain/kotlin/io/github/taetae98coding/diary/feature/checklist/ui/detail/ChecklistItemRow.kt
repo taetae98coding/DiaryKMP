@@ -15,9 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.feature.checklist.ui.Res
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_detail_item_remove_button_content_description

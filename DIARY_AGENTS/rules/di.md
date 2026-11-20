@@ -17,26 +17,26 @@ Koin 모듈 구성과, 코드가 컨테이너를 직접 조회해도 되는 자�
 
 다음 자리에서는 조회하지 않는다.
 
-- Composable. `koinInject`, `getKoin()`, `KoinPlatform`을 부르지 않는다. 예외는 `koinViewModel`뿐이고, 부르는 자리는 [compose.md](compose.md)가 정한다(`파라미터 기본값과 선언 순서`: Screen은 ViewModel을 기본값 없이 받는다, `Preview를 두지 않는 컴포저블`: Content는 자기 ViewModel을 직접 얻는다).
+- Composable. `koinInject`, `getKoin()`, `KoinPlatform`을 부르지 않는다. 예외는 `koinViewModel`뿐이고, 부르는 자리는 [compose.md](compose.md)의 `koinViewModel을 부르는 자리`가 정한다.
 - `feature:*`, `compose:*`, `library:*` 모듈의 일반 class와 함수. 필요한 것은 생성자나 인자로 받는다.
 
 ## 앱 루트는 `AppDependencies`를 받는다
 
 **`App(dependencies: AppDependencies)`가 화면 트리의 유일한 뿌리다.** `AppDependencies`는 `app:shared`의 `@Single`로, 화면 트리가 쓰는 앱 범위 객체를 생성자로 받는다. `AppDeepLink`, `List<DeepLinkNavigation>`, `List<ScreenEntryInstaller>`, 플랫폼 지도 구현(`DiaryMapContentOverride`)이 여기 속한다.
 
-- `List<T>` 생성자 인자는 Koin이 `getAll<T>()`로 채운다. 여러 모듈이 `@Single(binds = [T::class])`로 등록한 구현을 모을 때 쓴다.
+- `List<T>` 생성자 인자는 Koin이 `getAll<T>()`로 채운다. 여러 모듈이 `@Single(binds = [T::class])`로 등록한 구현을 모을 때 쓴다. `getAll`은 선언 순서를 지키지 않으므로(Koin 4.2.2까지 확인), 순서가 밖으로 드러나는 목록은 받는 쪽이 순서 목록을 소유해 정렬하고 목록에 없는 구현은 실패시킨다(`McpToolRegistry`의 `mcpToolSetOrderList`).
 - 플랫폼마다 다른 구현은 `app:shared`의 플랫폼 소스셋 Koin 모듈(`AndroidAppModule`, `IosAppModule`, `JvmAppModule`, `WasmAppModule`)이 제공한다. `compose:*` 모듈은 Koin을 모르는 구현 class만 두고, 설정값(`BuildKonfig`)과 `Dispatchers.*`는 제공 함수에서만 참조한다.
 - 플랫폼 진입점은 `AppDependencies`를 `App`에 넘기기만 하고 그 안을 열어 쓰지 않는다. 진입점이 따로 필요한 객체(`AppDeepLink`)는 자기 조회로 얻는다.
 
 ## Composable이 만드는 플랫폼 보조 class는 팩토리를 주입받는다
 
-**플랫폼 API를 부르는 보조 class(파일·사진·폴더 선택기, 자격 증명 요청, QR 동작 실행기)는 `XxxFactory` 인터페이스의 `@Composable fun rememberXxx()`로 만든다. `feature:*:ui`의 것은 플랫폼 소스셋이 `@Single(binds = [XxxFactory::class])` 구현을 등록하고, `compose:*`의 것은 아래처럼 `app:shared`가 제공한다.** 구현이 필요로 하는 dispatcher와 설정은 구현 class가 생성자로 받는다. `expect`/`actual` 함수로 가르면 플랫폼 구현이 Koin 의존을 `koinInject`로 찾게 되므로 쓰지 않는다.
+**플랫폼 API를 부르는 보조 class(파일·사진·폴더 선택기, 자격 증명 요청, QR 동작 실행기)는 `XxxFactory` 인터페이스의 `@Composable fun rememberXxx()`로 만든다. `feature:*:ui`의 것은 플랫폼 소스셋이 `@Single(binds = [XxxFactory::class])` 구현을 등록하고, `compose:*`의 것은 아래처럼 `app:shared`가 제공한다.** 구현이 필요로 하는 dispatcher와 설정은 구현 class가 생성자로 받는다. `expect`/`actual` 함수로 가르면 플랫폼 구현이 Koin 의존을 `koinInject`로 찾게 되므로 쓰지 않는다. 어느 플랫폼 구현도 Koin에서 받을 의존이 없는 보조 class는 대상이 아니며 `expect`/`actual` `rememberXxx()`로 둔다(`compose:permission`의 `rememberPermissionManager()`, `feature:place:ui`의 `rememberExternalMapOpener()`).
 
 - 인터페이스와 구현은 보조 class 곁에 둔다. `feature:*:ui`의 것은 `internal`, 여러 feature가 쓰는 `compose:*`의 것은 `public`으로 두고 `app:shared`의 플랫폼 모듈이 제공한다.
 - 팩토리는 그 화면의 `ScreenEntryInstaller`가 생성자로 받아 entry 함수와 Screen의 인자로 내려보낸다. `remember`는 화면이 그려지는 동안 `LocalContext`, `LocalUIViewController`, `rememberLauncherForActivityResult`를 읽어야 하므로 팩토리 안에 남긴다.
 - 의존이 없는 플랫폼도 빈 구현을 등록한다. Koin 컴파일러 플러그인이 플랫폼마다 바인딩이 있는지 확인한다.
 - Compose UI 테스트는 Koin 없이 플랫폼 구현을 직접 만들어 넘긴다(`remember { AndroidFilePickerFactory() }.rememberFilePicker(...)`).
-- feature 안에서만 쓰는 플랫폼 표시 요소(QR 카메라 미리보기)는 보조 class의 타입이 플랫폼마다 달라 `rememberXxx()`로 돌려줄 공통 타입이 없으므로, 그리는 일 자체를 `XxxContent` 인터페이스의 `@Composable fun Content(...)`로 두고 같은 방식으로 등록·주입한다. 플랫폼 Composable은 그 파일의 `private` 함수로 두고 구현 class가 부른다. 여러 feature가 쓰는 표시 요소(지도)는 아래 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`를 따른다.
+- feature 안에서만 쓰는 플랫폼 표시 요소(QR 카메라 미리보기 `QrScanCameraPreviewContent`, 웹 상세의 웹 표시 수단 `WebViewContent`)는 보조 class의 타입이 플랫폼마다 달라 `rememberXxx()`로 돌려줄 공통 타입이 없으므로, 그리는 일 자체를 `XxxContent` 인터페이스의 `@Composable fun Content(...)`로 두고 같은 방식으로 등록·주입한다. 그리는 대상이 둘이면(주소를 여는 것과 받은 본문을 그리는 것) 한 인터페이스에 `UrlContent(...)`, `PageContent(...)`처럼 대상 이름을 붙인 함수를 나란히 둔다. 플랫폼 Composable은 그 파일의 `private` 함수로 두고 구현 class가 부른다. 여러 feature가 쓰는 표시 요소(지도)는 아래 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`를 따른다.
 
 예: `feature:file:ui`의 `FilePickerFactory`(`commonMain`), `JvmFilePickerFactory`(`jvmMain`, `@FilePickerDispatcher` 주입), 팩토리를 생성자로 받는 `FileEntryInstaller`.
 
@@ -47,5 +47,7 @@ Koin 모듈 구성과, 코드가 컨테이너를 직접 조회해도 되는 자�
 ## 모듈 구성
 
 - 모듈마다 `commonMain`에 `@Module @ComponentScan @Configuration` class를 하나 둔다. 같은 모듈의 플랫폼 소스셋에 둔 `@Single`·`@Factory` class도 이 scan이 모은다. 플랫폼 소스셋에 제공 함수가 필요할 때만 그 소스셋에 `@Module @Configuration` class를 더 둔다.
+  - 진입점이 구현 타입으로 조회하는 class(`BackgroundTaskPeriodicSyncWorkScheduler`, `SpotlightWorkLauncher`)도 제공 함수로 조립하지 않고 class에 `@Single`을 붙인다. 한 정의가 구현 타입과 구현한 계약 양쪽으로 같은 인스턴스를 내주므로 계약을 잇는 제공 함수를 따로 두지 않는다. 제공 함수는 플랫폼 객체나 `Dispatchers.*`를 넘겨야 하는 구현(`CoreSpotlightIndex`)에만 쓴다.
+  - 앱이 한 플랫폼에서만 의존하는 모듈(`app:shared`의 `iosMain`만 의존하는 `work:spotlight`)도 같은 모양으로 두고, 다른 플랫폼에 빈 구현을 등록하지 않는다. Koin 컴파일러 플러그인은 모듈을 컴파일할 때가 아니라 `@KoinApplication`이 모은 그래프에서 바인딩을 확인하므로(1.2.3 기준), 그래프에 들지 않는 플랫폼의 빠진 바인딩은 오류가 아니다. 모듈을 다른 플랫폼의 앱에도 넣게 되면 그때 `work:mcp`의 `UnsupportedMcpServerManager`처럼 빈 구현을 둔다.
 - 앱은 `@KoinApplication`인 `DiaryKoinApplication` 하나로 모든 `@Configuration` 모듈을 모은다. 앱 전체 구성을 확인하는 `app:shared` 테스트도 `koinApplication<DiaryKoinApplication>()`으로 앱과 같은 구성을 띄우고, 가짜가 필요하면 `allowOverride(true)`로 그 정의만 바꾼다.
 - 한 모듈의 Koin 구성을 확인하는 테스트는 그 모듈의 테스트 소스셋에 빈 `@KoinApplication` `data object`(`IpNetworkTestKoinApplication`)를 두고 `koinApplication<XxxTestKoinApplication> { modules(...) }`로 띄운다. 모듈 밖에서 오는 의존(`HttpClient` 엔진 등)만 `modules`로 더한다.

@@ -36,6 +36,7 @@ internal class FeatureUiConventionPlugin : Plugin<Project> {
                 commonMain {
                     dependencies {
                         implementation(project(":compose:core"))
+                        implementation(project(":compose:icon"))
                         implementation(project(":library:coroutines"))
                         implementation(library("jetbrains.lifecycle.viewmodel.compose"))
                         implementation(library("koin.compose.viewmodel"))

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.app.shared
 
 import app.cash.turbine.test
@@ -16,6 +18,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf

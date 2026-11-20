@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.converter
 
+import io.github.taetae98coding.diary.core.data.testing.contact.contactPhoneNumberLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.web.webHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
-import io.github.taetae98coding.diary.core.testing.contact.contactPhoneNumberLocalEntity
-import io.github.taetae98coding.diary.core.testing.web.webHeaderLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

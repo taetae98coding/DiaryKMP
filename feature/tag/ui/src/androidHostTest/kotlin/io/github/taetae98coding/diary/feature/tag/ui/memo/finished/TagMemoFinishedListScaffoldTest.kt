@@ -26,17 +26,22 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_COLOR_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.MemoListState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScaffold
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScaffoldEvent
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_empty_title
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -45,6 +50,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +66,7 @@ class TagMemoFinishedListScaffoldTest {
 
     @Test
     fun `TC-48ca7beb-c171-45cb-a825-6b3394694fc4 상단 바에 대상 태그 표시와 완료된 메모 목록 표시를 함께 제공한다`() {
-        setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = EMOJI_WITH_TAG_TITLE))
+        setTagMemoFinishedListScaffold(uiState = EntityMemoFinishedListUiState(title = EMOJI_WITH_TAG_TITLE))
 
         composeRule.onNodeWithText(EMOJI_WITH_TAG_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_SUBTITLE).assertIsDisplayed()
@@ -68,7 +74,7 @@ class TagMemoFinishedListScaffoldTest {
 
     @Test
     fun `TC-a357ef7d-9be7-48f9-8e3a-d90ef2203262 상단 바 폭보다 긴 태그 이모지와 제목은 여러 줄로 나뉘지 않고 한 줄에 생략 없이 담긴다`() {
-        setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = LONG_EMOJI_WITH_TAG_TITLE))
+        setTagMemoFinishedListScaffold(uiState = EntityMemoFinishedListUiState(title = LONG_EMOJI_WITH_TAG_TITLE))
 
         val rootWidth =
             composeRule
@@ -89,7 +95,7 @@ class TagMemoFinishedListScaffoldTest {
 
     @Test
     fun `TC-48ca7beb-c171-45cb-a825-6b3394694fc4 이모지가 비어 있으면 상단 바에 제목만 표시한다`() {
-        setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = TAG_TITLE))
+        setTagMemoFinishedListScaffold(uiState = EntityMemoFinishedListUiState(title = TAG_TITLE))
 
         composeRule.onNodeWithText(TAG_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_SUBTITLE).assertIsDisplayed()
@@ -98,7 +104,7 @@ class TagMemoFinishedListScaffoldTest {
     @Test
     @Config(qualifiers = "ko")
     fun `TC-48ca7beb-c171-45cb-a825-6b3394694fc4 한국어 환경에서 완료된 메모 목록 표시는 완료된 메모다`() {
-        setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = EMOJI_WITH_TAG_TITLE))
+        setTagMemoFinishedListScaffold(uiState = EntityMemoFinishedListUiState(title = EMOJI_WITH_TAG_TITLE))
 
         composeRule.onNodeWithText(EMOJI_WITH_TAG_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(KOREAN_SUBTITLE).assertIsDisplayed()
@@ -117,7 +123,7 @@ class TagMemoFinishedListScaffoldTest {
     @Test
     fun `TC-35229e7a-b0e8-408f-99f4-d1792e806bdd 태그 표시가 바뀌면 바뀐 표시를 사용한다`() {
         val title = mutableStateOf(TAG_TITLE)
-        setTagMemoFinishedListScaffold(uiStateProvider = { TagMemoFinishedListUiState(title = title.value) })
+        setTagMemoFinishedListScaffold(uiStateProvider = { EntityMemoFinishedListUiState(title = title.value) })
 
         composeRule.onNodeWithText(TAG_TITLE).assertIsDisplayed()
 
@@ -308,27 +314,28 @@ class TagMemoFinishedListScaffoldTest {
 
     @Test
     fun `TC-c0fde30f-f541-42cc-b592-8b551e504abc 상단 바 뒤로가기는 화면 닫기를 요청한다`() {
-        val eventList = mutableListOf<TagMemoFinishedListScaffoldEvent>()
+        val eventList = mutableListOf<EntityMemoFinishedListScaffoldEvent>()
         setTagMemoFinishedListScaffold(onEvent = eventList::add)
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
 
-        eventList.shouldContainExactly(TagMemoFinishedListScaffoldEvent.ClickNavigateUp)
+        eventList.shouldContainExactly(EntityMemoFinishedListScaffoldEvent.ClickNavigateUp)
     }
 
     private fun setTagMemoFinishedListScaffold(
         pagingData: PagingData<MemoListItem> = PagingData.empty(),
-        uiState: TagMemoFinishedListUiState = TagMemoFinishedListUiState(),
-        onEvent: (TagMemoFinishedListScaffoldEvent) -> Unit = {},
+        uiState: EntityMemoFinishedListUiState = EntityMemoFinishedListUiState(),
+        onEvent: (EntityMemoFinishedListScaffoldEvent) -> Unit = {},
         onMemoListEvent: (MemoListEvent) -> Unit = {},
-        uiStateProvider: () -> TagMemoFinishedListUiState = { uiState },
+        uiStateProvider: () -> EntityMemoFinishedListUiState = { uiState },
         isTodayUpdated: Boolean = false,
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
 
         composeRule.setContent {
             DiaryTheme {
-                TagMemoFinishedListScaffold(
+                EntityMemoFinishedListScaffold(
+                    emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
                     memoListState = remember { MemoListState().apply { if (isTodayUpdated) updateToday() } },
                     snackbarHostState = remember { SnackbarHostState() },
                     memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),

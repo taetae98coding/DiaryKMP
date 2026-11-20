@@ -5,8 +5,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.place.ui.PREVIEW_PLACE_DETAIL
 import io.github.taetae98coding.diary.feature.place.ui.Res

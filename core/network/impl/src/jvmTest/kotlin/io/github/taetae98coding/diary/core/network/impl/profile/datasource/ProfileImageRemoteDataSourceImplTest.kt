@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.profile.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.profile.profileImageRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.profile.entity.ProfileImageRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.profile.profileImageRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -22,7 +22,7 @@ import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteChannel
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.readBuffer
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
@@ -69,7 +69,7 @@ private suspend fun OutgoingContent.WriteChannelContent.writtenBytes(): ByteArra
     writeTo(channel)
     channel.flushAndClose()
 
-    return channel.readRemaining().readByteArray()
+    return channel.readBuffer().readByteArray()
 }
 
 private suspend fun httpResponse(

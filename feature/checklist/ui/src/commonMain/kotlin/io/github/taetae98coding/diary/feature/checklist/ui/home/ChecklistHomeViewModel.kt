@@ -10,10 +10,9 @@ import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUs
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.RestoreChecklistUseCase
 import io.github.taetae98coding.diary.domain.core.invoke
-import kotlinx.coroutines.channels.Channel
+import io.github.taetae98coding.diary.feature.core.list.ListItemDeleteActions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -21,41 +20,28 @@ import kotlin.uuid.Uuid
 @KoinViewModel
 internal class ChecklistHomeViewModel(
     pageChecklistUseCase: PageChecklistUseCase,
-    private val deleteChecklistUseCase: DeleteChecklistUseCase,
-    private val restoreChecklistUseCase: RestoreChecklistUseCase,
+    deleteChecklistUseCase: DeleteChecklistUseCase,
+    restoreChecklistUseCase: RestoreChecklistUseCase,
 ) : ViewModel() {
     val checklistPagingData: Flow<PagingData<ChecklistSummary>> =
         pageChecklistUseCase()
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
-    private val _effect = Channel<ChecklistListEffect>(Channel.BUFFERED)
-    val effect: Flow<ChecklistListEffect> = _effect.receiveAsFlow()
+    private val checklistActions =
+        ListItemDeleteActions<ChecklistListEffect>(
+            deleteUseCase = deleteChecklistUseCase,
+            restoreUseCase = restoreChecklistUseCase,
+            deletedEffect = ChecklistListEffect::Deleted,
+        )
 
-    private val inProgressIds = mutableSetOf<Uuid>()
+    val effect: Flow<ChecklistListEffect> = checklistActions.effect
 
     fun delete(id: Uuid) {
-        if (!inProgressIds.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                deleteChecklistUseCase(parameter = id)
-                    .onSuccess { _effect.send(ChecklistListEffect.Deleted(id = id)) }
-            } finally {
-                inProgressIds.remove(id)
-            }
-        }
+        viewModelScope.launch { checklistActions.delete(id = id) }
     }
 
     fun restore(id: Uuid) {
-        if (!inProgressIds.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                restoreChecklistUseCase(parameter = id)
-            } finally {
-                inProgressIds.remove(id)
-            }
-        }
+        viewModelScope.launch { checklistActions.restore(id = id) }
     }
 }

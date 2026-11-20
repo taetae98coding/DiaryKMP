@@ -217,6 +217,25 @@ class AddMemoUseCaseTest :
                     tagIdSetSlot.captured shouldBe setOf(primaryTagId)
                 }
 
+                Then("TC-b2ac485f-e2d1-44a0-8f3b-09b8e42d7f81 연결할 태그에 없는 대표 태그도 연결할 태그와 함께 연결된다") {
+                    val tagIdA = Arb.kotlinUuid().next()
+                    val tagIdB = Arb.kotlinUuid().next()
+
+                    val result =
+                        useCase(
+                            parameter =
+                                AddMemoUseCase.Parameter(
+                                    detail = titledDetail(),
+                                    primaryTagId = tagIdB,
+                                    tagIdSet = setOf(tagIdA),
+                                ),
+                        )
+
+                    result.shouldBeSuccess()
+                    memoSlot.captured.primaryTagId shouldBe tagIdB
+                    tagIdSetSlot.captured shouldBe setOf(tagIdA, tagIdB)
+                }
+
                 Then("TC-2ccf8ea0-9927-4e73-b8d1-a5f8c9122e46 태그를 선택하지 않아도 메모 추가가 성립한다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 

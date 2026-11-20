@@ -5,10 +5,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.icon.InfoIcon
-import io.github.taetae98coding.diary.compose.core.icon.QrIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.InfoIcon
+import io.github.taetae98coding.diary.compose.icon.QrIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState

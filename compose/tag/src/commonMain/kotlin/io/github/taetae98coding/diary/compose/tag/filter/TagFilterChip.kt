@@ -7,10 +7,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.chip.DiaryFilterChip
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.previewTag
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.library.compose.ui.color.contentColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor

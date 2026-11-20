@@ -5,6 +5,12 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.contact.contactDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.entitytag.entityTagLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
@@ -26,12 +32,6 @@ import io.github.taetae98coding.diary.core.database.impl.memocontact.datasource.
 import io.github.taetae98coding.diary.core.database.impl.memocontact.datasource.AccountMemoContactSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memofilter.datasource.MemoExistenceFilterLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
-import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
-import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
-import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
-import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly

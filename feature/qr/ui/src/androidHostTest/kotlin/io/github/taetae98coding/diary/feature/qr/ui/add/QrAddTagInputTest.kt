@@ -9,8 +9,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel

@@ -6,6 +6,7 @@ import kotlin.uuid.Uuid
 public data class DDay(
     val id: Uuid,
     val detail: DDayDetail,
+    val primaryTagId: Uuid?,
     val isDeleted: Boolean,
     val updatedAt: Instant,
     val createdAt: Instant,

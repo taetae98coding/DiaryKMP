@@ -16,17 +16,18 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.FilterList
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.nameListSortList
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
@@ -127,7 +128,7 @@ private fun ContactHomeTopBar(
         navigateUpContentDescription = stringResource(Res.string.contact_navigate_up_button_content_description),
         actions = {
             AppliedAction(
-                icon = DiaryTopBarIcon.FILTER,
+                icon = DiaryIcons.FilterList,
                 contentDescription = stringResource(Res.string.contact_home_filter_action_content_description),
                 isApplied = filterUiStateProvider().isApplied,
                 appliedStateDescription = stringResource(Res.string.contact_home_filter_applied_state_description),

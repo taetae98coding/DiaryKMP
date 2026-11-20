@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.routine.dao
 
 import androidx.paging.PagingSource
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutine
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutineRecord
+import io.github.taetae98coding.diary.core.data.testing.tag.localTag
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCycleLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
@@ -32,9 +35,6 @@ import io.github.taetae98coding.diary.core.database.impl.routinefilter.datasourc
 import io.github.taetae98coding.diary.core.database.impl.routinerecord.transaction.AccountRoutineRecordSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.routinerecord.transaction.AccountRoutineRecordTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
-import io.github.taetae98coding.diary.core.testing.routine.localRoutine
-import io.github.taetae98coding.diary.core.testing.routine.localRoutineRecord
-import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec

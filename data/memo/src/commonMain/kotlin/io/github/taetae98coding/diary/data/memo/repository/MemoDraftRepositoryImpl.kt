@@ -57,7 +57,7 @@ internal class MemoDraftRepositoryImpl(
 
     private fun String.toStructuredContent(): JsonObject =
         try {
-            json.parseToJsonElement(this) as? JsonObject
+            Json.parseToJsonElement(this) as? JsonObject
         } catch (_: IllegalArgumentException) {
             null
         } ?: throw GeminiException.InvalidContent(detail = "joined content is not a JSON object")
@@ -80,6 +80,5 @@ internal class MemoDraftRepositoryImpl(
 
     private companion object {
         private val IDLE_TIMEOUT: Duration = 2.minutes
-        private val json: Json = Json
     }
 }

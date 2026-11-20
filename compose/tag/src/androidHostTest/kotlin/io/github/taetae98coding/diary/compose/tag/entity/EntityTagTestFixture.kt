@@ -32,7 +32,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PAGING_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import kotlinx.coroutines.flow.Flow

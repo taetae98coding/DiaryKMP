@@ -27,10 +27,12 @@ public class AddDDayUseCase internal constructor(
         val detail = parameter.input.toDetail()
         val account = getAccountUseCase.requireAccount()
         val now = clock.now()
+        val tagIdSet = parameter.tagIdSet + setOfNotNull(parameter.primaryTagId)
         val dday =
             DDay(
                 id = Uuid.random(),
                 detail = detail,
+                primaryTagId = parameter.primaryTagId,
                 isDeleted = false,
                 updatedAt = now,
                 createdAt = now,
@@ -39,7 +41,7 @@ public class AddDDayUseCase internal constructor(
         accountDDayRepository.upsert(
             account = account,
             dday = dday,
-            tagIdSet = parameter.tagIdSet,
+            tagIdSet = tagIdSet,
         )
 
         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -50,5 +52,6 @@ public class AddDDayUseCase internal constructor(
     public data class Parameter(
         val input: DDayInput,
         val tagIdSet: Set<Uuid>,
+        val primaryTagId: Uuid? = null,
     )
 }

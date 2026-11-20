@@ -8,8 +8,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.search.ui.Res
 import io.github.taetae98coding.diary.feature.search.ui.search_home_tab_row_content_description
 import kotlinx.coroutines.launch

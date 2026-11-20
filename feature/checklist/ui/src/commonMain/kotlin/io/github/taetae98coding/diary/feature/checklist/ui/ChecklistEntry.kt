@@ -5,8 +5,10 @@ package io.github.taetae98coding.diary.feature.checklist.ui
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
@@ -44,7 +46,7 @@ private fun EntryProviderScope<ScreenNavKey>.checklistHomeEntry(backStack: NavBa
 
         ChecklistHomeScreen(
             navigateUp = backStack::navigateUpFromChecklistHome,
-            navigateToAdd = backStack::navigateToChecklistAddFromHome,
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToChecklistAddFromHome),
             navigateToDetail = { id -> backStack.navigateToChecklistDetail(id = id) },
             componentVisibleProvider = { ChecklistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isChecklistAddOnDetailPane()) },
             checklistViewModel = koinViewModel(),
@@ -64,8 +66,8 @@ internal fun checklistHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>
 
                 ChecklistAddScreen(
                     navigateUp = {},
-                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { ChecklistAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
                     addViewModel = koinViewModel(),
@@ -84,8 +86,8 @@ private fun EntryProviderScope<ScreenNavKey>.checklistAddEntry(backStack: NavBac
 
         ChecklistAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { ChecklistAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             addViewModel = koinViewModel(),
@@ -103,8 +105,8 @@ private fun EntryProviderScope<ScreenNavKey>.checklistDetailEntry(backStack: Nav
 
         ChecklistDetailScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { ChecklistDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             checklistViewModel = koinViewModel { parametersOf(key.id) },

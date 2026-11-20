@@ -17,17 +17,17 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.layout.DiaryInputColumn
 import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.toCoordinate
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInput
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInput
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCard
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceFillHeightCard
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInput
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInput
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 
@@ -38,7 +38,7 @@ internal fun MemoForm(
     state: MemoFormState = rememberMemoAddFormState(),
     placeMapState: DiaryMapState? = null,
     isStandalone: Boolean = true,
-    tagUiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
+    tagUiStateProvider: () -> PrimaryTagInputUiState = { PrimaryTagInputUiState() },
     webUiStateProvider: () -> MemoWebInputUiState = { MemoWebInputUiState() },
     contactUiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },
@@ -78,7 +78,7 @@ private fun SplitForm(
     state: MemoFormState,
     scrollState: ScrollState,
     placeMapState: DiaryMapState?,
-    tagUiStateProvider: () -> MemoTagInputUiState,
+    tagUiStateProvider: () -> PrimaryTagInputUiState,
     webUiStateProvider: () -> MemoWebInputUiState,
     contactUiStateProvider: () -> MemoContactInputUiState,
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,
@@ -122,7 +122,7 @@ private fun ColumnForm(
     state: MemoFormState,
     scrollState: ScrollState,
     placeMapState: DiaryMapState?,
-    tagUiStateProvider: () -> MemoTagInputUiState,
+    tagUiStateProvider: () -> PrimaryTagInputUiState,
     webUiStateProvider: () -> MemoWebInputUiState,
     contactUiStateProvider: () -> MemoContactInputUiState,
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,
@@ -152,7 +152,7 @@ private fun MemoInputColumn(
     onEvent: (MemoFormEvent) -> Unit,
     state: MemoFormState,
     scrollState: ScrollState,
-    tagUiStateProvider: () -> MemoTagInputUiState,
+    tagUiStateProvider: () -> PrimaryTagInputUiState,
     webUiStateProvider: () -> MemoWebInputUiState,
     contactUiStateProvider: () -> MemoContactInputUiState,
     modifier: Modifier = Modifier,
@@ -178,7 +178,7 @@ private fun MemoInputColumn(
             state = state.dateTimeState,
             modifier = Modifier.fillMaxWidth(),
         )
-        MemoTagInput(
+        PrimaryTagInput(
             uiStateProvider = tagUiStateProvider,
             onTagClick = { id -> onEvent(MemoFormEvent.ClickTag(id = id)) },
             onAddClick = { onEvent(MemoFormEvent.ClickTagAdd) },

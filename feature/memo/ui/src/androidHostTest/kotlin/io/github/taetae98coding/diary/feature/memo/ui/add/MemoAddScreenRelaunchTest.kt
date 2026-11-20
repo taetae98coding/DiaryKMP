@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.navigation3.runtime.result.ResultEventBus
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
@@ -21,10 +22,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePicke
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -69,7 +71,7 @@ class MemoAddScreenRelaunchTest {
 
     @Test
     fun `TC-1ecbb224-ea36-4be3-b4ec-ff2a1e2b8389 태그를 추가한 뒤 앱을 종료하고 새로 진입하면 추가한 태그가 자동 선택되지 않는다`() {
-        val addedTag = testTag(title = RELAUNCH_ADDED_TITLE)
+        val addedTag = Arb.tag(title = RELAUNCH_ADDED_TITLE, isFinished = false).next()
 
         assertAddedItemNotSelectedAfterRelaunch(selectLabel = DEFAULT_TAG_SELECT_LABEL) { isRelaunched ->
             screenTestRealViewModel(tagList = if (isRelaunched) listOf(addedTag) else emptyList())

@@ -48,7 +48,7 @@ import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase

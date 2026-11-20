@@ -23,8 +23,8 @@ import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.button.ClearButton
 import io.github.taetae98coding.diary.compose.core.clear_text_field_button_content_description
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

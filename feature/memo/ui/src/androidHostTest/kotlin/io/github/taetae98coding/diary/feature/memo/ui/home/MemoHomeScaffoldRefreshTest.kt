@@ -14,10 +14,10 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.memo.memo

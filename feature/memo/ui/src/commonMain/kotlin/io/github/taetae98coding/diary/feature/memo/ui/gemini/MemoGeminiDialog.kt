@@ -9,9 +9,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_gemini_cancel_action
 import io.github.taetae98coding.diary.feature.memo.ui.memo_gemini_close_action

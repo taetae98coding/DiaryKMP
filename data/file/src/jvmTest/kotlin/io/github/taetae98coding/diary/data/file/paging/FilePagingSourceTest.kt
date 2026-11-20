@@ -3,10 +3,10 @@ package io.github.taetae98coding.diary.data.file.paging
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
+import io.github.taetae98coding.diary.core.data.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
-import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -49,7 +49,7 @@ class FilePagingSourceTest :
                 val firstPage = List(count) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
-                coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = PAGE_SIZE) } returns emptyList()
+                coEvery { fileRemoteDataSource.readList(cursor = isNull(inverse = true), size = PAGE_SIZE) } returns emptyList()
                 val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
                 val refresh = pager.refresh().shouldBeInstanceOf<PagingSource.LoadResult.Page<FileCursorRemoteEntity, *>>()

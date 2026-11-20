@@ -33,9 +33,9 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.routine.Routine
 import io.github.taetae98coding.diary.core.model.routine.RoutineCycle
 import io.github.taetae98coding.diary.core.model.routine.RoutineDetail
@@ -303,11 +303,9 @@ internal class RoutineFinishedListTestEnvironment(
             every { effect } returns effectChannel.receiveAsFlow()
             every { finish() } answers {
                 change(id = id) { value -> value.copy(isFinished = true) }
-                Unit
             }
             every { restart() } answers {
                 change(id = id) { value -> value.copy(isFinished = false) }
-                Unit
             }
             every { delete() } answers {
                 change(id = id) { value -> value.copy(isDeleted = true) }

@@ -28,7 +28,7 @@ class HolidayRemoteDataSourceImplTest :
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = 2026)
+            val actual = dataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = 2026)
 
             actual shouldHaveSize 129
             actual.first() shouldBe
@@ -64,7 +64,7 @@ class HolidayRemoteDataSourceImplTest :
                 }
             val dataSource = createDataSource(engine)
 
-            dataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = 2026) shouldBe emptyList()
+            dataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = 2026) shouldBe emptyList()
         }
 
         test("TC-c7ebdd34-cba3-4362-8c4b-3e4b55960d5a 요청한 국가와 연도의 공휴일을 원격에 요청한다") {
@@ -78,7 +78,7 @@ class HolidayRemoteDataSourceImplTest :
                 val engine = createMockEngine()
                 val dataSource = createDataSource(engine)
 
-                dataSource.get(country = request.first, year = request.second)
+                dataSource.read(country = request.first, year = request.second)
 
                 engine.requestHistory
                     .single()

@@ -5,8 +5,10 @@ package io.github.taetae98coding.diary.feature.contact.ui
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
@@ -60,7 +62,7 @@ internal fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBac
 
         ContactHomeScreen(
             navigateUp = backStack::navigateUpFromContactHome,
-            navigateToAdd = backStack::navigateToContactAddFromHome,
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToContactAddFromHome),
             navigateToDetail = { id -> backStack.navigateToContactDetail(id) },
             componentVisibleProvider = { ContactHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isContactAddOnDetailPane()) },
             contactViewModel = koinViewModel(),
@@ -80,8 +82,8 @@ internal fun contactHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>):
 
                 ContactAddScreen(
                     navigateUp = {},
-                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     addedResultRequestKey = null,
                     initialDetail = ContactDetail.EMPTY,
@@ -102,8 +104,8 @@ internal fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBack
 
         ContactAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             addedResultRequestKey = key.requestKey,
             initialDetail = key.initialDetail(),
@@ -126,11 +128,11 @@ internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(
 
         ContactDetailScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
-            navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialContactId = key.id)) },
-            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
-            navigateToMemoFinishedList = { backStack.add(ContactMemoFinishedListNavKey(contactId = key.id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToMemoAdd = dropUnlessResumed { backStack.add(MemoAddNavKey(initialContactId = key.id)) },
+            navigateToMemoDetail = dropUnlessResumedWithArg { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            navigateToMemoFinishedList = dropUnlessResumed { backStack.add(ContactMemoFinishedListNavKey(contactId = key.id)) },
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { ContactDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },

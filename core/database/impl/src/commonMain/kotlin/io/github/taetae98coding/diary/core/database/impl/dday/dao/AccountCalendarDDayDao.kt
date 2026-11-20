@@ -153,11 +153,13 @@ internal interface AccountCalendarDDayDao {
             WHERE occurrence_date >= date(:start) AND occurrence_date <= date(:endInclusive)
             GROUP BY dday_id, occurrence_date
         )
-        SELECT dday.id AS dday_id, dday.title AS title, dday.color AS color,
+        SELECT dday.id AS dday_id, dday.title AS title, COALESCE(primary_tag.color, dday.color) AS color,
             merged.occurrence_date AS date, merged.kind AS kind, merged.amount AS amount
         FROM merged
         INNER JOIN dday
             ON dday.id = merged.dday_id
+        LEFT JOIN tag AS primary_tag
+            ON primary_tag.id = dday.primary_tag_id AND primary_tag.is_deleted = 0
         ORDER BY merged.occurrence_date ASC, dday.title ASC, dday.id ASC
         """,
     )

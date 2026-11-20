@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.core.testing.place.searchedPlace

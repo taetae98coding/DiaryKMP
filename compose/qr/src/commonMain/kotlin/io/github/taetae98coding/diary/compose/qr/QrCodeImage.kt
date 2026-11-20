@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.qrose.options.QrBrush
 import io.github.alexzhirkevich.qrose.options.solid
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 public fun QrCodeImage(

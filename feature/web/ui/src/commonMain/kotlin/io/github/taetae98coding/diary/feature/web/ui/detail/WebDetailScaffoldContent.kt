@@ -18,17 +18,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.web.previewWebPage
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.web.ui.Res
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.PreviewWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTabRow
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.webDetailStartTabList
-import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
@@ -42,7 +44,8 @@ private const val MEMO_CONTENT_STATE_KEY: String = "WebDetailMemoContent"
 @Composable
 internal fun WebDetailScaffoldContent(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
-    onFormEvent: (WebFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
+    webViewContent: WebViewContent,
     modifier: Modifier = Modifier,
     state: WebDetailScaffoldState = rememberWebDetailScaffoldState(),
     formState: WebFormState = rememberWebDetailFormState(),
@@ -67,6 +70,7 @@ internal fun WebDetailScaffoldContent(
         CompactContent(
             onEvent = onEvent,
             onFormEvent = onFormEvent,
+            webViewContent = webViewContent,
             modifier = modifier,
             state = state,
             formState = formState,
@@ -80,6 +84,7 @@ internal fun WebDetailScaffoldContent(
         WideContent(
             onEvent = onEvent,
             onFormEvent = onFormEvent,
+            webViewContent = webViewContent,
             modifier = modifier,
             state = state,
             formState = formState,
@@ -95,7 +100,8 @@ internal fun WebDetailScaffoldContent(
 @Composable
 private fun CompactContent(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
-    onFormEvent: (WebFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
+    webViewContent: WebViewContent,
     modifier: Modifier,
     state: WebDetailScaffoldState,
     formState: WebFormState,
@@ -135,6 +141,7 @@ private fun CompactContent(
                     WebDetailTab.PAGE ->
                         WebDetailPageArea(
                             onEvent = onEvent,
+                            webViewContent = webViewContent,
                             modifier = Modifier.fillMaxSize(),
                             state = state,
                             uiStateProvider = uiStateProvider,
@@ -162,7 +169,8 @@ private fun CompactContent(
 @Composable
 private fun WideContent(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
-    onFormEvent: (WebFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
+    webViewContent: WebViewContent,
     modifier: Modifier,
     state: WebDetailScaffoldState,
     formState: WebFormState,
@@ -204,6 +212,7 @@ private fun WideContent(
         }
         WebDetailPageArea(
             onEvent = onEvent,
+            webViewContent = webViewContent,
             modifier =
                 Modifier
                     .fillMaxHeight()
@@ -218,7 +227,7 @@ private fun WideContent(
 @Composable
 private fun StartTabArea(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
-    onFormEvent: (WebFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier,
     state: WebDetailScaffoldState,
     formState: WebFormState,
@@ -270,6 +279,7 @@ private fun WebDetailScaffoldContentPreview() {
             WebDetailScaffoldContent(
                 onEvent = {},
                 onFormEvent = {},
+                webViewContent = PreviewWebViewContent,
                 modifier = Modifier.fillMaxSize(),
                 formState = rememberWebDetailFormState(initialDetail = previewWebDetail()),
                 uiStateProvider = { WebDetailUiState.Content(id = Uuid.NIL, detail = previewWebDetail()) },

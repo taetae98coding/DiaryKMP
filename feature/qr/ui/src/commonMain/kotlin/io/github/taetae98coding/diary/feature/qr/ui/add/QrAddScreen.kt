@@ -11,12 +11,12 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEff
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
-import io.github.taetae98coding.diary.feature.qr.ui.add.form.handleQrFormEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.qr_camera_permission_denied_message
 import kotlinx.coroutines.launch
@@ -48,7 +48,7 @@ internal fun QrAddScreen(
     val showPermissionDenied: () -> Unit = { coroutineScope.launch { state.snackbarHostState.showImmediate(message = permissionDeniedMessage) } }
 
     DiaryTitleInputFocusEffect(state = state.titleState)
-    EntityTagAddedResultEffect(
+    TagAddedResultEffect(
         requestKey = tagAddRequestKey,
         onTagAdded = tagViewModel::add,
         resultEventBus = resultEventBus,
@@ -75,9 +75,9 @@ internal fun QrAddScreen(
             )
         },
         onFormEvent = { event ->
-            handleQrFormEvent(
+            handleEntityTagInputEvent(
                 event = event,
-                state = state,
+                tagPickerDialogState = state.tagPickerDialogState,
                 selectableTagPagingItems = selectableTagPagingItems,
                 navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,

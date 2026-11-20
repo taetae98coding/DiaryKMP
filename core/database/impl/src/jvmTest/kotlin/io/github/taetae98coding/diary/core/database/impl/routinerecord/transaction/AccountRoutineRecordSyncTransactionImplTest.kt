@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl.routinerecord.transaction
 
 import androidx.room3.withWriteTransaction
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutine
+import io.github.taetae98coding.diary.core.data.testing.routine.localRoutineRecord
 import io.github.taetae98coding.diary.core.database.api.routinerecord.entity.RoutineRecordLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -15,8 +17,6 @@ import io.github.taetae98coding.diary.core.database.impl.routinerecord.datasourc
 import io.github.taetae98coding.diary.core.database.impl.routinerecord.datasource.AccountRoutineRecordSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.routinerecord.entity.AccountRoutineRecordLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.routine.localRoutine
-import io.github.taetae98coding.diary.core.testing.routine.localRoutineRecord
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec

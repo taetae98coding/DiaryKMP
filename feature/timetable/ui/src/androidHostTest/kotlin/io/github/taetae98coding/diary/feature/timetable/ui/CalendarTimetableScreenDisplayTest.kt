@@ -37,7 +37,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarItemDefaults
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_ALL_DAY_TEST_TAG
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_NOW_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.timetable.rememberTimetableState
@@ -664,7 +664,7 @@ class CalendarTimetableScreenDisplayTest {
         const val BIRTHDAY_TEXT = "🎂 홍길동"
         const val FIRST_DDAY_TITLE = "가"
         const val SECOND_DDAY_TITLE = "나"
-        const val FIRST_DDAY_TEXT = "🎉 가 D-Day"
-        const val SECOND_DDAY_TEXT = "🎉 나 D-Day"
+        const val FIRST_DDAY_TEXT = "가 D-Day"
+        const val SECOND_DDAY_TEXT = "나 D-Day"
     }
 }

@@ -5,10 +5,10 @@ import androidx.compose.material3.Tab
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.icon.ContactIcon
-import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.ContactIcon
+import io.github.taetae98coding.diary.compose.icon.MemoIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_tab_detail_content_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_tab_memo_content_description

@@ -11,11 +11,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
@@ -93,6 +94,7 @@ class PlaceHomePlaceListTest {
             DiaryTheme {
                 PlaceList(
                     onEvent = {},
+                    onPlaceListEvent = {},
                     placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = listOf(place)) },
                 )
             }
@@ -106,12 +108,13 @@ class PlaceHomePlaceListTest {
     fun `TC-5ac56bc9-b05f-4dff-950c-d9b6eacba51d 지도 모드의 장소 목록에서 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
         val deletedPlace = viewModeTestPlace()
         val otherPlace = viewModeTestPlace()
-        val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
+        val eventList = mutableListOf<Any>()
 
         composeRule.setContent {
             DiaryTheme {
                 PlaceList(
                     onEvent = eventList::add,
+                    onPlaceListEvent = eventList::add,
                     placeListUiStateProvider = {
                         PlaceHomePlaceListUiState(
                             isLoaded = true,
@@ -126,7 +129,7 @@ class PlaceHomePlaceListTest {
         composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(deletedPlace.detail.title)).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList.withoutMoveMap() shouldBe listOf(PlaceHomeScaffoldEvent.DeletePlace(id = deletedPlace.id))
+        eventList.withoutMoveMap() shouldBe listOf(PlaceListEvent.SwipeDelete(id = deletedPlace.id))
     }
 
     private fun setPlaceList(
@@ -139,6 +142,7 @@ class PlaceHomePlaceListTest {
             DiaryTheme {
                 PlaceList(
                     onEvent = onEvent,
+                    onPlaceListEvent = {},
                     mapState = mapState,
                     placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = placeList) },
                 )

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.scheduler
 
-import io.github.taetae98coding.diary.work.sync.scheduler.PeriodicSyncWorkScheduler
+import io.github.taetae98coding.diary.work.sync.di.PeriodicSyncDispatcher
+import io.github.taetae98coding.diary.work.sync.di.SyncScope
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -8,13 +9,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.koin.core.annotation.Single
 import platform.BackgroundTasks.BGTask
 import kotlin.time.Duration
 
+@Single
 internal class BackgroundTaskPeriodicSyncWorkScheduler(
     private val syncWork: SyncWork,
-    private val scope: CoroutineScope,
-    private val dispatcher: CoroutineDispatcher,
+    @param:SyncScope private val scope: CoroutineScope,
+    @param:PeriodicSyncDispatcher private val dispatcher: CoroutineDispatcher,
 ) : PeriodicSyncWorkScheduler {
     // 제출과 취소는 시스템 예약 관리자의 응답을 기다리므로 메인 스레드 밖에서 한다. 한 줄로 실행되는 dispatcher와 잠금으로 요청한 순서를 지켜,
     // 예약 직후 취소해도 취소 뒤에 제출되지 않게 한다.

@@ -3,13 +3,13 @@ package io.github.taetae98coding.diary.core.database.impl.contact.datasource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.contact.contactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
-import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant

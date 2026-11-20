@@ -31,12 +31,13 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
@@ -46,7 +47,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilter
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -215,7 +215,7 @@ class MemoHomeFilterOpenBoundaryTest {
         const val DATE_LABEL = "Date"
         const val EXIST_LABEL = "With"
 
-        fun filterTag(): Tag = testTag(title = "filter-tag-${Arb.string().next()}")
+        fun filterTag(): Tag = Arb.tag(title = "filter-tag-${Arb.string().next()}", isFinished = false).next()
 
         fun storedExistence(): MemoExistenceFilter = MemoExistenceFilter(date = MemoFilterExistence.EXIST)
 

@@ -9,11 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingUploadButton
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.file.ui.Res
 import io.github.taetae98coding.diary.feature.file.ui.file_add_title
 import io.github.taetae98coding.diary.feature.file.ui.file_add_upload_button_content_description

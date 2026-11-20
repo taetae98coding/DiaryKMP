@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.compose.calendar.august
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
 import io.github.taetae98coding.diary.compose.calendar.july
 import io.github.taetae98coding.diary.compose.calendar.textItem
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth

@@ -65,7 +65,7 @@ struct SetMemoPrimaryTagIntent: AppIntent {
         _ = try await MemoEntityQuery.require(memoId: memo.id)
         _ = try await TagEntityQuery.require(tagId: tag.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.primaryTagSet(memoId: memo.id, tagId: tag.id) }
-        return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Set the primary tag.", table: "AppIntentMemoLink")))
+        return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Set the primary tag.", table: "AppIntentCore")))
     }
 }
 
@@ -83,7 +83,7 @@ struct ClearMemoPrimaryTagIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> & ProvidesDialog {
         _ = try await MemoEntityQuery.require(memoId: memo.id)
         let done = try await appAction { try await DiaryMemoLinkAppAction.shared.primaryTagUnset(memoId: memo.id) }
-        return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Cleared the primary tag.", table: "AppIntentMemoLink")))
+        return .result(value: done, dialog: IntentDialog(LocalizedStringResource("Cleared the primary tag.", table: "AppIntentCore")))
     }
 }
 

@@ -183,7 +183,6 @@ class UpdateQrUseCaseTest :
             return UpdateQrUseCase(
                 getAccountUseCase = getAccountUseCase,
                 requestSyncUseCase = requestSyncUseCase,
-                findQrUseCase = FindQrUseCase(getAccountUseCase = getAccountUseCase, accountQrRepository = accountQrRepository),
                 accountQrRepository = accountQrRepository,
                 clock = clock,
             )

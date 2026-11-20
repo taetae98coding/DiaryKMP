@@ -4,11 +4,11 @@
 
 칩 영역과 추가 칩, 태그 선택 목록과 그 안의 검색·태그 추가 버튼·빈 상태·준비 상태 표현은 [태그 선택 입력 공통 디자인](./tag-select-input.md)을 따른다. 이 문서는 이 입력에서만 다른 칩 구성과 문구를 소유한다.
 
-이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡, QR, 디데이 또는 루틴 하나를 가리킨다. 열여섯 화면에서 같은 표현과 조작을 사용하며, 화면마다 다른 자리와 표시 조건은 [WebAdd 화면 디자인](./web-add.md), [WebDetail 화면 디자인](./web-detail.md), [PlaceAdd 화면 디자인](./place-add.md), [PlaceDetail 화면 디자인](./place-detail.md), [ContactAdd 화면 디자인](./contact-add.md), [ContactDetail 화면 디자인](./contact-detail.md), [ChecklistAdd 화면 디자인](./checklist-add.md), [ChecklistDetail 화면 디자인](./checklist-detail.md), [MusicAdd 화면 디자인](./music-add.md), [MusicDetail 화면 디자인](./music-detail.md), [QrAdd 화면 디자인](./qr-add.md), [QrDetail 화면 디자인](./qr-detail.md), [DDayAdd 화면 디자인](./dday-add.md), [DDayDetail 화면 디자인](./dday-detail.md), [RoutineAdd 화면 디자인](./routine-add.md), [RoutineDetail 화면 디자인](./routine-detail.md)이 소유한다.
+이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡, QR 또는 루틴 하나를 가리킨다. 열네 화면에서 같은 표현과 조작을 사용하며, 화면마다 다른 자리와 표시 조건은 [WebAdd 화면 디자인](./web-add.md), [WebDetail 화면 디자인](./web-detail.md), [PlaceAdd 화면 디자인](./place-add.md), [PlaceDetail 화면 디자인](./place-detail.md), [ContactAdd 화면 디자인](./contact-add.md), [ContactDetail 화면 디자인](./contact-detail.md), [ChecklistAdd 화면 디자인](./checklist-add.md), [ChecklistDetail 화면 디자인](./checklist-detail.md), [MusicAdd 화면 디자인](./music-add.md), [MusicDetail 화면 디자인](./music-detail.md), [QrAdd 화면 디자인](./qr-add.md), [QrDetail 화면 디자인](./qr-detail.md), [RoutineAdd 화면 디자인](./routine-add.md), [RoutineDetail 화면 디자인](./routine-detail.md)이 소유한다.
 
 ## 태그 칩
 
-대상 항목은 대표 태그를 갖지 않으므로 칩에 대표 태그를 나타내는 표시나 대표 태그 지정 버튼을 두지 않는다. [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)의 칩과 이 점만 다르다.
+대상 항목은 대표 태그를 갖지 않으므로 칩에 대표 태그를 나타내는 표시나 대표 태그 지정 버튼을 두지 않는다. [대표 태그 입력 컴포넌트 디자인](./primary-tag-input.md)의 칩과 이 점만 다르다.
 
 ## 태그 추가 칩
 
@@ -28,4 +28,4 @@
 | 태그 선택 동작 접근성 이름 | `태그 선택` | `Select tag` |
 | 태그 선택 목록 제목 | `태그 선택` | `Select Tag` |
 
-칩 라벨과 목록 제목은 [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)과 같은 문구를 쓴다. 두 입력 모두 항목에 태그를 고르는 입력이므로, 사용자가 화면을 옮겨도 같은 이름의 동작으로 읽히게 한다. 태그와 태그를 잇는 [태그 연결 입력](./tag-link-input.md)만 `태그 연결`이라는 다른 문구를 쓴다.
+칩 라벨과 목록 제목은 [대표 태그 입력 컴포넌트 디자인](./primary-tag-input.md)과 같은 문구를 쓴다. 두 입력 모두 항목에 태그를 고르는 입력이므로, 사용자가 화면을 옮겨도 같은 이름의 동작으로 읽히게 한다. 태그와 태그를 잇는 [태그 연결 입력](./tag-link-input.md)만 `태그 연결`이라는 다른 문구를 쓴다.

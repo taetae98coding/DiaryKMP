@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase

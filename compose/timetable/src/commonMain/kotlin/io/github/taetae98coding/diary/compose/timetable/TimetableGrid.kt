@@ -29,9 +29,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.format.NOON_HOUR
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.LocalDateTime

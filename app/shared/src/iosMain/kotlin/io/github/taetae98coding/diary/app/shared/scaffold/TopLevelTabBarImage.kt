@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.compose.core.graphics.rememberTemplateUIImage
-import io.github.taetae98coding.diary.compose.core.icon.Article
-import io.github.taetae98coding.diary.compose.core.icon.DiaryIcons
-import io.github.taetae98coding.diary.compose.core.icon.MoreHoriz
-import io.github.taetae98coding.diary.compose.core.icon.Repeat
-import io.github.taetae98coding.diary.compose.core.icon.Tag
-import io.github.taetae98coding.diary.compose.core.icon.Today
+import io.github.taetae98coding.diary.compose.icon.Article
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.MoreHoriz
+import io.github.taetae98coding.diary.compose.icon.Repeat
+import io.github.taetae98coding.diary.compose.icon.Tag
+import io.github.taetae98coding.diary.compose.icon.Today
 import platform.UIKit.UIImage
 
 @Composable

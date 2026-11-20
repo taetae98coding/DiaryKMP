@@ -10,5 +10,5 @@ import kotlin.uuid.Uuid
 internal class SyncPendingLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : SyncPendingLocalDataSource {
-    override fun hasPending(accountId: Uuid): Flow<Boolean> = database.syncPendingDao().hasPending(accountId = accountId)
+    override fun getPendingExists(accountId: Uuid): Flow<Boolean> = database.syncPendingDao().hasPending(accountId = accountId)
 }

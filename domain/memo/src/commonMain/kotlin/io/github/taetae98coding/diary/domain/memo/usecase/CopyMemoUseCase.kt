@@ -19,7 +19,6 @@ import kotlin.uuid.Uuid
 @Factory
 public class CopyMemoUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
-    private val findMemoUseCase: FindMemoUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
     private val accountMemoRepository: AccountMemoRepository,
     private val accountMemoTagRepository: AccountMemoTagRepository,
@@ -30,7 +29,7 @@ public class CopyMemoUseCase internal constructor(
 ) : UseCase<Uuid, Uuid>() {
     override suspend fun execute(parameter: Uuid): Uuid {
         val account = getAccountUseCase.requireAccount()
-        val source = requireNotNull(findMemoUseCase(parameter).first().getOrThrow())
+        val source = requireNotNull(accountMemoRepository.find(account = account, memoId = parameter).first())
         val now = clock.now()
         val tagIdSet =
             accountMemoTagRepository.readTagIdSet(

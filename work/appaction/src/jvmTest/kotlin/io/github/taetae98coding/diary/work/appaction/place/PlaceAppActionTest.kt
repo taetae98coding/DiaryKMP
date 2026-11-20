@@ -19,7 +19,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.UpdatePlaceUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -62,34 +62,34 @@ class PlaceAppActionTest :
         test("목록은 정렬을 담지 않으면 제목순으로, 담으면 그 정렬로 조회해 MCP와 같은 항목을 돌려준다") {
             runTest {
                 val placeList = Arb.list(Arb.place(), 1..3).next()
-                val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-                every { pagePlaceHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(placeList)))
-                val action = placeAppActionOf(pagePlaceHomeUseCase)
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(placeList)))
+                val action = placeAppActionOf(pagePlaceUseCase)
 
                 action.list(sort = null, cursor = null) shouldBe AppActionPage(items = placeList.map { place -> place.expected() }, nextCursor = null)
                 action.list(sort = "recently_updated", cursor = null).items shouldBe placeList.map { place -> place.expected() }
 
-                verify(exactly = 1) { pagePlaceHomeUseCase(parameter = ListSort.TITLE) }
-                verify(exactly = 1) { pagePlaceHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) }
+                verify(exactly = 1) { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.TITLE)) }
+                verify(exactly = 1) { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.RECENTLY_UPDATED)) }
             }
         }
 
         test("목록이 제공하지 않는 정렬은 고를 수 있는 정렬을 알리며 실패한다") {
             runTest {
-                val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-                val action = placeAppActionOf(pagePlaceHomeUseCase)
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                val action = placeAppActionOf(pagePlaceUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.list(sort = "default", cursor = null) }.message shouldBe "'sort' must be one of title, recently_updated."
-                verify(exactly = 0) { pagePlaceHomeUseCase(parameter = any()) }
+                verify(exactly = 0) { pagePlaceUseCase(parameter = any()) }
             }
         }
 
         test("목록은 100개씩 나눠 다음 페이지 위치를 알린다") {
             runTest {
                 val placeList = Arb.list(Arb.place(), 101..150).next()
-                val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-                every { pagePlaceHomeUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(placeList))) }
-                val action = placeAppActionOf(pagePlaceHomeUseCase)
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(placeList))) }
+                val action = placeAppActionOf(pagePlaceUseCase)
 
                 val firstPage = action.list(sort = null, cursor = null)
                 val secondPage = action.list(sort = null, cursor = firstPage.nextCursor)
@@ -107,9 +107,9 @@ class PlaceAppActionTest :
                         .next()
                         .copy(isDeleted = false)
                         .let { place -> place.copy(detail = place.detail.copy(coordinate = Coordinate(latitude = Double.NaN, longitude = Double.NaN))) }
-                val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-                every { pagePlaceHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(place))))
-                val action = placeAppActionOf(pagePlaceHomeUseCase)
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(place))))
+                val action = placeAppActionOf(pagePlaceUseCase)
 
                 val item = action.list(sort = null, cursor = null).items.single()
 

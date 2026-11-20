@@ -14,9 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 import io.github.taetae98coding.diary.feature.setting.ui.Res
@@ -29,6 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 
 private const val HOLIDAY_ITEM_KEY_PREFIX = "holiday:"
 private const val HEADER_ITEM_KEY = "header"
+private const val HOLIDAY_ITEM_CONTENT_TYPE = "holiday"
 
 @Composable
 internal fun HolidaySettingList(
@@ -53,7 +54,7 @@ internal fun HolidaySettingList(
         verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
     ) {
         if (countrySetting != null) {
-            item(key = HEADER_ITEM_KEY) {
+            item(key = HEADER_ITEM_KEY, contentType = HEADER_ITEM_KEY) {
                 HolidaySettingListHeader(
                     countrySetting = countrySetting,
                     onEvent = onEvent,
@@ -65,6 +66,7 @@ internal fun HolidaySettingList(
         items(
             items = holidaySettingList,
             key = { holidaySetting -> "$HOLIDAY_ITEM_KEY_PREFIX${holidaySetting.name}" },
+            contentType = { HOLIDAY_ITEM_CONTENT_TYPE },
         ) { holidaySetting ->
             SettingHolidayItemRow(
                 holidaySetting = holidaySetting,

@@ -34,12 +34,12 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_COLOR_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
@@ -48,6 +48,7 @@ import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldState
 import io.github.taetae98coding.diary.feature.web.ui.detail.allDayMemoDateTime
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
@@ -303,6 +304,7 @@ class WebDetailMemoTabTest {
                     WebDetailScaffoldContent(
                         onEvent = {},
                         onFormEvent = {},
+                        webViewContent = AndroidWebViewContent(),
                         modifier = Modifier.fillMaxSize(),
                         state = scaffoldState,
                         memoContent = {

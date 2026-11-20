@@ -9,7 +9,7 @@ private const val HEX_RADIX = 16
 private const val RGB_MASK = 0xFFFFFF
 private const val ALPHA_MASK = 0xFF000000.toInt()
 
-internal fun Long.toColorHex(): String {
+public fun Long.toColorHex(): String {
     val rgb = toInt() and RGB_MASK
 
     return "#" + rgb.toString(radix = HEX_RADIX).padStart(length = HEX_LENGTH, padChar = '0').uppercase()

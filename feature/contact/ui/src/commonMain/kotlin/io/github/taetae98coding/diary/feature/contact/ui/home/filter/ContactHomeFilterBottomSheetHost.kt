@@ -9,8 +9,8 @@ import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeFilterUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScaffoldEvent
 

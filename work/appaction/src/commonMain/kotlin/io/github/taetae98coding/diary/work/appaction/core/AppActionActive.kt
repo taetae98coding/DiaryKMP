@@ -3,12 +3,12 @@ package io.github.taetae98coding.diary.work.appaction.core
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import kotlin.uuid.Uuid
 
-internal suspend fun <T : Any> FlowUseCase<Uuid, T?>.readActive(
+public suspend fun <T : Any> FlowUseCase<Uuid, T?>.readActive(
     id: Uuid,
     isDeleted: (T) -> Boolean,
 ): T? = readFirst(parameter = id)?.takeUnless(isDeleted)
 
-internal suspend fun <T : Any> FlowUseCase<Uuid, T?>.isActive(
+public suspend fun <T : Any> FlowUseCase<Uuid, T?>.isActive(
     id: Uuid,
     isDeleted: (T) -> Boolean,
 ): Boolean = readActive(id = id, isDeleted = isDeleted) != null

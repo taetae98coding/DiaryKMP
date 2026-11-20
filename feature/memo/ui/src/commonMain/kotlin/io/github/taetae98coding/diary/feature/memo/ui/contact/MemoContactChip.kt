@@ -8,8 +8,8 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import io.github.taetae98coding.diary.compose.contact.displayName
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_contact_detail_action

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.search.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -21,12 +22,12 @@ private fun EntryProviderScope<ScreenNavKey>.searchHomeEntry(backStack: NavBackS
     entry<SearchHomeNavKey> { key ->
         SearchHomeScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
-            navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
-            navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
-            navigateToRoutineDetail = { id -> backStack.add(RoutineDetailNavKey(id = id, isStandalone = true)) },
+            navigateToMemoDetail = dropUnlessResumedWithArg { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToPlaceDetail = dropUnlessResumedWithArg { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToWebDetail = dropUnlessResumedWithArg { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToDDayDetail = dropUnlessResumedWithArg { id -> backStack.add(DDayDetailNavKey(id = id)) },
+            navigateToRoutineDetail = dropUnlessResumedWithArg { id -> backStack.add(RoutineDetailNavKey(id = id, isStandalone = true)) },
             initialType = key.initialType,
             memoViewModel = koinViewModel(),
             tagViewModel = koinViewModel(),

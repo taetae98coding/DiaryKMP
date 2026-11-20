@@ -8,11 +8,12 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryColorInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.layout.DiaryInputColumn
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PlaceCoordinateInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.place.ui.PlaceAddressInput
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.place_latitude_input_label
@@ -21,7 +22,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun PlaceFormInputArea(
-    onEvent: (PlaceFormEvent) -> Unit,
+    onEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: PlaceFormState = rememberPlaceAddFormState(),
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
@@ -54,8 +55,8 @@ internal fun PlaceFormInputArea(
             modifier = Modifier.fillMaxWidth(),
         )
         EntityTagInput(
-            onTagClick = { id -> onEvent(PlaceFormEvent.ClickTag(id = id)) },
-            onAddClick = { onEvent(PlaceFormEvent.ClickTagAdd) },
+            onTagClick = { id -> onEvent(EntityTagInputEvent.ClickTag(id = id)) },
+            onAddClick = { onEvent(EntityTagInputEvent.ClickAdd) },
             modifier = Modifier.fillMaxWidth(),
             uiStateProvider = tagUiStateProvider,
         )

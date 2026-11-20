@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.routine.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.routine.RoutineDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
@@ -18,14 +19,13 @@ import kotlin.uuid.Uuid
 public class UpdateRoutineUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findRoutineUseCase: FindRoutineUseCase,
     private val accountRoutineRepository: AccountRoutineRepository,
     private val clock: Clock,
 ) : UseCase<UpdateRoutineUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
         val inputDetail = parameter.input.toDetail()
         val account = getAccountUseCase.requireAccount()
-        val detail = inputDetail.withStoredTitleForBlank(id = parameter.id)
+        val detail = inputDetail.withStoredTitleForBlank(account = account, id = parameter.id)
 
         val updatedCount =
             accountRoutineRepository.updateDetail(
@@ -40,13 +40,16 @@ public class UpdateRoutineUseCase internal constructor(
         return updatedCount
     }
 
-    private suspend fun RoutineDetail.withStoredTitleForBlank(id: Uuid): RoutineDetail {
+    private suspend fun RoutineDetail.withStoredTitleForBlank(
+        account: Account,
+        id: Uuid,
+    ): RoutineDetail {
         if (title.isNotBlank()) return this
 
         val stored =
-            findRoutineUseCase(parameter = id)
+            accountRoutineRepository
+                .find(account = account, routineId = id)
                 .first()
-                .getOrThrow()
                 ?.detail
 
         return copy(title = stored?.title.orEmpty())

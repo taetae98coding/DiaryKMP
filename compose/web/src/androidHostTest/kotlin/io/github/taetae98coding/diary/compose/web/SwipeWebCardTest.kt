@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.testing.web.web

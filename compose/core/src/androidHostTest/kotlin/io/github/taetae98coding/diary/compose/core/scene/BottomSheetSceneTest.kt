@@ -10,7 +10,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation3.runtime.NavEntry
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next

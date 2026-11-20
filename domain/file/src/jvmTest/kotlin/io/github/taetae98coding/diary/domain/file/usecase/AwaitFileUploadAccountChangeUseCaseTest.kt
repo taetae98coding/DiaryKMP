@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.domain.file.usecase
 
 import io.github.taetae98coding.diary.core.model.account.Account
@@ -12,6 +14,7 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runCurrent

@@ -20,19 +20,19 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.PlaylistIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.PlaylistIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.music.MusicListEvent
 import io.github.taetae98coding.diary.compose.music.SwipeMusicCard
 import io.github.taetae98coding.diary.compose.music.previewMusic
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.tag.TagScope
@@ -45,6 +45,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TagDetailMusicTab(
     onEvent: (TagDetailMusicContentEvent) -> Unit,
+    onMusicListEvent: (MusicListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -81,6 +82,7 @@ internal fun TagDetailMusicTab(
             } else {
                 MusicGrid(
                     onEvent = onEvent,
+                    onMusicListEvent = onMusicListEvent,
                     gridState = gridState,
                     musicPagingItems = musicPagingItems,
                     isRefreshingProvider = isRefreshingProvider,
@@ -99,6 +101,7 @@ internal fun TagDetailMusicTab(
 @Composable
 private fun MusicGrid(
     onEvent: (TagDetailMusicContentEvent) -> Unit,
+    onMusicListEvent: (MusicListEvent) -> Unit,
     gridState: LazyStaggeredGridState,
     musicPagingItems: LazyPagingItems<Music>,
     modifier: Modifier = Modifier,
@@ -117,12 +120,7 @@ private fun MusicGrid(
             val music = musicPagingItems[index]
 
             SwipeMusicCard(
-                onEvent = { event ->
-                    when (event) {
-                        is MusicListEvent.ClickMusic -> onEvent(TagDetailMusicContentEvent.ClickMusic(id = event.id))
-                        is MusicListEvent.SwipeDelete -> onEvent(TagDetailMusicContentEvent.DeleteMusic(id = event.id))
-                    }
-                },
+                onEvent = onMusicListEvent,
                 modifier =
                     Modifier
                         .animateItem()
@@ -161,6 +159,7 @@ private fun TagDetailMusicTabPreview() {
         Surface {
             TagDetailMusicTab(
                 onEvent = {},
+                onMusicListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 musicPagingItems = pagingData.collectAsLazyPagingItems(),
             )

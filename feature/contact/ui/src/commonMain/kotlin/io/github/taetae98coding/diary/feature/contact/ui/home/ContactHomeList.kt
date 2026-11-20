@@ -20,9 +20,9 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem

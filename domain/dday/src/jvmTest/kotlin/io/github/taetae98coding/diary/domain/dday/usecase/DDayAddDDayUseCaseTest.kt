@@ -146,6 +146,56 @@ class DDayAddDDayUseCaseTest :
             }
         }
 
+        Given("계정과 연결된 태그 A와 태그 B를 골랐다") {
+            val tagIdA = Arb.kotlinUuid().next()
+            val tagIdB = Arb.kotlinUuid().next()
+
+            listOf(
+                "대표 태그 없이" to null,
+                "태그 B를 대표 태그로 지정해" to tagIdB,
+            ).forEach { (label, primaryTagId) ->
+                When("$label 디데이 추가를 요청한다") {
+                    val context = AddContext()
+                    val input = Arb.ddayAddInput().next()
+                    context.useCase(parameter = AddDDayUseCase.Parameter(input = input, tagIdSet = setOf(tagIdA, tagIdB), primaryTagId = primaryTagId)).shouldBeSuccess()
+
+                    Then("TC-e8570342-162f-4791-b437-8ef957a25cda 고른 대표 태그와 태그 A, B의 연결로 저장한다") {
+                        context.savedList.single().primaryTagId shouldBe primaryTagId
+                        coVerify(exactly = 1) { context.repository.upsert(account = any(), dday = any(), tagIdSet = setOf(tagIdA, tagIdB)) }
+                    }
+                }
+            }
+        }
+
+        Given("계정과 연결된 태그 하나를 대표 태그로만 지정했다") {
+            val primaryTagId = Arb.kotlinUuid().next()
+
+            When("디데이 추가를 요청한다") {
+                val context = AddContext()
+                context.useCase(parameter = AddDDayUseCase.Parameter(input = Arb.ddayAddInput().next(), tagIdSet = emptySet(), primaryTagId = primaryTagId)).shouldBeSuccess()
+
+                Then("TC-525ed233-0faa-4cef-967d-5d3f8d42fc4e 대표 태그가 그 태그이고 연결할 태그에도 포함해 저장한다") {
+                    context.savedList.single().primaryTagId shouldBe primaryTagId
+                    coVerify(exactly = 1) { context.repository.upsert(account = any(), dday = any(), tagIdSet = setOf(primaryTagId)) }
+                }
+            }
+        }
+
+        Given("계정과 연결된 태그 A를 연결할 태그로, 태그 B를 대표 태그로 담았다") {
+            val tagIdA = Arb.kotlinUuid().next()
+            val tagIdB = Arb.kotlinUuid().next()
+
+            When("디데이 추가를 요청한다") {
+                val context = AddContext()
+                context.useCase(parameter = AddDDayUseCase.Parameter(input = Arb.ddayAddInput().next(), tagIdSet = setOf(tagIdA), primaryTagId = tagIdB)).shouldBeSuccess()
+
+                Then("TC-33874bb1-7149-4b77-8007-7ccc88f468b8 대표 태그가 태그 B이고 태그 A와 B를 모두 연결해 저장한다") {
+                    context.savedList.single().primaryTagId shouldBe tagIdB
+                    coVerify(exactly = 1) { context.repository.upsert(account = any(), dday = any(), tagIdSet = setOf(tagIdA, tagIdB)) }
+                }
+            }
+        }
+
         Given("현재 계정 조회가 실패한다") {
             val throwable = IllegalStateException(Arb.string().next())
             val context = AddContext(accountResult = Result.failure(throwable))

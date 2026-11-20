@@ -13,17 +13,16 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageTagWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListItemDeleteActions
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
@@ -33,8 +32,8 @@ import kotlin.uuid.Uuid
 internal class TagDetailWebViewModel(
     @InjectedParam tagId: Uuid,
     pageTagWebUseCase: PageTagWebUseCase,
-    private val deleteWebUseCase: DeleteWebUseCase,
-    private val restoreWebUseCase: RestoreWebUseCase,
+    deleteWebUseCase: DeleteWebUseCase,
+    restoreWebUseCase: RestoreWebUseCase,
 ) : ViewModel() {
     val sortUiState: StateFlow<ListSortUiState>
         field = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
@@ -49,11 +48,14 @@ internal class TagDetailWebViewModel(
                     .map { result -> result.getOrElse { PagingData.empty() } }
             }.cachedIn(viewModelScope)
 
-    private val _effect = Channel<WebListEffect>(Channel.BUFFERED)
-    val effect: Flow<WebListEffect> = _effect.receiveAsFlow()
+    private val webActions =
+        ListItemDeleteActions<WebListEffect>(
+            deleteUseCase = deleteWebUseCase,
+            restoreUseCase = restoreWebUseCase,
+            deletedEffect = WebListEffect::Deleted,
+        )
 
-    private val inProgressDeleteIdSet = mutableSetOf<Uuid>()
-    private val inProgressRestoreIdSet = mutableSetOf<Uuid>()
+    val effect: Flow<WebListEffect> = webActions.effect
 
     fun select(sort: ListSort) {
         sortUiState.value = ListSortUiState(sort = sort)
@@ -64,27 +66,10 @@ internal class TagDetailWebViewModel(
     }
 
     fun delete(id: Uuid) {
-        if (!inProgressDeleteIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                deleteWebUseCase(parameter = id)
-                    .onSuccess { _effect.send(WebListEffect.Deleted(id = id)) }
-            } finally {
-                inProgressDeleteIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { webActions.delete(id = id) }
     }
 
     fun restore(id: Uuid) {
-        if (!inProgressRestoreIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                restoreWebUseCase(parameter = id)
-            } finally {
-                inProgressRestoreIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { webActions.restore(id = id) }
     }
 }

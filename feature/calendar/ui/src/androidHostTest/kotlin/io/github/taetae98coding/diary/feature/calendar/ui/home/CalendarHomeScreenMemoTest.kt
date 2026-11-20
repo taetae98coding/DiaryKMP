@@ -13,14 +13,12 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
-import io.github.taetae98coding.diary.domain.core.invoke
-import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
@@ -96,11 +94,8 @@ class CalendarHomeScreenMemoTest {
         val errorMessage = Arb.nonBlankString().next()
         every { getCalendarMemoUseCase(parameter = any()) } returns
             flowOf(Result.failure(IllegalStateException(errorMessage)))
-        val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-        every { getCalendarFilterUseCase() } returns flowOf(Result.success(emptyList()))
         val memoViewModel =
             CalendarHomeMemoViewModel(
-                getCalendarFilterUseCase = getCalendarFilterUseCase,
                 getCalendarMemoUseCase = getCalendarMemoUseCase,
                 moveMemoUseCase = mockk(),
             )
@@ -262,7 +257,6 @@ class CalendarHomeScreenMemoTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarHomeMemoUiState(memoList = memoList) }
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 
         setCalendarHomeScreen(
@@ -302,6 +296,7 @@ class CalendarHomeScreenMemoTest {
                     state = state,
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),

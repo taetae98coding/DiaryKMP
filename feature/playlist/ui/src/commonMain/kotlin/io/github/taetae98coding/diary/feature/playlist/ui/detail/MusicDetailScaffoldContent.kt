@@ -7,18 +7,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicForm
-import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormEvent
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicDetailFormState
 
 @Composable
 internal fun MusicDetailScaffoldContent(
     onFetchLinkClick: () -> Unit,
-    onFormEvent: (MusicFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: MusicFormState = rememberMusicDetailFormState(),
     uiStateProvider: () -> MusicDetailUiState = { MusicDetailUiState.Loading },

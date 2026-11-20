@@ -29,5 +29,4 @@ public fun List<ScreenNavKey>.isRoutineAddOnDetailPane(): Boolean {
     return key == RoutineHomeNavKey || (key is RoutineAddNavKey && isRoutineListDetailPane(key))
 }
 
-// 초기 태그가 있는 RoutineAdd는 TagDetail 루틴 탭에서 진입한 것이다.
-private fun ScreenNavKey.isRoutineDetailPaneKey(): Boolean = (this is RoutineAddNavKey && initialTagId == null) || (this is RoutineDetailNavKey && !isStandalone)
+private fun ScreenNavKey.isRoutineDetailPaneKey(): Boolean = topLevelListKey == RoutineHomeNavKey

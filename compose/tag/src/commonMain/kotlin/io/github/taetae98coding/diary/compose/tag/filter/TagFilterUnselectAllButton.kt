@@ -9,12 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.Res
 import io.github.taetae98coding.diary.compose.tag.tag_filter_unselect_all_content_description
 import io.github.taetae98coding.diary.compose.tag.tag_filter_unselect_all_label
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

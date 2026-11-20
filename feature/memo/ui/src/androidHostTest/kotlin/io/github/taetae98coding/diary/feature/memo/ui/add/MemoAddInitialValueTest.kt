@@ -19,6 +19,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextReplacement
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
@@ -28,9 +29,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
@@ -95,7 +97,7 @@ class MemoAddInitialValueTest {
                 initialContactId = key.initialContactId,
                 initialPlaceId = key.initialPlaceId,
                 initialWebId = key.initialWebId,
-                tagList = listOf(testTag(title = STORED_TAG_TITLE)),
+                tagList = listOf(Arb.tag(title = STORED_TAG_TITLE, isFinished = false).next()),
                 webList = listOf(testWeb(title = STORED_WEB_TITLE)),
                 contactList = listOf(testContact(name = STORED_CONTACT_NAME)),
                 placeList = listOf(testPlace(title = STORED_PLACE_TITLE)),
@@ -146,8 +148,8 @@ class MemoAddInitialValueTest {
     @Test
     fun `TC-a97443d4-bf42-4ed0-8f26-c6ae3eda0d8c 공유로 진입한 화면을 복원하면 태그 선택 없이 시작한다`() {
         val key = MemoAddNavKey(initialTitle = SHARED_TITLE, isStandalone = true)
-        val primaryTag = testTag(title = STORED_TAG_TITLE)
-        val otherTag = testTag(title = OTHER_TAG_TITLE)
+        val primaryTag = Arb.tag(title = STORED_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = OTHER_TAG_TITLE, isFinished = false).next()
         val viewModelsList = mutableListOf<MemoAddScreenViewModels>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -165,8 +167,8 @@ class MemoAddInitialValueTest {
             InitialValueMemoAddScreen(key = key, viewModels = viewModels)
         }
         composeRule.runOnIdle {
-            viewModelsList.last().tagViewModel.selectTag(id = otherTag.id)
-            viewModelsList.last().tagViewModel.selectPrimaryTag(id = primaryTag.id)
+            viewModelsList.last().tagViewModel.selectTag(tagId = otherTag.id)
+            viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = primaryTag.id)
         }
         composeRule.runOnIdle {
             viewModelsList

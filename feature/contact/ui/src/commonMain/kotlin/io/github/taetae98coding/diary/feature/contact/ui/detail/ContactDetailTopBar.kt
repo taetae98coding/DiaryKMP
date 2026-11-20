@@ -4,10 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.share.ShareAction
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Star
+import io.github.taetae98coding.diary.compose.icon.StarFill
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_delete_button_content_description
@@ -64,13 +67,14 @@ private fun DiaryTopBarActionScope.ContactDetailContentActions(
     val deleteContentDescription = stringResource(Res.string.contact_detail_delete_button_content_description)
 
     IconAction(
-        icon = if (uiState.isFavorite) DiaryTopBarIcon.STAR_FILL else DiaryTopBarIcon.STAR,
+        icon = if (uiState.isFavorite) DiaryIcons.StarFill else DiaryIcons.Star,
         contentDescription = if (uiState.isFavorite) unfavoriteContentDescription else favoriteContentDescription,
         onClick = { onEvent(ContactDetailScaffoldEvent.ClickFavorite) },
+        key = FAVORITE_ACTION_KEY,
         isInProgress = uiState.isFavoriteInProgress,
     )
     IconAction(
-        icon = DiaryTopBarIcon.DELETE,
+        icon = DiaryIcons.Delete,
         contentDescription = deleteContentDescription,
         onClick = { onEvent(ContactDetailScaffoldEvent.ClickDelete) },
         isInProgress = uiState.isDeleteInProgress,
@@ -88,3 +92,5 @@ private fun ContactDetailTopBarPreview() {
         )
     }
 }
+
+private const val FAVORITE_ACTION_KEY = "favorite"

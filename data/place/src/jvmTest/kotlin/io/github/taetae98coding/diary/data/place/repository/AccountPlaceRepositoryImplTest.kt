@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
+import io.github.taetae98coding.diary.core.data.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.datasource.AccountPlaceLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -16,7 +17,6 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
 import io.github.taetae98coding.diary.core.testing.place.place
-import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid

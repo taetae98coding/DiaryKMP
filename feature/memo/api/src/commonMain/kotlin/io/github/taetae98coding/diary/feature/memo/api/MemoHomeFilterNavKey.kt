@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data object MemoHomeFilterNavKey : ScreenNavKey {
     override val screenName: String get() = "MemoHomeFilter"
+
+    override val isOverlay: Boolean get() = true
 }

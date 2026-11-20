@@ -36,14 +36,13 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.dday.ui.dDayEntry
@@ -60,6 +59,7 @@ import io.github.taetae98coding.diary.feature.dday.ui.form.ddayPickDate
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayRepeatList
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayTitleInput
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterUiState
+import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.homeDDayPagingDataOf
 import io.github.taetae98coding.diary.feature.dday.ui.resetAndroidUiDispatcher
@@ -110,7 +110,7 @@ class DDayDetailNavDisplayTest {
     private val homePagingData = MutableStateFlow(homeDDayPagingDataOf(listOf(dday)))
 
     // 디데이와 태그의 저장된 연결이다. 연결과 해제는 바로 저장되어, 새로 만든 태그 입력도 같은 연결을 보여 준다.
-    private val storedTagUiState = MutableStateFlow(EntityTagInputUiState())
+    private val storedTagUiState = MutableStateFlow(PrimaryTagInputUiState())
 
     @Before
     fun setUp() {
@@ -283,7 +283,7 @@ class DDayDetailNavDisplayTest {
 
     @Test
     fun `TC-8bbf9397-4453-4c9d-9af2-16d69ad8fae2 뒤로가도 이미 반영된 태그 연결과 해제는 그대로 남는다`() {
-        storedTagUiState.value = EntityTagInputUiState(tagList = listOf(tagB))
+        storedTagUiState.value = PrimaryTagInputUiState(selectedTagList = listOf(tagB))
         backStack.addAll(listOf(CalendarHomeStandInNavKey, DDayDetailNavKey(id = dday.id)))
         setNavDisplay()
         composeRule.ddayDetailLinkTag(title = TAG_A_TITLE)
@@ -301,7 +301,7 @@ class DDayDetailNavDisplayTest {
 
     @Test
     fun `TC-d7bd90da-4196-4810-aac3-1abc0adb9a65 연결한 태그를 누르면 TagDetail로 이동하고 뒤로가면 이 디데이 상세로 돌아온다`() {
-        storedTagUiState.value = EntityTagInputUiState(tagList = listOf(tagA))
+        storedTagUiState.value = PrimaryTagInputUiState(selectedTagList = listOf(tagA))
         backStack.addAll(listOf(CalendarHomeStandInNavKey, DDayDetailNavKey(id = dday.id)))
         setNavDisplay()
 
@@ -395,9 +395,13 @@ class DDayDetailNavDisplayTest {
                 mockk<DDayHomeViewModel>(relaxed = true)
                     .apply {
                         every { ddayPagingData } returns homePagingData
-                        every { filterUiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
                         every { effect } returns Channel<DDayListEffect>().receiveAsFlow()
                     }.also(homeViewModelList::add)
+            }
+            factory {
+                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
+                }
             }
             factory {
                 mockk<SyncRefreshViewModel>(relaxed = true)
@@ -421,18 +425,18 @@ class DDayDetailNavDisplayTest {
                     }.also(detailViewModelList::add)
             }
             factory {
-                mockk<EntityDetailTagViewModel>(relaxed = true).apply {
+                mockk<DDayDetailTagViewModel>(relaxed = true).apply {
                     val allTagList = listOf(tagA, tagB)
                     every { uiState } returns storedTagUiState
                     every { tagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
                     every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
-                    every { add(tagId = any()) } answers {
+                    every { selectTag(tagId = any()) } answers {
                         val tagId = firstArg<Uuid>()
-                        storedTagUiState.update { state -> state.copy(tagList = state.tagList + allTagList.filter { tag -> tag.id == tagId }) }
+                        storedTagUiState.update { state -> state.copy(selectedTagList = state.selectedTagList + allTagList.filter { tag -> tag.id == tagId }) }
                     }
-                    every { remove(tagId = any()) } answers {
+                    every { unselectTag(tagId = any()) } answers {
                         val tagId = firstArg<Uuid>()
-                        storedTagUiState.update { state -> state.copy(tagList = state.tagList.filterNot { tag -> tag.id == tagId }) }
+                        storedTagUiState.update { state -> state.copy(selectedTagList = state.selectedTagList.filterNot { tag -> tag.id == tagId }) }
                     }
                 }
             }

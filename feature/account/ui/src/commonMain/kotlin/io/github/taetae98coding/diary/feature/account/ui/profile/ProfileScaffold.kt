@@ -17,14 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.icon.PersonRemoveIcon
-import io.github.taetae98coding.diary.compose.core.icon.PhotoIcon
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItem
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItemDefaults
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.PersonRemoveIcon
+import io.github.taetae98coding.diary.compose.icon.PhotoIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.account.ui.Res
 import io.github.taetae98coding.diary.feature.account.ui.profile_change_profile_image
 import io.github.taetae98coding.diary.feature.account.ui.profile_delete_account
@@ -37,7 +37,6 @@ internal fun ProfileScaffold(
     onEvent: (ProfileScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     deleteUiStateProvider: () -> ProfileDeleteUiState = { ProfileDeleteUiState() },
-    isDeleteInProgressProvider: () -> Boolean = { false },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
@@ -57,14 +56,13 @@ internal fun ProfileScaffold(
                 Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-            isInProgressProvider = isDeleteInProgressProvider,
+            isInProgressProvider = { deleteUiStateProvider().isInProgress },
         )
     }
 
     ProfileDeleteDialogHost(
         onEvent = onEvent,
         uiStateProvider = deleteUiStateProvider,
-        isInProgressProvider = isDeleteInProgressProvider,
     )
 }
 
@@ -123,7 +121,6 @@ private fun ProfileScaffoldPreview(
         ProfileScaffold(
             onEvent = {},
             deleteUiStateProvider = { ProfileDeleteUiState(isConfirmVisible = isInProgress, isInProgress = isInProgress) },
-            isDeleteInProgressProvider = { isInProgress },
         )
     }
 }

@@ -8,7 +8,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.number
 
-private val MONTHS_PER_YEAR: Int = DateTimeUnit.YEAR.months
+internal val MONTHS_PER_YEAR: Int = DateTimeUnit.YEAR.months
 
 public fun DDayDetail.count(today: LocalDate): DDayCount =
     when {

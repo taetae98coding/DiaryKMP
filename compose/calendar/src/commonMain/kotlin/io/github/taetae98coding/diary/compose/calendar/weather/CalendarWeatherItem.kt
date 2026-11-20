@@ -17,8 +17,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import io.github.taetae98coding.diary.compose.calendar.previewCalendarWeather
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition

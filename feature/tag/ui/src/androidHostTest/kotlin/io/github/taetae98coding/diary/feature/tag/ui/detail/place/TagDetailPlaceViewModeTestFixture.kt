@@ -5,12 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.tag.ui.detail.placePagingDataFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-internal fun List<TagDetailPlaceContentEvent>.withoutMoveMap(): List<TagDetailPlaceContentEvent> = filterNot { event -> event is TagDetailPlaceContentEvent.MoveMap }
+internal fun List<Any>.withoutMoveMap(): List<Any> = filterNot { event -> event is TagDetailPlaceContentEvent.MoveMap }
 
 internal const val DEFAULT_SHOW_MAP_DESCRIPTION = "Show map"
 internal const val DEFAULT_SHOW_LIST_DESCRIPTION = "Show list"
@@ -28,6 +28,7 @@ internal fun ViewModeTestTagDetailPlaceTab(
     DiaryTheme {
         TagDetailPlaceTab(
             onEvent = onEvent,
+            onPlaceListEvent = {},
             modifier = Modifier.fillMaxSize(),
             state = state,
             uiStateProvider = { uiState },

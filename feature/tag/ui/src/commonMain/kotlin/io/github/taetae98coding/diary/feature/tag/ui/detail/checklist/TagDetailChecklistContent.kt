@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
@@ -52,9 +53,13 @@ internal fun TagDetailChecklistContent(
         TagDetailChecklistTab(
             onEvent = { event ->
                 when (event) {
-                    is TagDetailChecklistContentEvent.ClickChecklist -> navigateToChecklistDetail(event.id)
                     is TagDetailChecklistContentEvent.Refresh -> syncViewModel.refresh()
-                    is TagDetailChecklistContentEvent.DeleteChecklist -> checklistViewModel.delete(id = event.id)
+                }
+            },
+            onChecklistListEvent = { event ->
+                when (event) {
+                    is ChecklistListEvent.ClickChecklist -> navigateToChecklistDetail(event.id)
+                    is ChecklistListEvent.SwipeDelete -> checklistViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

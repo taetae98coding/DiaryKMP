@@ -3,6 +3,8 @@ package io.github.taetae98coding.diary.core.database.impl.qr.transaction
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.qr.localQr
+import io.github.taetae98coding.diary.core.data.testing.qr.qrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -10,8 +12,6 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountQrSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.qr.localQr
-import io.github.taetae98coding.diary.core.testing.qr.qrDetailLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly

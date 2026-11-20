@@ -16,8 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.diary_date_time_input_all_day
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 

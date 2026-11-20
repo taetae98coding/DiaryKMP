@@ -1,0 +1,61 @@
+package io.github.taetae98coding.diary.core.fcm.impl.notification
+
+import android.app.NotificationManager
+import android.content.Context
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class DailyNotificationChannelTest {
+    private lateinit var context: Context
+
+    @Before
+    fun setUp() {
+        context = RuntimeEnvironment.getApplication()
+    }
+
+    @Test
+    fun `TC-0fe56458-f7dd-4f4d-8277-9eef73c3bca3 일일 알림 채널은 소리와 화면 위 떠오름이 없는 낮은 중요도로 디자인 문구를 갖고 만들어진다`() {
+        context.createDailyNotificationChannel()
+
+        val channel = notificationManager().getNotificationChannel(DAILY_NOTIFICATION_CHANNEL_ID)
+
+        channel.importance shouldBe NotificationManager.IMPORTANCE_LOW
+        channel.shouldVibrate() shouldBe false
+        channel.canShowBadge() shouldBe false
+        channel.name shouldBe "Daily reminder"
+        channel.description shouldBe "Reminds you every morning of today's memos, routines, and D-days."
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-0fe56458-f7dd-4f4d-8277-9eef73c3bca3 한국어 기기에서는 일일 알림 채널이 한국어 디자인 문구를 갖고 만들어진다`() {
+        context.createDailyNotificationChannel()
+
+        val channel = notificationManager().getNotificationChannel(DAILY_NOTIFICATION_CHANNEL_ID)
+
+        channel.name shouldBe "일일 알림"
+        channel.description shouldBe "매일 아침 오늘의 메모, 루틴과 디데이를 알려 줍니다."
+    }
+
+    @Test
+    fun `TC-0fe56458-f7dd-4f4d-8277-9eef73c3bca3 앱 시작 초기화가 채널을 만들고 다시 실행해도 채널은 하나만 남는다`() {
+        val initializer = FcmNotificationChannelInitializer()
+
+        initializer.create(context)
+        initializer.create(context)
+
+        notificationManager().notificationChannels shouldHaveSize 1
+        initializer.dependencies().shouldBeEmpty()
+    }
+
+    private fun notificationManager(): NotificationManager = context.getSystemService(NotificationManager::class.java)
+}

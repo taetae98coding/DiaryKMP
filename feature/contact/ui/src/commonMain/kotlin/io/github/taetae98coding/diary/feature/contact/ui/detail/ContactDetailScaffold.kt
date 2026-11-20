@@ -12,12 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.contact.ui.Res
@@ -38,6 +38,7 @@ import kotlin.uuid.Uuid
 internal fun ContactDetailScaffold(
     onEvent: (ContactDetailScaffoldEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
+    tabFloatingActionButton: @Composable (ContactDetailTab) -> Unit,
     modifier: Modifier = Modifier,
     state: ContactFormState = rememberContactDetailFormState(),
     tabState: ContactDetailTabState = rememberContactDetailTabState(),
@@ -46,7 +47,6 @@ internal fun ContactDetailScaffold(
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
     componentVisibleProvider: () -> ContactDetailScaffoldComponentVisible = { ContactDetailScaffoldComponentVisible() },
     isShareSupported: Boolean = false,
-    tabFloatingActionButton: @Composable (ContactDetailTab) -> Unit,
     tabContent: @Composable (ContactDetailTab) -> Unit,
 ) {
     Scaffold(

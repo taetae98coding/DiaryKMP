@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.web.localWebDetail
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.web.WebDetail
-import io.github.taetae98coding.diary.core.testing.web.localWebDetail
 import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.core.testing.web.webHeaderNameCaseList
 import io.kotest.core.spec.style.FunSpec

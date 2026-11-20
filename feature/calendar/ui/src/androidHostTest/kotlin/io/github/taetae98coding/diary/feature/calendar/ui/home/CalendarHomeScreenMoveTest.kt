@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.memo.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
@@ -45,8 +45,6 @@ import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthd
 import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
-import io.github.taetae98coding.diary.domain.core.invoke
-import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -181,13 +179,10 @@ class CalendarHomeScreenMoveTest {
         }
         val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
         every { getCalendarMemoUseCase(parameter = any()) } returns storedMemoFlow
-        val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-        every { getCalendarFilterUseCase() } returns flowOf(Result.success(emptyList()))
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(emptyList()),
             memoViewModel =
                 CalendarHomeMemoViewModel(
-                    getCalendarFilterUseCase = getCalendarFilterUseCase,
                     getCalendarMemoUseCase = getCalendarMemoUseCase,
                     moveMemoUseCase = moveMemoUseCase,
                 ),
@@ -1101,13 +1096,10 @@ class CalendarHomeScreenMoveTest {
         coEvery { moveMemoUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
         every { getCalendarMemoUseCase(parameter = any()) } returns flowOf(Result.success(listOf(memo)))
-        val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
-        every { getCalendarFilterUseCase() } returns flowOf(Result.success(emptyList()))
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(emptyList()),
             memoViewModel =
                 CalendarHomeMemoViewModel(
-                    getCalendarFilterUseCase = getCalendarFilterUseCase,
                     getCalendarMemoUseCase = getCalendarMemoUseCase,
                     moveMemoUseCase = moveMemoUseCase,
                 ),
@@ -1161,7 +1153,6 @@ class CalendarHomeScreenMoveTest {
             memoViewModel ?: mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarHomeMemoUiState(memoList = memoList) }
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
                 every { viewModel.move(id = any(), fromDateTime = any(), toDateRange = any()) } answers {
                     movedList += Triple(firstArg(), secondArg(), thirdArg())
                 }
@@ -1191,6 +1182,7 @@ class CalendarHomeScreenMoveTest {
                         state = state,
                         holidayViewModel = holidayViewModel,
                         memoViewModel = mockMemoViewModel,
+                        filterViewModel = filterViewModel(),
                         weatherViewModel = weatherViewModel,
                         syncViewModel = syncViewModel(),
                         permissionManager = rememberPermissionManager(),
@@ -1436,7 +1428,7 @@ class CalendarHomeScreenMoveTest {
         private const val SUNNY_DESCRIPTION = "맑음"
         private const val WEATHER_TEMPERATURE_TEXT = "17.8°/28.2°"
         private const val EXAM_TITLE = "수능"
-        private const val EXAM_DDAY_TEXT = "🎉 수능 D-Day"
+        private const val EXAM_DDAY_TEXT = "수능 D-Day"
 
         // 두 주에 걸친 메모는 원본 조각 2개와 같은 수의 고스트 아이템이 표시된다.
         private const val PIECE_COUNT = 2

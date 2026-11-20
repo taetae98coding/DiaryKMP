@@ -4,6 +4,11 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.contact.contactDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.entitytag.entityTagLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.memotag.memoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
@@ -15,11 +20,6 @@ import io.github.taetae98coding.diary.core.database.impl.contact.transaction.Acc
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memocontact.transaction.AccountMemoContactSyncTransactionImpl
-import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
-import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
-import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
-import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.checklist.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
@@ -16,13 +17,12 @@ import kotlin.uuid.Uuid
 public class UpdateChecklistUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findChecklistUseCase: FindChecklistUseCase,
     private val accountChecklistRepository: AccountChecklistRepository,
     private val clock: Clock,
 ) : UseCase<UpdateChecklistUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
         val account = getAccountUseCase.requireAccount()
-        val detail = parameter.detail.withStoredTitleForBlank(id = parameter.id)
+        val detail = parameter.detail.withStoredTitleForBlank(account = account, id = parameter.id)
 
         val updatedCount =
             accountChecklistRepository.updateDetail(
@@ -37,13 +37,16 @@ public class UpdateChecklistUseCase internal constructor(
         return updatedCount
     }
 
-    private suspend fun ChecklistDetail.withStoredTitleForBlank(id: Uuid): ChecklistDetail {
+    private suspend fun ChecklistDetail.withStoredTitleForBlank(
+        account: Account,
+        id: Uuid,
+    ): ChecklistDetail {
         if (title.isNotBlank()) return this
 
         val stored =
-            findChecklistUseCase(parameter = id)
+            accountChecklistRepository
+                .find(account = account, checklistId = id)
                 .first()
-                .getOrThrow()
                 ?.detail
 
         return copy(title = stored?.title.orEmpty())

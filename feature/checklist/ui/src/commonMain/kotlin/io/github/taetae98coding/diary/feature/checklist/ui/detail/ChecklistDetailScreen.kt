@@ -9,9 +9,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
-import io.github.taetae98coding.diary.feature.checklist.ui.tag.handleChecklistTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
@@ -36,7 +36,7 @@ internal fun ChecklistDetailScreen(
     val content = uiState as? ChecklistDetailUiState.Content
     val coroutineScope = rememberCoroutineScope()
 
-    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
+    TagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
 
     key(content?.id) {
         val state = rememberChecklistDetailFormState(initialDetail = content?.detail ?: ChecklistDetail.EMPTY)
@@ -64,7 +64,7 @@ internal fun ChecklistDetailScreen(
                 )
             },
             onTagInputEvent = { event ->
-                handleChecklistTagInputEvent(
+                handleEntityTagInputEvent(
                     event = event,
                     tagPickerDialogState = state.tagPickerDialogState,
                     selectableTagPagingItems = selectableTagPagingItems,

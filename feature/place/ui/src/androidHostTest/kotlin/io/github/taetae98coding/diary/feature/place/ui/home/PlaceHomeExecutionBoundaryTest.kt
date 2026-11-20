@@ -13,10 +13,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -24,7 +24,7 @@ import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -281,12 +281,12 @@ class PlaceHomeExecutionBoundaryTest {
         private fun placeListViewModel(): PlaceHomePlaceListViewModel {
             val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
             every { getPlaceListUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
-            val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-            every { pagePlaceHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty<Place>()))
+            val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+            every { pagePlaceUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty<Place>()))
 
             return PlaceHomePlaceListViewModel(
                 getPlaceListUseCase = getPlaceListUseCase,
-                pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                pagePlaceUseCase = pagePlaceUseCase,
                 deletePlaceUseCase = mockk(),
                 restorePlaceUseCase = mockk(),
             )

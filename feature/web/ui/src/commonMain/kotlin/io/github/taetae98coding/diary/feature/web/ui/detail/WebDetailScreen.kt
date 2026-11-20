@@ -13,11 +13,12 @@ import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
-import io.github.taetae98coding.diary.feature.web.ui.form.handleWebFormEvent
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
@@ -36,6 +37,7 @@ internal fun WebDetailScreen(
     pageViewModel: WebDetailPageViewModel,
     tagViewModel: EntityDetailTagViewModel,
     contentSharerFactory: ContentSharerFactory,
+    webViewContent: WebViewContent,
     modifier: Modifier = Modifier,
 ) {
     val viewModelStoreProvider = rememberViewModelStoreProvider()
@@ -48,7 +50,7 @@ internal fun WebDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val contentSharer = contentSharerFactory.rememberContentSharer()
 
-    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
+    TagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
 
     val scaffoldState = key(id) { rememberWebDetailScaffoldState() }
 
@@ -77,8 +79,9 @@ internal fun WebDetailScreen(
                     is WebDetailScaffoldEvent.SelectViewMode -> scaffoldState.select(viewMode = event.viewMode)
                 }
             },
-            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
+            onFormEvent = { event -> handleEntityTagInputEvent(event = event, tagPickerDialogState = formState.tagPickerDialogState, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
             onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
+            webViewContent = webViewContent,
             modifier = modifier,
             isShareVisible = contentSharer.isTextSupported,
             state = scaffoldState,

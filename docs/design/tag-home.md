@@ -8,7 +8,7 @@
 
 이모지가 비어 있으면 앞의 공백 없이 제목만 표시한다.
 
-이 표시는 태그 카드, [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)의 태그 칩과 선택 목록 항목, [MemoHome 목록 디자인](./memo-home.md)과 [CalendarHome 디자인](./calendar-home.md)의 태그 필터 칩, [TagDetail 화면 디자인](./tag-detail.md)과 [TagMemoFinishedList 화면 디자인](./tag-memo-finished-list.md)의 상단 바 제목에 같은 형태로 적용한다.
+이 표시는 태그 카드, [대표 태그 입력 컴포넌트 디자인](./primary-tag-input.md)의 태그 칩과 선택 목록 항목, [MemoHome 목록 디자인](./memo-home.md)과 [CalendarHome 디자인](./calendar-home.md)의 태그 필터 칩, [TagDetail 화면 디자인](./tag-detail.md)과 [TagMemoFinishedList 화면 디자인](./tag-memo-finished-list.md)의 상단 바 제목에 같은 형태로 적용한다.
 
 태그 컬러로 채운 작은 원형 표시는 이모지 유무와 관계없이 그대로 유지한다.
 

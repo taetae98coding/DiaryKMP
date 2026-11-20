@@ -24,7 +24,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
@@ -94,11 +94,11 @@ class MemoHomeViewModelTest : FunSpec() {
         test("TC-95961ff0-bb2e-4dbf-bf66-a89280ed7fbd 메모 완료가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
                 val memo = datedMemo()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException())
-                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase, finishMemoUseCase = finishMemoUseCase)
+                val viewModel = viewModel(pageMemoUseCase = pageMemoUseCase, finishMemoUseCase = finishMemoUseCase)
 
                 viewModel.effect.test {
                     viewModel.finish(id = memo.id)
@@ -157,11 +157,11 @@ class MemoHomeViewModelTest : FunSpec() {
         test("TC-95961ff0-bb2e-4dbf-bf66-a89280ed7fbd 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
                 val memo = datedMemo()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException())
-                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase, deleteMemoUseCase = deleteMemoUseCase)
+                val viewModel = viewModel(pageMemoUseCase = pageMemoUseCase, deleteMemoUseCase = deleteMemoUseCase)
 
                 viewModel.effect.test {
                     viewModel.delete(id = memo.id)
@@ -200,12 +200,12 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("MemoHome 목록 UseCase를 한 번 조회한다") {
             runTest(mainDispatcher) {
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns
                     flowOf(Result.success(PagingData.empty()))
                 val viewModel =
                     viewModel(
-                        pageMemoHomeUseCase = pageMemoHomeUseCase,
+                        pageMemoUseCase = pageMemoUseCase,
                     )
 
                 viewModel.memoPagingData.test {
@@ -213,7 +213,7 @@ class MemoHomeViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                verify(exactly = 1) { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) }
+                verify(exactly = 1) { pageMemoUseCase(parameter = ListSort.DEFAULT) }
             }
         }
 
@@ -363,10 +363,10 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("TC-05f23b36-25e5-4d03-bf02-9aa3bde8c1a3 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.empty()))
-                every { pageMemoHomeUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(PagingData.empty()))
-                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.empty()))
+                every { pageMemoUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(PagingData.empty()))
+                val viewModel = viewModel(pageMemoUseCase = pageMemoUseCase)
 
                 viewModel.memoPagingData.test {
                     awaitItem()
@@ -378,16 +378,16 @@ class MemoHomeViewModelTest : FunSpec() {
                 }
 
                 viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
-                verify(exactly = 1) { pageMemoHomeUseCase(parameter = ListSort.TITLE) }
+                verify(exactly = 1) { pageMemoUseCase(parameter = ListSort.TITLE) }
             }
         }
 
         test("TC-284cde2c-ca94-4294-b853-451659358510 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val memo = datedMemo()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
-                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                val viewModel = viewModel(pageMemoUseCase = pageMemoUseCase)
 
                 viewModel.memoPagingData.test {
                     val defaultItemList = flowOf(awaitItem()).asSnapshot()
@@ -405,10 +405,10 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 처음 불러오기에 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns
                     flowOf(Result.failure(IllegalStateException()))
-                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+                val viewModel = viewModel(pageMemoUseCase = pageMemoUseCase)
 
                 viewModel.memoPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
@@ -420,10 +420,10 @@ class MemoHomeViewModelTest : FunSpec() {
         test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 이어서 불러오기에 실패해도 앞서 불러온 메모를 유지한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(Arb.memo().next(), Arb.memo().next())
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns
                     appendFailingPagingData(firstPage = memoList).map { pagingData -> Result.success(pagingData) }
-                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+                val viewModel = viewModel(pageMemoUseCase = pageMemoUseCase)
 
                 val itemList =
                     flowOf(viewModel.memoPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
@@ -437,13 +437,13 @@ class MemoHomeViewModelTest : FunSpec() {
         test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 메모가 보이는 목록을 다시 불러오다 실패하면 앞서 보이던 메모를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val memo = Arb.memo().next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns
                     flowOf(
                         Result.success(PagingData.from(listOf(memo))),
                         Result.failure(IllegalStateException()),
                     )
-                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+                val viewModel = viewModel(pageMemoUseCase = pageMemoUseCase)
 
                 viewModel.memoPagingData.test {
                     advanceUntilIdle()
@@ -460,7 +460,7 @@ class MemoHomeViewModelTest : FunSpec() {
             getMemoFilterUseCase: GetMemoFilterUseCase = filterUseCase(filterFlow = emptyFlow()),
             getMemoFilterTagIdUseCase: GetMemoFilterTagIdUseCase = filterTagIdUseCase(),
             getMemoExistenceFilterUseCase: GetMemoExistenceFilterUseCase = existenceFilterUseCase(),
-            pageMemoHomeUseCase: PageMemoHomeUseCase = memoUseCase(),
+            pageMemoUseCase: PageMemoUseCase = memoUseCase(),
             finishMemoUseCase: FinishMemoUseCase = mockk(),
             restartMemoUseCase: RestartMemoUseCase = mockk(),
             deleteMemoUseCase: DeleteMemoUseCase = mockk(),
@@ -470,7 +470,7 @@ class MemoHomeViewModelTest : FunSpec() {
                 getMemoFilterUseCase = getMemoFilterUseCase,
                 getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
                 getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
-                pageMemoHomeUseCase = pageMemoHomeUseCase,
+                pageMemoUseCase = pageMemoUseCase,
                 finishMemoUseCase = finishMemoUseCase,
                 restartMemoUseCase = restartMemoUseCase,
                 deleteMemoUseCase = deleteMemoUseCase,
@@ -517,8 +517,8 @@ class MemoHomeViewModelTest : FunSpec() {
                     createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
-        private fun memoUseCase(): PageMemoHomeUseCase {
-            val pageMemoUseCase = mockk<PageMemoHomeUseCase>()
+        private fun memoUseCase(): PageMemoUseCase {
+            val pageMemoUseCase = mockk<PageMemoUseCase>()
             every { pageMemoUseCase(parameter = ListSort.DEFAULT) } returns emptyFlow()
 
             return pageMemoUseCase

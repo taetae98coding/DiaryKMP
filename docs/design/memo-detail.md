@@ -117,4 +117,4 @@ Bottom Sheet가 열려 있는 동안 화면이 회전하거나 재생성되어�
 | 글로 공유하는 줄 | `글로 공유` | `Share as text` |
 | 일정 파일로 공유하는 줄 | `일정 파일로 공유` | `Share as calendar file` |
 
-공유 버튼의 문구와 복사로 대신했을 때와 공유하지 못했을 때의 안내는 [항목 공유 공통 디자인](./entity-share.md)을, 태그 입력의 문구는 [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)을, 웹 입력의 문구는 [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md)을, 연락처 입력의 문구는 [메모 연락처 입력 컴포넌트 디자인](./memo-contact-input.md)을, 장소 카드의 문구는 [메모 장소 카드 컴포넌트 디자인](./memo-place-card.md)을, 제목 입력의 문구는 [제목 입력 디자인](./title-input.md)을, 그 밖의 입력 배치는 [메모 본문 배치 디자인](./memo-form.md)을, 작성 도우미의 문구는 [메모 Gemini 작성 도우미 디자인](./memo-gemini.md)을 따른다.
+공유 버튼의 문구와 복사로 대신했을 때와 공유하지 못했을 때의 안내는 [항목 공유 공통 디자인](./entity-share.md)을, 태그 입력의 문구는 [대표 태그 입력 컴포넌트 디자인](./primary-tag-input.md)을, 웹 입력의 문구는 [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md)을, 연락처 입력의 문구는 [메모 연락처 입력 컴포넌트 디자인](./memo-contact-input.md)을, 장소 카드의 문구는 [메모 장소 카드 컴포넌트 디자인](./memo-place-card.md)을, 제목 입력의 문구는 [제목 입력 디자인](./title-input.md)을, 그 밖의 입력 배치는 [메모 본문 배치 디자인](./memo-form.md)을, 작성 도우미의 문구는 [메모 Gemini 작성 도우미 디자인](./memo-gemini.md)을 따른다.

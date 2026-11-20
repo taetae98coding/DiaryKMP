@@ -18,8 +18,8 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryValueSlide
 import io.github.taetae98coding.diary.compose.core.button.ClearButton
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryDatePickerDialogHost
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.feature.contact.ui.Res

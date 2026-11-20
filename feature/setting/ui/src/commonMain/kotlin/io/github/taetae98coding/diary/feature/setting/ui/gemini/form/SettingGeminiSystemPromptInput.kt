@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.textfield.transparentIndicator
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_system_prompt_label
 import org.jetbrains.compose.resources.stringResource

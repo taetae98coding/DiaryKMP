@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProviderTabRow
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 internal fun DiaryMapCardLayout(

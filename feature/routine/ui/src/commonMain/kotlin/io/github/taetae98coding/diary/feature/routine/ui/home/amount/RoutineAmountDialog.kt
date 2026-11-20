@@ -16,9 +16,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.previewRoutineSummary
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.form.RoutineAmountInputTransformation
 import io.github.taetae98coding.diary.feature.routine.ui.home.record.RoutineHomeRecord

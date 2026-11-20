@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.memo.exception.MemoTitleBlankException
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -190,9 +190,9 @@ class MemoAddViewModelTest : FunSpec() {
                 val otherTagId = Arb.kotlinUuid().next()
                 val selectionList =
                     listOf(
-                        MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId), primaryTagId = primaryTagId),
-                        MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId, otherTagId), primaryTagId = otherTagId),
-                        MemoTagSelectionUiState(tagIdSet = setOf(otherTagId), primaryTagId = otherTagId),
+                        PrimaryTagSelectionUiState(tagIdSet = setOf(primaryTagId), primaryTagId = primaryTagId),
+                        PrimaryTagSelectionUiState(tagIdSet = setOf(primaryTagId, otherTagId), primaryTagId = otherTagId),
+                        PrimaryTagSelectionUiState(tagIdSet = setOf(otherTagId), primaryTagId = otherTagId),
                     )
 
                 selectionList.forEach { selection ->
@@ -266,7 +266,7 @@ class MemoAddViewModelTest : FunSpec() {
         // 태그와 웹, 연락처, 장소 선택은 각 ViewModel이 보관하므로, 추가 요청 자체를 검증할 때는 선택 없이 호출한다.
         private fun MemoAddViewModel.add(
             detail: MemoDetail,
-            tagSelection: MemoTagSelectionUiState = MemoTagSelectionUiState(),
+            tagSelection: PrimaryTagSelectionUiState = PrimaryTagSelectionUiState(),
             webIdSet: Set<Uuid> = emptySet(),
             contactIdSet: Set<Uuid> = emptySet(),
             placeIdSet: Set<Uuid> = emptySet(),

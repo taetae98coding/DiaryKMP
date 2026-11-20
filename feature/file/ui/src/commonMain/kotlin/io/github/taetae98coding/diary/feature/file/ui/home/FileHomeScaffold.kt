@@ -21,13 +21,13 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.FileIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.FileIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
 import io.github.taetae98coding.diary.feature.file.ui.file_home_add_button_content_description

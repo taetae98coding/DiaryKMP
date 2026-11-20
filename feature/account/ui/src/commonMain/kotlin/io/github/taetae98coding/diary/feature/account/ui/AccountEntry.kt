@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.account.ui
 
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManagerFactory
@@ -30,9 +31,10 @@ private fun EntryProviderScope<ScreenNavKey>.profileEntry(
     entry<ProfileNavKey> {
         ProfileScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToProfileImageEdit = {
-                backStack.add(ProfileImageEditNavKey)
-            },
+            navigateToProfileImageEdit =
+                dropUnlessResumed {
+                    backStack.add(ProfileImageEditNavKey)
+                },
             appleCredentialsManager = appleCredentialsManagerFactory.rememberAppleCredentialsManager(),
             accountViewModel = koinViewModel(),
             deleteViewModel = koinViewModel(),

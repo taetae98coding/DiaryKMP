@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.data.account.repository
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.profile.profileImageRemoteEntity
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.UserData
@@ -11,7 +12,6 @@ import io.github.taetae98coding.diary.core.network.api.profile.datasource.Profil
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseUser
 import io.github.taetae98coding.diary.core.testing.image.imageCropRegion
-import io.github.taetae98coding.diary.core.testing.profile.profileImageRemoteEntity
 import io.github.taetae98coding.diary.data.account.supabaseUser
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrowAny

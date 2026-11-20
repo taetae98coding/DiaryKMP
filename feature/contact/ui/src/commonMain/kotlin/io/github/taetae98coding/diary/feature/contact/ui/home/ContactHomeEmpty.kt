@@ -7,12 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.ContactIcon
-import io.github.taetae98coding.diary.compose.core.icon.FilterIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.ContactIcon
+import io.github.taetae98coding.diary.compose.icon.FilterIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_empty_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_empty_title

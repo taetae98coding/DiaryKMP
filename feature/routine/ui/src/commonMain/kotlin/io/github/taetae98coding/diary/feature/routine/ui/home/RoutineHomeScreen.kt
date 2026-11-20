@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarE
 import io.github.taetae98coding.diary.compose.routine.RoutineListEvent
 import io.github.taetae98coding.diary.compose.routine.RoutineListUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffect
+import io.github.taetae98coding.diary.feature.core.routine.UpdateRoutineTodayEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.RoutineHomeCalendarViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.holiday.RoutineHomeHolidayViewModel
@@ -97,9 +98,9 @@ private fun RoutineHomeScreenEffect(
     holidayViewModel: RoutineHomeHolidayViewModel,
 ) {
     UpdateRoutineListTodayEffect(state = state.listState)
-    UpdateRoutineHomeTodayEffect(
-        routineViewModel = routineViewModel,
-        state = state,
+    UpdateRoutineTodayEffect(
+        onUpdate = routineViewModel::updateToday,
+        listState = state.listState,
     )
     FetchCalendarRecordEffect(
         calendarViewModel = calendarViewModel,

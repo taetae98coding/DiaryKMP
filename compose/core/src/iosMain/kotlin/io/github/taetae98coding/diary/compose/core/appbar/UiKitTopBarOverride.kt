@@ -42,11 +42,11 @@ import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.clear_text_field_button_content_description
 import io.github.taetae98coding.diary.compose.core.graphics.rememberTemplateUIImage
 import io.github.taetae98coding.diary.compose.core.graphics.toUIColor
-import io.github.taetae98coding.diary.compose.core.icon.ArrowBack
-import io.github.taetae98coding.diary.compose.core.icon.Close
-import io.github.taetae98coding.diary.compose.core.icon.DiaryIcons
-import io.github.taetae98coding.diary.compose.core.icon.Search
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.ArrowBack
+import io.github.taetae98coding.diary.compose.icon.Close
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Search
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import org.jetbrains.compose.resources.stringResource
 import platform.UIKit.UIColor
 

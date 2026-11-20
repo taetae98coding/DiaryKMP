@@ -7,6 +7,11 @@ import androidx.room3.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import io.github.taetae98coding.diary.core.data.testing.checklist.localChecklist
+import io.github.taetae98coding.diary.core.data.testing.checklist.localChecklistItem
+import io.github.taetae98coding.diary.core.data.testing.dday.localDDay
+import io.github.taetae98coding.diary.core.data.testing.memo.localMemo
+import io.github.taetae98coding.diary.core.data.testing.qr.localQr
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -22,11 +27,6 @@ import io.github.taetae98coding.diary.core.database.impl.memo.datasource.Account
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.findQrList
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
-import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
-import io.github.taetae98coding.diary.core.testing.dday.localDDay
-import io.github.taetae98coding.diary.core.testing.memo.localMemo
-import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
@@ -86,7 +86,7 @@ class DiaryDatabaseMigrationTest :
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
                 connection.insertMemoCursor(accountId = accountId, usn = usn)
             }
-            helper.runMigrationsAndValidate(version = 8).close()
+            helper.runMigrationsAndValidate(version = 9).close()
 
             val database =
                 Room
@@ -208,7 +208,7 @@ class DiaryDatabaseMigrationTest :
                 connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
                 connection.insertMemoCursor(accountId = accountId, usn = memoUsn)
             }
-            helper.runMigrationsAndValidate(version = 8).close()
+            helper.runMigrationsAndValidate(version = 9).close()
 
             val database =
                 Room

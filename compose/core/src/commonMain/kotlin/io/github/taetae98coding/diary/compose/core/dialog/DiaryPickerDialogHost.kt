@@ -3,8 +3,8 @@ package io.github.taetae98coding.diary.compose.core.dialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 
 @Composable
 public fun DiaryPickerDialogHost(

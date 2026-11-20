@@ -12,17 +12,14 @@ import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RestoreMusicUseCase
-import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
+import io.github.taetae98coding.diary.feature.core.list.ListItemDeleteActions
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -30,56 +27,36 @@ import kotlin.uuid.Uuid
 @KoinViewModel
 internal class PlaylistHomeViewModel(
     pageMusicUseCase: PageMusicUseCase,
-    private val deleteMusicUseCase: DeleteMusicUseCase,
-    private val restoreMusicUseCase: RestoreMusicUseCase,
+    deleteMusicUseCase: DeleteMusicUseCase,
+    restoreMusicUseCase: RestoreMusicUseCase,
 ) : ViewModel() {
-    private val sort = MutableStateFlow(ListSort.TITLE)
-    private val inProgressIds = mutableSetOf<Uuid>()
-
-    val uiState: StateFlow<PlaylistHomeUiState> =
-        sort
-            .map { value -> PlaylistHomeUiState(sort = value) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileUiSubscribed,
-                initialValue = PlaylistHomeUiState(sort = sort.value),
-            )
+    val sortUiState: StateFlow<ListSortUiState>
+        field = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
     val musicPagingData: Flow<PagingData<Music>> =
-        sort
-            .flatMapLatest { value -> pageMusicUseCase(parameter = value) }
+        sortUiState
+            .flatMapLatest { (sort) -> pageMusicUseCase(parameter = sort) }
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
-    private val _effect = Channel<MusicListEffect>(Channel.BUFFERED)
-    val effect: Flow<MusicListEffect> = _effect.receiveAsFlow()
+    private val musicActions =
+        ListItemDeleteActions<MusicListEffect>(
+            deleteUseCase = deleteMusicUseCase,
+            restoreUseCase = restoreMusicUseCase,
+            deletedEffect = MusicListEffect::Deleted,
+        )
+
+    val effect: Flow<MusicListEffect> = musicActions.effect
 
     fun select(sort: ListSort) {
-        this.sort.value = sort
+        sortUiState.value = ListSortUiState(sort = sort)
     }
 
     fun delete(id: Uuid) {
-        if (!inProgressIds.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                deleteMusicUseCase(parameter = id)
-                    .onSuccess { _effect.send(MusicListEffect.Deleted(id = id)) }
-            } finally {
-                inProgressIds.remove(id)
-            }
-        }
+        viewModelScope.launch { musicActions.delete(id = id) }
     }
 
     fun restore(id: Uuid) {
-        if (!inProgressIds.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                restoreMusicUseCase(parameter = id)
-            } finally {
-                inProgressIds.remove(id)
-            }
-        }
+        viewModelScope.launch { musicActions.restore(id = id) }
     }
 }

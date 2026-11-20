@@ -24,7 +24,7 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestF
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.START_DATE_TEXT
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.START_DAY_CELL_TEXT
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.allDayValue
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test

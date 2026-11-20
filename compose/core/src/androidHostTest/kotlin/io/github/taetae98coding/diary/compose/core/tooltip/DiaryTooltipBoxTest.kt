@@ -6,8 +6,8 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
-import io.github.taetae98coding.diary.compose.core.button.SearchButton
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +49,7 @@ class DiaryTooltipBoxTest {
     fun `아이콘 버튼은 접근성 이름을 설명 문구로 표시한다`() {
         composeRule.setContent {
             DiaryTheme {
-                SearchButton(
+                NavigateUpButton(
                     onClick = {},
                     contentDescription = TOOLTIP_TEXT,
                 )

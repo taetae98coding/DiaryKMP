@@ -10,4 +10,6 @@ public data class TagAddNavKey(
     val requestKey: Uuid? = null,
 ) : ScreenNavKey {
     override val screenName: String get() = "TagAdd"
+
+    override val topLevelListKey: ScreenNavKey? get() = TagHomeNavKey
 }

@@ -14,8 +14,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -193,6 +193,7 @@ class PlaceHomeScaffoldTest {
         composeRule.setContent {
             DiaryTheme {
                 PlaceHomeScaffold(
+                    onPlaceListEvent = {},
                     uiStateProvider = uiStateProvider,
                     placeListUiStateProvider = placeListUiStateProvider,
                     onEvent = onEvent,

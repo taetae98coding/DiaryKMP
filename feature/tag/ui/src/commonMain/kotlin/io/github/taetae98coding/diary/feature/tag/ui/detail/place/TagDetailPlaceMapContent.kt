@@ -6,19 +6,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.layout.DiaryAdaptiveSplitLayout
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMap
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.PlacePinMarkerEffect
 import io.github.taetae98coding.diary.compose.place.previewPlace
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 
 @Composable
 internal fun TagDetailPlaceMapContent(
     onEvent: (TagDetailPlaceContentEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     mapState: DiaryMapState = rememberDiaryMapState(),
     placeListUiStateProvider: () -> TagDetailPlaceListUiState = { TagDetailPlaceListUiState() },
@@ -41,6 +43,7 @@ internal fun TagDetailPlaceMapContent(
         secondary = {
             TagDetailPlaceBoundsList(
                 onEvent = onEvent,
+                onPlaceListEvent = onPlaceListEvent,
                 mapState = mapState,
                 modifier = Modifier.fillMaxSize(),
                 placeListUiStateProvider = placeListUiStateProvider,
@@ -62,6 +65,7 @@ private fun TagDetailPlaceMapContentPreview() {
         Surface {
             TagDetailPlaceMapContent(
                 onEvent = {},
+                onPlaceListEvent = {},
                 placeListUiStateProvider = { TagDetailPlaceListUiState(isLoaded = true, placeList = placeList) },
             )
         }

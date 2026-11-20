@@ -6,8 +6,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkScheduler
-import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory

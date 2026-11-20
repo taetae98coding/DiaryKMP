@@ -13,10 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.textfield.ClearTextField
 import io.github.taetae98coding.diary.compose.core.textfield.keepInsertionWhile
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.measure.Length
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.feature.contact.ui.Res

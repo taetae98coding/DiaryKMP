@@ -1,4 +1,4 @@
 interface:
   display_name: "Verify Wave"
-  short_description: "규칙·추적 검토, 포맷, 정적 분석, 유닛 테스트 검증 게이트"
-  default_prompt: "Use $verify-wave to delegate the diff-scoped rule review and traceability review to separate opus sessions, run the Gradle checks the changed files require while they review, and record the pass with DIARY_AGENTS/scripts/verify-stamp.sh record."
+  short_description: "규칙·추적 검토, 포맷, 정적 분석, 의존성 baseline 검증 게이트"
+  default_prompt: "Use $verify-wave to delegate the diff-scoped rule review and traceability review to separate opus sessions, run the spotless, detekt and dependencyGuard checks the changed files require while they review, and record the pass with DIARY_AGENTS/scripts/verify-stamp.sh record verify."

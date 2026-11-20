@@ -22,8 +22,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.result.ResultEventBus
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel

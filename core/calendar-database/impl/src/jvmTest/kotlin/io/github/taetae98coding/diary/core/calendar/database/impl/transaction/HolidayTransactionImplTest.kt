@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayL
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.datasource.HolidayLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.holiday.holidayLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.holiday.holidayLocalEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty

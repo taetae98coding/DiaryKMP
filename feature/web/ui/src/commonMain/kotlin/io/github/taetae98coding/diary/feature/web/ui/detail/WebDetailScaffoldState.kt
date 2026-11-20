@@ -57,8 +57,8 @@ internal class WebDetailScaffoldState(
                 },
                 restore = { value ->
                     WebDetailScaffoldState(
-                        initialTab = WebDetailTab.valueOf(value[TAB_INDEX] as String),
-                        initialViewMode = WebDetailViewMode.valueOf(value[VIEW_MODE_INDEX] as String),
+                        initialTab = WebDetailTab.valueOf(value[TAB_INDEX]),
+                        initialViewMode = WebDetailViewMode.valueOf(value[VIEW_MODE_INDEX]),
                     )
                 },
             )

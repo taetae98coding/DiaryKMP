@@ -4,15 +4,15 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirecto
 import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.userHomeDirectory
 import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 import java.nio.file.Files
 import java.nio.file.Path
 
 @Module
 @Configuration
 public class JvmDataStoreModule {
-    @Factory
+    @Single
     internal fun providesSettingPathResolver(
         @DiarySettingDirectory
         settingDirectory: String,

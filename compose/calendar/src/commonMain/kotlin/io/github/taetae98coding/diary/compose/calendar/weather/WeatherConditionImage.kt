@@ -15,9 +15,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import io.github.taetae98coding.diary.compose.calendar.previewWeatherCondition
-import io.github.taetae98coding.diary.compose.core.icon.WeatherIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.WeatherIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 
 @Composable

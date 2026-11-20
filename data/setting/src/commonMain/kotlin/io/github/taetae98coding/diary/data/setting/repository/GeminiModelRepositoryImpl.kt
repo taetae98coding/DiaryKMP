@@ -15,7 +15,7 @@ internal class GeminiModelRepositoryImpl(
     override suspend fun fetch(apiKey: String): List<GeminiModel> =
         try {
             geminiModelRemoteDataSource
-                .getAvailableModel(apiKey = apiKey)
+                .readAvailableModel(apiKey = apiKey)
                 .map { remote -> remote.toDomain() }
         } catch (exception: GeminiException.InvalidApiKey) {
             throw GeminiApiKeyInvalidException(cause = exception)

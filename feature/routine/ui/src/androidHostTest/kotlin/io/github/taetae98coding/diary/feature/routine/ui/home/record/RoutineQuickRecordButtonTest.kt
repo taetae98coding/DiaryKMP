@@ -14,7 +14,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.test.platform.app.InstrumentationRegistry
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify

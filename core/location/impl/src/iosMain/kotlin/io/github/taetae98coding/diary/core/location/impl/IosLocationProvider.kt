@@ -75,6 +75,7 @@ internal class IosLocationProvider(
             manager: CLLocationManager,
             didFailWithError: NSError,
         ) {
+            // 위치 권한이 없거나 위치를 찾지 못하는 등 디바이스 위치를 확인하지 못하면 Core Location이 이 콜백으로 알린다.
             resume(null)
         }
 

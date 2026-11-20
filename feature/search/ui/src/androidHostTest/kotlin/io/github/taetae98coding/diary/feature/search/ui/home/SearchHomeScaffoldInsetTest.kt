@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
 import org.junit.Rule

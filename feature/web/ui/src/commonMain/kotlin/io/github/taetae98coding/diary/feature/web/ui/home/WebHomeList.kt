@@ -16,14 +16,14 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.WebIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.web.SwipeWebCard
 import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.compose.web.previewWeb
@@ -38,6 +38,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun WebHomeList(
     onEvent: (WebHomeScaffoldEvent) -> Unit,
+    onWebListEvent: (WebListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyGridState = rememberLazyGridState(),
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
@@ -83,12 +84,7 @@ internal fun WebHomeList(
                     val web = webPagingItems[index]
 
                     SwipeWebCard(
-                        onEvent = { event ->
-                            when (event) {
-                                is WebListEvent.ClickWeb -> onEvent(WebHomeScaffoldEvent.ClickWeb(id = event.id))
-                                is WebListEvent.SwipeDelete -> onEvent(WebHomeScaffoldEvent.DeleteWeb(id = event.id))
-                            }
-                        },
+                        onEvent = onWebListEvent,
                         modifier =
                             Modifier
                                 .animateItem()
@@ -116,6 +112,7 @@ private fun WebHomeListPreview() {
     DiaryTheme {
         WebHomeList(
             onEvent = {},
+            onWebListEvent = {},
             modifier = Modifier.fillMaxSize(),
             webPagingItems = webPagingData.collectAsLazyPagingItems(),
         )

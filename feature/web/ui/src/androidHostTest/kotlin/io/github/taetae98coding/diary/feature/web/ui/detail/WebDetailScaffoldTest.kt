@@ -30,12 +30,12 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.withKeyDown
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.web.DIARY_WEB_VIEW_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.Res
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WEB_DETAIL_PAGE_FAILURE_TEST_TAG
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
@@ -651,6 +651,7 @@ class WebDetailScaffoldTest {
                 pageUiStateProvider = { pageUiState },
                 onFormEvent = {},
                 onTagPickerEvent = {},
+                webViewContent = AndroidWebViewContent(),
             ) {
                 EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
             }

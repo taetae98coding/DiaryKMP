@@ -11,13 +11,13 @@ import io.github.taetae98coding.diary.app.shared.integrity.PlayIntegrityLogEffec
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.OpenDeepLinkEffect
 import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
-import io.github.taetae98coding.diary.app.shared.web.DiaryWebSessionEffect
+import io.github.taetae98coding.diary.app.shared.web.ProvideDiaryWebSession
 import io.github.taetae98coding.diary.app.shared.web.RestoreWebLoginEffect
 import io.github.taetae98coding.diary.app.shared.web.SaveWebLoginEffect
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenEntryInstaller
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -59,7 +59,6 @@ public fun App(
     )
     PlayIntegrityLogEffect(log = playIntegrityViewModel::log)
     RestoreWebLoginEffect(restore = webLoginViewModel::restore)
-    DiaryWebSessionEffect(session = webLoginViewModel.session)
     SaveWebLoginEffect(save = webLoginViewModel::save)
     ScreenViewEffect(
         log = DiaryLogger::log,
@@ -72,11 +71,13 @@ public fun App(
     )
 
     CompositionLocalProvider(LocalDiaryMapContentOverride provides dependencies.mapContentOverride) {
-        AppContent(
-            appState = appState,
-            entryInstallerList = dependencies.entryInstallerList,
-            modifier = modifier,
-        )
+        ProvideDiaryWebSession(session = webLoginViewModel.session) {
+            AppContent(
+                appState = appState,
+                entryInstallerList = dependencies.entryInstallerList,
+                modifier = modifier,
+            )
+        }
     }
 }
 

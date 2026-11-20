@@ -6,7 +6,8 @@ import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -35,7 +36,7 @@ class AndroidWebViewCookieRestoreTest {
             )
         cookieManager.setCookie(cookie.toUrl(), "sid=old; Path=/")
 
-        runBlocking { AndroidWebViewCookieDataSource(cookieManager = cookieManager).upsertCookie(cookieList = listOf(cookie)) }
+        runTest { AndroidWebViewCookieDataSource(cookieManager = cookieManager, dispatcher = StandardTestDispatcher(testScheduler)).upsertCookie(cookieList = listOf(cookie)) }
 
         cookieManager.getCookie(cookie.toUrl()) shouldBe "sid=saved"
     }

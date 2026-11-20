@@ -5,6 +5,7 @@ import kotlinx.datetime.LocalDateRange
 
 internal data class CalendarWeekOfMonthGridItem(
     val key: Any?,
+    val contentType: Any?,
     val dateRange: LocalDateRange,
     val content: @Composable (CalendarWeekOfMonthGridItemScope.() -> Unit),
 )

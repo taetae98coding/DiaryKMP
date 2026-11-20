@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.memo.localMemo
+import io.github.taetae98coding.diary.core.data.testing.memo.remoteMemo
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
-import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.memo.memoCaseList
-import io.github.taetae98coding.diary.core.testing.memo.remoteMemo
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

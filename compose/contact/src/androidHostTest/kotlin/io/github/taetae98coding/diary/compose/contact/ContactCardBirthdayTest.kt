@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.compose.contact
 
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem

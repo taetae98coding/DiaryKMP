@@ -39,23 +39,24 @@ internal class WeatherRepositoryImpl(
         coroutineScope {
             val currentWeather =
                 async {
-                    weatherRemoteDataSource.getCurrentWeather(
+                    weatherRemoteDataSource.readCurrentWeather(
                         latitude = location.latitude,
                         longitude = location.longitude,
                     )
                 }
             val forecast =
                 async {
-                    weatherRemoteDataSource.getForecast(
+                    weatherRemoteDataSource.readForecast(
                         latitude = location.latitude,
                         longitude = location.longitude,
                     )
                 }
             val locationName =
                 async {
+                    // 지역명 조회 실패가 같은 스코프의 현재 날씨·예보 조회를 취소하지 않도록 지역명 없음으로 바꾼다.
                     try {
                         weatherRemoteDataSource
-                            .getLocationName(
+                            .readLocationName(
                                 latitude = location.latitude,
                                 longitude = location.longitude,
                             ).toLocationName()

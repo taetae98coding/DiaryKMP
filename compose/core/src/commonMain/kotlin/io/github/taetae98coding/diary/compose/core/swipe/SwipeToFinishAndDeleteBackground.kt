@@ -11,11 +11,11 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.icon.DeleteIcon
-import io.github.taetae98coding.diary.compose.core.icon.FinishIcon
-import io.github.taetae98coding.diary.compose.core.icon.RestartIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.DeleteIcon
+import io.github.taetae98coding.diary.compose.icon.FinishIcon
+import io.github.taetae98coding.diary.compose.icon.RestartIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 internal fun SwipeToFinishAndDeleteBackground(

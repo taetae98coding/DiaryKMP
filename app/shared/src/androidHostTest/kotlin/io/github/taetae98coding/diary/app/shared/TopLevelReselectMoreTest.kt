@@ -22,7 +22,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey

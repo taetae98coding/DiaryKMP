@@ -44,7 +44,7 @@ internal fun AppNavigation(
     // 목록·상세 배치의 상세 placeholder는 NavEntry가 아니어서 entry decorator가 감싸지 않는다.
     // entry는 decorator가 결과 버스를 제공하고, placeholder에 놓인 화면도 같은 버스로 결과를 주고받도록 NavDisplay 위에서 한 번 더 제공한다.
     // 같은 이유로 placeholder의 저장 상태와 ViewModel이 목록 entry의 수명을 따르도록 placeholder 전용 저장소를 제공하고, 목록 entry가 빠질 때 decorator가 비운다.
-    // FIXME placeholder를 decorate하지 않는 것은 navigation3의 제약이라 라이브러리에서 고쳐져야 한다. 등록된 이슈는 아직 없다.
+    // FIXME placeholder를 decorate하지 않는 것은 adaptive-navigation3 ListDetailSceneStrategy의 제약(KDoc: placeholder는 NavEntry와 같은 범위를 받지 않는다)이라 라이브러리에서 고쳐져야 한다. 등록된 이슈는 아직 없다.
     val resultEventBus = rememberResultEventBus()
     val placeholderStateHolder = rememberListDetailPlaceholderStateHolder()
 

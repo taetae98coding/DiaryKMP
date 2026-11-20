@@ -16,7 +16,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedTagRoutineUseCase

@@ -10,5 +10,5 @@ import org.koin.core.annotation.Factory
 internal class AccountSyncPendingRepositoryImpl(
     private val syncPendingLocalDataSource: SyncPendingLocalDataSource,
 ) : AccountSyncPendingRepository {
-    override fun find(account: Account): Flow<Boolean> = syncPendingLocalDataSource.hasPending(accountId = account.id)
+    override fun getPendingExists(account: Account): Flow<Boolean> = syncPendingLocalDataSource.getPendingExists(accountId = account.id)
 }

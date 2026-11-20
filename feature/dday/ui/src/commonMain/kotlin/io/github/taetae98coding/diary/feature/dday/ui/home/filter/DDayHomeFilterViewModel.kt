@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.dday.usecase.GetDDayFilterUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.SelectDDayFilterTagUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UnselectAllDDayFilterTagUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UnselectDDayFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.TagFilterState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,69 +25,39 @@ import kotlin.uuid.Uuid
 internal class DDayHomeFilterViewModel(
     pageTagUseCase: PageTagUseCase,
     getDDayFilterUseCase: GetDDayFilterUseCase,
-    private val selectDDayFilterTagUseCase: SelectDDayFilterTagUseCase,
-    private val unselectDDayFilterTagUseCase: UnselectDDayFilterTagUseCase,
-    private val unselectAllDDayFilterTagUseCase: UnselectAllDDayFilterTagUseCase,
+    selectDDayFilterTagUseCase: SelectDDayFilterTagUseCase,
+    unselectDDayFilterTagUseCase: UnselectDDayFilterTagUseCase,
+    unselectAllDDayFilterTagUseCase: UnselectAllDDayFilterTagUseCase,
 ) : ViewModel() {
-    val tagPagingData: Flow<PagingData<Tag>> =
-        pageTagUseCase(parameter = "")
-            .map { result -> result.getOrElse { PagingData.empty() } }
-            .cachedIn(viewModelScope)
+    private val tagFilterState =
+        TagFilterState(
+            pageTagUseCase = pageTagUseCase,
+            getFilterUseCase = getDDayFilterUseCase,
+            selectTagUseCase = selectDDayFilterTagUseCase,
+            unselectTagUseCase = unselectDDayFilterTagUseCase,
+            unselectAllTagUseCase = unselectAllDDayFilterTagUseCase,
+        )
+
+    val tagPagingData: Flow<PagingData<Tag>> = tagFilterState.tagPagingData.cachedIn(viewModelScope)
 
     val uiState: StateFlow<DDayHomeFilterUiState> =
-        getDDayFilterUseCase()
-            .map { result ->
-                DDayHomeFilterUiState(
-                    selectedTagIdSet =
-                        result
-                            .getOrDefault(emptyList())
-                            .map { tag -> tag.id }
-                            .toSet(),
-                )
-            }.stateIn(
+        tagFilterState.selectedTagIdSet
+            .map { selectedTagIdSet -> DDayHomeFilterUiState(selectedTagIdSet = selectedTagIdSet) }
+            .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
                 initialValue = DDayHomeFilterUiState(),
             )
 
-    private val inProgressSelectTagSet = mutableSetOf<Uuid>()
-    private val inProgressUnselectTagSet = mutableSetOf<Uuid>()
-    private var isUnselectAllTagInProgress = false
-
     fun selectTag(id: Uuid) {
-        if (!inProgressSelectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                selectDDayFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressSelectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.select(id = id) }
     }
 
     fun unselectTag(id: Uuid) {
-        if (!inProgressUnselectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                unselectDDayFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressUnselectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselect(id = id) }
     }
 
     fun unselectAllTag() {
-        if (isUnselectAllTagInProgress) return
-        isUnselectAllTagInProgress = true
-
-        viewModelScope.launch {
-            try {
-                unselectAllDDayFilterTagUseCase()
-            } finally {
-                isUnselectAllTagInProgress = false
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselectAll() }
     }
 }

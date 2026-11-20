@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.data.playlist.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.music.musicDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
-import io.github.taetae98coding.diary.core.testing.music.musicDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

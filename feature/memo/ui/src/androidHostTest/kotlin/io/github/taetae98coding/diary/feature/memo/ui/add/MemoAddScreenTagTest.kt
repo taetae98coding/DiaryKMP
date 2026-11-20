@@ -20,6 +20,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
@@ -46,9 +47,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshFailedTagPaging
 import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPickerList
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -75,7 +77,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-c1df03b8-28d1-4fc8-830a-de144502b77e 목록에서 태그를 선택하면 태그 칩으로 즉시 표시된다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -92,7 +94,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-21f8c835-da42-4244-ae10-fbf6f5e61986 목록에서 선택을 해제하면 태그 칩이 즉시 사라진다`() {
-        val tag = testTag(title = WORK_TAG_TITLE)
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(tag)))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -106,7 +108,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-309d3012-79cc-4fab-a565-217ce5974f69 대표 태그로 지정하면 그 태그가 함께 선택된다`() {
-        val tag = testTag(title = WORK_TAG_TITLE)
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(tag)))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -120,7 +122,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-82a02e1f-1f62-400f-afdd-6ace6348b225 대표 태그 지정 버튼을 다시 누르면 대표 지정만 해제된다`() {
-        val tag = testTag(title = WORK_TAG_TITLE)
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(tag)))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -135,7 +137,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-da5e9e79-7573-4944-b64f-c59f065f1a63 다른 태그를 대표로 지정하면 이전 대표 지정이 해제된다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -154,7 +156,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-5adc87bc-d0b7-46db-a114-1cdbb02f1e15 대표 태그의 선택을 해제하면 대표 지정도 해제된다`() {
-        val tag = testTag(title = WORK_TAG_TITLE)
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(tag)))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -169,8 +171,8 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-39d55be9-24bb-4cf6-a389-20fa8a9896be 태그 칩을 누르면 그 태그의 TagDetail 화면으로 이동한다`() {
-        val workTag = testTag(title = WORK_TAG_TITLE)
-        val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
+        val workTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val exerciseTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val navigatedTagIdList = mutableListOf<Uuid>()
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(tagList = listOf(workTag, exerciseTag)),
@@ -189,7 +191,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-bc8f0644-67fb-42ed-a0d2-51d37a8ed57f 태그 칩을 눌러도 선택 상태와 태그 선택 목록은 바뀌지 않는다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))
         selectWorkTagAndPrimaryExerciseTag()
 
@@ -205,8 +207,8 @@ class MemoAddScreenTagTest {
     @Test
     fun `TC-bc8f0644-67fb-42ed-a0d2-51d37a8ed57f 대표 태그 칩을 눌러도 선택 상태와 대표 지정, 태그 선택 목록은 바뀌지 않는다`() {
         val navigatedTagIdList = mutableListOf<Uuid>()
-        val workTag = testTag(title = WORK_TAG_TITLE)
-        val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
+        val workTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val exerciseTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(workTag, exerciseTag)), navigateToTagDetail = navigatedTagIdList::add)
         selectWorkTagAndPrimaryExerciseTag()
 
@@ -222,7 +224,7 @@ class MemoAddScreenTagTest {
 
     @Test
     fun `TC-0ea08012-439b-4031-a888-6f907add02b3 목록을 닫아도 반영된 선택과 대표 태그 지정이 유지된다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))
 
         selectWorkTagAndPrimaryExerciseTag()
@@ -294,7 +296,7 @@ class MemoAddScreenTagPickerOpenTest {
 
     @Test
     fun `TC-a7665b43-1935-4b4d-be6c-f4e535aba82e 추가 항목을 누르면 선택할 수 있는 태그 목록이 열린다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         var tagAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(tagList = tagList),
@@ -316,7 +318,7 @@ class MemoAddScreenTagPickerOpenTest {
 
     @Test
     fun `TC-04da6fa8-1127-4c91-a27b-321b1d89ef8d 목록의 끝으로 이동하면 다음 태그가 이어서 나타난다`() {
-        val tagList = List(PICKER_TAG_COUNT) { index -> testTag(title = "$PICKER_TAG_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}") }
+        val tagList = List(PICKER_TAG_COUNT) { index -> Arb.tag(title = "$PICKER_TAG_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}", isFinished = false).next() }
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -332,7 +334,7 @@ class MemoAddScreenTagPickerOpenTest {
 
     @Test
     fun `TC-524ea6a0-e707-4df6-a415-2d0386e269c6 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
-        val tagList = List(PICKER_TAG_COUNT) { index -> testTag(title = "$PICKER_TAG_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}") }
+        val tagList = List(PICKER_TAG_COUNT) { index -> Arb.tag(title = "$PICKER_TAG_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}", isFinished = false).next() }
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
@@ -510,7 +512,7 @@ class MemoAddScreenTagRequestTest {
 
     @Test
     fun `TC-5ecde1bd-ae2b-4038-98ea-8419376d06da TagDetail 메모 탭에서 진입하면 대상 태그를 대표 태그로 표시한다`() {
-        val initialPrimaryTag = testTag(title = INITIAL_PRIMARY_TAG_TITLE)
+        val initialPrimaryTag = Arb.tag(title = INITIAL_PRIMARY_TAG_TITLE, isFinished = false).next()
 
         setMemoAddScreen(
             viewModels =
@@ -527,7 +529,7 @@ class MemoAddScreenTagRequestTest {
 
     @Test
     fun `TagDetail 메모 탭에서 진입한 대상 태그를 메모 추가 요청에 전달한다`() {
-        val initialPrimaryTag = testTag(title = INITIAL_PRIMARY_TAG_TITLE)
+        val initialPrimaryTag = Arb.tag(title = INITIAL_PRIMARY_TAG_TITLE, isFinished = false).next()
         val addMemoUseCase = successAddMemoUseCase()
         setMemoAddScreen(
             viewModels =
@@ -555,7 +557,7 @@ class MemoAddScreenTagRequestTest {
     @Test
     @Config(qualifiers = "w480dp-h1200dp")
     fun `TC-b9902342-135c-4bdd-8577-92cbf8bb5233 추가에 성공해도 선택한 태그와 대표 태그 지정이 유지된다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         setMemoAddScreen(
             viewModels =
                 screenTestRealViewModel(
@@ -582,7 +584,7 @@ class MemoAddScreenTagRequestTest {
     @Test
     @Config(qualifiers = "w480dp-h1200dp")
     fun `선택한 태그와 대표 태그를 추가 요청에 전달한다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         val addMemoUseCase = successAddMemoUseCase()
         setMemoAddScreen(
             viewModels =

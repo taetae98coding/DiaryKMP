@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoPlaceUseCase
@@ -59,7 +60,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val item = place()
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(listOf(item))))
                 val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
 
                 val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
@@ -67,7 +68,7 @@ class MemoPlaceViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 itemList shouldBe listOf(item)
-                verify(exactly = 1) { pagePlaceUseCase(parameter = "") }
+                verify(exactly = 1) { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) }
             }
         }
 
@@ -317,8 +318,8 @@ class MemoPlaceViewModelTest : FunSpec() {
                 val allPlaceList = List(2) { place() }
                 val matchedPlaceList = listOf(allPlaceList.first())
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allPlaceList)))
-                every { pagePlaceUseCase(parameter = SEARCH_QUERY) } returns flowOf(Result.success(PagingData.from(matchedPlaceList)))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(allPlaceList)))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = SEARCH_QUERY, sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(matchedPlaceList)))
                 val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
 
                 viewModel.placePagingData.test {
@@ -337,8 +338,8 @@ class MemoPlaceViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val placeList = List(2) { place() }
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(placeList)))
-                every { pagePlaceUseCase(parameter = SEARCH_QUERY) } returns flowOf(Result.failure(IllegalStateException()))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(placeList)))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = SEARCH_QUERY, sort = ListSort.DEFAULT)) } returns flowOf(Result.failure(IllegalStateException()))
                 val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
 
                 viewModel.placePagingData.test {

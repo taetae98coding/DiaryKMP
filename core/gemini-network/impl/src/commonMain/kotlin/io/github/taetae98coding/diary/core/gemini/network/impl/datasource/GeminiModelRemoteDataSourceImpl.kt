@@ -22,7 +22,7 @@ internal class GeminiModelRemoteDataSourceImpl(
     @GeminiJson
     private val json: Json,
 ) : GeminiModelRemoteDataSource {
-    override suspend fun getAvailableModel(apiKey: String): List<GeminiModelRemoteEntity> {
+    override suspend fun readAvailableModel(apiKey: String): List<GeminiModelRemoteEntity> {
         val response =
             try {
                 httpClient

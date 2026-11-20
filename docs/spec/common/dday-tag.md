@@ -4,7 +4,7 @@
 
 디데이 자체가 갖는 정보는 [디데이 스펙](./dday.md)을, 디데이의 추가·수정·삭제는 [DDayAdd 화면 스펙](../client/dday-add.md)과 [DDayDetail 화면 스펙](../client/dday-detail.md)을, 태그 자체의 추가·완료·삭제는 [TagAdd 화면 스펙](../client/tag-add.md)과 [TagDetail 화면 스펙](../client/tag-detail.md)을 따른다.
 
-사용자가 태그를 고르고 해제하는 조작은 이 문서에서 다루지 않는다. 태그 선택의 행동과 정책은 [항목 태그 입력 컴포넌트 스펙](../client/entity-tag-input.md)에서, 구체적인 표현과 조작 수단은 [항목 태그 입력 컴포넌트 디자인](../../design/entity-tag-input.md)에서 다룬다. 디데이를 추가하면서 태그를 연결하는 행동은 [DDayAdd 화면 스펙](../client/dday-add.md)에서, 이미 저장된 디데이의 태그 연결을 바꾸는 행동은 [DDayDetail 화면 스펙](../client/dday-detail.md)에서, 태그로 디데이를 찾아보는 목록은 [TagDetail 디데이 탭 스펙](../client/tag-detail-dday.md)에서 다룬다. 이 문서에는 사용자 조작이 없어 `feature` 영역을 생략한다.
+사용자가 태그를 고르고 해제하는 조작은 이 문서에서 다루지 않는다. 태그 선택과 대표 태그 지정의 행동과 정책은 [대표 태그 입력 컴포넌트 스펙](../client/primary-tag-input.md)에서, 구체적인 표현과 조작 수단은 [대표 태그 입력 컴포넌트 디자인](../../design/primary-tag-input.md)에서 다룬다. 디데이를 추가하면서 태그를 연결하는 행동은 [DDayAdd 화면 스펙](../client/dday-add.md)에서, 이미 저장된 디데이의 태그 연결을 바꾸는 행동은 [DDayDetail 화면 스펙](../client/dday-detail.md)에서, 태그로 디데이를 찾아보는 목록은 [TagDetail 디데이 탭 스펙](../client/tag-detail-dday.md)에서 다룬다. 이 문서에는 사용자 조작이 없어 `feature` 영역을 생략한다.
 
 ## domain
 
@@ -12,6 +12,8 @@
 
 연결은 디데이와 태그 사이의 관계이며, 연결하거나 해제해도 [디데이 스펙](./dday.md)의 `디데이의 정보`나 태그의 이모지·제목·설명·컬러를 바꾸지 않는다.
 
-### 대표 태그를 두지 않음
+### 대표 태그
 
-디데이는 [항목 태그 연결 공통 스펙](./entity-tag.md)의 `대표 태그`에 따라 대표 태그를 갖지 않는다. 따라서 디데이의 표시 색은 연결한 태그와 관계없이 디데이의 컬러다.
+디데이는 [항목 태그 연결 공통 스펙](./entity-tag.md)의 `대표 태그`에 따라 대표 태그를 가질 수 있다. 대표 태그의 규칙과, 대표 태그 지정과 연결이 동기화에서 어긋날 수 있는 범위는 [대표 태그 공통 스펙](./primary-tag.md)을 따른다. 사용자가 기기에서 연결과 대표 태그를 함께 바꿀 때 지키는 관계와 그 저장은 [대표 태그 앱 스펙](../client/primary-tag.md)을 따른다.
+
+대표 태그 지정 없이 연결만 한 태그는 디데이의 표시 색을 바꾸지 않는다.

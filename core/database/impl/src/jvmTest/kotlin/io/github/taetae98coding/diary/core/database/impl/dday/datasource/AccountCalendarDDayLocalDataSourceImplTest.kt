@@ -3,12 +3,15 @@ package io.github.taetae98coding.diary.core.database.impl.dday.datasource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.dday.localDDay
+import io.github.taetae98coding.diary.core.data.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.CalendarDDayKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.CalendarDDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayOverflowPolicyLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
+import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.dday.CalendarDDayOccurrence
 import io.github.taetae98coding.diary.core.database.impl.dday.baseDay
@@ -19,8 +22,6 @@ import io.github.taetae98coding.diary.core.database.impl.dday.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.dday.years
 import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
-import io.github.taetae98coding.diary.core.testing.dday.localDDay
-import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
@@ -381,11 +382,106 @@ class AccountCalendarDDayLocalDataSourceImplTest :
 
             calendarList(accountId = accountId) shouldBe before
         }
+
+        test("TC-69cce226-9314-4794-b032-12759ddc4b8b TC-6dd6feb4-070b-4292-a132-e2dbe50ca092 표시 색상은 대표 태그 상태로 정해진다") {
+            val accountId = Arb.kotlinUuid().next()
+            val unknownTagId = Arb.kotlinUuid().next()
+            val blueTag = { isFinished: Boolean, isDeleted: Boolean ->
+                Arb.tagLocalEntity().next().let { tag -> tag.copy(detail = tag.detail.copy(color = BLUE), isFinished = isFinished, isDeleted = isDeleted) }
+            }
+            val aliveTag = blueTag(false, false)
+            val finishedTag = blueTag(true, false)
+            val deletedTag = blueTag(false, true)
+            AccountTagTransactionImpl(database = database).upsert(accountId = accountId, tagList = listOf(aliveTag, finishedTag, deletedTag), tagLinkList = emptyList())
+            val caseList =
+                listOf(
+                    null to RED,
+                    aliveTag.id to BLUE,
+                    finishedTag.id to BLUE,
+                    deletedTag.id to RED,
+                    unknownTagId to RED,
+                ).map { (primaryTagId, expected) -> redDDay().copy(primaryTagId = primaryTagId) to expected }
+            insert(accountId, *caseList.map { (dday, _) -> dday }.toTypedArray())
+
+            val colorMap = calendarList(accountId = accountId).associate { calendarDDay -> calendarDDay.ddayId to calendarDDay.color }
+
+            caseList.forEach { (dday, expected) -> colorMap[dday.id] shouldBe expected }
+        }
+
+        test("TC-1b873fef-4824-4b39-bda7-c30940d72faa 대표 태그나 그 컬러가 바뀌면 표시 색상이 다시 정해진다") {
+            val tagTransaction = AccountTagTransactionImpl(database = database)
+
+            suspend fun assertColorAfter(
+                expected: Long,
+                isTagADeleted: Boolean = false,
+                change: suspend (accountId: Uuid, exam: DDayLocalEntity, tagA: TagLocalEntity) -> Unit,
+            ) {
+                val accountId = Arb.kotlinUuid().next()
+                val tagA = Arb.tagLocalEntity().next().let { tag -> tag.copy(detail = tag.detail.copy(color = BLUE), isFinished = false, isDeleted = isTagADeleted) }
+                tagTransaction.upsert(accountId = accountId, tagList = listOf(tagA), tagLinkList = emptyList())
+                val exam = redDDay().copy(primaryTagId = tagA.id)
+                insert(accountId, exam)
+
+                dataSource
+                    .get(accountId = accountId, dateRange = RANGE_START..RANGE_END_INCLUSIVE)
+                    .map { calendarList -> calendarList.single { calendarDDay -> calendarDDay.ddayId == exam.id }.color }
+                    .distinctUntilChanged()
+                    .test {
+                        awaitItem() shouldBe if (isTagADeleted) RED else BLUE
+
+                        change(accountId, exam, tagA)
+
+                        awaitItem() shouldBe expected
+                        cancelAndIgnoreRemainingEvents()
+                    }
+            }
+
+            assertColorAfter(expected = GREEN) { accountId, _, tagA ->
+                tagTransaction.updateDetail(accountId = accountId, tagId = tagA.id, detail = tagA.detail.copy(color = GREEN), updatedAt = Arb.secondPrecisionInstant().next())
+            }
+            assertColorAfter(expected = RED) { accountId, exam, _ ->
+                transaction.updatePrimaryTagId(accountId = accountId, ddayId = exam.id, primaryTagId = null, updatedAt = Arb.secondPrecisionInstant().next())
+            }
+            assertColorAfter(expected = RED) { accountId, _, tagA ->
+                tagTransaction.updateDeleted(accountId = accountId, tagId = tagA.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            }
+            assertColorAfter(expected = YELLOW) { accountId, exam, _ ->
+                val tagB = Arb.tagLocalEntity().next().let { tag -> tag.copy(detail = tag.detail.copy(color = YELLOW), isFinished = false, isDeleted = false) }
+                tagTransaction.upsert(accountId = accountId, tagList = listOf(tagB), tagLinkList = emptyList())
+                transaction.updatePrimaryTagId(accountId = accountId, ddayId = exam.id, primaryTagId = tagB.id, updatedAt = Arb.secondPrecisionInstant().next())
+            }
+            assertColorAfter(expected = BLUE, isTagADeleted = true) { accountId, _, tagA ->
+                tagTransaction.updateDeleted(accountId = accountId, tagId = tagA.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
+            }
+        }
+
+        test("TC-d6db7f7c-8785-4744-a929-a4352057c8da 대표 태그 없이 연결한 태그는 표시 색상을 바꾸지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val dday = redDDay().copy(primaryTagId = null)
+            val tag = Arb.tagLocalEntity().next().let { value -> value.copy(detail = value.detail.copy(color = BLUE), isFinished = false, isDeleted = false) }
+            insert(accountId, dday)
+            AccountTagTransactionImpl(database = database).upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+
+            AccountEntityTagTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                kind = EntityTagKindLocalEntity.DDAY,
+                entityId = dday.id,
+                tagId = tag.id,
+                isDeleted = false,
+                updatedAt = Arb.secondPrecisionInstant().next(),
+            )
+
+            calendarList(accountId = accountId).single().color shouldBe RED
+        }
     }) {
     private companion object {
         val RANGE_START: LocalDate = LocalDate(2026, 6, 28)
         val RANGE_END_INCLUSIVE: LocalDate = LocalDate(2026, 8, 8)
         const val RED: Long = 0xFFFF0000
         const val BLUE: Long = 0xFF0000FF
+        const val GREEN: Long = 0xFF00FF00
+        const val YELLOW: Long = 0xFFFFFF00
+
+        fun redDDay(): DDayLocalEntity = Arb.localDDay(baseDate = LocalDate(2026, 7, 15)).next().let { dday -> dday.copy(detail = dday.detail.copy(color = RED)) }
     }
 }

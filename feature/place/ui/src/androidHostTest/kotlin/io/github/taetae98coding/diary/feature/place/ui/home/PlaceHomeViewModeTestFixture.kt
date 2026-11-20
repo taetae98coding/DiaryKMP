@@ -5,7 +5,8 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
@@ -34,10 +35,12 @@ internal fun ViewModeTestPlaceHomeScaffold(
     uiState: PlaceHomeUiState,
     placePagingDataFlow: MutableStateFlow<PagingData<Place>>,
     isRefreshing: Boolean = false,
+    onPlaceListEvent: (PlaceListEvent) -> Unit = {},
 ) {
     DiaryTheme {
         PlaceHomeScaffold(
             onEvent = onEvent,
+            onPlaceListEvent = onPlaceListEvent,
             state = state,
             uiStateProvider = { uiState },
             placePagingItems = placePagingDataFlow.collectAsLazyPagingItems(),
@@ -59,7 +62,7 @@ internal fun placePagingDataFlowOf(placeList: List<Place>): MutableStateFlow<Pag
         ),
     )
 
-internal fun List<PlaceHomeScaffoldEvent>.withoutMoveMap(): List<PlaceHomeScaffoldEvent> = filterNot { event -> event is PlaceHomeScaffoldEvent.MoveMap }
+internal fun List<Any>.withoutMoveMap(): List<Any> = filterNot { event -> event is PlaceHomeScaffoldEvent.MoveMap }
 
 internal fun viewModeTestPlace(): Place {
     val id = Arb.kotlinUuid().next()

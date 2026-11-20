@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.network.impl.routine.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.routine.remoteRoutine
 import io.github.taetae98coding.diary.core.network.api.routine.entity.RoutinePullRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
 import io.github.taetae98coding.diary.core.network.impl.routine.entity.RoutinePullResponseRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.routine.entity.RoutinePushRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.routine.remoteRoutine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

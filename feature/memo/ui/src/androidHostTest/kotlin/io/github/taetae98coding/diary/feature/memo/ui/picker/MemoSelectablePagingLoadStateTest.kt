@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.paging.isConfirmedEmpty
@@ -46,10 +47,11 @@ class MemoSelectablePagingLoadStateTest {
 
     @Test
     fun `선택할 수 있는 항목의 첫 조회가 실패하면 대상 없음으로 확정하지 않는다`() {
-        val paging = MemoSelectablePaging<String>(scope = scope) { MutableStateFlow(Result.failure(IllegalStateException("first load failed"))) }
+        val paging = MemoSelectablePaging<String> { MutableStateFlow(Result.failure(IllegalStateException("first load failed"))) }
+        val selectablePagingData = paging.selectablePagingData.cachedIn(scope)
         lateinit var items: LazyPagingItems<String>
 
-        composeRule.setContent { items = paging.selectablePagingData.collectAsLazyPagingItems() }
+        composeRule.setContent { items = selectablePagingData.collectAsLazyPagingItems() }
         composeRule.waitForIdle()
 
         items.itemCount shouldBe 0
@@ -58,10 +60,11 @@ class MemoSelectablePagingLoadStateTest {
 
     @Test
     fun `첫 조회가 실패한 흐름을 다시 수집해도 대상 없음으로 확정하지 않는다`() {
-        val paging = MemoSelectablePaging<String>(scope = scope) { MutableStateFlow(Result.failure(IllegalStateException("first load failed"))) }
+        val paging = MemoSelectablePaging<String> { MutableStateFlow(Result.failure(IllegalStateException("first load failed"))) }
+        val selectablePagingData = paging.selectablePagingData.cachedIn(scope)
         var generation by mutableIntStateOf(0)
         lateinit var items: LazyPagingItems<String>
-        composeRule.setContent { key(generation) { items = paging.selectablePagingData.collectAsLazyPagingItems() } }
+        composeRule.setContent { key(generation) { items = selectablePagingData.collectAsLazyPagingItems() } }
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { generation += 1 }
@@ -73,10 +76,11 @@ class MemoSelectablePagingLoadStateTest {
 
     @Test
     fun `선택할 수 있는 항목이 없는 것으로 조회되면 대상 없음으로 확정한다`() {
-        val paging = MemoSelectablePaging<String>(scope = scope) { MutableStateFlow(Result.success(settledPagingData(emptyList()))) }
+        val paging = MemoSelectablePaging<String> { MutableStateFlow(Result.success(settledPagingData(emptyList()))) }
+        val selectablePagingData = paging.selectablePagingData.cachedIn(scope)
         lateinit var items: LazyPagingItems<String>
 
-        composeRule.setContent { items = paging.selectablePagingData.collectAsLazyPagingItems() }
+        composeRule.setContent { items = selectablePagingData.collectAsLazyPagingItems() }
         composeRule.waitForIdle()
 
         items.itemCount shouldBe 0

@@ -19,8 +19,8 @@ import androidx.compose.ui.graphics.Color
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.color_picker_dialog_cancel
 import io.github.taetae98coding.diary.compose.core.color_picker_dialog_confirm
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

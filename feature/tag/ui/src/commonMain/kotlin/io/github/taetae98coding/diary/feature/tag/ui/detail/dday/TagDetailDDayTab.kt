@@ -16,20 +16,20 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.DDayIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDayListEvent
 import io.github.taetae98coding.diary.compose.dday.DDayListState
 import io.github.taetae98coding.diary.compose.dday.SwipeDDayCard
 import io.github.taetae98coding.diary.compose.dday.previewDDay
 import io.github.taetae98coding.diary.compose.dday.previewDDayToday
 import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
+import io.github.taetae98coding.diary.compose.icon.DDayIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -41,6 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TagDetailDDayTab(
     onEvent: (TagDetailDDayContentEvent) -> Unit,
+    onDDayListEvent: (DDayListEvent) -> Unit,
     modifier: Modifier = Modifier,
     listState: DDayListState = rememberDDayListState(),
     gridState: LazyGridState = rememberLazyGridState(),
@@ -67,6 +68,7 @@ internal fun TagDetailDDayTab(
         } else {
             DDayGrid(
                 onEvent = onEvent,
+                onDDayListEvent = onDDayListEvent,
                 listState = listState,
                 gridState = gridState,
                 ddayPagingItems = ddayPagingItems,
@@ -79,6 +81,7 @@ internal fun TagDetailDDayTab(
 @Composable
 private fun DDayGrid(
     onEvent: (TagDetailDDayContentEvent) -> Unit,
+    onDDayListEvent: (DDayListEvent) -> Unit,
     listState: DDayListState,
     gridState: LazyGridState,
     ddayPagingItems: LazyPagingItems<DDay>,
@@ -96,12 +99,7 @@ private fun DDayGrid(
             key = ddayPagingItems.itemKey { dday -> dday.id },
         ) { index ->
             SwipeDDayCard(
-                onEvent = { event ->
-                    when (event) {
-                        is DDayListEvent.ClickDDay -> onEvent(TagDetailDDayContentEvent.ClickDDay(id = event.id))
-                        is DDayListEvent.SwipeDelete -> onEvent(TagDetailDDayContentEvent.DeleteDDay(id = event.id))
-                    }
-                },
+                onEvent = onDDayListEvent,
                 modifier =
                     Modifier
                         .animateItem()
@@ -141,6 +139,7 @@ private fun TagDetailDDayTabPreview() {
         Surface {
             TagDetailDDayTab(
                 onEvent = {},
+                onDDayListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 listState = rememberDDayListState(initialToday = previewDDayToday()),
                 ddayPagingItems = pagingData.collectAsLazyPagingItems(),

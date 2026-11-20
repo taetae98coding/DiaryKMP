@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCase
@@ -59,7 +60,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val item = place()
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(listOf(item))))
                 val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
 
                 val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
@@ -67,7 +68,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 itemList shouldBe listOf(item)
-                verify(exactly = 1) { pagePlaceUseCase(parameter = "") }
+                verify(exactly = 1) { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) }
             }
         }
 
@@ -86,7 +87,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val savedPlaceListFlow = MutableStateFlow(Result.success(listOf(place)))
                 val viewModel = viewModel(savedPlaceListFlow = savedPlaceListFlow)
 
-                viewModel.selectPlace(id = place.id)
+                viewModel.selectPlace(placeId = place.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -110,8 +111,8 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val allList = List(2) { place() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PagePlaceUseCase>()
-                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allList)))
-                every { useCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedList)))
+                every { useCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(allList)))
+                every { useCase(parameter = PagePlaceUseCase.Parameter(query = query, sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(matchedList)))
                 val viewModel = viewModel(pagePlaceUseCase = useCase)
 
                 viewModel.placePagingData.test {
@@ -134,7 +135,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val place = place()
                 val viewModel = viewModel(savedPlaceListFlow = emptyFlow())
 
-                viewModel.selectPlace(id = place.id)
+                viewModel.selectPlace(placeId = place.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -150,7 +151,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val place = place()
                 val viewModel = viewModel(savedPlaceListFlow = flowOf(Result.failure(IllegalStateException("place error"))))
 
-                viewModel.selectPlace(id = place.id)
+                viewModel.selectPlace(placeId = place.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -222,8 +223,8 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     expectMostRecentItem().selectedPlaceList shouldBe listOf(target)
 
-                    viewModel.unselectPlace(id = target.id)
-                    viewModel.selectPlace(id = other.id)
+                    viewModel.unselectPlace(placeId = target.id)
+                    viewModel.selectPlace(placeId = other.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedPlaceList shouldBe listOf(other)
@@ -279,12 +280,12 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
                     expectMostRecentItem().selectedPlaceList.shouldBeEmpty()
 
-                    viewModel.selectPlace(id = place.id)
+                    viewModel.selectPlace(placeId = place.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedPlaceList shouldBe listOf(place)
 
-                    viewModel.unselectPlace(id = place.id)
+                    viewModel.unselectPlace(placeId = place.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedPlaceList.shouldBeEmpty()
@@ -300,7 +301,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectPlace(id = place.id)
+                    viewModel.selectPlace(placeId = place.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedPlaceList shouldBe listOf(place)
@@ -324,7 +325,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val savedPlaceListFlow = MutableStateFlow(Result.success(listOf(remainingPlace, removedPlace)))
                 val viewModel = viewModel(savedPlaceListFlow = savedPlaceListFlow)
 
-                viewModel.selectPlace(id = removedPlace.id)
+                viewModel.selectPlace(placeId = removedPlace.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -349,8 +350,8 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectPlace(id = remainingPlace.id)
-                    viewModel.selectPlace(id = deletedPlace.id)
+                    viewModel.selectPlace(placeId = remainingPlace.id)
+                    viewModel.selectPlace(placeId = deletedPlace.id)
                     advanceUntilIdle()
 
                     savedPlaceListFlow.value = Result.success(listOf(remainingPlace))
@@ -370,8 +371,8 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectPlace(id = selectablePlace.id)
-                    viewModel.selectPlace(id = unselectablePlace.id)
+                    viewModel.selectPlace(placeId = selectablePlace.id)
+                    viewModel.selectPlace(placeId = unselectablePlace.id)
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()
                 }
@@ -388,8 +389,8 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val allPlaceList = List(2) { place() }
                 val matchedPlaceList = listOf(allPlaceList.first())
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allPlaceList)))
-                every { pagePlaceUseCase(parameter = SEARCH_QUERY) } returns flowOf(Result.success(PagingData.from(matchedPlaceList)))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = "", sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(allPlaceList)))
+                every { pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = SEARCH_QUERY, sort = ListSort.DEFAULT)) } returns flowOf(Result.success(PagingData.from(matchedPlaceList)))
                 val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
 
                 viewModel.placePagingData.test {
@@ -408,7 +409,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val place = place()
                 val viewModel = viewModel(savedPlaceListFlow = flowOf(Result.success(listOf(place))))
-                viewModel.selectPlace(id = place.id)
+                viewModel.selectPlace(placeId = place.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()

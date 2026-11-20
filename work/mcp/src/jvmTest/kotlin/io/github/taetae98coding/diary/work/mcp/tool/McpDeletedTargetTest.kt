@@ -319,7 +319,7 @@ private fun stubFoundChecklistOfAnyId(): Saved {
     return Saved(arguments = emptyMap(), useCaseList = listOf(findChecklistUseCase))
 }
 
-private fun linkCaseList(): List<TargetCase> = memoLinkCaseList() + entityTagLinkCaseList() + tagLinkCaseList()
+private fun linkCaseList(): List<TargetCase> = memoLinkCaseList() + ddayPrimaryTagCaseList() + entityTagLinkCaseList() + tagLinkCaseList()
 
 // 지정한 두 항목 가운데 한쪽만 삭제되었거나 없고, 다른 쪽은 삭제되지 않은 채 저장되어 있다.
 private fun memoLinkCaseList(): List<TargetCase> =
@@ -338,6 +338,13 @@ private fun memoLinkCase(
     listOf(
         linkCase<MemoLinkMcpToolSet>(toolName = toolName, idName = "memoId", target = ::memoTarget) { savedTarget().toSaved(idName = idName) },
         linkCase<MemoLinkMcpToolSet>(toolName = toolName, idName = idName, target = target) { stubFoundMemo(isDeleted = false).toSaved(idName = "memoId") },
+    )
+
+private fun ddayPrimaryTagCaseList(): List<TargetCase> =
+    listOf(
+        linkCase<DDayMcpToolSet>(toolName = "dday_primary_tag_set", idName = "ddayId", target = ::ddayTarget) { stubFoundTag(isDeleted = false).toSaved(idName = "tagId") },
+        linkCase<DDayMcpToolSet>(toolName = "dday_primary_tag_set", idName = "tagId", target = ::tagTarget) { stubFoundDDay(isDeleted = false).toSaved(idName = "ddayId") },
+        linkCase<DDayMcpToolSet>(toolName = "dday_primary_tag_unset", idName = "ddayId", target = ::ddayTarget),
     )
 
 private fun entityTagLinkCaseList(): List<TargetCase> =

@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.Res
@@ -62,6 +62,7 @@ class WebDetailPageExternalChangeTest {
                     pageUiStateProvider = { WebDetailPageUiState.Loading },
                     onFormEvent = {},
                     onTagPickerEvent = {},
+                    webViewContent = AndroidWebViewContent(),
                 ) {
                     EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 }
@@ -94,6 +95,7 @@ class WebDetailPageExternalChangeTest {
                     pageUiStateProvider = { WebDetailPageUiState.Loading },
                     onFormEvent = {},
                     onTagPickerEvent = {},
+                    webViewContent = AndroidWebViewContent(),
                 ) {
                     EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 }
@@ -125,6 +127,7 @@ class WebDetailPageExternalChangeTest {
                     pageUiStateProvider = { WebDetailPageUiState.Loading },
                     onFormEvent = {},
                     onTagPickerEvent = {},
+                    webViewContent = AndroidWebViewContent(),
                 ) {
                     EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 }

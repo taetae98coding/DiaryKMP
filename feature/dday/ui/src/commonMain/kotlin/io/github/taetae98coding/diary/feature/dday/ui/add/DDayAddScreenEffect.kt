@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.input.showDiaryFormAdded
-import io.github.taetae98coding.diary.compose.core.input.showDiaryFormTitleBlank
+import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.dday.ui.Res
 import io.github.taetae98coding.diary.feature.dday.ui.dday_add_succeeded_message
 import io.github.taetae98coding.diary.feature.dday.ui.dday_add_title_blank_message
@@ -35,25 +35,24 @@ internal fun DDayAddScreenEffect(
                 state.ruleState.reset(baseDate = today())
                 coroutineScope.launch { state.descriptionState.reset() }
                 state.scrollState.scrollTo(0)
-                coroutineScope.showDiaryFormAdded(
-                    titleState = state.titleState,
-                    colorState = state.colorState,
-                    snackbarHostState = state.snackbarHostState,
-                    message = addSucceededMessage,
-                )
+                state.titleState.requestFocus()
+                coroutineScope.launch {
+                    showDiaryFormAdded(
+                        colorState = state.colorState,
+                        snackbarHostState = state.snackbarHostState,
+                        message = addSucceededMessage,
+                    )
+                }
             }
 
             is DDayAddEffect.TitleBlank -> {
                 state.scrollState.scrollTo(0)
-                coroutineScope.showDiaryFormTitleBlank(
-                    titleState = state.titleState,
-                    snackbarHostState = state.snackbarHostState,
-                    message = titleBlankMessage,
-                )
+                state.titleState.requestFocus()
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
 
             is DDayAddEffect.RepeatBlank -> {
-                coroutineScope.showRepeatBlank(state = state, message = repeatBlankMessage)
+                coroutineScope.launch { showRepeatBlank(state = state, message = repeatBlankMessage) }
             }
         }
     }

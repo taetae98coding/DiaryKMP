@@ -17,9 +17,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.text.DiaryMarkdown
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_gemini_description_label

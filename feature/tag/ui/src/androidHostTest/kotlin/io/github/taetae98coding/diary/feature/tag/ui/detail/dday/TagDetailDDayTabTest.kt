@@ -21,11 +21,11 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.DDayListEvent
 import io.github.taetae98coding.diary.compose.dday.SwipeDDayCard
 import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
@@ -173,12 +173,12 @@ class TagDetailDDayTabTest {
     @Test
     fun `TC-8a780f18-6ca9-43cd-b372-c55d623c510f 디데이를 선택하면 그 디데이의 상세 이동을 요청한다`() {
         val item = tagDDay(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailDDayContentEvent>()
-        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add, onDDayListEvent = eventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
-        eventList shouldBe listOf(TagDetailDDayContentEvent.ClickDDay(id = item.id))
+        eventList shouldBe listOf(DDayListEvent.ClickDDay(id = item.id))
     }
 
     @Test
@@ -209,8 +209,8 @@ class TagDetailDDayTabTest {
 
     @Test
     fun `TC-10f1384d-dd6f-44bf-93ff-07ed71aaf699 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailDDayContentEvent>()
-        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(tagDDay(title = FIRST_TITLE))), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(tagDDay(title = FIRST_TITLE))), onEvent = eventList::add, onDDayListEvent = eventList::add)
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -220,8 +220,8 @@ class TagDetailDDayTabTest {
 
     @Test
     fun `TC-10f1384d-dd6f-44bf-93ff-07ed71aaf699 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailDDayContentEvent>()
-        setDDayTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setDDayTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add, onDDayListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -242,19 +242,19 @@ class TagDetailDDayTabTest {
     @Test
     fun `TC-4382250e-5614-4d93-b8e0-3a543a092105 디데이 카드를 삭제 방향으로 밀면 그 디데이의 삭제를 전달한다`() {
         val item = tagDDay(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailDDayContentEvent>()
-        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add, onDDayListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DDAY_CARD_TEST_TAG).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(TagDetailDDayContentEvent.DeleteDDay(id = item.id))
+        eventList shouldBe listOf(DDayListEvent.SwipeDelete(id = item.id))
     }
 
     @Test
     fun `TC-e4c34ecb-550c-4880-a2e1-39a34b9ed31a 디데이 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
-        val eventList = mutableListOf<TagDetailDDayContentEvent>()
-        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(tagDDay(title = FIRST_TITLE))), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setDDayTab(pagingData = tagEntityPagingData(itemList = listOf(tagDDay(title = FIRST_TITLE))), onEvent = eventList::add, onDDayListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DDAY_CARD_TEST_TAG).performTouchInput { swipeRight() }
         composeRule.waitForIdle()
@@ -307,14 +307,16 @@ class TagDetailDDayTabTest {
     private fun setDDayTab(
         pagingData: PagingData<DDay> = PagingData.empty(),
         onEvent: (TagDetailDDayContentEvent) -> Unit = {},
+        onDDayListEvent: (DDayListEvent) -> Unit = {},
         today: LocalDate? = null,
     ) {
-        setDDayTab(pagingDataFlow = MutableStateFlow(pagingData), onEvent = onEvent, today = today)
+        setDDayTab(pagingDataFlow = MutableStateFlow(pagingData), onEvent = onEvent, onDDayListEvent = onDDayListEvent, today = today)
     }
 
     private fun setDDayTab(
         pagingDataFlow: MutableStateFlow<PagingData<DDay>>,
         onEvent: (TagDetailDDayContentEvent) -> Unit = {},
+        onDDayListEvent: (DDayListEvent) -> Unit = {},
         today: LocalDate? = null,
         isRefreshingProvider: () -> Boolean = { false },
     ) {
@@ -322,6 +324,7 @@ class TagDetailDDayTabTest {
             DiaryTheme {
                 TagDetailDDayTab(
                     onEvent = onEvent,
+                    onDDayListEvent = onDDayListEvent,
                     modifier = Modifier.fillMaxSize(),
                     listState = rememberDDayListState(initialToday = today),
                     ddayPagingItems = pagingDataFlow.collectAsLazyPagingItems(),

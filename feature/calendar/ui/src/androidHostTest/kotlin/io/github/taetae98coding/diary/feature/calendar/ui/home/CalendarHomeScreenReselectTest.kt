@@ -6,8 +6,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.englishTitle
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
@@ -76,7 +76,6 @@ class CalendarHomeScreenReselectTest {
         val memoViewModel = mockk<CalendarHomeMemoViewModel>()
         every { memoViewModel.select(any()) } returns Unit
         every { memoViewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-        every { memoViewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
 
         composeRule.setContent {
             DiaryTheme {
@@ -97,6 +96,7 @@ class CalendarHomeScreenReselectTest {
                     permissionManager = rememberPermissionManager(),
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     birthdayViewModel = birthdayViewModel(),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),

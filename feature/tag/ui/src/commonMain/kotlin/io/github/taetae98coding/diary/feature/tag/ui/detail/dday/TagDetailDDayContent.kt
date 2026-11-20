@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.dday.DDayListEvent
 import io.github.taetae98coding.diary.compose.dday.DDayListState
 import io.github.taetae98coding.diary.compose.dday.DDayListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -54,9 +55,13 @@ internal fun TagDetailDDayContent(
         TagDetailDDayTab(
             onEvent = { event ->
                 when (event) {
-                    is TagDetailDDayContentEvent.ClickDDay -> navigateToDDayDetail(event.id)
                     is TagDetailDDayContentEvent.Refresh -> syncViewModel.refresh()
-                    is TagDetailDDayContentEvent.DeleteDDay -> ddayViewModel.delete(id = event.id)
+                }
+            },
+            onDDayListEvent = { event ->
+                when (event) {
+                    is DDayListEvent.ClickDDay -> navigateToDDayDetail(event.id)
+                    is DDayListEvent.SwipeDelete -> ddayViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

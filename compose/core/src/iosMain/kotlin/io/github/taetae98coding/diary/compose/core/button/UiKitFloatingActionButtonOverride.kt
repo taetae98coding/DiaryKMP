@@ -43,14 +43,14 @@ public class UiKitFloatingActionButtonMenuOverride(
                 UiKitFloatingActionButtonMenuItem(
                     id = item.icon.name,
                     text = item.text,
-                    image = rememberTemplateUIImage(imageVector = item.icon.imageVector, size = DiaryFloatingActionButtonDefaults.IosIconSize),
+                    image = rememberTemplateUIImage(imageVector = item.icon, size = DiaryFloatingActionButtonDefaults.IosIconSize),
                     onClick = item.onClick,
                 )
             }
 
         UiKitFloatingActionButton(
             renderer = renderer,
-            image = rememberTemplateUIImage(imageVector = icon.imageVector, size = DiaryFloatingActionButtonDefaults.IosIconSize),
+            image = rememberTemplateUIImage(imageVector = icon, size = DiaryFloatingActionButtonDefaults.IosIconSize),
             contentDescription = contentDescription,
             onClick = {},
             modifier = modifier,

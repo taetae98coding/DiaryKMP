@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.compose.routine.RoutineListEvent
 import io.github.taetae98coding.diary.compose.routine.RoutineListUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffect
 import io.github.taetae98coding.diary.compose.routine.rememberRoutineListState
+import io.github.taetae98coding.diary.feature.core.routine.UpdateRoutineTodayEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
 
@@ -32,8 +33,8 @@ internal fun TagRoutineFinishedListScreen(
     val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateRoutineListTodayEffect(state = listState)
-    UpdateTagRoutineFinishedListTodayEffect(
-        routineViewModel = routineViewModel,
+    UpdateRoutineTodayEffect(
+        onUpdate = routineViewModel::updateToday,
         listState = listState,
     )
     RoutineListUndoSnackbarEffect(

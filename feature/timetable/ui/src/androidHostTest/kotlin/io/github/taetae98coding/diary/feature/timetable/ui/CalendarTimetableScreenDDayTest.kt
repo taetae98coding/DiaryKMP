@@ -19,7 +19,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_ALL_DAY_TEST_TAG
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
@@ -89,7 +89,7 @@ class CalendarTimetableScreenDDayTest {
         val ddayListFlow = MutableStateFlow(emptyList<CalendarDDay>())
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 24), ddayListFlow = ddayListFlow)
         composeRule.onNodeWithText("24").assertIsDisplayed()
-        composeRule.onAllNodesWithText(DDAY_TEXT_PREFIX, substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText(DDAY_BASE_DAY_LABEL, substring = true).assertCountEquals(0)
 
         composeRule.runOnIdle { ddayListFlow.value = listOf(dday(title = EXAM_TITLE, day = 24)) }
         composeRule.waitForIdle()
@@ -231,7 +231,7 @@ class CalendarTimetableScreenDDayTest {
         composeRule.onNodeWithText(MEETING_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(CHUSEOK).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
-        composeRule.onAllNodesWithText(DDAY_TEXT_PREFIX, substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText(DDAY_BASE_DAY_LABEL, substring = true).assertCountEquals(0)
         composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
@@ -331,13 +331,13 @@ class CalendarTimetableScreenDDayTest {
     private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
 
     private companion object {
-        const val DDAY_TEXT_PREFIX = "🎉"
+        const val DDAY_BASE_DAY_LABEL = "D-Day"
         const val EXAM_TITLE = "수능"
-        const val EXAM_TEXT = "🎉 수능 D-Day"
+        const val EXAM_TEXT = "수능 D-Day"
         const val US_TITLE = "우리"
-        const val US_HUNDRED_DAYS_TEXT = "🎉 우리 100일"
+        const val US_HUNDRED_DAYS_TEXT = "우리 100일"
         const val TOEIC_TITLE = "토익"
-        const val TOEIC_TEXT = "🎉 토익 D-Day"
+        const val TOEIC_TEXT = "토익 D-Day"
         const val MEETING_TITLE = "Meeting"
         const val CHUSEOK = "추석"
         const val BIRTHDAY_NAME = "홍길동"

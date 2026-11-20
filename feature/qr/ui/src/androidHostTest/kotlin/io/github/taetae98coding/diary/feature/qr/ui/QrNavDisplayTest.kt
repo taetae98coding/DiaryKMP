@@ -33,8 +33,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail

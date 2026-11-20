@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.database.impl.contact.transaction
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.contact.localContact
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -12,7 +13,6 @@ import io.github.taetae98coding.diary.core.database.impl.contact.datasource.Acco
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.testing.contact.contactPhoneNumberCaseList
-import io.github.taetae98coding.diary.core.testing.contact.localContact
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly

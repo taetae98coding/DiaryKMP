@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.PlaceListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
@@ -68,8 +69,6 @@ internal fun TagDetailPlaceContent(
                 when (event) {
                     is TagDetailPlaceContentEvent.ClickPlace -> navigateToPlaceDetail(event.id)
 
-                    is TagDetailPlaceContentEvent.DeletePlace -> placeViewModel.delete(id = event.id)
-
                     is TagDetailPlaceContentEvent.MoveMap -> {
                         placeViewModel.updateVisibleBounds(event.bounds)
                         state.moveMap(coordinate = event.coordinate)
@@ -80,6 +79,12 @@ internal fun TagDetailPlaceContent(
                     is TagDetailPlaceContentEvent.ClickSort -> sortSheetState.show()
 
                     is TagDetailPlaceContentEvent.SelectSort -> placeViewModel.select(sort = event.sort)
+                }
+            },
+            onPlaceListEvent = { event ->
+                when (event) {
+                    is PlaceListEvent.ClickPlace -> navigateToPlaceDetail(event.id)
+                    is PlaceListEvent.SwipeDelete -> placeViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

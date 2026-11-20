@@ -76,8 +76,7 @@ class FileAddScreenRetentionTest {
 
     @Test
     fun `TC-a9080c1a-48cd-482d-919f-5d6a329bfbda 시스템이 앱을 정리했다가 복원하면 제목과 설명만 되살린다`() {
-        // 시스템이 앱을 정리하면 ViewModel도 새로 만들어지므로, 복원하는 순간 새 화면 상태로 바꾼다.
-        var screen by mutableStateOf(FileAddTestScreen())
+        var screen = FileAddTestScreen()
         val tester = StateRestorationTester(composeRule)
         screen.pick(source = Arb.fileUploadSource(name = FILE_NAME).next())
 
@@ -120,7 +119,7 @@ class FileAddScreenRetentionTest {
     // 선택 도구의 결과는 다시 만들어진 화면의 onPick으로 전달된다. 전달 자체는 플랫폼 선택 도구 테스트가 확인한다.
     private fun assertPickedAfterRecreation(isProcessRecreated: Boolean) {
         val source = Arb.fileUploadSource(name = FILE_NAME).next()
-        var screen by mutableStateOf(FileAddTestScreen())
+        var screen = FileAddTestScreen()
         val tester = StateRestorationTester(composeRule)
 
         tester.setContent { screen.Content() }

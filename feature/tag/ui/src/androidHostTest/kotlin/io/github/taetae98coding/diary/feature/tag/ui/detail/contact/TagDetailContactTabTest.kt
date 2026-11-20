@@ -19,8 +19,9 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagContact
@@ -86,12 +87,12 @@ class TagDetailContactTabTest {
     @Test
     fun `TC-3d3d1f17-09df-420f-8a4f-cb47542ec96c 연락처를 선택하면 그 연락처의 상세 이동을 요청한다`() {
         val item = tagContact(name = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailContactContentEvent>()
-        setContactTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setContactTab(pagingData = tagEntityPagingData(itemList = listOf(item)), onEvent = eventList::add, onContactListEvent = eventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
-        eventList shouldBe listOf(TagDetailContactContentEvent.ClickContact(id = item.contact.id))
+        eventList shouldBe listOf(ContactListEvent.ClickContact(id = item.contact.id))
     }
 
     @Test
@@ -122,10 +123,11 @@ class TagDetailContactTabTest {
 
     @Test
     fun `TC-f76e8090-9cf9-4cba-bf68-84a5dcb0bcc8 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailContactContentEvent>()
+        val eventList = mutableListOf<Any>()
         setContactTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagContact(name = FIRST_TITLE))),
             onEvent = eventList::add,
+            onContactListEvent = eventList::add,
         )
 
         composeRule.refreshableList().performTouchInput { swipeDown() }
@@ -136,8 +138,8 @@ class TagDetailContactTabTest {
 
     @Test
     fun `TC-f76e8090-9cf9-4cba-bf68-84a5dcb0bcc8 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
-        val eventList = mutableListOf<TagDetailContactContentEvent>()
-        setContactTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
+        val eventList = mutableListOf<Any>()
+        setContactTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add, onContactListEvent = eventList::add)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
@@ -164,24 +166,26 @@ class TagDetailContactTabTest {
     @Test
     fun `TC-139803d7-0f5d-470b-b383-b638e02b0e04 연락처 카드를 삭제 방향으로 밀면 그 연락처의 삭제를 전달한다`() {
         val item = tagContact(name = FIRST_TITLE)
-        val eventList = mutableListOf<TagDetailContactContentEvent>()
+        val eventList = mutableListOf<Any>()
         setContactTab(
             pagingData = tagEntityPagingData(itemList = listOf(item)),
             onEvent = eventList::add,
+            onContactListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(CONTACT_CARD_TEST_TAG).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(TagDetailContactContentEvent.DeleteContact(id = item.contact.id))
+        eventList shouldBe listOf(ContactListEvent.SwipeDelete(id = item.contact.id))
     }
 
     @Test
     fun `TC-2d42ad22-79c8-408b-be0d-0019b721cd2a 연락처 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
-        val eventList = mutableListOf<TagDetailContactContentEvent>()
+        val eventList = mutableListOf<Any>()
         setContactTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagContact(name = FIRST_TITLE))),
             onEvent = eventList::add,
+            onContactListEvent = eventList::add,
         )
 
         composeRule.onNodeWithTag(CONTACT_CARD_TEST_TAG).performTouchInput { swipeRight() }
@@ -193,10 +197,11 @@ class TagDetailContactTabTest {
 
     @Test
     fun `목록 위에 지금 정렬을 표시하고 정렬을 고르면 그 기준을 전달한다`() {
-        val eventList = mutableListOf<TagDetailContactContentEvent>()
+        val eventList = mutableListOf<Any>()
         setContactTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagContact(name = FIRST_TITLE))),
             onEvent = eventList::add,
+            onContactListEvent = eventList::add,
         )
 
         composeRule.onNodeWithText(DEFAULT_SORT_LABEL).assertIsDisplayed()
@@ -222,6 +227,7 @@ class TagDetailContactTabTest {
     private fun setContactTab(
         pagingData: PagingData<ContactListItem> = PagingData.empty(),
         onEvent: (TagDetailContactContentEvent) -> Unit = {},
+        onContactListEvent: (ContactListEvent) -> Unit = {},
         isRefreshingProvider: () -> Boolean = { false },
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -230,6 +236,7 @@ class TagDetailContactTabTest {
             DiaryTheme {
                 TagDetailContactTab(
                     onEvent = onEvent,
+                    onContactListEvent = onContactListEvent,
                     modifier = Modifier.fillMaxSize(),
                     contactPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     isRefreshingProvider = isRefreshingProvider,

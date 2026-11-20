@@ -23,7 +23,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.toListItem

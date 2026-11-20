@@ -13,9 +13,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInput
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PlaceCoordinateInput
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.domain.qr.content.QrWifiSecurity
 import io.github.taetae98coding.diary.feature.qr.ui.Res

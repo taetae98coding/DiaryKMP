@@ -17,17 +17,17 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.QrIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.QrIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.qr.QrListEvent
 import io.github.taetae98coding.diary.compose.qr.SwipeQrCard
 import io.github.taetae98coding.diary.compose.qr.previewQr
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -39,6 +39,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TagDetailQrTab(
     onEvent: (TagDetailQrContentEvent) -> Unit,
+    onQrListEvent: (QrListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyGridState = rememberLazyGridState(),
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
@@ -64,6 +65,7 @@ internal fun TagDetailQrTab(
         } else {
             QrGrid(
                 onEvent = onEvent,
+                onQrListEvent = onQrListEvent,
                 gridState = gridState,
                 qrPagingItems = qrPagingItems,
                 isRefreshingProvider = isRefreshingProvider,
@@ -75,6 +77,7 @@ internal fun TagDetailQrTab(
 @Composable
 private fun QrGrid(
     onEvent: (TagDetailQrContentEvent) -> Unit,
+    onQrListEvent: (QrListEvent) -> Unit,
     gridState: LazyGridState,
     qrPagingItems: LazyPagingItems<Qr>,
     modifier: Modifier = Modifier,
@@ -93,12 +96,7 @@ private fun QrGrid(
             val qr = qrPagingItems[index]
 
             SwipeQrCard(
-                onEvent = { event ->
-                    when (event) {
-                        is QrListEvent.ClickQr -> onEvent(TagDetailQrContentEvent.ClickQr(id = event.id))
-                        is QrListEvent.SwipeDelete -> onEvent(TagDetailQrContentEvent.DeleteQr(id = event.id))
-                    }
-                },
+                onEvent = onQrListEvent,
                 modifier =
                     Modifier
                         .animateItem()
@@ -137,6 +135,7 @@ private fun TagDetailQrTabPreview() {
         Surface {
             TagDetailQrTab(
                 onEvent = {},
+                onQrListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 qrPagingItems = pagingData.collectAsLazyPagingItems(),
             )

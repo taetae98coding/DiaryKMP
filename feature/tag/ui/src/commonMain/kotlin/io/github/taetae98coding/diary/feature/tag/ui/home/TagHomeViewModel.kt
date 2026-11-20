@@ -13,7 +13,7 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
-import io.github.taetae98coding.diary.domain.tag.usecase.PageTagHomeUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageFilteredTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestoreTagUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListItemActions
@@ -34,7 +34,7 @@ import kotlin.uuid.Uuid
 @KoinViewModel
 internal class TagHomeViewModel(
     getTopLevelTagFilterUseCase: GetTopLevelTagFilterUseCase,
-    pageTagHomeUseCase: PageTagHomeUseCase,
+    pageFilteredTagUseCase: PageFilteredTagUseCase,
     finishTagUseCase: FinishTagUseCase,
     restartTagUseCase: RestartTagUseCase,
     deleteTagUseCase: DeleteTagUseCase,
@@ -67,7 +67,7 @@ internal class TagHomeViewModel(
     val tagPagingData: Flow<PagingData<Tag>> =
         sortUiState
             .flatMapLatest { (sort) ->
-                pageTagHomeUseCase(parameter = sort).map { result -> result.getOrElse { PagingData.empty() } }
+                pageFilteredTagUseCase(parameter = sort).map { result -> result.getOrElse { PagingData.empty() } }
             }.cachedIn(viewModelScope)
 
     fun select(sort: ListSort) {

@@ -6,6 +6,8 @@ import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.datasource.AccountTagLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
@@ -19,8 +21,6 @@ import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
-import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid

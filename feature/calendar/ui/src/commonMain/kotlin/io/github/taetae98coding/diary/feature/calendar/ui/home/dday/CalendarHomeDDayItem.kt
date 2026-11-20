@@ -11,6 +11,8 @@ import io.github.taetae98coding.diary.compose.calendar.move.calendarLongPressIgn
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldEvent
 
+private const val DDAY_CONTENT_TYPE = "dday"
+
 internal fun CalendarWeekOfMonthGridGroupScope.ddayItem(
     moveState: CalendarItemMoveState,
     ddayProvider: () -> List<CalendarDDay>,
@@ -20,6 +22,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.ddayItem(
         item(
             dateRange = dday.toDateRange(),
             key = dday.itemKey(),
+            contentType = DDAY_CONTENT_TYPE,
         ) {
             CalendarDDayText(
                 title = dday.title,

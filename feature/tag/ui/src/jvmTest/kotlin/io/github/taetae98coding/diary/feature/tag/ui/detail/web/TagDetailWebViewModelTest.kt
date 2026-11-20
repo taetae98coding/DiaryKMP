@@ -41,6 +41,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -193,6 +194,7 @@ class TagDetailWebViewModelTest : FunSpec() {
 
                 viewModel.delete(id = webId)
                 viewModel.delete(id = webId)
+                runCurrent()
                 gate.complete(Unit)
                 advanceUntilIdle()
 
@@ -213,6 +215,7 @@ class TagDetailWebViewModelTest : FunSpec() {
 
                 viewModel.restore(id = webId)
                 viewModel.restore(id = webId)
+                runCurrent()
                 gate.complete(Unit)
                 advanceUntilIdle()
 

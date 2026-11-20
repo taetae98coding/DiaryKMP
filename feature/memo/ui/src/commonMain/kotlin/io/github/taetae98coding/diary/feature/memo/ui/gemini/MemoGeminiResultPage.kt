@@ -19,10 +19,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
-import io.github.taetae98coding.diary.compose.core.icon.CheckIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.text.DiaryMarkdown
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.CheckIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.feature.memo.ui.Res

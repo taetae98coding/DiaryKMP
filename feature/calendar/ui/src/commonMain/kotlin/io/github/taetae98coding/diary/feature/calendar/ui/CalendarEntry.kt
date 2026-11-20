@@ -3,8 +3,10 @@
 package io.github.taetae98coding.diary.feature.calendar.ui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
@@ -45,28 +47,30 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
             state = state,
         )
         CalendarHomeScreen(
-            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
-            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
-            navigateToMemoAdd = { dateRange ->
-                backStack.add(
-                    MemoAddNavKey(
-                        initialDateRange =
-                            MemoAddNavKey.InitialDateRange(
-                                start = dateRange.start,
-                                endInclusive = dateRange.endInclusive,
-                            ),
-                    ),
-                )
-            },
-            navigateToContactDetail = { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
-            navigateToFilter = { backStack.add(CalendarHomeFilterNavKey) },
-            navigateToTimetable = backStack::add,
+            navigateToMemoDetail = dropUnlessResumedWithArg { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateToDDayDetail = dropUnlessResumedWithArg { id -> backStack.add(DDayDetailNavKey(id = id)) },
+            navigateToMemoAdd =
+                dropUnlessResumedWithArg { dateRange ->
+                    backStack.add(
+                        MemoAddNavKey(
+                            initialDateRange =
+                                MemoAddNavKey.InitialDateRange(
+                                    start = dateRange.start,
+                                    endInclusive = dateRange.endInclusive,
+                                ),
+                        ),
+                    )
+                },
+            navigateToContactDetail = dropUnlessResumedWithArg { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
+            navigateToFilter = dropUnlessResumed { backStack.add(CalendarHomeFilterNavKey) },
+            navigateToTimetable = dropUnlessResumedWithArg { key -> backStack.add(key) },
             state = state,
             permissionManager = rememberPermissionManager(),
             holidayViewModel = koinViewModel(),
             memoViewModel = koinViewModel(),
             ddayViewModel = koinViewModel(),
             birthdayViewModel = koinViewModel(),
+            filterViewModel = koinViewModel(),
             weatherViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )

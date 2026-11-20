@@ -16,7 +16,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import io.github.taetae98coding.diary.compose.calendar.dayofweek.CalendarDayOfWeekRow
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonth
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next

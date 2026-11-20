@@ -16,9 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountCard
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiStatePreviewParameter
@@ -30,6 +30,7 @@ import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignO
 import org.jetbrains.compose.resources.stringResource
 
 private const val ACCOUNT_KEY = "account"
+private const val MENU_CONTENT_TYPE = "menu"
 
 @Composable
 internal fun MoreHomeScaffold(
@@ -59,6 +60,7 @@ internal fun MoreHomeScaffold(
             item(
                 key = ACCOUNT_KEY,
                 span = { GridItemSpan(maxLineSpan) },
+                contentType = ACCOUNT_KEY,
             ) {
                 MoreHomeAccountCard(
                     onEvent = onEvent,
@@ -73,6 +75,7 @@ internal fun MoreHomeScaffold(
             items(
                 items = moreHomeMenuList,
                 key = { menu -> menu.name },
+                contentType = { MENU_CONTENT_TYPE },
             ) { menu ->
                 MoreHomeMenuCard(
                     onClick = { onEvent(MoreHomeScaffoldEvent.ClickMenu(menu)) },

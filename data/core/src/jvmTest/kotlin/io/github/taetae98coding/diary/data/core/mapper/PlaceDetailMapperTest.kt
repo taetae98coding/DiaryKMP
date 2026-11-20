@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.place.placeDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
-import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

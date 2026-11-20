@@ -55,7 +55,10 @@ struct DDayEntity: AppEntity {
     @Property(title: LocalizedStringResource("Updated", table: "AppIntentCore"))
     var updatedAt: Date
 
-    // 목록 결과에는 데스크톱 연결과 같이 연결된 태그가 없으므로, 태그는 상세 결과에서만 채워진다.
+    // 대표 태그는 목록, 상세와 검색 결과에 모두 담기고, 연결된 태그는 데스크톱 연결과 같이 상세 결과에서만 채워진다.
+    @Property(title: LocalizedStringResource("Primary Tag", table: "AppIntentCore"))
+    var primaryTag: TagEntity?
+
     @Property(title: LocalizedStringResource("Tags", table: "AppIntentCore"))
     var tags: [TagEntity]
 
@@ -85,6 +88,7 @@ struct DDayEntity: AppEntity {
         createdAt = Date(epochMillis: dday.createdAtEpochMillis)
         updatedAt = Date(epochMillis: dday.updatedAtEpochMillis)
         self.tags = tags.map(TagEntity.init(tag:))
+        primaryTag = dday.primaryTag.map(TagEntity.init(tag:))
     }
 
     // 카드 문구는 동작을 실행한 시점의 오늘로 계산한 값이다.

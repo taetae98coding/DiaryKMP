@@ -8,17 +8,17 @@ import kotlin.time.Duration
 public interface WeatherRemoteDataSource {
     public val forecastInterval: Duration
 
-    public suspend fun getCurrentWeather(
+    public suspend fun readCurrentWeather(
         latitude: Double,
         longitude: Double,
     ): CurrentWeatherRemoteEntity
 
-    public suspend fun getForecast(
+    public suspend fun readForecast(
         latitude: Double,
         longitude: Double,
     ): ForecastRemoteEntity
 
-    public suspend fun getLocationName(
+    public suspend fun readLocationName(
         latitude: Double,
         longitude: Double,
     ): List<LocationNameRemoteEntity>

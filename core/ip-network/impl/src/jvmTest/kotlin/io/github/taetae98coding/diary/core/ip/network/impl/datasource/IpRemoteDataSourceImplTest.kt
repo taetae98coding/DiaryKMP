@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.core.ip.network.impl.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.ip.ipRemoteEntity
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.ip.network.impl.IpNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.ip.network.impl.createIpHttpClient
 import io.github.taetae98coding.diary.core.ip.network.impl.di.IpHttpClient
-import io.github.taetae98coding.diary.core.testing.ip.ipRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -31,7 +31,7 @@ class IpRemoteDataSourceImplTest :
             val engine = createMockEngine(entity = entity)
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.get()
+            val actual = dataSource.read()
 
             actual shouldBe entity
         }
@@ -40,7 +40,7 @@ class IpRemoteDataSourceImplTest :
             val engine = createMockEngine(entity = Arb.ipRemoteEntity().next())
             val dataSource = createDataSource(engine)
 
-            dataSource.get()
+            dataSource.read()
 
             engine.requestHistory.size shouldBe 1
             engine.requestHistory
@@ -52,7 +52,7 @@ class IpRemoteDataSourceImplTest :
             val engine = createMockEngine(entity = Arb.ipRemoteEntity().next())
             val dataSource = createDataSource(engine)
 
-            dataSource.get()
+            dataSource.read()
 
             engine.requestHistory
                 .single()
@@ -70,7 +70,7 @@ class IpRemoteDataSourceImplTest :
                 }
             val dataSource = createDataSource(engine)
 
-            shouldThrow<ResponseException> { dataSource.get() }
+            shouldThrow<ResponseException> { dataSource.read() }
         }
     }) {
     public companion object {

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.taetae98coding.diary.library.locale
 
 internal actual fun platformLanguageTag(): String = navigatorLanguage()

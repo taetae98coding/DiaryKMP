@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
 import org.junit.Rule

@@ -7,6 +7,7 @@ internal fun DDayLocalEntity.toRemote(): DDayRemoteEntity =
     DDayRemoteEntity(
         id = id,
         detail = detail.toRemote(),
+        primaryTagId = primaryTagId,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,
@@ -16,6 +17,7 @@ internal fun DDayRemoteEntity.toLocal(): DDayLocalEntity =
     DDayLocalEntity(
         id = id,
         detail = detail.toLocal(),
+        primaryTagId = primaryTagId,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,

@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.dayOfWeekColor
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.library.kotlinx.datetime.sundayBasedNumber
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange

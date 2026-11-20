@@ -10,12 +10,12 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import io.github.taetae98coding.diary.compose.core.icon.FolderIcon
-import io.github.taetae98coding.diary.compose.core.icon.UndoIcon
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItem
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItemDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.FolderIcon
+import io.github.taetae98coding.diary.compose.icon.UndoIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.previewFileDownloadDirectory

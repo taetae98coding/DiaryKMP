@@ -1,0 +1,228 @@
+package io.github.taetae98coding.diary.compose.tag.primary
+
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class PrimaryTagInputTest {
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    @Test
+    fun `선택한 태그를 칩으로 표시하고 대표 태그 칩은 태그 이름에 더해 대표 태그 상태 설명을 제공한다`() {
+        val primaryTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
+
+        composeRule.setPrimaryTagInput(
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(primaryTag, otherTag), primaryTagId = primaryTag.id),
+        )
+
+        composeRule.onNode(hasPrimaryTagState()).assert(hasText(WORK_TAG_TITLE))
+        composeRule.onNode(hasText(EXERCISE_TAG_TITLE)).assert(!hasPrimaryTagState())
+        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_STATE_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-506909e0-1741-417b-857c-d733d121ebb2 선택한 태그의 이모지나 제목이 바뀌면 태그 칩에 반영된다`() {
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
+        val renamedTag = tag.copy(detail = tag.detail.copy(emoji = RENAMED_TAG_EMOJI, title = RENAMED_TAG_TITLE))
+        val selectTagList = composeRule.setPrimaryTagInputWithSelection()
+        selectTagList(listOf(tag, otherTag), tag.id)
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+
+        selectTagList(listOf(renamedTag, otherTag), tag.id)
+
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText("$RENAMED_TAG_EMOJI $RENAMED_TAG_TITLE").assertExists()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        composeRule.onNode(hasPrimaryTagState()).assertExists()
+    }
+
+    @Test
+    fun `선택한 태그 구성이 그대로면 태그 내용이 바뀌어도 칩을 전환 없이 갱신한다`() {
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val selectTagList = composeRule.setPrimaryTagInputWithSelection()
+        selectTagList(listOf(tag), tag.id)
+
+        composeRule.mainClock.autoAdvance = false
+        selectTagList(listOf(tag.copy(detail = tag.detail.copy(title = RENAMED_TAG_TITLE))), tag.id)
+        composeRule.mainClock.advanceTimeByFrame()
+
+        // 전환이 일어나면 이전 칩이 사라지기 전까지 두 제목이 함께 남는다.
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(RENAMED_TAG_TITLE).assertExists()
+    }
+
+    @Test
+    fun `칩이 칩 영역보다 많으면 태그 입력이 그만큼 높아진다`() {
+        val tagList = List(size = SCROLL_TAG_COUNT) { index -> Arb.tag(title = "$SCROLL_TAG_TITLE_PREFIX$index", isFinished = false).next() }
+        val selectTagList = composeRule.setPrimaryTagInputWithSelection()
+        val emptyHeight = composeRule.primaryTagInputHeight()
+
+        selectTagList(tagList, tagList.first().id)
+
+        composeRule.onNodeWithText(tagList.last().detail.title).assertExists()
+        composeRule.primaryTagInputHeight() shouldBeGreaterThan emptyHeight
+    }
+
+    @Test
+    fun `칩이 많아도 칩 영역은 세로 스크롤을 가져가지 않는다`() {
+        val tagList = List(size = SCROLL_TAG_COUNT) { index -> Arb.tag(title = "$SCROLL_TAG_TITLE_PREFIX$index", isFinished = false).next() }
+
+        composeRule.setPrimaryTagInput(uiState = PrimaryTagInputUiState(selectedTagList = tagList))
+
+        composeRule.onNode(hasScrollAction()).assertDoesNotExist()
+    }
+
+    @Test
+    fun `태그를 선택해 칩이 칩 영역 안에 들어가면 태그 입력의 높이가 바뀌지 않는다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        val selectTagList = composeRule.setPrimaryTagInputWithSelection()
+        val emptyHeight = composeRule.primaryTagInputHeight()
+
+        selectTagList(tagList, tagList.first().id)
+
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.primaryTagInputHeight() shouldBe emptyHeight
+    }
+
+    @Test
+    fun `TC-bc8f0644-67fb-42ed-a0d2-51d37a8ed57f 태그 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        var addClickCount = 0
+        composeRule.setPrimaryTagInput(
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(tagList.first())),
+            onAddClick = { addClickCount += 1 },
+        )
+
+        composeRule.onNodeWithText(WORK_TAG_TITLE).performClick()
+
+        addClickCount shouldBe 0
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-bc8f0644-67fb-42ed-a0d2-51d37a8ed57f 대표 태그 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        var addClickCount = 0
+        composeRule.setPrimaryTagInput(
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(tag), primaryTagId = tag.id),
+            onAddClick = { addClickCount += 1 },
+        )
+
+        composeRule.onNode(hasPrimaryTagState()).performClick()
+
+        addClickCount shouldBe 0
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+    }
+
+    public companion object {
+        private const val SCROLL_TAG_TITLE_PREFIX = "PrimaryTagScroll"
+        private const val SCROLL_TAG_COUNT = 30
+        private const val RENAMED_TAG_TITLE = "PrimaryTagRenamed"
+        private const val RENAMED_TAG_EMOJI = "🏃"
+    }
+}
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class PrimaryTagInputAddChipTest {
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `한국어 환경에서 태그 입력의 문구를 표시한다`() {
+        composeRule.setPrimaryTagInput(uiState = PrimaryTagInputUiState())
+
+        composeRule.onNodeWithText(KOREAN_TAG_SELECT_LABEL).assert(hasClickLabel(KOREAN_SELECT_ACTION))
+    }
+
+    @Test
+    fun `기본 환경에서 태그 입력의 문구를 표시한다`() {
+        composeRule.setPrimaryTagInput(uiState = PrimaryTagInputUiState())
+
+        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).assert(hasClickLabel(DEFAULT_SELECT_ACTION))
+    }
+
+    @Test
+    fun `추가 항목을 누르면 추가 항목의 동작이 한 번 실행된다`() {
+        var addClickCount = 0
+        composeRule.setPrimaryTagInput(onAddClick = { addClickCount += 1 })
+
+        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performClick()
+
+        addClickCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-37983c15-cd49-4a4f-86f5-6ae1f971f6a6 선택한 태그가 없거나 여러 개여도 태그 추가 항목이 표시된다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        val selectTagList = composeRule.setPrimaryTagInputWithSelection()
+
+        listOf(
+            emptyList(),
+            tagList,
+        ).forEach { selectedTagList ->
+            selectTagList(selectedTagList, null)
+
+            composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).assertExists()
+        }
+    }
+}
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class PrimaryTagInputNavigationTest {
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    @Test
+    fun `TC-39d55be9-24bb-4cf6-a389-20fa8a9896be 태그 칩을 누르면 그 태그를 대상으로 상세 이동을 요청한다`() {
+        val primaryTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
+        val clickedTagIdList = mutableListOf<Uuid>()
+
+        composeRule.setPrimaryTagInput(
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(primaryTag, otherTag), primaryTagId = primaryTag.id),
+            onTagClick = { id -> clickedTagIdList += id },
+        )
+
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assert(hasClickLabel(DEFAULT_TAG_DETAIL_ACTION))
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).performClick()
+
+        clickedTagIdList shouldBe listOf(otherTag.id, primaryTag.id)
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-39d55be9-24bb-4cf6-a389-20fa8a9896be 한국어 환경에서 태그 칩에 상세 이동 동작 이름을 제공한다`() {
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+
+        composeRule.setPrimaryTagInput(
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(tag)),
+        )
+
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assert(hasClickLabel(KOREAN_TAG_DETAIL_ACTION))
+    }
+}

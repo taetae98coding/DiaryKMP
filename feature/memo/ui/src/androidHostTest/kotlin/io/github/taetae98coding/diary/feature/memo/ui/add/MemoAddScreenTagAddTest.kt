@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.result.ResultEventBus
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
@@ -26,8 +27,9 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodesWithContentDescription
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -95,7 +97,7 @@ class MemoAddScreenTagAddTest {
 
     @Test
     fun `TC-b0fb7327-b66b-40b9-b9c4-faa017b04f26 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         var tagAddCount = 0
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = tagList),
@@ -115,7 +117,7 @@ class MemoAddScreenTagAddTest {
 
     @Test
     fun `TC-d11b50b3-121d-4983-88d6-1a660df2c883 태그를 하나도 추가하지 않고 돌아오면 선택과 대표 태그 지정이 그대로 유지된다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         var tagAddCount = 0
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = tagList),
@@ -136,7 +138,7 @@ class MemoAddScreenTagAddTest {
 
     @Test
     fun `TC-c6fbd2c0-5893-496c-a939-9d69e0c0e39c TagAdd 화면에서 돌아와도 태그 선택 목록이 저절로 열리지 않는다`() {
-        val addedTag = testTag(title = EXERCISE_TAG_TITLE)
+        val addedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = listOf(addedTag)),
@@ -171,8 +173,8 @@ class MemoAddScreenTagAddedResultTest {
 
     @Test
     fun `TC-1b126340-2892-425b-9c0e-af03b7126bbe TagAdd 화면에서 추가한 태그 하나가 돌아왔을 때 선택된다`() {
-        val selectedTag = testTag(title = WORK_TAG_TITLE)
-        val addedTag = testTag(title = EXERCISE_TAG_TITLE)
+        val selectedTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val addedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = listOf(selectedTag, addedTag)),
@@ -189,9 +191,9 @@ class MemoAddScreenTagAddedResultTest {
 
     @Test
     fun `TC-1b126340-2892-425b-9c0e-af03b7126bbe TagAdd 화면에서 추가한 태그 여러 개가 돌아왔을 때 모두 선택된다`() {
-        val selectedTag = testTag(title = WORK_TAG_TITLE)
-        val firstAddedTag = testTag(title = FIRST_ADDED_TAG_TITLE)
-        val secondAddedTag = testTag(title = SECOND_ADDED_TAG_TITLE)
+        val selectedTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val firstAddedTag = Arb.tag(title = FIRST_ADDED_TAG_TITLE, isFinished = false).next()
+        val secondAddedTag = Arb.tag(title = SECOND_ADDED_TAG_TITLE, isFinished = false).next()
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = listOf(selectedTag, firstAddedTag, secondAddedTag)),
@@ -210,7 +212,7 @@ class MemoAddScreenTagAddedResultTest {
 
     @Test
     fun `TC-877ab043-5848-4383-9fcd-5b946be8b873 대표 태그를 지정하지 않았으면 자동 선택 후에도 대표 태그가 없다`() {
-        val addedTag = testTag(title = EXERCISE_TAG_TITLE)
+        val addedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = listOf(addedTag)),
@@ -226,8 +228,8 @@ class MemoAddScreenTagAddedResultTest {
 
     @Test
     fun `TC-877ab043-5848-4383-9fcd-5b946be8b873 대표 태그를 지정했으면 자동 선택 후에도 대표 태그 지정이 유지된다`() {
-        val primaryTag = testTag(title = WORK_TAG_TITLE)
-        val addedTag = testTag(title = EXERCISE_TAG_TITLE)
+        val primaryTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val addedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = listOf(primaryTag, addedTag)),
@@ -246,7 +248,7 @@ class MemoAddScreenTagAddedResultTest {
 
     @Test
     fun `TC-5e392596-9dec-42ea-99c5-3790e3891bab 자동 선택된 태그의 선택을 해제하면 다시 선택되지 않는다`() {
-        val addedTag = testTag(title = EXERCISE_TAG_TITLE)
+        val addedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = listOf(addedTag)),
@@ -265,7 +267,7 @@ class MemoAddScreenTagAddedResultTest {
 
     @Test
     fun `TC-1e495bf2-5f43-4927-829f-0086fd4a60e9 이 입력에서 이동하지 않은 TagAdd 화면의 태그는 자동 선택되지 않는다`() {
-        val addedTag = testTag(title = EXERCISE_TAG_TITLE)
+        val addedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next()
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForTagAdd(
             viewModels = screenTestRealViewModel(tagList = listOf(addedTag)),

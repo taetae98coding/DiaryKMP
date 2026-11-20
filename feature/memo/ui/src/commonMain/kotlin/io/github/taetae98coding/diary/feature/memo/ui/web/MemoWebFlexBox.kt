@@ -8,8 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAddChip
 import io.github.taetae98coding.diary.compose.core.layout.DiaryChipFlexBox
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.web.previewWeb
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_web_select_action

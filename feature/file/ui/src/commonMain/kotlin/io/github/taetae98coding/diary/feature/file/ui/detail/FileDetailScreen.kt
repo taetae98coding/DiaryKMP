@@ -1,10 +1,11 @@
 package io.github.taetae98coding.diary.feature.file.ui.detail
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
@@ -54,7 +55,7 @@ internal fun FileDetailScreen(
 
 @Composable
 private fun FetchFileEffect(detailViewModel: FileDetailViewModel) {
-    LaunchedEffect(detailViewModel) {
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
         detailViewModel.fetch()
     }
 }

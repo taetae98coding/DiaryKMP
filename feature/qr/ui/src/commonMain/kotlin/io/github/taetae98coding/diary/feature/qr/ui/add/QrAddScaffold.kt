@@ -12,21 +12,23 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.QrCodeScanner
+import io.github.taetae98coding.diary.compose.icon.Undo
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddForm
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
-import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrFormEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_title
@@ -39,7 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun QrAddScaffold(
     onEvent: (QrAddScaffoldEvent) -> Unit,
-    onFormEvent: (QrFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: QrAddFormState = rememberQrAddFormState(),
@@ -61,13 +63,13 @@ internal fun QrAddScaffold(
                 isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
                 actions = {
                     IconAction(
-                        icon = DiaryTopBarIcon.UNDO,
+                        icon = DiaryIcons.Undo,
                         contentDescription = undoContentDescription,
                         onClick = { onEvent(QrAddScaffoldEvent.ClickUndo) },
                         isEnabled = state.contentState.canUndo,
                     )
                     IconAction(
-                        icon = DiaryTopBarIcon.QR_SCAN,
+                        icon = DiaryIcons.QrCodeScanner,
                         contentDescription = scanContentDescription,
                         onClick = { onEvent(QrAddScaffoldEvent.ClickScan) },
                     )

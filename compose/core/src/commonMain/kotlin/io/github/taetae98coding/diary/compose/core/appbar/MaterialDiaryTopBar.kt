@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -38,12 +39,16 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.button.buttonContentDescription
-import io.github.taetae98coding.diary.compose.core.icon.DropDownIcon
-import io.github.taetae98coding.diary.compose.core.icon.DropUpIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.textfield.DiarySearchInputField
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.core.tooltip.DiaryTooltipBox
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.DropDownIcon
+import io.github.taetae98coding.diary.compose.icon.DropUpIcon
+import io.github.taetae98coding.diary.compose.icon.FilterList
+import io.github.taetae98coding.diary.compose.icon.Verified
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 internal fun MaterialDiaryTopBar(
@@ -172,7 +177,7 @@ private fun MaterialTopBarIconButton(action: DiaryTopBarAction.Icon) {
             modifier = Modifier.buttonContentDescription(contentDescription = action.contentDescription),
             enabled = action.isEnabled,
         ) {
-            MaterialTopBarActionIcon(icon = action.icon, isInProgress = action.isInProgress)
+            MaterialTopBarActionIcon(icon = action.icon, actionKey = action.key, isInProgress = action.isInProgress)
         }
     }
 }
@@ -185,7 +190,7 @@ private fun MaterialTopBarToggleButton(action: DiaryTopBarAction.Toggle) {
             onCheckedChange = { action.onClick() },
             modifier = Modifier.buttonContentDescription(contentDescription = action.contentDescription),
         ) {
-            MaterialTopBarActionIcon(icon = action.icon, isInProgress = action.isInProgress)
+            MaterialTopBarActionIcon(icon = action.icon, actionKey = action.key, isInProgress = action.isInProgress)
         }
     }
 }
@@ -211,7 +216,7 @@ private fun MaterialTopBarAppliedButton(action: DiaryTopBarAction.Applied) {
                     },
             ),
     ) {
-        Icon(imageVector = action.icon.imageVector, contentDescription = null)
+        Icon(imageVector = action.icon, contentDescription = null)
     }
 }
 
@@ -235,23 +240,24 @@ private fun MaterialTopBarTextButton(action: DiaryTopBarAction.Text) {
 
 @Composable
 private fun MaterialTopBarActionIcon(
-    icon: DiaryTopBarIcon,
+    icon: ImageVector,
+    actionKey: String,
     isInProgress: Boolean,
 ) {
-    key(icon.buttonKey) {
+    key(actionKey) {
         // 진행 표시와 상태별 아이콘이 같은 자리에서 서로를 대체하므로 전환 대상을 하나로 묶어 한 번만 교차 전환한다.
         DiaryCrossfade(targetState = MaterialTopBarActionIconContent(icon = icon, isInProgress = isInProgress)) { content ->
             if (content.isInProgress) {
                 CircularWavyProgressIndicator(modifier = Modifier.size(DiaryTheme.dimens.inProgressIndicatorSize))
             } else {
-                Icon(imageVector = content.icon.imageVector, contentDescription = null)
+                Icon(imageVector = content.icon, contentDescription = null)
             }
         }
     }
 }
 
 private data class MaterialTopBarActionIconContent(
-    val icon: DiaryTopBarIcon,
+    val icon: ImageVector,
     val isInProgress: Boolean,
 )
 
@@ -281,20 +287,20 @@ private fun MaterialDiaryTopBarPreview(
             actions = {
                 TextAction(text = "19", contentDescription = "오늘로 이동", onClick = {})
                 AppliedAction(
-                    icon = DiaryTopBarIcon.FILTER,
+                    icon = DiaryIcons.FilterList,
                     contentDescription = "필터",
                     isApplied = state.isApplied,
                     appliedStateDescription = "필터 적용됨",
                     onClick = {},
                 )
                 ToggleAction(
-                    icon = DiaryTopBarIcon.FINISH,
+                    icon = DiaryIcons.Verified,
                     contentDescription = "완료",
                     isChecked = state.isChecked,
                     onClick = {},
                 )
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = "삭제",
                     onClick = {},
                     isInProgress = state.isInProgress,

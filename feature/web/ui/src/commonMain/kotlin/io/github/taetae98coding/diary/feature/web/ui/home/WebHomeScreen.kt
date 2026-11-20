@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.compose.web.WebListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
@@ -44,8 +45,12 @@ internal fun WebHomeScreen(
                 is WebHomeScaffoldEvent.ClickSort -> sortSheetState.show()
                 is WebHomeScaffoldEvent.SelectSort -> webViewModel.select(sort = event.sort)
                 is WebHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
-                is WebHomeScaffoldEvent.ClickWeb -> navigateToDetail(event.id)
-                is WebHomeScaffoldEvent.DeleteWeb -> webViewModel.delete(id = event.id)
+            }
+        },
+        onWebListEvent = { event ->
+            when (event) {
+                is WebListEvent.ClickWeb -> navigateToDetail(event.id)
+                is WebListEvent.SwipeDelete -> webViewModel.delete(id = event.id)
             }
         },
         modifier = modifier,

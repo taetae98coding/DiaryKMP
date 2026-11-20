@@ -40,11 +40,13 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.music.MusicListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
@@ -310,7 +312,7 @@ class PlaylistHomeListRetentionTest {
             factory<PlaylistHomeViewModel> {
                 mockk<PlaylistHomeViewModel>(relaxed = true) {
                     every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
-                    every { uiState } returns MutableStateFlow(PlaylistHomeUiState())
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
                     every { effect } returns emptyFlow()
                 }
             }

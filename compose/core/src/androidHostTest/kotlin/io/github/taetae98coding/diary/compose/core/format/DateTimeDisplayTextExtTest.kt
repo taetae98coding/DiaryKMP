@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.junit.Rule

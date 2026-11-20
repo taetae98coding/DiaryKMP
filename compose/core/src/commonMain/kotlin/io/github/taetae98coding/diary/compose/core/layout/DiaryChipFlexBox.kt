@@ -11,8 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 /**
  * 담는 자리가 높이를 정하지 않는 곳에 두는 칩 영역이다. 칩 영역 높이를 최소로 삼고 칩이 늘면 그만큼 커진다.

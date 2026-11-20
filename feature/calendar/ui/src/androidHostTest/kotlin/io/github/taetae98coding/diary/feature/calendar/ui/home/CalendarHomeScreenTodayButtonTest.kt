@@ -13,8 +13,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.TODAY_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.englishTitle
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
@@ -105,7 +105,6 @@ class CalendarHomeScreenTodayButtonTest {
         val memoViewModel = mockk<CalendarHomeMemoViewModel>()
         every { memoViewModel.select(any()) } returns Unit
         every { memoViewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-        every { memoViewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
 
         composeRule.setContent {
             DiaryTheme {
@@ -118,6 +117,7 @@ class CalendarHomeScreenTodayButtonTest {
                     navigateToTimetable = {},
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     state = rememberCalendarHomeScaffoldState(),

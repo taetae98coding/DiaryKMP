@@ -8,11 +8,7 @@ public object StartupInitializer {
         // 등록 전에 발생한 로그는 남지 않으므로, 로그를 남길 수 있는 어떤 구성 요소보다 기록 수단을 먼저 등록한다.
         LoggerInitializer.initialize(isDebug = isDebug)
         val koin = KoinInitializer.initialize().koin
-        initializeSyncWork()
-        initializeFileUpload()
-        initializeMapHttpServer()
-        initializeMcpServer()
-        initializeSpotlight()
+        initializePlatform()
 
         return koin.get<AppDependencies>()
     }

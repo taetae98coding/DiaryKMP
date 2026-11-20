@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.compose.memo
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail

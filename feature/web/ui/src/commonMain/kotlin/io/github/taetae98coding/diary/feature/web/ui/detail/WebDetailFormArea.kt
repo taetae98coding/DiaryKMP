@@ -6,10 +6,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
-import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
 
 @Composable
 internal fun WebDetailFormArea(
-    onFormEvent: (WebFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     formState: WebFormState = rememberWebDetailFormState(),
     uiStateProvider: () -> WebDetailUiState = { WebDetailUiState.Loading },

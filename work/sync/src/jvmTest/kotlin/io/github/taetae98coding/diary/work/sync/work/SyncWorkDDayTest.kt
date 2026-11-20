@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.data.testing.dday.localDDay
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.dday.entity.DDayRepeatRemoteEntity
-import io.github.taetae98coding.diary.core.testing.dday.localDDay
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

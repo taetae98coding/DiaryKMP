@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.compose.dday
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import io.github.taetae98coding.diary.compose.core.snackbar.UndoSnackbarEffect
+import io.github.taetae98coding.diary.compose.core.snackbar.DeleteUndoSnackbarEffect
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.stringResource
@@ -15,21 +15,15 @@ public fun DDayListUndoSnackbarEffect(
     effect: Flow<DDayListEffect> = emptyFlow(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    val deletedMessage = stringResource(Res.string.dday_list_deleted_message)
-
-    UndoSnackbarEffect(
+    DeleteUndoSnackbarEffect(
+        deletedMessage = stringResource(Res.string.dday_list_deleted_message),
+        deletedId = { value ->
+            when (value) {
+                is DDayListEffect.Deleted -> value.id
+            }
+        },
+        onRestore = onRestore,
         effect = effect,
         hostState = snackbarHostState,
-        actionLabel = stringResource(Res.string.dday_list_undo_action),
-        message = { value ->
-            when (value) {
-                is DDayListEffect.Deleted -> deletedMessage
-            }
-        },
-        onUndo = { value ->
-            when (value) {
-                is DDayListEffect.Deleted -> onRestore(value.id)
-            }
-        },
     )
 }

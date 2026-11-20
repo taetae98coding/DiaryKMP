@@ -5,8 +5,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -82,6 +82,7 @@ class CalendarHomeScreenHolidayTest {
                     state = state,
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel(),
+                    filterViewModel = filterViewModel(),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),
@@ -102,6 +103,5 @@ class CalendarHomeScreenHolidayTest {
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
             every { viewModel.select(any()) } returns Unit
             every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-            every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 }

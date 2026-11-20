@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.work.appaction.contact.AppActionContact
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
+import io.github.taetae98coding.diary.work.appaction.tag.TagAppAction
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 
 // Swift export는 NSObject.description과 겹치는 `description` 멤버를 내보내지 않으므로 종류 이름을 붙인다.
@@ -63,6 +64,18 @@ internal fun AppActionTag.toDiary(): DiaryAppActionTag =
         createdAtEpochMillis = appActionEpochMillis(instant = createdAt),
         updatedAtEpochMillis = appActionEpochMillis(instant = updatedAt),
     )
+
+// 공통 앱 동작의 목록 항목에는 대표 태그의 식별 정보만 있어, 목록 하나의 대표 태그를 서로 다른 태그마다 한 번씩 찾는다.
+internal suspend fun readPrimaryTagMap(primaryTagIdList: List<String?>): Map<String, DiaryAppActionTag> {
+    val tagIdList = primaryTagIdList.filterNotNull().distinct()
+    if (tagIdList.isEmpty()) return emptyMap()
+
+    val tagAppAction = diaryAppAction<TagAppAction>()
+
+    return tagIdList
+        .mapNotNull { tagId -> tagAppAction.get(tagId = tagId)?.tag?.toDiary() }
+        .associateBy { tag -> tag.id }
+}
 
 internal fun AppActionPlace.toDiary(): DiaryAppActionPlace =
     DiaryAppActionPlace(

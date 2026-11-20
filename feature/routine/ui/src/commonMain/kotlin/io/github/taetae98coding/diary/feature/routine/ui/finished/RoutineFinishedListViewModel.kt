@@ -1,11 +1,7 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package io.github.taetae98coding.diary.feature.routine.ui.finished
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
@@ -16,12 +12,8 @@ import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedRoutine
 import io.github.taetae98coding.diary.domain.routine.usecase.RestartRoutineUseCase
 import io.github.taetae98coding.diary.domain.routine.usecase.RestoreRoutineUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListItemActions
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import io.github.taetae98coding.diary.feature.core.routine.RoutinePagingState
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.koin.core.annotation.KoinViewModel
@@ -35,7 +27,7 @@ internal class RoutineFinishedListViewModel(
     deleteRoutineUseCase: DeleteRoutineUseCase,
     restoreRoutineUseCase: RestoreRoutineUseCase,
 ) : ViewModel() {
-    private val today = MutableStateFlow<LocalDate?>(null)
+    private val routinePagingState = RoutinePagingState(pageRoutine = { today -> pageFinishedRoutineUseCase(parameter = today) })
 
     private val routineActions =
         ListItemActions(
@@ -48,22 +40,12 @@ internal class RoutineFinishedListViewModel(
         )
 
     val routinePagingData: Flow<PagingData<RoutineSummary>> =
-        today
-            .flatMapLatest { today ->
-                if (today == null) {
-                    // 불러오기 상태를 싣지 않은 빈 목록은 오늘이 정해지기 전까지 목록을 불러오는 중으로 둔다.
-                    flowOf(PagingData.empty())
-                } else {
-                    pageFinishedRoutineUseCase(parameter = today)
-                        // 조건 없는 PagingData.empty()는 불러오기 상태를 싣지 않아 목록이 처음의 불러오는 중에 머물러 빈 상태로 바뀌지 않는다.
-                        .map { result -> result.getOrElse { PagingData.empty(sourceLoadStates = LOADED_EMPTY_LOAD_STATES) } }
-                }
-            }.cachedIn(viewModelScope)
+        routinePagingState.routinePagingData.cachedIn(viewModelScope)
 
     val effect: Flow<RoutineListEffect> = routineActions.effect
 
     fun updateToday(today: LocalDate) {
-        this.today.value = today
+        routinePagingState.updateToday(today = today)
     }
 
     fun finish(id: Uuid) {
@@ -90,10 +72,3 @@ internal class RoutineFinishedListViewModel(
         }
     }
 }
-
-private val LOADED_EMPTY_LOAD_STATES: LoadStates =
-    LoadStates(
-        refresh = LoadState.NotLoading(endOfPaginationReached = true),
-        prepend = LoadState.NotLoading(endOfPaginationReached = true),
-        append = LoadState.NotLoading(endOfPaginationReached = true),
-    )

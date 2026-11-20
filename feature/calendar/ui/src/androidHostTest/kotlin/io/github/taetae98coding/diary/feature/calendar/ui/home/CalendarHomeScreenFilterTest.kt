@@ -5,8 +5,8 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -77,7 +77,6 @@ class CalendarHomeScreenFilterTest {
         val memoViewModel = mockk<CalendarHomeMemoViewModel>()
         every { memoViewModel.select(any()) } returns Unit
         every { memoViewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-        every { memoViewModel.filterUiState } returns MutableStateFlow(filterUiState)
 
         composeRule.setContent {
             DiaryTheme {
@@ -90,6 +89,7 @@ class CalendarHomeScreenFilterTest {
                     navigateToTimetable = {},
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(uiState = filterUiState),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     state = rememberCalendarHomeScaffoldState(),

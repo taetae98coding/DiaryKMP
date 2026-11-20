@@ -13,17 +13,16 @@ import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageTagContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListItemDeleteActions
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
@@ -33,8 +32,8 @@ import kotlin.uuid.Uuid
 internal class TagDetailContactViewModel(
     @InjectedParam tagId: Uuid,
     pageContactUseCase: PageTagContactUseCase,
-    private val deleteContactUseCase: DeleteContactUseCase,
-    private val restoreContactUseCase: RestoreContactUseCase,
+    deleteContactUseCase: DeleteContactUseCase,
+    restoreContactUseCase: RestoreContactUseCase,
 ) : ViewModel() {
     val sortUiState: StateFlow<ListSortUiState>
         field = MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
@@ -49,11 +48,14 @@ internal class TagDetailContactViewModel(
                     .map { result -> result.getOrElse { PagingData.empty() } }
             }.cachedIn(viewModelScope)
 
-    private val _effect = Channel<ContactListEffect>(Channel.BUFFERED)
-    val effect: Flow<ContactListEffect> = _effect.receiveAsFlow()
+    private val contactActions =
+        ListItemDeleteActions<ContactListEffect>(
+            deleteUseCase = deleteContactUseCase,
+            restoreUseCase = restoreContactUseCase,
+            deletedEffect = ContactListEffect::Deleted,
+        )
 
-    private val inProgressDeleteIdSet = mutableSetOf<Uuid>()
-    private val inProgressRestoreIdSet = mutableSetOf<Uuid>()
+    val effect: Flow<ContactListEffect> = contactActions.effect
 
     fun select(sort: ListSort) {
         sortUiState.value = ListSortUiState(sort = sort)
@@ -64,27 +66,10 @@ internal class TagDetailContactViewModel(
     }
 
     fun delete(id: Uuid) {
-        if (!inProgressDeleteIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                deleteContactUseCase(parameter = id)
-                    .onSuccess { _effect.send(ContactListEffect.Deleted(id = id)) }
-            } finally {
-                inProgressDeleteIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { contactActions.delete(id = id) }
     }
 
     fun restore(id: Uuid) {
-        if (!inProgressRestoreIdSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                restoreContactUseCase(parameter = id)
-            } finally {
-                inProgressRestoreIdSet.remove(id)
-            }
-        }
+        viewModelScope.launch { contactActions.restore(id = id) }
     }
 }

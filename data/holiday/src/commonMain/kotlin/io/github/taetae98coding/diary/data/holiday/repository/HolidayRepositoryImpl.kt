@@ -32,7 +32,7 @@ internal class HolidayRepositoryImpl(
             fetch = {
                 val holidayList =
                     holidayRemoteDataSource
-                        .get(country = country.toRemote(), year = year)
+                        .read(country = country.toRemote(), year = year)
                         .map { remote -> remote.toLocal(country = country, year = year) }
 
                 holidayTransaction.upsert(

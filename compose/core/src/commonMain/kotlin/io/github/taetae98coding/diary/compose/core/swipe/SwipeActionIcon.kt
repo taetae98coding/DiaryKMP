@@ -8,10 +8,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleCrossfade
-import io.github.taetae98coding.diary.compose.core.icon.CircleIcon
-import io.github.taetae98coding.diary.compose.core.icon.DeleteIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.CircleIcon
+import io.github.taetae98coding.diary.compose.icon.DeleteIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 internal const val SWIPE_TO_FINISH_AND_DELETE_CIRCLE_ICON_TEST_TAG: String = "SwipeToFinishAndDeleteCircleIcon"
 

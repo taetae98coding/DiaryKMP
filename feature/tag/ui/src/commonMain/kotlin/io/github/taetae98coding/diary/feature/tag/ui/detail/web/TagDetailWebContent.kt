@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.compose.web.WebListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
@@ -55,11 +56,15 @@ internal fun TagDetailWebContent(
         TagDetailWebTab(
             onEvent = { event ->
                 when (event) {
-                    is TagDetailWebContentEvent.ClickWeb -> navigateToWebDetail(event.id)
                     is TagDetailWebContentEvent.Refresh -> syncViewModel.refresh()
                     is TagDetailWebContentEvent.ClickSort -> sortSheetState.show()
                     is TagDetailWebContentEvent.SelectSort -> webViewModel.select(sort = event.sort)
-                    is TagDetailWebContentEvent.DeleteWeb -> webViewModel.delete(id = event.id)
+                }
+            },
+            onWebListEvent = { event ->
+                when (event) {
+                    is WebListEvent.ClickWeb -> navigateToWebDetail(event.id)
+                    is WebListEvent.SwipeDelete -> webViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

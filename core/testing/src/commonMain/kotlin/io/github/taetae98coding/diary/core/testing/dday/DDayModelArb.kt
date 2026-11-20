@@ -61,6 +61,7 @@ public fun Arb.Companion.dday(): Arb<DDay> =
         DDay(
             id = Arb.kotlinUuid().bind(),
             detail = Arb.ddayDetail().bind(),
+            primaryTagId = Arb.kotlinUuid().orNull().bind(),
             isDeleted = Arb.boolean().bind(),
             updatedAt = Arb.secondPrecisionInstant().bind(),
             createdAt = Arb.secondPrecisionInstant().bind(),

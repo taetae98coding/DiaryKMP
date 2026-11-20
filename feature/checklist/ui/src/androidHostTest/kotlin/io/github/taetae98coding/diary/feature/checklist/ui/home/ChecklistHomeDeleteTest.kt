@@ -16,7 +16,7 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase

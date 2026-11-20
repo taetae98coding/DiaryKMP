@@ -3,8 +3,8 @@ package io.github.taetae98coding.diary.feature.memo.ui.detail
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_detail_update_button_content_description
 import org.jetbrains.compose.resources.stringResource

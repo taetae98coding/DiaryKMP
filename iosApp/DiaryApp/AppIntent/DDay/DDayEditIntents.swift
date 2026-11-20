@@ -67,6 +67,9 @@ struct AddDDayIntent: AppIntent {
     )
     var overflowPolicy: DDayOverflowPolicyAppEnum?
 
+    @Parameter(title: LocalizedStringResource("Primary Tag", table: "AppIntentCore"))
+    var primaryTag: TagEntity?
+
     @Parameter(title: LocalizedStringResource("Tags to Link", table: "AppIntentCore"))
     var tags: [TagEntity]?
 
@@ -79,6 +82,7 @@ struct AddDDayIntent: AppIntent {
             \.$repeats
             \.$endDate
             \.$overflowPolicy
+            \.$primaryTag
             \.$tags
         }
     }
@@ -94,6 +98,7 @@ struct AddDDayIntent: AppIntent {
                 repeats: repeats ?? [],
                 endDateEpochMillis: endDate?.epochMillis,
                 overflowPolicy: overflowPolicy?.kotlin,
+                primaryTagId: primaryTag?.id,
                 tagIds: (tags ?? []).map(\.id)
             )
         }

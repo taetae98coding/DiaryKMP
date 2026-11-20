@@ -39,6 +39,7 @@ import io.github.taetae98coding.diary.feature.dday.ui.form.ddayAddRepeatOf
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayFormAddTagViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayTitleInput
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterUiState
+import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
@@ -94,7 +95,7 @@ class DDayAddNavDisplayTest {
 
         backStack.toList() shouldBe listOf(DDayAddNavDisplayMoreNavKey, DDayHomeNavKey)
         composeRule.onNodeWithText(DDAY_HOME_TITLE).assertIsDisplayed()
-        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagIdSet = any()) } }
+        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagSelection = any()) } }
     }
 
     @Test
@@ -114,7 +115,7 @@ class DDayAddNavDisplayTest {
 
         backStack.toList() shouldBe listOf(DDayAddNavDisplayMoreNavKey, tagDetailKey)
         composeRule.onNodeWithText("$TAG_DETAIL_SELECTED_TAB_PREFIX$TAG_DETAIL_DDAY_TAB").assertIsDisplayed()
-        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagIdSet = any()) } }
+        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(input = any(), tagSelection = any()) } }
     }
 
     private fun setNavDisplay(backStack: NavBackStack<ScreenNavKey>) {
@@ -169,8 +170,12 @@ class DDayAddNavDisplayTest {
             factory {
                 mockk<DDayHomeViewModel>(relaxed = true).apply {
                     every { ddayPagingData } returns MutableStateFlow(PagingData.empty())
-                    every { filterUiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
                     every { effect } returns emptyFlow()
+                }
+            }
+            factory {
+                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
                 }
             }
             factory {

@@ -20,6 +20,8 @@ public data class MemoAddNavKey(
 ) : ScreenNavKey {
     override val screenName: String get() = "MemoAdd"
 
+    override val topLevelListKey: ScreenNavKey? get() = if (isStandalone) null else MemoHomeNavKey
+
     @Serializable
     public data class InitialDateRange(
         val start: LocalDate,

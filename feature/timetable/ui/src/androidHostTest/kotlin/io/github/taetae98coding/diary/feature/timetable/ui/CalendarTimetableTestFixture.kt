@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalForInheritanceCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.feature.timetable.ui
 
+import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.StateFlow

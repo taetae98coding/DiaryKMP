@@ -15,6 +15,9 @@ import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListItemActions
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.memo.MemoListState
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListController
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListEffect
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,7 +38,8 @@ internal class TagMemoFinishedListViewModel(
     restartMemoUseCase: RestartMemoUseCase,
     deleteMemoUseCase: DeleteMemoUseCase,
     restoreMemoUseCase: RestoreMemoUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    EntityMemoFinishedListController {
     private val memoListState =
         MemoListState(
             pageMemo = { sort -> pageFinishedTagMemoUseCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = sort)) },
@@ -47,44 +51,44 @@ internal class TagMemoFinishedListViewModel(
             restartUseCase = restartMemoUseCase,
             deleteUseCase = deleteMemoUseCase,
             restoreUseCase = restoreMemoUseCase,
-            restartedEffect = TagMemoFinishedListEffect::Restarted,
-            deletedEffect = TagMemoFinishedListEffect::Deleted,
+            restartedEffect = EntityMemoFinishedListEffect::Restarted,
+            deletedEffect = EntityMemoFinishedListEffect::Deleted,
         )
 
-    val uiState: StateFlow<TagMemoFinishedListUiState> =
+    override val uiState: StateFlow<EntityMemoFinishedListUiState> =
         findTagUseCase(parameter = tagId)
             .map { result ->
                 result
                     .getOrNull()
-                    ?.let { tag -> TagMemoFinishedListUiState(title = tag.detail.emojiWithTitle) }
-                    ?: TagMemoFinishedListUiState()
+                    ?.let { tag -> EntityMemoFinishedListUiState(title = tag.detail.emojiWithTitle) }
+                    ?: EntityMemoFinishedListUiState()
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
-                initialValue = TagMemoFinishedListUiState(),
+                initialValue = EntityMemoFinishedListUiState(),
             )
 
-    val sortUiState: StateFlow<ListSortUiState> = memoListState.sortUiState
-    val memoPagingData: Flow<PagingData<MemoListItem>> = memoListState.memoPagingData.cachedIn(viewModelScope)
-    val effect: Flow<TagMemoFinishedListEffect> = memoActions.effect
+    override val sortUiState: StateFlow<ListSortUiState> = memoListState.sortUiState
+    override val memoPagingData: Flow<PagingData<MemoListItem>> = memoListState.memoPagingData.cachedIn(viewModelScope)
+    override val effect: Flow<EntityMemoFinishedListEffect> = memoActions.effect
 
-    fun select(sort: ListSort) {
+    override fun select(sort: ListSort) {
         memoListState.select(sort = sort)
     }
 
-    fun finish(id: Uuid) {
+    override fun finish(id: Uuid) {
         viewModelScope.launch { memoActions.finish(id = id) }
     }
 
-    fun restart(id: Uuid) {
+    override fun restart(id: Uuid) {
         viewModelScope.launch { memoActions.restart(id = id) }
     }
 
-    fun delete(id: Uuid) {
+    override fun delete(id: Uuid) {
         viewModelScope.launch { memoActions.delete(id = id) }
     }
 
-    fun restore(id: Uuid) {
+    override fun restore(id: Uuid) {
         viewModelScope.launch { memoActions.restore(id = id) }
     }
 }

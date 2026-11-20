@@ -3,9 +3,10 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.AutoAwesome
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.memo_add_navigate_up_button_content_description
@@ -38,7 +39,7 @@ internal fun MemoAddTopBar(
         actions = {
             if (geminiUiStateProvider().isButtonVisible) {
                 IconAction(
-                    icon = DiaryTopBarIcon.AUTO_AWESOME,
+                    icon = DiaryIcons.AutoAwesome,
                     contentDescription = geminiContentDescription,
                     onClick = { onEvent(MemoAddScaffoldEvent.ClickGemini) },
                 )

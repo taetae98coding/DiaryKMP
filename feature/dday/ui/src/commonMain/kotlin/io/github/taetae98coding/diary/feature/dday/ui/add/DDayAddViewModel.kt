@@ -6,47 +6,36 @@ import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.domain.dday.exception.DDayRepeatBlankException
 import io.github.taetae98coding.diary.domain.dday.exception.DDayTitleBlankException
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
-import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
-import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class DDayAddViewModel(
     private val addDDayUseCase: AddDDayUseCase,
 ) : ViewModel() {
-    private val isInProgress = MutableStateFlow(false)
-
-    val uiState: StateFlow<DDayAddUiState> =
-        isInProgress
-            .map { isInProgress -> DDayAddUiState(isInProgress = isInProgress) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileUiSubscribed,
-                initialValue = DDayAddUiState(),
-            )
+    val uiState: StateFlow<DDayAddUiState>
+        field = MutableStateFlow(DDayAddUiState())
 
     private val _effect = Channel<DDayAddEffect>(Channel.BUFFERED)
     val effect: Flow<DDayAddEffect> = _effect.receiveAsFlow()
 
     fun add(
         input: DDayInput,
-        tagIdSet: Set<Uuid>,
+        tagSelection: PrimaryTagSelectionUiState,
     ) {
-        if (isInProgress.value) return
+        if (uiState.value.isInProgress) return
 
         viewModelScope.launch {
-            isInProgress.value = true
+            uiState.update { value -> value.copy(isInProgress = true) }
             try {
-                addDDayUseCase(parameter = AddDDayUseCase.Parameter(input = input, tagIdSet = tagIdSet))
+                addDDayUseCase(parameter = AddDDayUseCase.Parameter(input = input, tagIdSet = tagSelection.tagIdSet, primaryTagId = tagSelection.primaryTagId))
                     .onSuccess { _effect.send(DDayAddEffect.AddSucceeded) }
                     .onFailure { throwable ->
                         when (throwable) {
@@ -55,7 +44,7 @@ internal class DDayAddViewModel(
                         }
                     }
             } finally {
-                isInProgress.value = false
+                uiState.update { value -> value.copy(isInProgress = false) }
             }
         }
     }

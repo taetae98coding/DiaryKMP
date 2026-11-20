@@ -22,15 +22,6 @@ internal class AccountMusicLocalDataSourceImpl(
             sort = sort.queryValue,
         )
 
-    override suspend fun readList(
-        accountId: Uuid,
-        sort: ListSortLocalEntity,
-    ): List<MusicLocalEntity> =
-        database.accountMusicDao().findList(
-            accountId = accountId,
-            sort = sort.queryValue,
-        )
-
     override fun find(
         accountId: Uuid,
         musicId: Uuid,

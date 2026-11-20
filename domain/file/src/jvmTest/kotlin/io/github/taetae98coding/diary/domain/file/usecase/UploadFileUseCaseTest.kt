@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.domain.file.usecase
 
 import io.github.taetae98coding.diary.core.model.account.Account
@@ -28,6 +30,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow

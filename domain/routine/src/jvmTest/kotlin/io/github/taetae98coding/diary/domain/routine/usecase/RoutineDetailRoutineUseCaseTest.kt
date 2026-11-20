@@ -367,7 +367,6 @@ private class DetailContext(
         UpdateRoutineUseCase(
             getAccountUseCase = getAccountUseCase,
             requestSyncUseCase = requestSyncUseCase,
-            findRoutineUseCase = findUseCase,
             accountRoutineRepository = repository,
             clock = clock,
         )

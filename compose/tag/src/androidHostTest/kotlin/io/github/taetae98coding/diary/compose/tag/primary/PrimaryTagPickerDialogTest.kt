@@ -1,0 +1,272 @@
+package io.github.taetae98coding.diary.compose.tag.primary
+
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class PrimaryTagPickerDialogTest {
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    @Test
+    fun `TC-c1df03b8-28d1-4fc8-830a-de144502b77e 목록에서 태그를 선택하면 선택 행동을 즉시 전달한다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        val selectedIdList = mutableListOf<Uuid>()
+        composeRule.setPrimaryTagPickerDialog(tagList = tagList, onTagSelect = selectedIdList::add)
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        selectedIdList shouldBe listOf(tagList.first().id, tagList.last().id)
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-21f8c835-da42-4244-ae10-fbf6f5e61986 목록에서 선택을 해제하면 해제 행동을 즉시 전달한다`() {
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val unselectedIdList = mutableListOf<Uuid>()
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = listOf(tag),
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(tag)),
+            onTagUnselect = unselectedIdList::add,
+        )
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        unselectedIdList shouldBe listOf(tag.id)
+    }
+
+    @Test
+    fun `TC-309d3012-79cc-4fab-a565-217ce5974f69 대표 태그 지정 버튼을 누르면 대표 지정 행동을 즉시 전달한다`() {
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val primarySelectedIdList = mutableListOf<Uuid>()
+        composeRule.setPrimaryTagPickerDialog(tagList = listOf(tag), onPrimaryTagSelect = primarySelectedIdList::add)
+
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION)[0].performClick()
+        composeRule.waitForIdle()
+
+        primarySelectedIdList shouldBe listOf(tag.id)
+    }
+
+    @Test
+    fun `TC-82a02e1f-1f62-400f-afdd-6ace6348b225 대표 태그 지정 버튼을 다시 누르면 대표 지정 해제 행동을 전달한다`() {
+        val tag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        var primaryUnselectCount = 0
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = listOf(tag),
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(tag), primaryTagId = tag.id),
+            onPrimaryTagUnselect = { primaryUnselectCount += 1 },
+        )
+
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_UNSET_DESCRIPTION)[0].performClick()
+        composeRule.waitForIdle()
+
+        primaryUnselectCount shouldBe 1
+    }
+
+    @Test
+    fun `대표 태그로 지정된 태그만 대표 지정 해제 버튼을 제공한다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = tagList,
+            uiState = PrimaryTagInputUiState(selectedTagList = tagList, primaryTagId = tagList.first().id),
+        )
+
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_UNSET_DESCRIPTION).assertCountEquals(1)
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION).assertCountEquals(1)
+    }
+
+    @Test
+    fun `TC-be0e29f8-7742-4e50-8d0e-a4de57cd8c6d 목록의 태그는 전달된 제목 오름차순으로 표시된다`() {
+        val tagList =
+            listOf(
+                Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next(),
+                Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(),
+            )
+        composeRule.setPrimaryTagPickerDialog(tagList = tagList)
+
+        val titleList =
+            composeRule
+                .onAllNodes(hasAnyTagTitle(tagList))
+                .fetchSemanticsNodes()
+                .flatMap { node -> node.config.getOrNull(SemanticsProperties.Text).orEmpty() }
+                .map { text -> text.text }
+
+        titleList shouldBe listOf(EXERCISE_TAG_TITLE, WORK_TAG_TITLE)
+    }
+
+    @Test
+    fun `TC-b0aa3cdf-77a4-449a-bb0e-38fcff2ecbdf 목록의 태그를 완료 여부로 구분하지 않고 주어진 순서대로 표시한다`() {
+        val workTag = Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()
+        val finishedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next().copy(isFinished = true)
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = listOf(workTag, finishedTag),
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(finishedTag)),
+        )
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION).assertCountEquals(2)
+    }
+
+    @Test
+    fun `TC-e17542ec-564c-4a33-b52d-4d4c33c95060 목록의 완료된 태그도 해제와 대표 태그 지정 행동을 전달한다`() {
+        val finishedTag = Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next().copy(isFinished = true)
+        val unselectedIdList = mutableListOf<Uuid>()
+        val primarySelectedIdList = mutableListOf<Uuid>()
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = listOf(finishedTag),
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(finishedTag)),
+            onTagUnselect = unselectedIdList::add,
+            onPrimaryTagSelect = primarySelectedIdList::add,
+        )
+
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION)[0].performClick()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        primarySelectedIdList shouldBe listOf(finishedTag.id)
+        unselectedIdList shouldBe listOf(finishedTag.id)
+    }
+
+    @Test
+    fun `목록에 확인 버튼을 두지 않는다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = tagList,
+            uiState = PrimaryTagInputUiState(selectedTagList = tagList, primaryTagId = tagList.first().id),
+        )
+
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertDoesNotExist()
+    }
+
+    @Test
+    fun `뒤로가기로 닫으면 닫기 요청을 전달하고 선택 행동은 전달하지 않는다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        var dismissCount = 0
+        var selectionChangeCount = 0
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = tagList,
+            uiState = PrimaryTagInputUiState(selectedTagList = tagList, primaryTagId = tagList.first().id),
+            onDismissRequest = { dismissCount += 1 },
+            onTagSelect = { selectionChangeCount += 1 },
+            onTagUnselect = { selectionChangeCount += 1 },
+            onPrimaryTagSelect = { selectionChangeCount += 1 },
+            onPrimaryTagUnselect = { selectionChangeCount += 1 },
+        )
+
+        composeRule.closeDialogByBack()
+
+        dismissCount shouldBe 1
+        selectionChangeCount shouldBe 0
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `한국어 환경에서 태그 선택 목록의 문구를 표시한다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = tagList,
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(tagList.first()), primaryTagId = tagList.first().id),
+        )
+
+        composeRule.dialogNodeWithText(KOREAN_PICKER_TITLE).assertExists()
+        composeRule.dialogNodeWithText(KOREAN_PICKER_TAG_ADD).assertExists()
+        composeRule.dialogNodesWithContentDescription(KOREAN_PRIMARY_UNSET_DESCRIPTION).assertCountEquals(1)
+        composeRule.dialogNodesWithContentDescription(KOREAN_PRIMARY_SET_DESCRIPTION).assertCountEquals(1)
+    }
+
+    @Test
+    fun `기본 환경에서 대표 태그 지정 버튼 이름을 제공한다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = tagList,
+            uiState = PrimaryTagInputUiState(selectedTagList = listOf(tagList.first()), primaryTagId = tagList.first().id),
+        )
+
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_UNSET_DESCRIPTION).assertCountEquals(1)
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION).assertCountEquals(1)
+    }
+
+    public companion object {
+        private fun hasAnyTagTitle(tagList: List<Tag>): SemanticsMatcher =
+            SemanticsMatcher("has any tag title") { node ->
+                node.config
+                    .getOrNull(SemanticsProperties.Text)
+                    ?.any { text -> tagList.any { tag -> tag.detail.title == text.text } } == true
+            }
+    }
+}
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
+class PrimaryTagPickerDialogAddTest {
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    @Test
+    fun `TC-17609dda-ba53-4908-9aac-b1d21be5873d 나타낼 태그가 없어도 태그 추가 항목을 표시한다`() {
+        composeRule.setPrimaryTagPickerDialog(tagList = emptyList())
+
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
+    }
+
+    @Test
+    fun `TC-17609dda-ba53-4908-9aac-b1d21be5873d 나타낼 태그가 여러 개여도 태그 추가 항목을 표시한다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        composeRule.setPrimaryTagPickerDialog(tagList = tagList)
+
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
+    }
+
+    @Test
+    fun `TC-b0fb7327-b66b-40b9-b9c4-faa017b04f26 태그 추가 항목을 누르면 태그 추가 행동만 전달한다`() {
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
+        var tagAddCount = 0
+        var selectionChangeCount = 0
+        composeRule.setPrimaryTagPickerDialog(
+            tagList = tagList,
+            onTagSelect = { selectionChangeCount += 1 },
+            onTagUnselect = { selectionChangeCount += 1 },
+            onPrimaryTagSelect = { selectionChangeCount += 1 },
+            onPrimaryTagUnselect = { selectionChangeCount += 1 },
+            onTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 1
+        selectionChangeCount shouldBe 0
+    }
+
+    @Test
+    fun `태그 추가 항목에 태그 추가 동작 이름을 제공한다`() {
+        composeRule.setPrimaryTagPickerDialog(tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next()))
+
+        composeRule
+            .onNode(hasClickLabel(DEFAULT_PICKER_TAG_ADD) and hasAnyAncestor(isDialog()))
+            .assertExists()
+    }
+}

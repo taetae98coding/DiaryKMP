@@ -20,7 +20,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail

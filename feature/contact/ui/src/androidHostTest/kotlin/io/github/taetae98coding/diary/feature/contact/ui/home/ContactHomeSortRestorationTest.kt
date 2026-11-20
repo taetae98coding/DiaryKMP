@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase

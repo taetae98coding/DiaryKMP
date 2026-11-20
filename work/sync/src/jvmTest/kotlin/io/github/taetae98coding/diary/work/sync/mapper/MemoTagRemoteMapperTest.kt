@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.memotag.memoTagLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.memotag.memoTagRemoteEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRemoteEntity
-import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
-import io.github.taetae98coding.diary.core.testing.memotag.memoTagRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

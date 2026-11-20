@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.work.spotlight
 
-import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
-import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
-import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
-import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
-import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
-import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
-import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
-import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
-import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
-import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.checklist.checklistLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.dday.ddayLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.music.musicLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.routine.routineLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

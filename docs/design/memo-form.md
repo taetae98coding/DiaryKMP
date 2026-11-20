@@ -15,7 +15,7 @@
 
 제목 입력의 구성, 라벨, 지우기 버튼과 문구는 [제목 입력 디자인](./title-input.md)을 따른다.
 
-설명, 컬러, 날짜·시간, 태그 입력, 웹 입력, 연락처 입력과 장소 카드의 세부 표현은 각각 [설명 입력 컴포넌트 디자인](./description-input.md), [DiaryColorInput 컴포넌트 디자인](./diary-color-input.md), [DiaryDateTimeInput 컴포넌트 디자인](./diary-date-time-input.md), [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md), [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md), [메모 연락처 입력 컴포넌트 디자인](./memo-contact-input.md), [메모 장소 카드 컴포넌트 디자인](./memo-place-card.md)을 따른다.
+설명, 컬러, 날짜·시간, 태그 입력, 웹 입력, 연락처 입력과 장소 카드의 세부 표현은 각각 [설명 입력 컴포넌트 디자인](./description-input.md), [DiaryColorInput 컴포넌트 디자인](./diary-color-input.md), [DiaryDateTimeInput 컴포넌트 디자인](./diary-date-time-input.md), [대표 태그 입력 컴포넌트 디자인](./primary-tag-input.md), [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md), [메모 연락처 입력 컴포넌트 디자인](./memo-contact-input.md), [메모 장소 카드 컴포넌트 디자인](./memo-place-card.md)을 따른다.
 
 웹 입력은 태그 입력 바로 아래에, 연락처 입력은 웹 입력 바로 아래에 둔다. 세 입력은 같은 구성의 칩 영역을 쓰고 메모에 연결하는 대상만 다르므로 이어 두고, 지도를 함께 두는 장소 카드는 그 뒤에 둔다. 칩 영역이 셋 이어져 폼이 길어지므로 사용자는 폼 영역을 세로로 스크롤해 장소 카드까지 확인한다.
 

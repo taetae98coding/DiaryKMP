@@ -20,9 +20,9 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.place.ui.add.placeTestTag
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
-import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
@@ -177,9 +177,9 @@ class PlaceDetailTagInputTest {
                 ) {
                     PlaceDetailScaffoldContent(
                         onFormEvent = { event ->
-                            handlePlaceFormEvent(
+                            handleEntityTagInputEvent(
                                 event = event,
-                                state = state,
+                                tagPickerDialogState = state.tagPickerDialogState,
                                 selectableTagPagingItems = tagPagingItems,
                                 navigateToTagAdd = {},
                                 navigateToTagDetail = {},

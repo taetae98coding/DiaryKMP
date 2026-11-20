@@ -3,9 +3,12 @@
 ## core와 data, work의 책임 경계
 
 - `core:*`는 저장소·네트워크·플랫폼 기능을 호출할 수 있는 상태로 만들어 주기까지만 한다. DAO, HttpClient, 위치 제공자, FCM 토큰 제공자가 여기 속한다.
-  - 예외로, 플랫폼이 메시징 서비스로 전달한 원격 알림을 표시하는 일은 `core:fcm:impl`이 함께 소유한다. 메시지를 받는 서비스(`FcmMessagingService`), 알림 채널(`DailyMemoNotificationChannel`), 표시(`RemoteNotificationPresenter`)가 여기 있다. 서비스가 플랫폼에서 메시지를 받는 즉시 알림을 그려야 하고 domain 계약이나 저장소를 거치지 않기 때문이다. 앱이 작업 진행을 알리는 알림처럼 기기에서 만드는 알림은 그 작업을 소유한 `work:*`에 둔다.
+  - 예외로, 플랫폼이 메시징 서비스로 전달한 원격 알림을 표시하는 일은 `core:fcm:impl`이 함께 소유한다. 메시지를 받는 서비스(`FcmMessagingService`), 알림 채널(`DailyNotificationChannel`), 표시(`RemoteNotificationPresenter`)가 여기 있다. 서비스가 플랫폼에서 메시지를 받는 즉시 알림을 그려야 하고 domain 계약이나 저장소를 거치지 않기 때문이다. 앱이 작업 진행을 알리는 알림처럼 기기에서 만드는 알림은 그 작업을 소유한 `work:*`에 둔다.
 - `data:*`는 그 DataSource들을 조합해 domain이 선언한 Repository·Manager 계약을 구현한다. 어떤 종류를 어떤 순서로 주고받는지, 몇 개씩 나눠 보내는지, 커서를 언제 전진시키는지는 data가 소유한다.
 - `work:*`는 백그라운드 작업 하나를 기능 단위로 소유한다. domain 계약 구현, 작업 내용, 그 작업을 플랫폼이 깨우는 수단을 한 모듈에 둔다.
+  - 앱 화면을 거치지 않고 OS나 외부 클라이언트가 앱 기능과 데이터를 쓰는 외부 진입 어댑터도 `work:*`가 소유한다. 예약기나 주기 작업이 없어도 여기 둔다. `work:appfunction`(Android AppFunctions 서비스와 `AppFunctionXxx` 타입), `work:mcp`(JVM MCP 서버와 도구), `work:spotlight`(iOS Spotlight 색인)가 여기 속한다. iOS AppIntents는 Swift가 부르는 진입점이므로 `app:ios`가 `XxxAppAction`을 감싼다.
+  - 어댑터들이 함께 쓰는 공용 액션(`XxxAppAction`과 `AppActionXxx` 인자·결과 타입)은 `work:appaction`의 `commonMain`이 소유한다. 이 모듈에는 어댑터의 외부 형식(AppFunctions·KSP, MCP SDK)을 두지 않고, 어댑터 모듈이 `work:appaction`에 의존한다. 반대 방향이나 어댑터끼리의 의존은 두지 않는다.
+  - 어댑터는 정책을 다시 구현하지 않는다. 앱 기능은 UseCase나 공용 액션을 불러 실행하고, 어댑터는 외부 형식과 주고받는 인자·결과의 변환만 소유한다. 무엇을 주입할지는 `work의 UseCase 주입`을 따른다.
 
 `work:*` 안에서는 플랫폼 실행 수단(`WorkManager`, `BGTaskScheduler`, 코루틴 타이머)을 플랫폼 소스셋에, 작업 내용과 domain 계약 구현을 `commonMain`에 둔다. 예: `work:sync`의 `SyncWorkImpl`은 `commonMain`에, `SyncWorker`·`AndroidSyncWorkScheduler`는 `androidMain`에 있다.
 
@@ -48,6 +51,13 @@
 
 저장소나 원격에 쓰는 연산은 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 교체하는 연산이 모두 여기 속한다.
 
+기존 값의 일부만 바꾸는 쓰기는 `upsert`에 넣지 않고 다음 이름으로 부른다.
+
+| 이름 | 쓰는 경우 | 예 |
+| --- | --- | --- |
+| `updateXxx` | 항상 기존 행의 일부 컬럼만 갱신한다. 무엇을 갱신하는지 접미사로 드러낸다. 원격 자원 하나의 내용을 고치는 연산은 접미사 없이 `update`로 둔다 | `AccountWebTransaction.updateDetail`·`updateDeleted`, `FileRemoteDataSource.update` |
+| `addXxx`, `removeXxx` | 집합에서 항목 하나를 넣고 뺀다 | `HolidaySettingLocalDataSource.addHiddenKey`·`removeHiddenKey` |
+
 Repository가 집합 전체 교체를 `submitXxx`([domain.md](domain.md)의 `UseCase·Repository 네이밍`)로 선언하면, 구현하는 `data:*`는 DataSource의 `upsertXxx`로 옮긴다. DataSource나 Transaction에 `submit`을 쓰지 않는다.
 
 | 계층 | 집합 전체 교체 | 예 |
@@ -89,7 +99,7 @@ data 계층은 발생한 에러를 삼키지 않고 호출자에게 그대로 �
 - 부가 정보가 없어도 같은 연산의 나머지 결과가 그대로 성립한다.
 - 여러 조회를 한 스코프에서 함께 수행해, 그 자리에서 잡지 않으면 나머지 조회까지 취소된다.
 
-`CancellationException`은 이 예외에서도 그대로 다시 던진다.
+실패를 잡는 자리는 [kotlin.md](kotlin.md)의 `CancellationException은 삼키지 않는다`를 따른다.
 
 예: `data:weather`는 날씨와 함께 조회하는 위치 이름의 실패를 `async` 안에서 잡아 빈 문자열로 바꾼다.
 

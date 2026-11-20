@@ -17,7 +17,7 @@ internal class WebPageRepositoryImpl(
         headerList: List<WebHeader>,
     ): WebPage =
         webPageRemoteDataSource
-            .get(
+            .read(
                 url = url,
                 headerList = headerList.map { header -> header.toRemote() },
             ).toDomain()

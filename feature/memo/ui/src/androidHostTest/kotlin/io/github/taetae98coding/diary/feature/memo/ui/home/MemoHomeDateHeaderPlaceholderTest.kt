@@ -10,8 +10,8 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
@@ -20,7 +20,7 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -150,8 +150,8 @@ class MemoHomeDateHeaderPlaceholderTest {
         every { getMemoFilterTagIdUseCase() } returns flowOf(Result.success(emptySet()))
         val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
         every { getMemoExistenceFilterUseCase() } returns flowOf(Result.success(MemoExistenceFilter()))
-        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-        every { pageMemoHomeUseCase(parameter = any()) } answers {
+        val pageMemoUseCase = mockk<PageMemoUseCase>()
+        every { pageMemoUseCase(parameter = any()) } answers {
             Pager(
                 config = PagingConfig(pageSize = LOADED_MEMO_COUNT, initialLoadSize = LOADED_MEMO_COUNT, enablePlaceholders = true),
                 pagingSourceFactory = { partiallyLoadedPagingSource(loadedMemoList = loadedMemoList, laterMemoList = laterMemoList, laterGate = laterGate) },
@@ -162,7 +162,7 @@ class MemoHomeDateHeaderPlaceholderTest {
             getMemoFilterUseCase = getMemoFilterUseCase,
             getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
             getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
-            pageMemoHomeUseCase = pageMemoHomeUseCase,
+            pageMemoUseCase = pageMemoUseCase,
             finishMemoUseCase = mockk(),
             restartMemoUseCase = mockk(),
             deleteMemoUseCase = mockk(),

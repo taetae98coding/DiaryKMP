@@ -12,8 +12,8 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title

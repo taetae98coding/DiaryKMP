@@ -8,7 +8,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
 import io.kotest.matchers.shouldBe

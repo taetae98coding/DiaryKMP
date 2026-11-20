@@ -20,13 +20,13 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.core.model.dday.DDayDetail
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_TAG_LABEL
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDayFormTestTheme
+import io.github.taetae98coding.diary.feature.dday.ui.form.ddayPrimaryTagButton
 import io.github.taetae98coding.diary.feature.dday.ui.form.ddayProgressIndicator
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toHexString
@@ -100,14 +100,14 @@ internal class DDayDetailTestEnvironment(
     selectableTagList: List<Tag> = emptyList(),
 ) {
     val uiState: MutableStateFlow<DDayDetailUiState> = MutableStateFlow(DDayDetailUiState.Content(id = id, detail = detail))
-    val tagUiState: MutableStateFlow<EntityTagInputUiState> = MutableStateFlow(EntityTagInputUiState(tagList = tagList))
+    val tagUiState: MutableStateFlow<PrimaryTagInputUiState> = MutableStateFlow(PrimaryTagInputUiState(selectedTagList = tagList))
     val effect: Channel<DDayDetailEffect> = Channel(Channel.BUFFERED)
     val navigatedTagIdList: MutableList<Uuid> = mutableListOf()
     val viewModelList: MutableList<DDayDetailViewModel> = mutableListOf()
     var navigateUpCount: Int = 0
 
-    val tagViewModel: EntityDetailTagViewModel =
-        mockk<EntityDetailTagViewModel>(relaxed = true).apply {
+    val tagViewModel: DDayDetailTagViewModel =
+        mockk<DDayDetailTagViewModel>(relaxed = true).apply {
             every { uiState } returns this@DDayDetailTestEnvironment.tagUiState
             every { tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
             every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
@@ -196,6 +196,17 @@ internal fun ComposeContentTestRule.ddayDetailUnlinkTag(title: String) {
     ddayDetailOpenTagPicker()
     awaitTagPickerRow(title = title, count = 2)
     onAllNodesWithText(title).onLast().performClick()
+    waitForIdle()
+}
+
+// 연결된 태그는 태그 입력과 선택 목록에 모두 나타나므로, 선택 목록의 행이 준비될 때까지 기다린 뒤 대표 지정 버튼을 누른다.
+internal fun ComposeContentTestRule.ddayDetailClickPrimaryTagButton(
+    title: String,
+    description: String,
+) {
+    ddayDetailOpenTagPicker()
+    awaitTagPickerRow(title = title, count = 2)
+    onNode(ddayPrimaryTagButton(description)).performClick()
     waitForIdle()
 }
 

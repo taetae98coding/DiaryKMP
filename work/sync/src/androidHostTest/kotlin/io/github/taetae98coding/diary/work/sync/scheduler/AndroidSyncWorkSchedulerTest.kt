@@ -11,7 +11,6 @@ import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
-import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkState
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery

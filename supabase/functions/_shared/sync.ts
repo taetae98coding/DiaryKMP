@@ -170,33 +170,43 @@ const ddayRepeatSchema = z.union([
   z.object({ months: ddayRepeatValueSchema }).strict(),
 ]);
 
+const ddayPushItemSchema = z.object({
+  id: z.string().uuid(),
+  isDeleted: z.boolean(),
+  updatedAt: z.string().datetime({ offset: true }),
+  createdAt: z.string().datetime({ offset: true }),
+  detail: z
+    .object({
+      title: z.string(),
+      description: z.string(),
+      color: z.number().int(),
+      baseDate: localDateSchema,
+      countsBaseDay: z.boolean(),
+      repeats: z.array(ddayRepeatSchema).refine(
+        (repeats) =>
+          new Set(repeats.map((repeat) => ("days" in repeat ? `days:${repeat.days}` : `months:${repeat.months}`))).size ===
+            repeats.length,
+        { message: "repeats must not contain the same interval twice." },
+      ),
+      endDate: localDateSchema.nullable(),
+      overflowPolicy: z.enum(["clamp_to_month_end", "skip", "next_month_first_day"]),
+    })
+    .refine(
+      (detail) => detail.endDate === null || detail.endDate >= detail.baseDate,
+      { message: "endDate must not be before baseDate." },
+    ),
+});
+
+// 대표 태그가 생기기 전 버전의 앱이 쓰는 v1은 대표 태그를 받지 않아, 서버에 저장된 대표 태그를 바꾸지 않는다.
 export const ddayPushRequestSchema = z.object({
+  ddayList: z.array(ddayPushItemSchema),
+});
+
+// 현재 앱이 쓰는 v2는 대표 태그를 반드시 받는다. 지정되지 않은 대표 태그는 null로 온다.
+export const ddayPushRequestSchemaV2 = z.object({
   ddayList: z.array(
-    z.object({
-      id: z.string().uuid(),
-      isDeleted: z.boolean(),
-      updatedAt: z.string().datetime({ offset: true }),
-      createdAt: z.string().datetime({ offset: true }),
-      detail: z
-        .object({
-          title: z.string(),
-          description: z.string(),
-          color: z.number().int(),
-          baseDate: localDateSchema,
-          countsBaseDay: z.boolean(),
-          repeats: z.array(ddayRepeatSchema).refine(
-            (repeats) =>
-              new Set(repeats.map((repeat) => ("days" in repeat ? `days:${repeat.days}` : `months:${repeat.months}`))).size ===
-                repeats.length,
-            { message: "repeats must not contain the same interval twice." },
-          ),
-          endDate: localDateSchema.nullable(),
-          overflowPolicy: z.enum(["clamp_to_month_end", "skip", "next_month_first_day"]),
-        })
-        .refine(
-          (detail) => detail.endDate === null || detail.endDate >= detail.baseDate,
-          { message: "endDate must not be before baseDate." },
-        ),
+    ddayPushItemSchema.extend({
+      primaryTagId: z.string().uuid().nullable(),
     }),
   ),
 });

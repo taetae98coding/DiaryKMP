@@ -2,7 +2,7 @@
 
 블로킹 작업을 어디서 메인 스레드 밖으로 옮기는지(`withContext`)와, 옮길 `CoroutineDispatcher`·`CoroutineScope`를 어떻게 받는지를 소유한다.
 
-Android의 [코루틴 권장사항](https://developer.android.com/kotlin/coroutines/coroutines-best-practices)과 [도메인 레이어의 Threading](https://developer.android.com/topic/architecture/domain-layer#threading)을 그대로 따르고, 이 문서는 그 권장사항을 이 저장소의 계층·Koin·멀티플랫폼 구성에 어떻게 적용하는지만 적는다. 변경 가능한 상태를 노출하지 않는 일은 [viewmodel.md](viewmodel.md)가, `CancellationException`을 삼키지 않는 일은 [work.md](work.md)·[data.md](data.md)가 소유한다.
+Android의 [코루틴 권장사항](https://developer.android.com/kotlin/coroutines/coroutines-best-practices)과 [도메인 레이어의 Threading](https://developer.android.com/topic/architecture/domain-layer#threading)을 그대로 따르고, 이 문서는 그 권장사항을 이 저장소의 계층·Koin·멀티플랫폼 구성에 어떻게 적용하는지만 적는다. 변경 가능한 상태를 노출하지 않는 일은 [viewmodel.md](viewmodel.md)가, `CancellationException`을 삼키지 않는 일은 [kotlin.md](kotlin.md)의 `CancellationException은 삼키지 않는다`가 소유한다.
 
 ## 경계는 dispatcher를 주입받는 컴포넌트가 긋는다
 
@@ -12,6 +12,8 @@ Android의 [코루틴 권장사항](https://developer.android.com/kotlin/corouti
 2. 그 컴포넌트가 직접 하거나, 주입받거나 만든 객체로 하는 작업이 호출한 스레드를 막을 수 있다. 파일·`ContentResolver` I/O, 프로세스 실행과 대기, 이미지 디코딩·인코딩, 행마다 하는 복호화나 여러 해의 날짜를 훑는 계산처럼 큰 CPU 작업, 응답을 기다리는 동기 시스템 호출이 그렇다.
 
 컴포넌트는 블로킹 작업을 감싼 `suspend` 함수를 내보내 main-safe한 경계가 된다. Repository, UseCase, ViewModel, Compose effect, `coroutineScope`는 그 함수를 부르기만 하고 다시 옮기지 않는다. 블로킹이 일어나는 가장 낮은 컴포넌트에서 한 번 옮기면 위의 모든 호출 경로가 main-safe해진다.
+
+**`withContext` 안에서 블로킹 호출을 반복하면 반복마다 `ensureActive()`로 취소를 확인한다.** 블로킹 호출에는 중단 지점이 없어 호출자가 취소해도 남은 반복을 끝까지 돈다. 예: 항목마다 아이콘을 그리는 `CoreSpotlightIndex.upsert`, 겹치지 않는 파일 이름을 찾는 `JvmFileDownloadLocalDataSource`의 `createNewFile`.
 
 ### UseCase는 다시 옮기지 않는다
 
@@ -38,6 +40,8 @@ scope를 만드는 제공 함수는 `workCoroutineScope(dispatcher = ...)`처럼
 **위 절에 해당하지 않는 보조 class는 `CoroutineScope`를 생성자로 받지 않고 `suspend` 함수를 내보낸다.** 어디까지 살아야 하는지는 호출자가 안다. Composable은 진입이 계기면 `LaunchedEffect`, 사용자 조작이 계기면 `rememberCoroutineScope().launch`로 부르고, ViewModel은 `viewModelScope`에서 부른다. 호출자의 scope가 취소되면 작업도 함께 끝나고, 실행 중인지 판단하는 가드는 `Job` 대신 `Boolean`과 `try`·`finally`로 둔다.
 
 예: `CalendarSearchOpener`는 `rememberCoroutineScope()`를 받아 안에서 `launch`하지 않고 `suspend fun openHolidaySearch(name)`를 내보내며, 조작을 받은 Composable이 `coroutineScope.launch { ... }`로 부른다.
+
+**최상위 함수와 확장 함수도 같다.** `CoroutineScope`를 수신 객체나 파라미터로 받아 안에서 `launch`하지 않고 `suspend` 함수로 둔다. 포커스 요청이나 입력 초기화처럼 계기와 같은 시점에 끝나야 하는 동기 부분은 `suspend` 함수에 넣지 않고 호출자가 `launch` 전에 수행한다. `launch` 안에 넣으면 다음 dispatch까지 미뤄진다. 예: `showDiaryFormAdded`는 색 전환과 스낵바 표시만 맡고, 제목 포커스 요청은 Add 화면의 Effect가 `launch` 전에 한다.
 
 다음은 scope를 받는 것이 맞는 경우다. 그래도 `GlobalScope`나 클래스 안에서 만든 scope는 쓰지 않는다.
 

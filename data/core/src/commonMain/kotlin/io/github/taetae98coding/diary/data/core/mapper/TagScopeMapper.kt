@@ -9,10 +9,3 @@ public fun TagScope.toLocal(): TagScopeLocalEntity =
         TagScope.CHILD -> TagScopeLocalEntity.CHILD
         TagScope.DESCENDANT -> TagScopeLocalEntity.DESCENDANT
     }
-
-public fun TagScopeLocalEntity.toDomain(): TagScope =
-    when (this) {
-        TagScopeLocalEntity.SELF -> TagScope.SELF
-        TagScopeLocalEntity.CHILD -> TagScope.CHILD
-        TagScopeLocalEntity.DESCENDANT -> TagScope.DESCENDANT
-    }

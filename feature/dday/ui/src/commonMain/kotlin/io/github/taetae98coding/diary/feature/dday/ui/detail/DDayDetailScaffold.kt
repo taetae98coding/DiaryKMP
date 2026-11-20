@@ -19,20 +19,20 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.dday.ui.Res
 import io.github.taetae98coding.diary.feature.dday.ui.dday_detail_loading_content_description
 import io.github.taetae98coding.diary.feature.dday.ui.dday_detail_update_button_content_description
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDayForm
-import io.github.taetae98coding.diary.feature.dday.ui.form.DDayFormEvent
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDayFormState
 import io.github.taetae98coding.diary.feature.dday.ui.form.rememberDDayDetailFormState
 import io.github.taetae98coding.diary.feature.dday.ui.previewDDayDetail
@@ -43,13 +43,13 @@ import kotlin.uuid.Uuid
 @Composable
 internal fun DDayDetailScaffold(
     onEvent: (DDayDetailScaffoldEvent) -> Unit,
-    onFormEvent: (DDayFormEvent) -> Unit,
-    onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
+    onTagPickerEvent: (PrimaryTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: DDayFormState = rememberDDayDetailFormState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> DDayDetailUiState = { DDayDetailUiState.Loading },
-    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
+    tagUiStateProvider: () -> PrimaryTagInputUiState = { PrimaryTagInputUiState() },
     componentVisibleProvider: () -> DDayDetailScaffoldComponentVisible = { DDayDetailScaffoldComponentVisible() },
 ) {
     val isChanged by remember(state) {
@@ -92,7 +92,7 @@ internal fun DDayDetailScaffold(
         )
     }
 
-    EntityTagPickerDialogHost(
+    PrimaryTagPickerDialogHost(
         dialogState = state.tagPickerDialogState,
         onEvent = onTagPickerEvent,
         tagPagingItems = tagPagingItems,
@@ -102,11 +102,11 @@ internal fun DDayDetailScaffold(
 
 @Composable
 private fun DDayDetailScaffoldContent(
-    onFormEvent: (DDayFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: DDayFormState = rememberDDayDetailFormState(),
     uiStateProvider: () -> DDayDetailUiState = { DDayDetailUiState.Loading },
-    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
+    tagUiStateProvider: () -> PrimaryTagInputUiState = { PrimaryTagInputUiState() },
 ) {
     DiaryCrossfade(
         targetState = uiStateProvider() is DDayDetailUiState.Content,

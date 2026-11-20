@@ -18,7 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_END_DATE_CLEAR
 import io.github.taetae98coding.diary.feature.dday.ui.form.DDAY_FORM_DEFAULT_OVERFLOW_CLAMP
@@ -134,7 +134,7 @@ class DDayAddFormTest {
     @Test
     fun `TC-e5628fbe-673f-4e85-872e-97fc8393757c 프리셋은 네 입력만 덮어쓰고 제목, 설명, 컬러, 기준일과 태그는 그대로다`() {
         val tag = Arb.tag(title = TAG_TITLE).next()
-        setForm(baseDate = LocalDate(2025, 1, 15), tagUiState = EntityTagInputUiState(tagList = listOf(tag)))
+        setForm(baseDate = LocalDate(2025, 1, 15), tagUiState = PrimaryTagInputUiState(selectedTagList = listOf(tag)))
         composeRule.ddayTitleInput().performTextInput(MARRIAGE)
         composeRule.ddayDescriptionInput().performTextInput(US)
         val color = composeRule.ddayDisplayedColorHex()
@@ -519,7 +519,7 @@ class DDayAddFormTest {
     private fun setForm(
         baseDate: LocalDate,
         endDate: LocalDate? = null,
-        tagUiState: EntityTagInputUiState = EntityTagInputUiState(),
+        tagUiState: PrimaryTagInputUiState = PrimaryTagInputUiState(),
     ) {
         composeRule.setContent {
             DDayFormTestTheme {

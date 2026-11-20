@@ -6,8 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.contact.displayName
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerRow
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.memo.ui.previewContact
 

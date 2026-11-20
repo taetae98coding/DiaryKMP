@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.network.impl.routinerecord.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.routine.remoteRoutineRecord
 import io.github.taetae98coding.diary.core.network.api.routinerecord.entity.RoutineRecordPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
 import io.github.taetae98coding.diary.core.network.impl.routinerecord.entity.RoutineRecordPullResponseRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.routinerecord.entity.RoutineRecordPushRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.routine.remoteRoutineRecord
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

@@ -11,8 +11,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.domain.core.invoke
@@ -124,7 +124,6 @@ class CalendarHomeScreenWeatherFetchTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 
         composeRule.setContent {
@@ -144,6 +143,7 @@ class CalendarHomeScreenWeatherFetchTest {
                     state = state,
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     weatherViewModel = weatherViewModel,
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),

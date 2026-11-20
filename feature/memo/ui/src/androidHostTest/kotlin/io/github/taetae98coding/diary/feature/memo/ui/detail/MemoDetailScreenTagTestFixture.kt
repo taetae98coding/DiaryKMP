@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -17,7 +18,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
@@ -33,7 +33,7 @@ internal const val DEFAULT_PRIMARY_UNSET_DESCRIPTION = "Unset primary tag"
 
 internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
     uiState: StateFlow<MemoDetailUiState> = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE))),
-    tagUiState: StateFlow<MemoTagInputUiState> = MutableStateFlow(MemoTagInputUiState()),
+    tagUiState: StateFlow<PrimaryTagInputUiState> = MutableStateFlow(PrimaryTagInputUiState()),
     tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingDataOf(emptyList())),
     tagViewModel: MemoTagViewModel = screenTestTagViewModel(uiState = tagUiState, tagPagingDataFlow = tagPagingDataFlow),
     placeUiState: StateFlow<MemoPlaceInputUiState> = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true)),
@@ -101,6 +101,6 @@ internal fun memoDetailTagViewModel(
     primaryTagId: Uuid? = null,
 ): MemoTagViewModel =
     screenTestTagViewModel(
-        uiState = MutableStateFlow(MemoTagInputUiState(selectedTagList = selectedTagList, primaryTagId = primaryTagId)),
+        uiState = MutableStateFlow(PrimaryTagInputUiState(selectedTagList = selectedTagList, primaryTagId = primaryTagId)),
         tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(tagList)),
     )

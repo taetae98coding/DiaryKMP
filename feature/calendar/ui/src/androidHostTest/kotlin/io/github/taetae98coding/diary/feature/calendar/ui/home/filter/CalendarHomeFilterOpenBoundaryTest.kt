@@ -22,7 +22,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
@@ -32,6 +32,7 @@ import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNav
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayUiState
@@ -217,7 +218,11 @@ class CalendarHomeFilterOpenBoundaryTest {
         factory<CalendarHomeMemoViewModel> {
             mockk<CalendarHomeMemoViewModel>(relaxed = true) {
                 every { uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-                every { filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState(isApplied = true))
+            }
+        }
+        factory<CalendarHomeScaffoldFilterViewModel> {
+            mockk<CalendarHomeScaffoldFilterViewModel>(relaxed = true) {
+                every { uiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState(isApplied = true))
             }
         }
         factory<CalendarHomeBirthdayViewModel> {

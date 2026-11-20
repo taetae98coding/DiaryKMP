@@ -13,12 +13,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.ROUTINE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.routine.RoutineListState
 import io.github.taetae98coding.diary.compose.routine.UpdateRoutineListTodayEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedTagRoutineUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
+import io.github.taetae98coding.diary.feature.core.routine.UpdateRoutineTodayEffect
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagRoutine
@@ -125,7 +126,7 @@ class TagRoutineFinishedListTodayTest {
                 DiaryTheme {
                     if (isFinishedListShown) {
                         UpdateRoutineListTodayEffect(state = state)
-                        UpdateTagRoutineFinishedListTodayEffect(routineViewModel = viewModel, listState = state)
+                        UpdateRoutineTodayEffect(onUpdate = viewModel::updateToday, listState = state)
                         TagRoutineFinishedListScaffold(
                             onEvent = {},
                             onRoutineListEvent = {},

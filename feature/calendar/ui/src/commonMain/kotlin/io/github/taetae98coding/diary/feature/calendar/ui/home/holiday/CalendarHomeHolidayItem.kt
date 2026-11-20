@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthG
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 
+private const val HOLIDAY_CONTENT_TYPE = "holiday"
+
 internal fun CalendarWeekOfMonthGridGroupScope.holidayItem(
     holidayProvider: () -> List<Holiday>,
     holidayNameColor: Color,
@@ -20,6 +22,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.holidayItem(
         item(
             dateRange = holiday.dateRange,
             key = holiday.toString(),
+            contentType = HOLIDAY_CONTENT_TYPE,
         ) {
             CalendarText(
                 text = holiday.name,

@@ -9,10 +9,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 

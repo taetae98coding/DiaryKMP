@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.data.weather.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.weather.weatherMainRemoteEntity
 import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
-import io.github.taetae98coding.diary.core.testing.weather.weatherMainRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherMainRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

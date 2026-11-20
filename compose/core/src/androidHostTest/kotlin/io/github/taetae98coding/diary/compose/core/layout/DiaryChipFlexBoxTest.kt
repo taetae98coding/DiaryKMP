@@ -22,7 +22,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule

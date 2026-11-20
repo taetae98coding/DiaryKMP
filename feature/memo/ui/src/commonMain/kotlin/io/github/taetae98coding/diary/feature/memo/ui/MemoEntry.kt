@@ -8,8 +8,10 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -81,14 +83,16 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
             listState = listState,
         )
         MemoHomeScreen(
-            navigateToAdd = backStack::navigateToMemoAddFromHome,
-            navigateToFilter = {
-                backStack.add(MemoHomeFilterNavKey)
-            },
-            navigateToFinishedList = {
-                backStack.add(MemoFinishedListNavKey)
-            },
-            navigateToSearch = backStack::navigateToSearchFromMemoHome,
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToMemoAddFromHome),
+            navigateToFilter =
+                dropUnlessResumed {
+                    backStack.add(MemoHomeFilterNavKey)
+                },
+            navigateToFinishedList =
+                dropUnlessResumed {
+                    backStack.add(MemoFinishedListNavKey)
+                },
+            navigateToSearch = dropUnlessResumed(block = backStack::navigateToSearchFromMemoHome),
             navigateToDetail = { id -> backStack.navigateToMemoDetail(id) },
             componentVisibleProvider = {
                 val isAddPaneVisible = isDetailPaneVisible && !backStack.isMemoDetailOnDetailPane()
@@ -134,22 +138,23 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
 
         MemoAddScreen(
             navigateUp = { backStack.removeLastOrNull() },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
-            navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToContactAdd = { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
-            navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
-            navigateToPlaceAdd = { coordinate ->
-                backStack.add(
-                    PlaceAddNavKey(
-                        latitude = coordinate?.latitude,
-                        longitude = coordinate?.longitude,
-                        requestKey = addRequestKey,
-                    ),
-                )
-            },
-            navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id)) },
+            navigateToWebAdd = dropUnlessResumed { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
+            navigateToWebDetail = dropUnlessResumedWithArg { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToContactAdd = dropUnlessResumed { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
+            navigateToContactDetail = dropUnlessResumedWithArg { id -> backStack.add(ContactDetailNavKey(id = id)) },
+            navigateToPlaceAdd =
+                dropUnlessResumedWithArg { coordinate ->
+                    backStack.add(
+                        PlaceAddNavKey(
+                            latitude = coordinate?.latitude,
+                            longitude = coordinate?.longitude,
+                            requestKey = addRequestKey,
+                        ),
+                    )
+                },
+            navigateToPlaceDetail = dropUnlessResumedWithArg { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
             initialTitle = key.initialTitle,
             initialDescription = key.initialDescription,
@@ -182,22 +187,23 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(
         MemoDetailScreen(
             navigateUp = { backStack.removeLastOrNull() },
             navigateToCopiedMemo = { id -> backStack.navigateToCopiedMemo(id) },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
-            navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToContactAdd = { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
-            navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
-            navigateToPlaceAdd = { coordinate ->
-                backStack.add(
-                    PlaceAddNavKey(
-                        latitude = coordinate?.latitude,
-                        longitude = coordinate?.longitude,
-                        requestKey = addRequestKey,
-                    ),
-                )
-            },
-            navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id)) },
+            navigateToWebAdd = dropUnlessResumed { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
+            navigateToWebDetail = dropUnlessResumedWithArg { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToContactAdd = dropUnlessResumed { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
+            navigateToContactDetail = dropUnlessResumedWithArg { id -> backStack.add(ContactDetailNavKey(id = id)) },
+            navigateToPlaceAdd =
+                dropUnlessResumedWithArg { coordinate ->
+                    backStack.add(
+                        PlaceAddNavKey(
+                            latitude = coordinate?.latitude,
+                            longitude = coordinate?.longitude,
+                            requestKey = addRequestKey,
+                        ),
+                    )
+                },
+            navigateToPlaceDetail = dropUnlessResumedWithArg { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
             addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
@@ -251,22 +257,23 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
 
     MemoAddScreen(
         navigateUp = {},
-        navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
-        navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-        navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
-        navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-        navigateToContactAdd = { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
-        navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
-        navigateToPlaceAdd = { coordinate ->
-            backStack.add(
-                PlaceAddNavKey(
-                    latitude = coordinate?.latitude,
-                    longitude = coordinate?.longitude,
-                    requestKey = addRequestKey,
-                ),
-            )
-        },
-        navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+        navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
+        navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id)) },
+        navigateToWebAdd = dropUnlessResumed { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
+        navigateToWebDetail = dropUnlessResumedWithArg { id -> backStack.add(WebDetailNavKey(id = id)) },
+        navigateToContactAdd = dropUnlessResumed { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
+        navigateToContactDetail = dropUnlessResumedWithArg { id -> backStack.add(ContactDetailNavKey(id = id)) },
+        navigateToPlaceAdd =
+            dropUnlessResumedWithArg { coordinate ->
+                backStack.add(
+                    PlaceAddNavKey(
+                        latitude = coordinate?.latitude,
+                        longitude = coordinate?.longitude,
+                        requestKey = addRequestKey,
+                    ),
+                )
+            },
+        navigateToPlaceDetail = dropUnlessResumedWithArg { id -> backStack.add(PlaceDetailNavKey(id = id)) },
         navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
         initialTitle = "",
         initialDescription = "",

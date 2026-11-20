@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.data.holiday.repository
 
 import app.cash.turbine.test
@@ -7,9 +9,9 @@ import io.github.taetae98coding.diary.core.calendar.database.api.transaction.Hol
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.HolidayRemoteDataSource
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCountryRemoteEntity
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.holiday.holidayLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.holiday.holidayRemoteEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.core.testing.holiday.holidayLocalEntity
-import io.github.taetae98coding.diary.core.testing.holiday.holidayRemoteEntity
 import io.github.taetae98coding.diary.data.holiday.cache.HolidayFetchedKeySet
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
@@ -30,6 +32,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -43,7 +46,7 @@ class HolidayRepositoryImplTest :
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next(), Arb.holidayRemoteEntity().next())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             val transaction = mockk<HolidayTransaction>()
             coEvery {
@@ -63,7 +66,7 @@ class HolidayRepositoryImplTest :
 
             repository.fetch(country = HolidayCountry.KOREA, year = year) shouldBe expectedHolidayList.map { local -> local.toDomain() }
 
-            coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
             coVerify(exactly = 1) {
                 transaction.upsert(
                     country = HolidayCountryLocalEntity.KOREA,
@@ -83,7 +86,7 @@ class HolidayRepositoryImplTest :
         test("TC-60c83dda-3b12-42e2-99a9-218819e7bc94 원격이 공휴일을 제공하지 않으면 요청한 연도의 캐시를 제거한다") {
             val year = Arb.int().next()
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns emptyList()
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns emptyList()
             val localDataSource = mockk<HolidayLocalDataSource>()
             val transaction = mockk<HolidayTransaction>()
             coEvery { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = emptyList()) } just Runs
@@ -103,7 +106,7 @@ class HolidayRepositoryImplTest :
         test("TC-228f1b11-042c-4817-bac9-89bda80056fa 공휴일을 제공하지 않은 연도도 다시 요청하면 원격 조회를 생략한다") {
             val year = Arb.int().next()
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns emptyList()
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns emptyList()
             val localDataSource = mockk<HolidayLocalDataSource>()
             every { localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns flowOf(emptyList())
             val transaction = mockk<HolidayTransaction>()
@@ -119,7 +122,7 @@ class HolidayRepositoryImplTest :
             repository.fetch(country = HolidayCountry.KOREA, year = year)
             repository.fetch(country = HolidayCountry.KOREA, year = year) shouldBe emptyList()
 
-            coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
             coVerify(exactly = 1) { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = emptyList()) }
         }
 
@@ -128,7 +131,7 @@ class HolidayRepositoryImplTest :
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next())
             val localHolidayList = listOf(Arb.holidayLocalEntity().next().copy(year = year, country = HolidayCountryLocalEntity.KOREA), Arb.holidayLocalEntity().next().copy(year = year, country = HolidayCountryLocalEntity.KOREA))
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             every { localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns flowOf(localHolidayList)
             val transaction = mockk<HolidayTransaction>()
@@ -144,14 +147,14 @@ class HolidayRepositoryImplTest :
             repository.fetch(country = HolidayCountry.KOREA, year = year)
 
             repository.fetch(country = HolidayCountry.KOREA, year = year) shouldBe localHolidayList.map { local -> local.toDomain() }
-            coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
         }
 
         test("TC-fbbbe2cd-e57a-48ec-9679-fce9280196a8 원격 조회가 실패하면 기존 캐시를 유지한다") {
             val year = Arb.int().next()
             val failure = TestException(Arb.string().next())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws failure
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws failure
             val localDataSource = mockk<HolidayLocalDataSource>(relaxed = true)
             val transaction = mockk<HolidayTransaction>(relaxed = true)
             val repository =
@@ -177,7 +180,7 @@ class HolidayRepositoryImplTest :
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
             val failure = TestException(Arb.string().next())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             val transaction = mockk<HolidayTransaction>()
             coEvery {
@@ -208,7 +211,7 @@ class HolidayRepositoryImplTest :
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next(), Arb.holidayRemoteEntity().next())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             every { localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns flowOf(expectedHolidayList)
             val transaction = mockk<HolidayTransaction>()
@@ -230,7 +233,7 @@ class HolidayRepositoryImplTest :
             repository.fetch(country = HolidayCountry.KOREA, year = year)
             repository.fetch(country = HolidayCountry.KOREA, year = year)
 
-            coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
             coVerify(exactly = 1) {
                 transaction.upsert(
                     country = HolidayCountryLocalEntity.KOREA,
@@ -245,7 +248,7 @@ class HolidayRepositoryImplTest :
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next(), Arb.holidayRemoteEntity().next())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             val transaction = mockk<HolidayTransaction>()
             coEvery {
@@ -274,7 +277,7 @@ class HolidayRepositoryImplTest :
                 )
             repository.fetch(country = HolidayCountry.KOREA, year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 2) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
         }
 
         test("TC-944f146e-ab41-4e58-854e-d864d70267da 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {
@@ -283,7 +286,7 @@ class HolidayRepositoryImplTest :
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
             val failure = TestException(Arb.string().next())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws failure andThen remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws failure andThen remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             val transaction = mockk<HolidayTransaction>()
             coEvery {
@@ -306,7 +309,7 @@ class HolidayRepositoryImplTest :
             }
             repository.fetch(country = HolidayCountry.KOREA, year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 2) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
             coVerify(exactly = 1) {
                 transaction.upsert(
                     country = HolidayCountryLocalEntity.KOREA,
@@ -322,7 +325,7 @@ class HolidayRepositoryImplTest :
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
             val failure = TestException(Arb.string().next())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             val transaction = mockk<HolidayTransaction>()
             coEvery {
@@ -345,7 +348,7 @@ class HolidayRepositoryImplTest :
             }
             repository.fetch(country = HolidayCountry.KOREA, year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 2) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
             coVerify(exactly = 2) {
                 transaction.upsert(
                     country = HolidayCountryLocalEntity.KOREA,
@@ -360,7 +363,7 @@ class HolidayRepositoryImplTest :
             val otherYear = generateSequence { Arb.int().next() }.first { candidate -> candidate != year }
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = any(), year = any()) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = any(), year = any()) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             val transaction = mockk<HolidayTransaction>()
             coEvery { transaction.upsert(country = any(), year = any(), holidayList = any()) } just Runs
@@ -375,7 +378,7 @@ class HolidayRepositoryImplTest :
             repository.fetch(country = HolidayCountry.KOREA, year = year)
             repository.fetch(country = HolidayCountry.KOREA, year = otherYear)
 
-            coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = otherYear) }
+            coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = otherYear) }
             coVerify(exactly = 1) {
                 transaction.upsert(
                     country = HolidayCountryLocalEntity.KOREA,
@@ -389,7 +392,7 @@ class HolidayRepositoryImplTest :
             val year = Arb.int().next()
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val localDataSource = mockk<HolidayLocalDataSource>()
             every { localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns flowOf(remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) })
             val transaction = mockk<HolidayTransaction>()
@@ -409,7 +412,7 @@ class HolidayRepositoryImplTest :
                 holidayFetchedKeySet = fetchedKeySet,
             ).fetch(country = HolidayCountry.KOREA, year = year)
 
-            coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
         }
 
         test("TC-0da603fd-884c-4461-8ee5-ea53853d0af6 같은 연도의 동기화가 진행 중이면 새로 원격 조회하지 않고 그 결과를 함께 기다린다") {
@@ -419,7 +422,7 @@ class HolidayRepositoryImplTest :
                 val localHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
                 val response = CompletableDeferred<List<HolidayRemoteEntity>>()
                 val remoteDataSource = mockk<HolidayRemoteDataSource>()
-                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() }
+                coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() }
                 val localDataSource = mockk<HolidayLocalDataSource>()
                 every { localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns flowOf(localHolidayList)
                 val transaction = mockk<HolidayTransaction>()
@@ -443,7 +446,7 @@ class HolidayRepositoryImplTest :
                 first.await()
 
                 second.await() shouldBe localHolidayList.map { local -> local.toDomain() }
-                coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+                coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
             }
         }
 
@@ -454,7 +457,7 @@ class HolidayRepositoryImplTest :
                 val localHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
                 val response = CompletableDeferred<List<HolidayRemoteEntity>>()
                 val remoteDataSource = mockk<HolidayRemoteDataSource>()
-                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() } andThen remoteHolidayList
+                coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() } andThen remoteHolidayList
                 val transaction = mockk<HolidayTransaction>()
                 coEvery { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = localHolidayList) } just Runs
                 val repository =
@@ -474,7 +477,7 @@ class HolidayRepositoryImplTest :
 
                 first.await().shouldBeFailure<IllegalStateException>()
                 second.await() shouldBe localHolidayList.map { local -> local.toDomain() }
-                coVerify(exactly = 2) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+                coVerify(exactly = 2) { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) }
             }
         }
 
@@ -485,8 +488,8 @@ class HolidayRepositoryImplTest :
                 val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next())
                 val response = CompletableDeferred<List<HolidayRemoteEntity>>()
                 val remoteDataSource = mockk<HolidayRemoteDataSource>()
-                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() }
-                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = otherYear) } returns remoteHolidayList
+                coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() }
+                coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = otherYear) } returns remoteHolidayList
                 val transaction = mockk<HolidayTransaction>()
                 coEvery { transaction.upsert(country = any(), year = any(), holidayList = any()) } just Runs
                 val repository =
@@ -591,7 +594,7 @@ class HolidayRepositoryImplTest :
             ).forEach { (country, remoteCountry) ->
                 val year = Arb.int().next()
                 val remoteDataSource = mockk<HolidayRemoteDataSource>()
-                coEvery { remoteDataSource.get(country = any(), year = any()) } returns emptyList()
+                coEvery { remoteDataSource.read(country = any(), year = any()) } returns emptyList()
                 val transaction = mockk<HolidayTransaction>()
                 coEvery { transaction.upsert(country = any(), year = any(), holidayList = any()) } just Runs
                 val repository =
@@ -604,8 +607,8 @@ class HolidayRepositoryImplTest :
 
                 repository.fetch(country = country, year = year)
 
-                coVerify(exactly = 1) { remoteDataSource.get(country = remoteCountry, year = year) }
-                coVerify(exactly = 1) { remoteDataSource.get(country = any(), year = any()) }
+                coVerify(exactly = 1) { remoteDataSource.read(country = remoteCountry, year = year) }
+                coVerify(exactly = 1) { remoteDataSource.read(country = any(), year = any()) }
             }
         }
 
@@ -614,7 +617,7 @@ class HolidayRepositoryImplTest :
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next(), Arb.holidayRemoteEntity().next())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
             val transaction = mockk<HolidayTransaction>()
             coEvery { transaction.upsert(country = any(), year = any(), holidayList = any()) } just Runs
             val repository =
@@ -647,7 +650,7 @@ class HolidayRepositoryImplTest :
             val year = Arb.int().next()
             val remoteHolidayList = listOf(Arb.holidayRemoteEntity().next())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
-            coEvery { remoteDataSource.get(country = any(), year = year) } returns remoteHolidayList
+            coEvery { remoteDataSource.read(country = any(), year = year) } returns remoteHolidayList
             val transaction = mockk<HolidayTransaction>()
             coEvery { transaction.upsert(country = any(), year = any(), holidayList = any()) } just Runs
             val repository =
@@ -662,7 +665,7 @@ class HolidayRepositoryImplTest :
             repository.fetch(country = HolidayCountry.UNITED_STATES, year = year) shouldBe
                 remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.UNITED_STATES, year = year).toDomain() }
 
-            coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) }
+            coVerify(exactly = 1) { remoteDataSource.read(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) }
             coVerify(exactly = 1) {
                 transaction.upsert(
                     country = HolidayCountryLocalEntity.UNITED_STATES,

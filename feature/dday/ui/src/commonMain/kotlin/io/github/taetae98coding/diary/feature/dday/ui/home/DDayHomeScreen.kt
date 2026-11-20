@@ -22,13 +22,14 @@ internal fun DDayHomeScreen(
     navigateToFilter: () -> Unit,
     componentVisibleProvider: () -> DDayHomeScaffoldComponentVisible,
     ddayViewModel: DDayHomeViewModel,
+    filterViewModel: DDayHomeScaffoldFilterViewModel,
     syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberDDayListState()
     val snackbarHostState = remember { SnackbarHostState() }
     val ddayPagingItems = ddayViewModel.ddayPagingData.collectAsLazyPagingItems()
-    val filterUiState by ddayViewModel.filterUiState.collectAsStateWithLifecycle()
+    val filterUiState by filterViewModel.uiState.collectAsStateWithLifecycle()
     val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateDDayListTodayEffect(state = listState)

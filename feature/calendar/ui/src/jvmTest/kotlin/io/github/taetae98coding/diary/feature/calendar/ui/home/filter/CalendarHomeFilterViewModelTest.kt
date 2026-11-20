@@ -27,6 +27,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -292,10 +293,11 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
         test("같은 태그의 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
+                val pending = CompletableDeferred<Result<Unit>>()
                 val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
-                coEvery { selectCalendarFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                coEvery { selectCalendarFilterTagUseCase(parameter = tagId) } coAnswers { pending.await() }
                 val unselectCalendarFilterTagUseCase = mockk<UnselectCalendarFilterTagUseCase>()
-                coEvery { unselectCalendarFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                coEvery { unselectCalendarFilterTagUseCase(parameter = tagId) } coAnswers { pending.await() }
                 val viewModel =
                     viewModel(
                         selectCalendarFilterTagUseCase = selectCalendarFilterTagUseCase,
@@ -310,13 +312,17 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { selectCalendarFilterTagUseCase(parameter = tagId) }
                 coVerify(exactly = 1) { unselectCalendarFilterTagUseCase(parameter = tagId) }
+
+                pending.complete(Result.success(Unit))
+                advanceUntilIdle()
             }
         }
 
         test("태그 선택 전체 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
+                val pending = CompletableDeferred<Result<Unit>>()
                 val unselectAllCalendarFilterTagUseCase = mockk<UnselectAllCalendarFilterTagUseCase>()
-                coEvery { unselectAllCalendarFilterTagUseCase() } returns Result.success(Unit)
+                coEvery { unselectAllCalendarFilterTagUseCase() } coAnswers { pending.await() }
                 val viewModel = viewModel(unselectAllCalendarFilterTagUseCase = unselectAllCalendarFilterTagUseCase)
 
                 viewModel.unselectAllTag()
@@ -324,6 +330,9 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { unselectAllCalendarFilterTagUseCase() }
+
+                pending.complete(Result.success(Unit))
+                advanceUntilIdle()
             }
         }
     }

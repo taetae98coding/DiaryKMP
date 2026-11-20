@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.contact.ContactListUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -55,11 +56,15 @@ internal fun TagDetailContactContent(
         TagDetailContactTab(
             onEvent = { event ->
                 when (event) {
-                    is TagDetailContactContentEvent.ClickContact -> navigateToContactDetail(event.id)
                     is TagDetailContactContentEvent.Refresh -> syncViewModel.refresh()
                     is TagDetailContactContentEvent.ClickSort -> sortSheetState.show()
                     is TagDetailContactContentEvent.SelectSort -> contactViewModel.select(sort = event.sort)
-                    is TagDetailContactContentEvent.DeleteContact -> contactViewModel.delete(id = event.id)
+                }
+            },
+            onContactListEvent = { event ->
+                when (event) {
+                    is ContactListEvent.ClickContact -> navigateToContactDetail(event.id)
+                    is ContactListEvent.SwipeDelete -> contactViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

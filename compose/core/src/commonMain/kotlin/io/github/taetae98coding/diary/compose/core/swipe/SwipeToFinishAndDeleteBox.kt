@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 
 @Composable
 public fun SwipeToFinishAndDeleteBox(
@@ -23,6 +23,32 @@ public fun SwipeToFinishAndDeleteBox(
     modifier: Modifier = Modifier,
     key: Any? = null,
     gesturesEnabled: Boolean = true,
+    finishAction: SwipeFinishAction = SwipeFinishAction.FINISH,
+    content: @Composable () -> Unit,
+) {
+    SwipeToDismissActionBox(
+        finishContentDescription = finishContentDescription,
+        deleteContentDescription = deleteContentDescription,
+        onFinish = onFinish,
+        onDelete = onDelete,
+        modifier = modifier,
+        key = key,
+        gesturesEnabled = gesturesEnabled,
+        finishAction = finishAction,
+        content = content,
+    )
+}
+
+@Composable
+internal fun SwipeToDismissActionBox(
+    finishContentDescription: String,
+    deleteContentDescription: String,
+    onFinish: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+    key: Any? = null,
+    gesturesEnabled: Boolean = true,
+    enableDismissFromStartToEnd: Boolean = true,
     finishAction: SwipeFinishAction = SwipeFinishAction.FINISH,
     content: @Composable () -> Unit,
 ) {
@@ -50,6 +76,7 @@ public fun SwipeToFinishAndDeleteBox(
             )
         },
         modifier = modifier,
+        enableDismissFromStartToEnd = enableDismissFromStartToEnd,
         gesturesEnabled = gesturesEnabled,
         onDismiss = { value ->
             when (value) {
@@ -76,6 +103,27 @@ private fun SwipeToFinishAndDeleteBoxPreview() {
             Card {
                 Text(
                     text = "SwipeToFinishAndDeleteBox",
+                    modifier = Modifier.padding(16.dp),
+                )
+            }
+        }
+    }
+}
+
+@ComponentPreview
+@Composable
+private fun SwipeToDismissActionBoxPreview() {
+    DiaryTheme {
+        SwipeToDismissActionBox(
+            onFinish = {},
+            onDelete = {},
+            finishContentDescription = "",
+            deleteContentDescription = "",
+            enableDismissFromStartToEnd = false,
+        ) {
+            Card {
+                Text(
+                    text = "SwipeToDismissActionBox",
                     modifier = Modifier.padding(16.dp),
                 )
             }

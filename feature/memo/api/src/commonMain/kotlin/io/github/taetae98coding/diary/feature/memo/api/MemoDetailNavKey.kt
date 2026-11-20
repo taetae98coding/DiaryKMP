@@ -10,4 +10,6 @@ public data class MemoDetailNavKey(
     val isStandalone: Boolean = false,
 ) : ScreenNavKey {
     override val screenName: String get() = "MemoDetail"
+
+    override val topLevelListKey: ScreenNavKey? get() = if (isStandalone) null else MemoHomeNavKey
 }

@@ -29,7 +29,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelFailure

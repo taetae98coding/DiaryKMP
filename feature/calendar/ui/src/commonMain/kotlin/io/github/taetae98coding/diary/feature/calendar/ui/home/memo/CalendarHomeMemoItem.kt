@@ -14,9 +14,11 @@ import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthG
 import io.github.taetae98coding.diary.compose.calendar.memo.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.compose.calendar.move.calendarMoveItem
-import io.github.taetae98coding.diary.compose.core.theme.dimmed
+import io.github.taetae98coding.diary.compose.theme.dimmed
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldEvent
+
+private const val MEMO_CONTENT_TYPE = "memo"
 
 internal fun CalendarWeekOfMonthGridGroupScope.memoItem(
     moveState: CalendarItemMoveState,
@@ -27,6 +29,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.memoItem(
         item(
             dateRange = memo.dateTime.toDateRange(),
             key = memo.id,
+            contentType = MEMO_CONTENT_TYPE,
         ) {
             CalendarHomeMemoText(
                 memo = memo,

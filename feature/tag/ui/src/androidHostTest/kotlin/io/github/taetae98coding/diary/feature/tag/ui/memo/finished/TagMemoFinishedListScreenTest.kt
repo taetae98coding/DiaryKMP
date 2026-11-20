@@ -16,16 +16,21 @@ import androidx.compose.ui.test.swipeRight
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListEffect
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_empty_title
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -38,6 +43,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -64,10 +70,10 @@ class TagMemoFinishedListScreenTest {
         val viewModel = mockk<TagMemoFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(tagMemoPagingData(itemList = emptyList()))
-        every { viewModel.effect } returns Channel<TagMemoFinishedListEffect>(capacity = Channel.BUFFERED).receiveAsFlow()
+        every { viewModel.effect } returns Channel<EntityMemoFinishedListEffect>(capacity = Channel.BUFFERED).receiveAsFlow()
         setTagMemoFinishedListScreen(
             viewModel = viewModel,
-            uiState = TagMemoFinishedListUiState(title = TAG_TITLE),
+            uiState = EntityMemoFinishedListUiState(title = TAG_TITLE),
         )
 
         composeRule.onNodeWithText(TAG_TITLE).assertIsDisplayed()
@@ -203,7 +209,7 @@ class TagMemoFinishedListScreenTest {
             JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(FIRST_TIME_ZONE))
             val secondTodayMemo = tagMemo(title = Arb.alphanumericString(prefix = "SecondTodayMemo").next(), dateTime = allDayMemoDateTime(secondToday))
             val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
-            every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
+            every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
             every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
             every { viewModel.memoPagingData } returns
                 MutableStateFlow(
@@ -220,7 +226,8 @@ class TagMemoFinishedListScreenTest {
             composeRule.setContent {
                 CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                     DiaryTheme {
-                        TagMemoFinishedListScreen(
+                        EntityMemoFinishedListScreen(
+                            emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
                             navigateUp = {},
                             navigateToMemoDetail = {},
                             memoViewModel = viewModel,
@@ -260,7 +267,7 @@ class TagMemoFinishedListScreenTest {
 
     private fun setTagMemoFinishedListScreen(
         viewModel: TagMemoFinishedListViewModel,
-        uiState: TagMemoFinishedListUiState = TagMemoFinishedListUiState(),
+        uiState: EntityMemoFinishedListUiState = EntityMemoFinishedListUiState(),
         navigateUp: () -> Unit = {},
         navigateToMemoDetail: (Uuid) -> Unit = {},
     ) {
@@ -268,7 +275,8 @@ class TagMemoFinishedListScreenTest {
 
         composeRule.setContent {
             DiaryTheme {
-                TagMemoFinishedListScreen(
+                EntityMemoFinishedListScreen(
+                    emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
                     navigateUp = navigateUp,
                     navigateToMemoDetail = navigateToMemoDetail,
                     memoViewModel = viewModel,
@@ -298,7 +306,7 @@ class TagMemoFinishedListScreenTest {
             MutableStateFlow(
                 tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))),
             )
-        val effectChannel = Channel<TagMemoFinishedListEffect>(capacity = Channel.BUFFERED)
+        val effectChannel = Channel<EntityMemoFinishedListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<TagMemoFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
 
@@ -306,11 +314,11 @@ class TagMemoFinishedListScreenTest {
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.restart(id = memo.id) } answers {
             pagingData.value = tagMemoPagingData(itemList = emptyList())
-            effectChannel.trySend(TagMemoFinishedListEffect.Restarted(id = memo.id)).getOrThrow()
+            effectChannel.trySend(EntityMemoFinishedListEffect.Restarted(id = memo.id)).getOrThrow()
         }
         every { viewModel.delete(id = memo.id) } answers {
             pagingData.value = tagMemoPagingData(itemList = emptyList())
-            effectChannel.trySend(TagMemoFinishedListEffect.Deleted(id = memo.id)).getOrThrow()
+            effectChannel.trySend(EntityMemoFinishedListEffect.Deleted(id = memo.id)).getOrThrow()
         }
         every { viewModel.finish(id = memo.id) } answers {
             pagingData.value = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo)))

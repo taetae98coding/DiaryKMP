@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import io.github.taetae98coding.diary.work.sync.scheduler.PeriodicSyncWorkScheduler
 import org.koin.core.annotation.Factory
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration

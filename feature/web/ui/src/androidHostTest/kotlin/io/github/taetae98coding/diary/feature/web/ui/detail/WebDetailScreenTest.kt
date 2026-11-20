@@ -23,7 +23,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.pressKey
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -31,6 +31,7 @@ import io.github.taetae98coding.diary.feature.web.ui.add.LONG_URL
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.inputHeight
 import io.github.taetae98coding.diary.feature.web.ui.add.inputLineCount
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -469,6 +470,7 @@ class WebDetailScreenTest {
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
                     contentSharerFactory = testContentSharerFactory(),
+                    webViewContent = AndroidWebViewContent(),
                 )
             }
         }
@@ -514,6 +516,7 @@ class WebDetailScreenTest {
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
                     contentSharerFactory = testContentSharerFactory(),
+                    webViewContent = AndroidWebViewContent(),
                 )
             }
         }
@@ -551,6 +554,7 @@ class WebDetailScreenTest {
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
                         contentSharerFactory = testContentSharerFactory(),
+                        webViewContent = AndroidWebViewContent(),
                     )
                 }
             }
@@ -601,6 +605,7 @@ class WebDetailScreenTest {
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
                         contentSharerFactory = testContentSharerFactory(),
+                        webViewContent = AndroidWebViewContent(),
                     )
                 }
             }

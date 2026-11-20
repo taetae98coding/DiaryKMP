@@ -18,9 +18,9 @@ import io.github.taetae98coding.diary.compose.core.diary_emoji_input_dialog_canc
 import io.github.taetae98coding.diary.compose.core.diary_emoji_input_dialog_confirm
 import io.github.taetae98coding.diary.compose.core.diary_emoji_input_label
 import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.textfield.transparentIndicator
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

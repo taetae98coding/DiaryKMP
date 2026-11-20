@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.compose.calendar.month
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth

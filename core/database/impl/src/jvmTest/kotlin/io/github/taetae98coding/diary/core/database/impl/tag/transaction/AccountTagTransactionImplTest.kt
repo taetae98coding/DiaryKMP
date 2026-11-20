@@ -4,6 +4,8 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
@@ -12,8 +14,6 @@ import io.github.taetae98coding.diary.core.database.impl.tag.datasource.AccountT
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.taglink.datasource.AccountTagLinkLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.datasource.AccountTagLinkSyncLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow

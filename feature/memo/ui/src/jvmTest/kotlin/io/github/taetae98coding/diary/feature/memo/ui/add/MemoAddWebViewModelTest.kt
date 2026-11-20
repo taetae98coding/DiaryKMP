@@ -100,7 +100,7 @@ class MemoAddWebViewModelTest : FunSpec() {
                 val web = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.failure(IllegalStateException("web error"))))
 
-                viewModel.selectWeb(id = web.id)
+                viewModel.selectWeb(webId = web.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -132,7 +132,7 @@ class MemoAddWebViewModelTest : FunSpec() {
                         webPagingFlow = flowOf(Result.failure(IllegalStateException("web error"))),
                         savedWebListFlow = flowOf(Result.success(listOf(web))),
                     )
-                viewModel.selectWeb(id = web.id)
+                viewModel.selectWeb(webId = web.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -177,8 +177,8 @@ class MemoAddWebViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     expectMostRecentItem().selectedWebList shouldBe listOf(target)
 
-                    viewModel.unselectWeb(id = target.id)
-                    viewModel.selectWeb(id = other.id)
+                    viewModel.unselectWeb(webId = target.id)
+                    viewModel.selectWeb(webId = other.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedWebList shouldBe listOf(other)
@@ -234,12 +234,12 @@ class MemoAddWebViewModelTest : FunSpec() {
 
                     expectMostRecentItem().selectedWebList.shouldBeEmpty()
 
-                    viewModel.selectWeb(id = web.id)
+                    viewModel.selectWeb(webId = web.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedWebList shouldBe listOf(web)
 
-                    viewModel.unselectWeb(id = web.id)
+                    viewModel.unselectWeb(webId = web.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedWebList.shouldBeEmpty()
@@ -256,8 +256,8 @@ class MemoAddWebViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectWeb(id = firstWeb.id)
-                    viewModel.selectWeb(id = secondWeb.id)
+                    viewModel.selectWeb(webId = firstWeb.id)
+                    viewModel.selectWeb(webId = secondWeb.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedWebList shouldBe listOf(firstWeb, secondWeb)
@@ -273,7 +273,7 @@ class MemoAddWebViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectWeb(id = web.id)
+                    viewModel.selectWeb(webId = web.id)
                     advanceUntilIdle()
 
                     expectMostRecentItem().selectedWebList shouldBe listOf(web)
@@ -297,7 +297,7 @@ class MemoAddWebViewModelTest : FunSpec() {
                 val savedWebListFlow = MutableStateFlow(Result.success(listOf(remainingWeb, removedWeb)))
                 val viewModel = viewModel(savedWebListFlow = savedWebListFlow)
 
-                viewModel.selectWeb(id = removedWeb.id)
+                viewModel.selectWeb(webId = removedWeb.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -322,8 +322,8 @@ class MemoAddWebViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
-                    viewModel.selectWeb(id = remainingWeb.id)
-                    viewModel.selectWeb(id = deletedWeb.id)
+                    viewModel.selectWeb(webId = remainingWeb.id)
+                    viewModel.selectWeb(webId = deletedWeb.id)
                     advanceUntilIdle()
 
                     savedWebListFlow.value = Result.success(listOf(remainingWeb))
@@ -340,8 +340,8 @@ class MemoAddWebViewModelTest : FunSpec() {
                 val addedWeb = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(addedWeb))))
 
-                viewModel.selectWeb(id = addedWeb.id)
-                viewModel.unselectWeb(id = addedWeb.id)
+                viewModel.selectWeb(webId = addedWeb.id)
+                viewModel.unselectWeb(webId = addedWeb.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -380,7 +380,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val web = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(web))))
-                viewModel.selectWeb(id = web.id)
+                viewModel.selectWeb(webId = web.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()

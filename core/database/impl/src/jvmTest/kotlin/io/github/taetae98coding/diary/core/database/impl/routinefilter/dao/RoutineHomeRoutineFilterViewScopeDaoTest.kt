@@ -2,13 +2,13 @@ package io.github.taetae98coding.diary.core.database.impl.routinefilter.dao
 
 import androidx.room3.useReaderConnection
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.tag.localTag
 import io.github.taetae98coding.diary.core.database.api.routinefilter.entity.RoutineViewScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.routine.insertRoutineTestTag
 import io.github.taetae98coding.diary.core.database.impl.routine.routineTestDatabase
 import io.github.taetae98coding.diary.core.database.impl.routinefilter.datasource.AccountRoutineFilterLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.AccountDataTransactionImpl
-import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty

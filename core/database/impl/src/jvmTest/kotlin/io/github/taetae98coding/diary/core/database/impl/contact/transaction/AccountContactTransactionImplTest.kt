@@ -5,6 +5,9 @@ import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.contact.contactDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.contact.localContact
+import io.github.taetae98coding.diary.core.data.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
@@ -13,9 +16,6 @@ import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoC
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
-import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.contact.localContact
-import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant

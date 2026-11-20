@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.playlist.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
@@ -17,13 +18,13 @@ import kotlin.uuid.Uuid
 public class UpdateMusicUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findMusicUseCase: FindMusicUseCase,
     private val accountMusicRepository: AccountMusicRepository,
     private val clock: Clock,
 ) : UseCase<UpdateMusicUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
-        val detail = parameter.detail.validated(id = parameter.id)
+        val linkValidatedDetail = parameter.detail.copy(link = parameter.detail.link.toOptionalYoutubeVideoLinkOrThrow())
         val account = getAccountUseCase.requireAccount()
+        val detail = linkValidatedDetail.withStoredTitleForBlank(account = account, id = parameter.id)
 
         val updatedCount =
             accountMusicRepository.updateDetail(
@@ -38,23 +39,19 @@ public class UpdateMusicUseCase internal constructor(
         return updatedCount
     }
 
-    private suspend fun MusicDetail.validated(id: Uuid): MusicDetail {
-        val validatedLink = link.toOptionalYoutubeVideoLinkOrThrow()
+    private suspend fun MusicDetail.withStoredTitleForBlank(
+        account: Account,
+        id: Uuid,
+    ): MusicDetail {
+        if (title.isNotBlank()) return this
 
-        if (title.isNotBlank()) return copy(link = validatedLink)
-
-        val storedTitle =
-            findMusicUseCase(parameter = id)
+        val stored =
+            accountMusicRepository
+                .find(account = account, musicId = id)
                 .first()
-                .getOrThrow()
                 ?.detail
-                ?.title
-                .orEmpty()
 
-        return copy(
-            title = storedTitle,
-            link = validatedLink,
-        )
+        return copy(title = stored?.title.orEmpty())
     }
 
     public data class Parameter(

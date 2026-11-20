@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.tag.localTag
+import io.github.taetae98coding.diary.core.data.testing.tag.remoteTag
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagRemoteEntity
 import io.github.taetae98coding.diary.core.testing.finishedAndDeletedCaseList
-import io.github.taetae98coding.diary.core.testing.tag.localTag
-import io.github.taetae98coding.diary.core.testing.tag.remoteTag
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

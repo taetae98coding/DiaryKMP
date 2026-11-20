@@ -68,7 +68,7 @@ struct LinkTagToDDayIntent: AppIntent {
 
 struct UnlinkTagFromDDayIntent: AppIntent {
     static let title = LocalizedStringResource("Unlink Tag from D-Day", table: "AppIntentDDay")
-    static let description = IntentDescription(LocalizedStringResource("Unlinks a tag from a D-Day.", table: "AppIntentDDay"))
+    static let description = IntentDescription(LocalizedStringResource("Unlinks a tag from a D-Day. If it was the primary tag, the primary tag is cleared too.", table: "AppIntentDDay"))
 
     @Parameter(title: LocalizedStringResource("D-Day", table: "AppIntentDDay"))
     var dday: DDayEntity
@@ -85,5 +85,50 @@ struct UnlinkTagFromDDayIntent: AppIntent {
         _ = try await TagEntityQuery.require(tagId: tag.id)
         _ = try await appAction { try await DiaryEntityTagAppAction.shared.remove(kind: .DDAY, entityId: dday.id, tagId: tag.id) }
         return .result(dialog: IntentDialog(LocalizedStringResource("Unlinked.", table: "AppIntentCore")))
+    }
+}
+
+struct SetDDayPrimaryTagIntent: AppIntent {
+    static let title = LocalizedStringResource("Set D-Day Primary Tag", table: "AppIntentDDay")
+    static let description = IntentDescription(
+        LocalizedStringResource(
+            "Sets the primary tag of a D-Day. The tag is linked too if it isn't linked yet. The calendar shows the D-Day in the primary tag's color.",
+            table: "AppIntentDDay"
+        )
+    )
+
+    @Parameter(title: LocalizedStringResource("D-Day", table: "AppIntentDDay"))
+    var dday: DDayEntity
+
+    @Parameter(title: LocalizedStringResource("Primary Tag", table: "AppIntentCore"))
+    var tag: TagEntity
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Set \(\.$tag) as primary tag of \(\.$dday)", table: "AppIntentDDay")
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        _ = try await DDayEntityQuery.require(ddayId: dday.id)
+        _ = try await TagEntityQuery.require(tagId: tag.id)
+        _ = try await appAction { try await DiaryDDayAppAction.shared.primaryTagSet(ddayId: dday.id, tagId: tag.id) }
+        return .result(dialog: IntentDialog(LocalizedStringResource("Set the primary tag.", table: "AppIntentCore")))
+    }
+}
+
+struct ClearDDayPrimaryTagIntent: AppIntent {
+    static let title = LocalizedStringResource("Clear D-Day Primary Tag", table: "AppIntentDDay")
+    static let description = IntentDescription(LocalizedStringResource("Clears the primary tag of a D-Day. The tag stays linked.", table: "AppIntentDDay"))
+
+    @Parameter(title: LocalizedStringResource("D-Day", table: "AppIntentDDay"))
+    var dday: DDayEntity
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Clear primary tag of \(\.$dday)", table: "AppIntentDDay")
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        _ = try await DDayEntityQuery.require(ddayId: dday.id)
+        _ = try await appAction { try await DiaryDDayAppAction.shared.primaryTagUnset(ddayId: dday.id) }
+        return .result(dialog: IntentDialog(LocalizedStringResource("Cleared the primary tag.", table: "AppIntentCore")))
     }
 }

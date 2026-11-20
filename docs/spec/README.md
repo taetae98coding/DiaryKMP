@@ -162,6 +162,8 @@
 | 기능 실패 로깅 | [client](./client/usecase-failure-logging.md) | — | — | — |
 | 날짜·시간 입력 컴포넌트 | [client](./client/diary-date-time-input.md) | — | — | [DiaryDateTimeInput 디자인](../design/diary-date-time-input.md) |
 | 네이버 장소 검색 | [client](./client/naver-place-search.md) | — | — | — |
+| 대표 태그 | [client](./client/primary-tag.md) | [common](./common/primary-tag.md) | — | — |
+| 대표 태그 입력 컴포넌트 | [client](./client/primary-tag-input.md) | — | — | [대표 태그 입력 디자인](../design/primary-tag-input.md) |
 | 더보기 준비 중 화면 공통 | [client](./client/more-menu-placeholder.md) | — | — | [더보기 준비 중 화면 공통 디자인](../design/more-menu-placeholder.md) |
 | 데스크톱 앱 데이터 저장 위치 | [client](./client/jvm-database-storage.md) | — | — | — |
 | 데이터 동기화 | [client](./client/data-sync.md) | [common](./common/data-sync.md) | [server](./server/data-sync.md) | — |
@@ -172,7 +174,6 @@
 | 루틴 태그 | [client](./client/routine-tag.md) | [common](./common/routine-tag.md) | — | — |
 | 맨 위로 돌아가기 | [client](./client/scroll-to-top.md) | — | — | [맨 위로 돌아가기 디자인](../design/scroll-to-top.md) |
 | 메모 Gemini 작성 도우미 | [client](./client/memo-gemini.md) | — | — | [메모 Gemini 작성 도우미 디자인](../design/memo-gemini.md) |
-| 메모 대표 태그 | [client](./client/memo-primary-tag.md) | [common](./common/memo-primary-tag.md) | — | — |
 | 메모 연락처 | [client](./client/memo-contact.md) | [common](./common/memo-contact.md) | — | — |
 | 메모 연락처 입력 컴포넌트 | [client](./client/memo-contact-input.md) | — | — | [메모 연락처 입력 디자인](../design/memo-contact-input.md) |
 | 메모 웹 | [client](./client/memo-web.md) | [common](./common/memo-web.md) | — | — |
@@ -180,7 +181,6 @@
 | 메모 장소 | [client](./client/memo-place.md) | [common](./common/memo-place.md) | — | — |
 | 메모 장소 카드 컴포넌트 | [client](./client/memo-place-card.md) | — | — | [메모 장소 카드 디자인](../design/memo-place-card.md) |
 | 메모 태그 | [client](./client/memo-tag.md) | [common](./common/memo-tag.md) | — | — |
-| 메모 태그 입력 컴포넌트 | [client](./client/memo-tag-input.md) | — | — | [메모 태그 입력 디자인](../design/memo-tag-input.md) |
 | 메모 항목 선택 입력 공통 | [client](./client/memo-entity-input.md) | — | — | [메모 연락처 입력 디자인](../design/memo-contact-input.md), [메모 웹 입력 디자인](../design/memo-web-input.md) |
 | 목록 빈 상태 | [client](./client/list-empty-state.md) | — | — | [목록 빈 상태 디자인](../design/list-empty-state.md) |
 | 목록 정렬 | [client](./client/list-sort.md) | — | — | [목록 정렬 디자인](../design/list-sort.md) |
@@ -203,7 +203,7 @@
 | 웹 태그 | [client](./client/web-tag.md) | [common](./common/web-tag.md) | — | — |
 | 위치 권한 요청 | [client](./client/location-permission.md) | — | — | — |
 | 음력 자료 동기화 | [client](./client/lunar-fetch.md) | — | — | — |
-| 일일 메모 알림 | [client](./client/daily-memo-notification.md) | [common](./common/daily-memo-notification.md) | [server](./server/daily-memo-notification.md) | [일일 메모 알림 디자인](../design/daily-memo-notification.md) |
+| 일일 알림 | [client](./client/daily-notification.md) | [common](./common/daily-notification.md) | [server](./server/daily-notification.md) | [일일 알림 디자인](../design/daily-notification.md) |
 | 입력 정지 대기 시간 | [client](./client/input-idle-delay.md) | — | — | — |
 | 장소 | [client](./client/place.md) | [common](./common/place.md) | — | — |
 | 장소 검색 공통 | [client](./client/place-search.md) | — | — | — |

@@ -13,7 +13,7 @@ description: Diary KMP 프로젝트에서 사용자가 커밋 생성, 커밋 준
 
 ## 검증 확인
 
-`.claude/settings.json`과 `.codex/hooks.json`의 PreToolUse hook은 `verify-wave`를 통과한 작업 트리가 아니면 `git commit`을 막는다(`DIARY_AGENTS/scripts/verify-stamp.sh check`). 하네스 문서처럼 검증이 필요 없는 변경만 있으면 막지 않는다. 막히면 우회하지 않고 작업 iterator로 돌아가 `verify-wave`를 마친다. 사용자가 검증 없는 커밋을 명시적으로 요청한 경우에만 명령 앞에 `DIARY_VERIFY_BYPASS=1`을 붙인다.
+`.claude/settings.json`과 `.codex/hooks.json`의 PreToolUse hook은 `verify-wave`와 `test-wave`의 통과 기록이 지금 상태와 맞지 않으면 `git commit`을 막는다(`DIARY_AGENTS/scripts/verify-stamp.sh check`). 하네스 문서처럼 검증이 필요 없는 변경만 있으면 막지 않는다. 막히면 우회하지 않고, 출력이 `verify-wave`를 요구하면 작업 iterator로 돌아가 `verify-wave`를, `test-wave`를 요구하면 `test-wave`를 마친다. 사용자가 검증 없는 커밋을 명시적으로 요청한 경우에만 명령 앞에 `DIARY_VERIFY_BYPASS=1`을 붙인다.
 
 ## 커밋 중 코드 수정
 

@@ -13,9 +13,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag

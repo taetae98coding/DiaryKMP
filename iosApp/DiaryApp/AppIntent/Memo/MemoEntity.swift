@@ -37,7 +37,7 @@ struct MemoEntity: AppEntity {
     @Property(title: LocalizedStringResource("Updated", table: "AppIntentCore"))
     var updatedAt: Date
 
-    // 목록 결과에는 데스크톱 연결과 같이 연결된 항목이 없으므로, 대표 태그와 연결된 항목은 상세 결과에서만 채워진다.
+    // 대표 태그는 목록, 상세와 검색 결과에 모두 담기고, 연결된 항목은 데스크톱 연결과 같이 상세 결과에서만 채워진다.
     @Property(title: LocalizedStringResource("Primary Tag", table: "AppIntentCore"))
     var primaryTag: TagEntity?
 
@@ -64,7 +64,7 @@ struct MemoEntity: AppEntity {
         isFinished = memo.isFinished
         createdAt = Date(epochMillis: memo.createdAtEpochMillis)
         updatedAt = Date(epochMillis: memo.updatedAtEpochMillis)
-        primaryTag = nil
+        primaryTag = memo.primaryTag.map(TagEntity.init(tag:))
         tags = []
         places = []
         webs = []
@@ -74,7 +74,6 @@ struct MemoEntity: AppEntity {
     init(detail: DiaryAppActionMemoDetail) {
         self.init(memo: detail.memo)
         tags = detail.tags.map(TagEntity.init(tag:))
-        primaryTag = tags.first { tag in tag.id == detail.memo.primaryTagId }
         places = detail.places.map(PlaceEntity.init(place:))
         webs = detail.webs.map(WebEntity.init(web:))
         contacts = detail.contacts.map(ContactEntity.init(contact:))

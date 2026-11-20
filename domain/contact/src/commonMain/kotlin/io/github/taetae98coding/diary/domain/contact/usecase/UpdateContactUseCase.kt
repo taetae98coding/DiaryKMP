@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.contact.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
@@ -17,7 +18,6 @@ import kotlin.uuid.Uuid
 public class UpdateContactUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findContactUseCase: FindContactUseCase,
     private val accountContactRepository: AccountContactRepository,
     private val clock: Clock,
 ) : UseCase<UpdateContactUseCase.Parameter, Int>() {
@@ -30,7 +30,7 @@ public class UpdateContactUseCase internal constructor(
         val detail =
             parameter.detail
                 .withTrimmedName()
-                .withStoredNameForBlank(id = parameter.id)
+                .withStoredNameForBlank(account = account, id = parameter.id)
                 .withBirthYearOfBirthday()
 
         val updatedCount =
@@ -46,13 +46,16 @@ public class UpdateContactUseCase internal constructor(
         return updatedCount
     }
 
-    private suspend fun ContactDetail.withStoredNameForBlank(id: Uuid): ContactDetail {
+    private suspend fun ContactDetail.withStoredNameForBlank(
+        account: Account,
+        id: Uuid,
+    ): ContactDetail {
         if (name.isNotBlank()) return this
 
         val stored =
-            findContactUseCase(parameter = id)
+            accountContactRepository
+                .find(account = account, contactId = id)
                 .first()
-                .getOrThrow()
                 ?.detail
 
         return copy(name = stored?.name.orEmpty())

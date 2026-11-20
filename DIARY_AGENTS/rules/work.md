@@ -1,6 +1,6 @@
 # Work 규칙
 
-`work:*`의 계층, 주입, 소스셋 배치는 [data.md](data.md)가 소유한다. 이 문서는 플랫폼 실행 수단(`WorkManager`, `BGTaskScheduler`, 코루틴 예약기)을 **어떻게 쓰는지**만 소유한다.
+`work:*`의 계층, 주입, 소스셋 배치는 [data.md](data.md)가 소유한다. 이 문서는 플랫폼 실행 수단(`WorkManager`, `BGTaskScheduler`, 코루틴 예약기)을 **어떻게 쓰는지**만 소유한다. 실행 수단이 없는 외부 진입 어댑터(`work:appfunction`, `work:mcp`, `work:spotlight`)와 그 어댑터들이 함께 쓰는 공용 액션(`work:appaction`)이 `work:*`에 속하는 기준도 [data.md](data.md)의 `core와 data, work의 책임 경계`가 소유한다.
 
 ## 작업 내용은 던지고 실행 수단이 받는다
 
@@ -15,7 +15,7 @@
 | 즉시 실행 코루틴 예약기 | 상태를 `NONE`으로 정리하고, 예외는 전용 스코프의 `CoroutineExceptionHandler`가 받는다 |
 | 주기 코루틴 예약기 | 한 주기의 실패를 삼키고 다음 주기를 기다린다 |
 
-`CancellationException`은 어디서든 다시 던진다.
+예외를 잡는 실행 수단은 [kotlin.md](kotlin.md)의 `CancellationException은 삼키지 않는다`를 따른다.
 
 `Result.retry()`와 `BackoffPolicy`는 쓰지 않는다. 스펙([데이터 동기화](../../docs/spec/client/data-sync.md)의 `동기화 계기`)은 같은 계기 안에서 다시 시도하지 않고 다음 계기에 맡긴다.
 

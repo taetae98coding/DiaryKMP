@@ -14,7 +14,6 @@ import io.github.taetae98coding.diary.feature.routine.ui.form.RoutineAmountInput
 import io.github.taetae98coding.diary.feature.routine.ui.form.RoutineFormState
 import io.github.taetae98coding.diary.feature.routine.ui.form.rememberRoutineDetailFormState
 import io.github.taetae98coding.diary.feature.routine.ui.form.today
-import kotlinx.datetime.LocalDate
 
 @Stable
 internal class RoutineDetailScaffoldState(
@@ -37,14 +36,12 @@ internal class RoutineDetailScaffoldState(
 }
 
 @Composable
-internal fun rememberRoutineDetailScaffoldState(
-    initialDetail: RoutineDetail? = null,
-    today: LocalDate = remember { today() },
-): RoutineDetailScaffoldState {
+internal fun rememberRoutineDetailScaffoldState(initialDetail: RoutineDetail? = null): RoutineDetailScaffoldState {
     val formState = rememberRoutineDetailFormState(initialDetail = initialDetail)
+    val currentDate = remember { today() }
     val recordInputState =
         rememberRoutineRecordInputState(
-            initialDate = initialDetail?.initialRecordDate(today = today) ?: today,
+            initialDate = initialDetail?.initialRecordDate(today = currentDate) ?: currentDate,
             initialAmount = initialDetail?.amountPerRecord,
         )
     val listState = rememberLazyListState()

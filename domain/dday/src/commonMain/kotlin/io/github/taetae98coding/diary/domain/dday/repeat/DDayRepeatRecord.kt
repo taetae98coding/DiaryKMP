@@ -1,8 +1,7 @@
 package io.github.taetae98coding.diary.domain.dday.repeat
 
+import io.github.taetae98coding.diary.domain.dday.count.MONTHS_PER_YEAR
 import kotlinx.datetime.DateTimeUnit
-
-private val MONTHS_PER_YEAR: Int = DateTimeUnit.YEAR.months
 
 private val repeatInputUnitOrder: List<DDayRepeatUnit> = listOf(DDayRepeatUnit.DAY, DDayRepeatUnit.MONTH, DDayRepeatUnit.YEAR)
 

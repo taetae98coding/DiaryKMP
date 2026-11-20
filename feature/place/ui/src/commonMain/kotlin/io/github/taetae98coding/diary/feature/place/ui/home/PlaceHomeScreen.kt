@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.PlaceListUndoSnackbarEffect
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -58,11 +59,16 @@ internal fun PlaceHomeScreen(
                 is PlaceHomeScaffoldEvent.ClickSearch -> navigateToSearch()
                 is PlaceHomeScaffoldEvent.ClickAdd -> navigateToAdd(event.coordinate)
                 is PlaceHomeScaffoldEvent.ClickPlace -> navigateToDetail(event.id)
-                is PlaceHomeScaffoldEvent.DeletePlace -> placeListViewModel.delete(id = event.id)
                 is PlaceHomeScaffoldEvent.MoveMap -> placeListViewModel.updateVisibleBounds(event.bounds)
                 is PlaceHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
                 is PlaceHomeScaffoldEvent.ClickSort -> sortSheetState.show()
                 is PlaceHomeScaffoldEvent.SelectSort -> placeListViewModel.select(sort = event.sort)
+            }
+        },
+        onPlaceListEvent = { event ->
+            when (event) {
+                is PlaceListEvent.ClickPlace -> navigateToDetail(event.id)
+                is PlaceListEvent.SwipeDelete -> placeListViewModel.delete(id = event.id)
             }
         },
         modifier = modifier,

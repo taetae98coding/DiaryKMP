@@ -15,8 +15,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow

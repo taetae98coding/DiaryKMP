@@ -1,9 +1,7 @@
 package io.github.taetae98coding.diary.core.testing.place
 
-import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
-import io.github.taetae98coding.diary.core.network.api.place.entity.PlaceRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
@@ -34,7 +32,3 @@ public fun Arb.Companion.place(
             createdAt = Arb.secondPrecisionInstant().bind(),
         )
     }
-
-public fun Arb.Companion.localPlace(isDeleted: Boolean): Arb<PlaceLocalEntity> = Arb.placeLocalEntity().map { place -> place.copy(isDeleted = isDeleted) }
-
-public fun Arb.Companion.remotePlace(isDeleted: Boolean): Arb<PlaceRemoteEntity> = Arb.placeRemoteEntity().map { place -> place.copy(isDeleted = isDeleted) }

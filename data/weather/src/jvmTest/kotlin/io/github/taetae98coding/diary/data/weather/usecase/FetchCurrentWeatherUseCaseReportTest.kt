@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.data.weather.usecase
 
+import io.github.taetae98coding.diary.core.data.testing.ip.ipRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.currentWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.weather.forecastRemoteEntity
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
-import io.github.taetae98coding.diary.core.testing.ip.ipRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteEntity
-import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication
 import io.github.taetae98coding.diary.domain.core.invoke
@@ -35,7 +35,7 @@ class FetchCurrentWeatherUseCaseReportTest :
     BehaviorSpec({
         Given("오류 보고 기록 수단이 등록되어 있고 위치 확인과 현재 날씨·시간대별 예보 조회는 성공하며 지역명 조회만 실패하도록 제어되어 있다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } throws
+            coEvery { weatherRemoteDataSource.readLocationName(any(), any()) } throws
                 FetchCurrentWeatherUseCaseReportTestException(Arb.string().next())
             val useCase =
                 useCase(
@@ -71,8 +71,8 @@ class FetchCurrentWeatherUseCaseReportTest :
 
                 Then("TC-5b34763d-ca69-47c2-afc1-21efed0134e8 동기화가 성공으로 끝나고 조회 없이 오류 보고가 남지 않는다") {
                     result.isSuccess shouldBe true
-                    coVerify(exactly = 1) { weatherRemoteDataSource.getCurrentWeather(any(), any()) }
-                    coVerify(exactly = 1) { weatherRemoteDataSource.getForecast(any(), any()) }
+                    coVerify(exactly = 1) { weatherRemoteDataSource.readCurrentWeather(any(), any()) }
+                    coVerify(exactly = 1) { weatherRemoteDataSource.readForecast(any(), any()) }
                     reportList.shouldBeEmpty()
                 }
             }
@@ -90,7 +90,7 @@ private fun useCase(
     val locationProvider = mockk<LocationProvider>()
     coEvery { locationProvider.getCurrentLocation() } returns null
     val ipRemoteDataSource = mockk<IpRemoteDataSource>()
-    coEvery { ipRemoteDataSource.get() } returns Arb.ipRemoteEntity().next()
+    coEvery { ipRemoteDataSource.read() } returns Arb.ipRemoteEntity().next()
 
     return koinApplication<WeatherDataTestKoinApplication> {
         modules(
@@ -106,10 +106,10 @@ private fun useCase(
 
 private fun weatherRemoteDataSource(): WeatherRemoteDataSource =
     mockk<WeatherRemoteDataSource>().also { dataSource ->
-        coEvery { dataSource.getLocationName(any(), any()) } returns emptyList()
+        coEvery { dataSource.readLocationName(any(), any()) } returns emptyList()
         every { dataSource.forecastInterval } returns 3.hours
-        coEvery { dataSource.getCurrentWeather(any(), any()) } returns Arb.currentWeatherRemoteEntity().next()
-        coEvery { dataSource.getForecast(any(), any()) } returns Arb.forecastRemoteEntity().next()
+        coEvery { dataSource.readCurrentWeather(any(), any()) } returns Arb.currentWeatherRemoteEntity().next()
+        coEvery { dataSource.readForecast(any(), any()) } returns Arb.forecastRemoteEntity().next()
     }
 
 private fun clock(now: () -> Instant): Clock =

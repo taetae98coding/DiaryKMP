@@ -6,9 +6,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.calendar.title.calendarYearMonthTitle
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
+import io.github.taetae98coding.diary.compose.icon.CalendarMonth
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.FilterList
+import io.github.taetae98coding.diary.compose.icon.List
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.home.viewmode.RoutineHomeViewMode
 import io.github.taetae98coding.diary.feature.routine.ui.home.viewmode.RoutineHomeViewModePreviewParameter
@@ -31,17 +35,11 @@ internal fun RoutineHomeTopBar(
     state: RoutineHomeScaffoldState = rememberRoutineHomeScaffoldState(),
     filterUiStateProvider: () -> RoutineHomeScaffoldFilterUiState = { RoutineHomeScaffoldFilterUiState() },
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val viewMode = state.viewMode
     val title = stringResource(Res.string.routine_home_title)
     val yearMonthTitle = calendarYearMonthTitle(yearMonth = state.calendarState.currentYearMonth)
     val expandContentDescription = stringResource(Res.string.routine_home_drop_down_content_description)
     val collapseContentDescription = stringResource(Res.string.routine_home_drop_up_content_description)
-    val todayContentDescription = stringResource(Res.string.routine_home_today_button_content_description)
-    val calendarViewModeContentDescription = stringResource(Res.string.routine_home_calendar_view_mode_button_content_description)
-    val listViewModeContentDescription = stringResource(Res.string.routine_home_list_view_mode_button_content_description)
-    val filterContentDescription = stringResource(Res.string.routine_home_filter_action_content_description)
-    val filterAppliedStateDescription = stringResource(Res.string.routine_home_filter_applied_state_description)
 
     DiaryTopBar(
         title = {
@@ -61,35 +59,57 @@ internal fun RoutineHomeTopBar(
         modifier = modifier,
         isTitleCentered = viewMode == RoutineHomeViewMode.CALENDAR,
         actions = {
-            when (viewMode) {
-                RoutineHomeViewMode.LIST ->
-                    IconAction(
-                        icon = DiaryTopBarIcon.CALENDAR_MONTH,
-                        contentDescription = calendarViewModeContentDescription,
-                        onClick = state::toggleViewMode,
-                    )
-
-                RoutineHomeViewMode.CALENDAR -> {
-                    TextAction(
-                        text = state.today.day.toString(),
-                        contentDescription = todayContentDescription,
-                        onClick = { coroutineScope.launch { state.animateScrollToToday() } },
-                    )
-                    IconAction(
-                        icon = DiaryTopBarIcon.LIST,
-                        contentDescription = listViewModeContentDescription,
-                        onClick = state::toggleViewMode,
-                    )
-                }
-            }
-            AppliedAction(
-                icon = DiaryTopBarIcon.FILTER,
-                contentDescription = filterContentDescription,
-                isApplied = filterUiStateProvider().isApplied,
-                appliedStateDescription = filterAppliedStateDescription,
-                onClick = { onEvent(RoutineHomeScaffoldEvent.ClickFilter) },
+            RoutineHomeActions(
+                onEvent = onEvent,
+                state = state,
+                filterUiStateProvider = filterUiStateProvider,
             )
         },
+    )
+}
+
+@Composable
+private fun DiaryTopBarActionScope.RoutineHomeActions(
+    onEvent: (RoutineHomeScaffoldEvent) -> Unit,
+    state: RoutineHomeScaffoldState = rememberRoutineHomeScaffoldState(),
+    filterUiStateProvider: () -> RoutineHomeScaffoldFilterUiState = { RoutineHomeScaffoldFilterUiState() },
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val todayContentDescription = stringResource(Res.string.routine_home_today_button_content_description)
+    val calendarViewModeContentDescription = stringResource(Res.string.routine_home_calendar_view_mode_button_content_description)
+    val listViewModeContentDescription = stringResource(Res.string.routine_home_list_view_mode_button_content_description)
+    val filterContentDescription = stringResource(Res.string.routine_home_filter_action_content_description)
+    val filterAppliedStateDescription = stringResource(Res.string.routine_home_filter_applied_state_description)
+
+    when (state.viewMode) {
+        RoutineHomeViewMode.LIST ->
+            IconAction(
+                icon = DiaryIcons.CalendarMonth,
+                contentDescription = calendarViewModeContentDescription,
+                onClick = state::toggleViewMode,
+                key = VIEW_MODE_ACTION_KEY,
+            )
+
+        RoutineHomeViewMode.CALENDAR -> {
+            TextAction(
+                text = state.today.day.toString(),
+                contentDescription = todayContentDescription,
+                onClick = { coroutineScope.launch { state.animateScrollToToday() } },
+            )
+            IconAction(
+                icon = DiaryIcons.List,
+                contentDescription = listViewModeContentDescription,
+                onClick = state::toggleViewMode,
+                key = VIEW_MODE_ACTION_KEY,
+            )
+        }
+    }
+    AppliedAction(
+        icon = DiaryIcons.FilterList,
+        contentDescription = filterContentDescription,
+        isApplied = filterUiStateProvider().isApplied,
+        appliedStateDescription = filterAppliedStateDescription,
+        onClick = { onEvent(RoutineHomeScaffoldEvent.ClickFilter) },
     )
 }
 
@@ -105,3 +125,5 @@ private fun RoutineHomeTopBarPreview(
         )
     }
 }
+
+private const val VIEW_MODE_ACTION_KEY = "viewMode"

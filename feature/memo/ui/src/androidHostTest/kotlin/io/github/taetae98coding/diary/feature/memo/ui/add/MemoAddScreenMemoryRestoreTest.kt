@@ -22,6 +22,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
@@ -30,10 +31,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -56,13 +58,13 @@ class MemoAddScreenMemoryRestoreTest {
 
     @Test
     fun `TC-a97443d4-bf42-4ed0-8f26-c6ae3eda0d8c 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 태그가 진입 경로의 초기 선택으로 돌아간다`() {
-        val targetTag = testTag(title = TARGET_TAG_TITLE)
-        val otherTag = testTag(title = OTHER_TAG_TITLE)
+        val targetTag = Arb.tag(title = TARGET_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = OTHER_TAG_TITLE, isFinished = false).next()
         val viewModelsList =
             setRestorableMemoAddScreen {
                 screenTestRealViewModel(initialPrimaryTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
             }
-        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(id = otherTag.id) }
+        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
 
@@ -80,7 +82,7 @@ class MemoAddScreenMemoryRestoreTest {
     fun `TC-a4cdefb7-ef84-44c5-bab8-f8828ce45883 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 장소가 유지되지 않는다`() {
         val place = testPlace(title = PLACE_TITLE)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(placeList = listOf(place)) }
-        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(id = place.id) }
+        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(placeId = place.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(PLACE_TITLE).assertExists()
 
@@ -93,7 +95,7 @@ class MemoAddScreenMemoryRestoreTest {
     fun `TC-81245be2-b619-4a1a-840a-f1be2758cbf3 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 웹 항목이 유지되지 않는다`() {
         val web = testWeb(title = WEB_TITLE)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(webList = listOf(web)) }
-        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(id = web.id) }
+        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(webId = web.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(WEB_TITLE).assertExists()
 
@@ -106,7 +108,7 @@ class MemoAddScreenMemoryRestoreTest {
     fun `TC-2903649b-8a21-4f71-b1f3-5667f5786470 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 연락처가 유지되지 않는다`() {
         val contact = testContact(name = CONTACT_NAME)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(contactList = listOf(contact)) }
-        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = contact.contact.id) }
+        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(contactId = contact.contact.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(CONTACT_NAME).assertExists()
 
@@ -151,13 +153,13 @@ class MemoAddScreenMemoryRestoreTest {
 
     @Test
     fun `TC-00ba6723-b40c-46de-85bc-d879183158b1 앱을 다시 실행한 뒤 TagDetail 메모 탭에서 새로 진입하면 대상 태그만 대표 태그로 선택된다`() {
-        val targetTag = testTag(title = TARGET_TAG_TITLE)
-        val otherTag = testTag(title = OTHER_TAG_TITLE)
+        val targetTag = Arb.tag(title = TARGET_TAG_TITLE, isFinished = false).next()
+        val otherTag = Arb.tag(title = OTHER_TAG_TITLE, isFinished = false).next()
         val viewModelsList =
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialPrimaryTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
             }
-        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(id = otherTag.id) }
+        composeRule.runOnIdle { viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(TARGET_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
@@ -183,7 +185,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialContactId = targetContact.contact.id, contactList = listOf(targetContact, otherContact))
             }
-        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = otherContact.contact.id) }
+        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(contactId = otherContact.contact.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(CONTACT_NAME).assertExists()
         composeRule.onNodeWithText(OTHER_CONTACT_NAME).assertExists()
@@ -205,7 +207,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialPlaceId = targetPlace.id, placeList = listOf(targetPlace, otherPlace))
             }
-        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(id = otherPlace.id) }
+        composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(placeId = otherPlace.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(PLACE_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_PLACE_TITLE).assertExists()
@@ -227,7 +229,7 @@ class MemoAddScreenMemoryRestoreTest {
             setRelaunchableMemoAddScreen {
                 screenTestRealViewModel(initialWebId = targetWeb.id, webList = listOf(targetWeb, otherWeb))
             }
-        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(id = otherWeb.id) }
+        composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(webId = otherWeb.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(WEB_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_WEB_TITLE).assertExists()
@@ -263,8 +265,8 @@ class MemoAddScreenMemoryRestoreTest {
     }
 
     private fun assertSelectionClearedAfterRelaunch(navKey: MemoAddNavKey) {
-        val firstTag = testTag(title = TARGET_TAG_TITLE)
-        val secondTag = testTag(title = OTHER_TAG_TITLE)
+        val firstTag = Arb.tag(title = TARGET_TAG_TITLE, isFinished = false).next()
+        val secondTag = Arb.tag(title = OTHER_TAG_TITLE, isFinished = false).next()
         val web = testWeb(title = WEB_TITLE)
         val contact = testContact(name = CONTACT_NAME)
         val place = testPlace(title = PLACE_TITLE)
@@ -278,11 +280,11 @@ class MemoAddScreenMemoryRestoreTest {
                 )
             }
         composeRule.runOnIdle {
-            viewModelsList.last().tagViewModel.selectTag(id = firstTag.id)
-            viewModelsList.last().tagViewModel.selectPrimaryTag(id = secondTag.id)
-            viewModelsList.last().webViewModel.selectWeb(id = web.id)
-            viewModelsList.last().contactViewModel.selectContact(id = contact.contact.id)
-            viewModelsList.last().placeViewModel.selectPlace(id = place.id)
+            viewModelsList.last().tagViewModel.selectTag(tagId = firstTag.id)
+            viewModelsList.last().tagViewModel.selectPrimaryTag(tagId = secondTag.id)
+            viewModelsList.last().webViewModel.selectWeb(webId = web.id)
+            viewModelsList.last().contactViewModel.selectContact(contactId = contact.contact.id)
+            viewModelsList.last().placeViewModel.selectPlace(placeId = place.id)
         }
         composeRule.waitForIdle()
         listOf(TARGET_TAG_TITLE, OTHER_TAG_TITLE, WEB_TITLE, CONTACT_NAME, PLACE_TITLE).forEach { text ->

@@ -15,13 +15,18 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -48,16 +53,16 @@ class MemoTagPickerDialogRelaunchTest {
     // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 화면을 다시 구성한다.
     @Test
     fun `TC-8f264fc1-17c4-4c95-9bf7-6964b72d6a79 목록이 열린 채 앱을 종료하고 새로 진입하면 목록이 닫힌 상태로 시작한다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val tagList = listOf(Arb.tag(title = WORK_TAG_TITLE, isFinished = false).next(), Arb.tag(title = EXERCISE_TAG_TITLE, isFinished = false).next())
         var launchCount by mutableIntStateOf(0)
         composeRule.setContent {
             key(launchCount) {
                 val viewModel = remember { viewModel(tagList = tagList) }
                 dialogState = rememberDialogState()
                 DiaryTheme {
-                    MemoTagPickerDialogHost(
+                    PrimaryTagPickerDialogHost(
                         dialogState = dialogState,
-                        onEvent = { event -> if (event is MemoTagPickerEvent.ChangeQuery) viewModel.updateQuery(query = event.query) },
+                        onEvent = { event -> if (event is PrimaryTagPickerEvent.ChangeQuery) viewModel.updateQuery(query = event.query) },
                         tagPagingItems = viewModel.tagPagingData.collectAsLazyPagingItems(),
                     )
                 }

@@ -8,8 +8,8 @@ kotlin {
             dependencies {
                 implementation(projects.compose.list)
                 api(projects.compose.memo)
+                api(projects.compose.routine)
                 api(projects.compose.tag)
-                api(projects.domain.memo)
                 api(projects.domain.sync)
                 api(projects.domain.tag)
                 implementation(projects.feature.tag.api)
@@ -24,6 +24,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(projects.domain.memo)
                 implementation(libs.androidx.paging.testing)
             }
         }

@@ -15,7 +15,10 @@ import io.github.taetae98coding.diary.domain.dday.usecase.DeleteDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.FindDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.PageDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.RestoreDDayUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.SetDDayPrimaryTagUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.UnsetDDayPrimaryTagUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UpdateDDayUseCase
+import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
@@ -28,6 +31,7 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.search.searchAppActionOf
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionEntityTagKind
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 import io.github.taetae98coding.diary.work.appaction.tag.entityTagAppActionOf
@@ -132,6 +136,7 @@ class DDayAppActionTest :
                     repeats = emptyList(),
                     endDate = null,
                     overflowPolicy = null,
+                    primaryTagId = null,
                     tagIds = emptyList(),
                 ) shouldBe AppActionId(id = addedId.toString())
                 action.add(
@@ -143,6 +148,7 @@ class DDayAppActionTest :
                     repeats = listOf("P1Y6M", "P18M", "P100D"),
                     endDate = "2026-12-31",
                     overflowPolicy = "skip",
+                    primaryTagId = null,
                     tagIds = listOf(tagId.toString()),
                 )
 
@@ -193,6 +199,7 @@ class DDayAppActionTest :
                         repeats = emptyList(),
                         endDate = null,
                         overflowPolicy = null,
+                        primaryTagId = null,
                         tagIds = tagIdSet.map { tagId -> tagId.toString() },
                     )
 
@@ -209,17 +216,17 @@ class DDayAppActionTest :
 
                 listOf("P1M10D", "P0D", "P0Y0M", "P2W", "PT24H", "100", "P", "p1d", "-P1D", "P99999999999D").forEach { repeat ->
                     shouldThrow<AppActionException.InvalidArgument> {
-                        action.add(title = title, description = null, color = null, baseDate = null, countsBaseDay = null, repeats = listOf(repeat), endDate = null, overflowPolicy = null, tagIds = emptyList())
+                        action.add(title = title, description = null, color = null, baseDate = null, countsBaseDay = null, repeats = listOf(repeat), endDate = null, overflowPolicy = null, primaryTagId = null, tagIds = emptyList())
                     }.message shouldBe "Each 'repeats' item must be an ISO 8601 period of days only or of years and months only, 1 or greater, like P100D, P3M or P1Y."
                 }
                 shouldThrow<AppActionException.InvalidArgument> {
-                    action.add(title = title, description = null, color = null, baseDate = null, countsBaseDay = null, repeats = emptyList(), endDate = null, overflowPolicy = "clamp", tagIds = emptyList())
+                    action.add(title = title, description = null, color = null, baseDate = null, countsBaseDay = null, repeats = emptyList(), endDate = null, overflowPolicy = "clamp", primaryTagId = null, tagIds = emptyList())
                 }.message shouldBe "'overflowPolicy' must be one of clamp_to_month_end, skip, next_month_first_day."
                 shouldThrow<AppActionException.InvalidArgument> {
-                    action.add(title = title, description = null, color = null, baseDate = "2026-5-1", countsBaseDay = null, repeats = emptyList(), endDate = null, overflowPolicy = null, tagIds = emptyList())
+                    action.add(title = title, description = null, color = null, baseDate = "2026-5-1", countsBaseDay = null, repeats = emptyList(), endDate = null, overflowPolicy = null, primaryTagId = null, tagIds = emptyList())
                 }.message shouldBe "'baseDate' must be a date like 2026-01-31."
                 shouldThrow<AppActionException.InvalidArgument> {
-                    action.add(title = title, description = null, color = null, baseDate = "2026-05-01", countsBaseDay = null, repeats = emptyList(), endDate = "2026-04-30", overflowPolicy = null, tagIds = emptyList())
+                    action.add(title = title, description = null, color = null, baseDate = "2026-05-01", countsBaseDay = null, repeats = emptyList(), endDate = "2026-04-30", overflowPolicy = null, primaryTagId = null, tagIds = emptyList())
                 }.message shouldBe "'endDate' must not be before 'baseDate'."
                 coVerify(exactly = 0) { addDDayUseCase(parameter = any()) }
             }
@@ -307,7 +314,7 @@ class DDayAppActionTest :
             }
         }
 
-        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc 삭제·되돌리기는 바뀐 수를, 태그 연결·해제는 디데이 종류로 넘겨 완료를 돌려준다") {
+        test("TC-173de82e-308b-45d4-bc9b-14a00eb1c2fc TC-65a5d581-ce08-4cfe-8856-4459a9918eb0 삭제·되돌리기는 바뀐 수를, 태그 연결·해제는 디데이 종류로 넘겨 완료를 돌려준다") {
             runTest {
                 val ddayId = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
@@ -334,6 +341,99 @@ class DDayAppActionTest :
             }
         }
 
+        test("TC-0298ccbb-3953-4f5c-a1ce-a184189a92fa 대표 태그 지정과 해제는 받은 id로 앱 기능을 실행하고 MCP와 같은 완료 결과를 돌려준다") {
+            runTest {
+                val ddayId = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val setDDayPrimaryTagUseCase = mockk<SetDDayPrimaryTagUseCase>()
+                val unsetDDayPrimaryTagUseCase = mockk<UnsetDDayPrimaryTagUseCase>()
+                coEvery { setDDayPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                coEvery { unsetDDayPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val action = ddayAppActionOf(setDDayPrimaryTagUseCase, unsetDDayPrimaryTagUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+
+                action.primaryTagSet(ddayId = ddayId.toString(), tagId = tagId.toString()) shouldBe AppActionDone(done = true)
+                action.primaryTagUnset(ddayId = ddayId.toString()) shouldBe AppActionDone(done = true)
+
+                coVerify(exactly = 1) { setDDayPrimaryTagUseCase(parameter = SetDDayPrimaryTagUseCase.Parameter(ddayId = ddayId, tagId = tagId)) }
+                coVerify(exactly = 1) { unsetDDayPrimaryTagUseCase(parameter = ddayId) }
+            }
+        }
+
+        test("대표 태그 지정과 해제는 id가 아닌 값을 받으면 앱 기능을 실행하지 않고 MCP와 같은 메시지로 알린다") {
+            runTest {
+                val ddayId = Arb.kotlinUuid().next()
+                val setDDayPrimaryTagUseCase = mockk<SetDDayPrimaryTagUseCase>()
+                val unsetDDayPrimaryTagUseCase = mockk<UnsetDDayPrimaryTagUseCase>()
+                val action = ddayAppActionOf(setDDayPrimaryTagUseCase, unsetDDayPrimaryTagUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+
+                shouldThrow<AppActionException.InvalidArgument> { action.primaryTagSet(ddayId = ddayId.toString(), tagId = "not-id") }.message shouldBe "'tagId' must be an id."
+                shouldThrow<AppActionException.InvalidArgument> { action.primaryTagUnset(ddayId = "not-id") }.message shouldBe "'ddayId' must be an id."
+                coVerify(exactly = 0) { setDDayPrimaryTagUseCase(parameter = any()) }
+                coVerify(exactly = 0) { unsetDDayPrimaryTagUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-33874bb1-7149-4b77-8007-7ccc88f468b8 추가 요청에 담은 대표 태그를 연결할 태그와 함께 넘긴다") {
+            runTest {
+                val tagIdA = Arb.kotlinUuid().next()
+                val tagIdB = Arb.kotlinUuid().next()
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddDDayUseCase.Parameter>()
+                val addDDayUseCase = mockk<AddDDayUseCase>()
+                coEvery { addDDayUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = ddayAppActionOf(addDDayUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+
+                action.add(
+                    title = Arb.nonBlankString().next(),
+                    description = null,
+                    color = null,
+                    baseDate = null,
+                    countsBaseDay = null,
+                    repeats = emptyList(),
+                    endDate = null,
+                    overflowPolicy = null,
+                    primaryTagId = tagIdB.toString(),
+                    tagIds = listOf(tagIdA.toString()),
+                ) shouldBe AppActionId(id = addedId.toString())
+
+                parameter.captured.tagIdSet shouldBe setOf(tagIdA)
+                parameter.captured.primaryTagId shouldBe tagIdB
+                shouldThrow<AppActionException.InvalidArgument> {
+                    action.add(title = Arb.nonBlankString().next(), description = null, color = null, baseDate = null, countsBaseDay = null, repeats = emptyList(), endDate = null, overflowPolicy = null, primaryTagId = "tag", tagIds = emptyList())
+                }.message shouldBe "'primaryTagId' must be an id."
+            }
+        }
+
+        test("TC-545aa56f-e09a-4955-8187-2983919ab1c5 목록, 상세와 검색 결과에 대표 태그를 담는다") {
+            runTest {
+                val primaryTagId = Arb.kotlinUuid().next()
+                val dday = Arb.dday().next().copy(isDeleted = false, primaryTagId = primaryTagId)
+                val pageDDayUseCase = mockk<PageDDayUseCase>()
+                val findDDayUseCase = mockk<FindDDayUseCase>()
+                val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+                val searchDDayUseCase = mockk<SearchDDayUseCase>()
+                every { pageDDayUseCase() } returns flowOf(Result.success(PagingData.from(listOf(dday))))
+                every { findDDayUseCase(parameter = dday.id) } returns flowOf(Result.success(dday))
+                every { getEntityTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
+                every { searchDDayUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(dday))))
+                val clock = clockAt(date = LocalDate(2026, 3, 20))
+                val action = ddayAppActionOf(pageDDayUseCase, findDDayUseCase, getEntityTagUseCase, clock)
+                val searchAction = searchAppActionOf(searchDDayUseCase, clock)
+
+                action
+                    .list(cursor = null)
+                    .items
+                    .single()
+                    .primaryTagId shouldBe primaryTagId.toString()
+                action.get(ddayId = dday.id.toString())?.dday?.primaryTagId shouldBe primaryTagId.toString()
+                searchAction
+                    .dday(query = dday.detail.title, sort = null, cursor = null)
+                    .items
+                    .single()
+                    .primaryTagId shouldBe primaryTagId.toString()
+            }
+        }
+
         test("바꾸는 앱 기능이 실패하면 MCP와 같은 메시지로 실패를 알린다") {
             runTest {
                 val message = Arb.nonBlankString().next()
@@ -342,7 +442,7 @@ class DDayAppActionTest :
                 val action = ddayAppActionOf(addDDayUseCase, clockAt(date = LocalDate(2026, 3, 20)))
 
                 shouldThrow<AppActionException.Failure> {
-                    action.add(title = " ", description = null, color = null, baseDate = null, countsBaseDay = null, repeats = emptyList(), endDate = null, overflowPolicy = null, tagIds = emptyList())
+                    action.add(title = " ", description = null, color = null, baseDate = null, countsBaseDay = null, repeats = emptyList(), endDate = null, overflowPolicy = null, primaryTagId = null, tagIds = emptyList())
                 }.message shouldBe "IllegalStateException: $message"
             }
         }
@@ -400,6 +500,7 @@ private fun DDay.expected(count: AppActionDDayCount): AppActionDDay =
                 DDayOverflowPolicy.SKIP -> "skip"
                 DDayOverflowPolicy.NEXT_MONTH_FIRST_DAY -> "next_month_first_day"
             },
+        primaryTagId = primaryTagId?.toString(),
         createdAt = createdAt.toString(),
         updatedAt = updatedAt.toString(),
         count = count,

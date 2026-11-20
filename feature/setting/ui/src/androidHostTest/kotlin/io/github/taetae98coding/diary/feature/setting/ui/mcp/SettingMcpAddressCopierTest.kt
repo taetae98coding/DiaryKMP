@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify

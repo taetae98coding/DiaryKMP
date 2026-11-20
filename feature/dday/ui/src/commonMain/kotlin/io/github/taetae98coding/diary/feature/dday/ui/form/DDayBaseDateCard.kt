@@ -14,8 +14,8 @@ import androidx.compose.ui.semantics.Role
 import io.github.taetae98coding.diary.compose.core.animation.DiaryValueSlide
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryDatePickerDialogHost
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.dday.ui.Res
 import io.github.taetae98coding.diary.feature.dday.ui.dday_base_date_label
 import io.github.taetae98coding.diary.feature.dday.ui.dday_counts_base_day_label

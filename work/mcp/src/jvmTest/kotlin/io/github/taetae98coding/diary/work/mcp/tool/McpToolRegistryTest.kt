@@ -1,9 +1,26 @@
 package io.github.taetae98coding.diary.work.mcp.tool
 
+import io.github.taetae98coding.diary.work.mcp.tool.calendar.CalendarMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.calendar.LunarMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.checklist.ChecklistMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.contact.ContactMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.dday.DDayMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.memo.MemoLinkMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.memo.MemoMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.music.MusicMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.place.PlaceMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.qr.QrMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.routine.RoutineMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.search.SearchMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.tag.TagItemMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.tag.TagLinkMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.tag.TagMcpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.web.WebMcpToolSet
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotContainDuplicates
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldMatch
 import io.mockk.mockkClass
 import kotlin.reflect.KClass
@@ -59,6 +76,34 @@ class McpToolRegistryTest :
                 )
         }
 
+        test("기능 묶음이 어떤 순서로 주입되어도 정한 묶음 순서대로 기능을 알린다") {
+            val expected = mcpToolSetOrderList.flatMap { toolSetClass -> toolSetClass.createWithMocks().toolList.map { tool -> tool.name } }
+
+            createRegistry().toolList.map { tool -> tool.name } shouldBe expected
+        }
+
+        test("기능 묶음 순서 목록은 메모부터 음력까지 정한 순서다") {
+            mcpToolSetOrderList shouldBe
+                listOf(
+                    MemoMcpToolSet::class,
+                    MemoLinkMcpToolSet::class,
+                    TagMcpToolSet::class,
+                    TagLinkMcpToolSet::class,
+                    TagItemMcpToolSet::class,
+                    PlaceMcpToolSet::class,
+                    WebMcpToolSet::class,
+                    ContactMcpToolSet::class,
+                    ChecklistMcpToolSet::class,
+                    QrMcpToolSet::class,
+                    MusicMcpToolSet::class,
+                    DDayMcpToolSet::class,
+                    RoutineMcpToolSet::class,
+                    SearchMcpToolSet::class,
+                    CalendarMcpToolSet::class,
+                    LunarMcpToolSet::class,
+                )
+        }
+
         test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 제공하지 않는 기능은 목록에 없다") {
             val excludedWordList =
                 listOf(
@@ -93,19 +138,8 @@ class McpToolRegistryTest :
         }
     })
 
-private val toolSetClassList: List<KClass<out McpToolSet>>
-    get() =
-        McpToolRegistry::class.primaryConstructor!!.parameters.map { parameter ->
-            @Suppress("UNCHECKED_CAST")
-            parameter.type.classifier as KClass<out McpToolSet>
-        }
-
 // 각 기능 묶음이 받는 앱 기능은 목록을 만드는 데 쓰이지 않으므로 모두 mock으로 채운다.
-private fun createRegistry(): McpToolRegistry {
-    val toolSetList = toolSetClassList.map { toolSetClass -> toolSetClass.createWithMocks() }
-
-    return McpToolRegistry::class.primaryConstructor!!.call(*toolSetList.toTypedArray())
-}
+private fun createRegistry(): McpToolRegistry = McpToolRegistry(toolSetList = mcpToolSetOrderList.map { toolSetClass -> toolSetClass.createWithMocks() }.shuffled())
 
 private fun <T : Any> KClass<T>.createWithMocks(): T {
     val constructor = primaryConstructor!!

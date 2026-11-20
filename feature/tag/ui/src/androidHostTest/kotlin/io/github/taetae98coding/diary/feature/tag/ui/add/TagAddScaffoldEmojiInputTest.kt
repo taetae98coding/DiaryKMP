@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagAddFormState
 import io.kotest.matchers.shouldBe
 import org.junit.Rule

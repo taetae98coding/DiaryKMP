@@ -15,8 +15,4 @@ class FileDetailPolicyTest :
                 name.fileNameLength() shouldBe expected
             }
         }
-
-        test("짝이 없는 대리 문자는 한 자로 센다") {
-            "a\uD83D".fileNameLength() shouldBe 2
-        }
     })

@@ -25,7 +25,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.ImeAction
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify

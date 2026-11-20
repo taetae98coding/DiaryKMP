@@ -17,6 +17,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.core)
+                implementation(projects.compose.icon)
                 implementation(projects.compose.map)
                 implementation(projects.compose.permission)
                 implementation(projects.compose.web)
@@ -148,6 +149,7 @@ kotlin {
 
         androidMain {
             dependencies {
+                implementation(projects.work.appfunction)
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.startup.runtime)
                 implementation(libs.koin.androidx.workmanager)
@@ -174,11 +176,12 @@ kotlin {
                 runtimeOnly(libs.kotlinx.coroutines.swing)
             }
         }
-    }
 
-    compilerOptions {
-        // BuildKonfig가 타깃별 값을 expect/actual object로 생성하므로 Beta 경고를 끈다.
-        freeCompilerArgs.add("-Xexpect-actual-classes")
+        jvmTest {
+            dependencies {
+                implementation(libs.kotlin.reflect)
+            }
+        }
     }
 }
 

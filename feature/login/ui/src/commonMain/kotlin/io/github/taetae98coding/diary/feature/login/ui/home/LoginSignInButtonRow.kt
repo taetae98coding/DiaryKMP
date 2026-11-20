@@ -7,10 +7,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.icon.AppleIcon
-import io.github.taetae98coding.diary.compose.core.icon.GoogleIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.AppleIcon
+import io.github.taetae98coding.diary.compose.icon.GoogleIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.login.ui.Res
 import io.github.taetae98coding.diary.feature.login.ui.login_apple_sign_in_button_content_description
 import io.github.taetae98coding.diary.feature.login.ui.login_google_sign_in_button_content_description

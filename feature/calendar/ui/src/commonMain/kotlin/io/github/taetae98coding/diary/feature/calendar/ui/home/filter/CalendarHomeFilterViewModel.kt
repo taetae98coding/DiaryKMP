@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.TagFilterState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,69 +25,39 @@ import kotlin.uuid.Uuid
 internal class CalendarHomeFilterViewModel(
     pageTagUseCase: PageTagUseCase,
     getCalendarFilterUseCase: GetCalendarFilterUseCase,
-    private val selectCalendarFilterTagUseCase: SelectCalendarFilterTagUseCase,
-    private val unselectCalendarFilterTagUseCase: UnselectCalendarFilterTagUseCase,
-    private val unselectAllCalendarFilterTagUseCase: UnselectAllCalendarFilterTagUseCase,
+    selectCalendarFilterTagUseCase: SelectCalendarFilterTagUseCase,
+    unselectCalendarFilterTagUseCase: UnselectCalendarFilterTagUseCase,
+    unselectAllCalendarFilterTagUseCase: UnselectAllCalendarFilterTagUseCase,
 ) : ViewModel() {
-    val tagPagingData: Flow<PagingData<Tag>> =
-        pageTagUseCase(parameter = "")
-            .map { result -> result.getOrElse { PagingData.empty() } }
-            .cachedIn(viewModelScope)
+    private val tagFilterState =
+        TagFilterState(
+            pageTagUseCase = pageTagUseCase,
+            getFilterUseCase = getCalendarFilterUseCase,
+            selectTagUseCase = selectCalendarFilterTagUseCase,
+            unselectTagUseCase = unselectCalendarFilterTagUseCase,
+            unselectAllTagUseCase = unselectAllCalendarFilterTagUseCase,
+        )
+
+    val tagPagingData: Flow<PagingData<Tag>> = tagFilterState.tagPagingData.cachedIn(viewModelScope)
 
     val uiState: StateFlow<CalendarHomeFilterUiState> =
-        getCalendarFilterUseCase()
-            .map { result ->
-                CalendarHomeFilterUiState(
-                    selectedTagIdSet =
-                        result
-                            .getOrDefault(emptyList())
-                            .map { tag -> tag.id }
-                            .toSet(),
-                )
-            }.stateIn(
+        tagFilterState.selectedTagIdSet
+            .map { selectedTagIdSet -> CalendarHomeFilterUiState(selectedTagIdSet = selectedTagIdSet) }
+            .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
                 initialValue = CalendarHomeFilterUiState(),
             )
 
-    private val inProgressSelectTagSet = mutableSetOf<Uuid>()
-    private val inProgressUnselectTagSet = mutableSetOf<Uuid>()
-    private var isUnselectAllTagInProgress = false
-
     fun selectTag(id: Uuid) {
-        if (!inProgressSelectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                selectCalendarFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressSelectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.select(id = id) }
     }
 
     fun unselectTag(id: Uuid) {
-        if (!inProgressUnselectTagSet.add(id)) return
-
-        viewModelScope.launch {
-            try {
-                unselectCalendarFilterTagUseCase(parameter = id)
-            } finally {
-                inProgressUnselectTagSet.remove(id)
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselect(id = id) }
     }
 
     fun unselectAllTag() {
-        if (isUnselectAllTagInProgress) return
-        isUnselectAllTagInProgress = true
-
-        viewModelScope.launch {
-            try {
-                unselectAllCalendarFilterTagUseCase()
-            } finally {
-                isUnselectAllTagInProgress = false
-            }
-        }
+        viewModelScope.launch { tagFilterState.unselectAll() }
     }
 }

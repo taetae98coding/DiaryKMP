@@ -12,8 +12,8 @@ import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.select.calendarWeekSelectDrag
 import io.github.taetae98coding.diary.compose.calendar.select.rememberCalendarSelectState
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonth
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHoliday
 import io.github.taetae98coding.diary.feature.holiday.ui.Res
 import io.github.taetae98coding.diary.feature.holiday.ui.holiday_annual_leave_item_label

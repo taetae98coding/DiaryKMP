@@ -145,7 +145,7 @@ flowchart TD
 
 ### 필터 적용 범위
 
-최상위 태그 필터는 TagHome 목록의 표시에만 적용한다. 필터를 켜 두어도 [TagFinishedList 화면 스펙](./tag-finished-list.md)의 완료된 태그 목록, [SearchHome 화면 스펙](./search-home.md)의 태그 검색 결과, [메모 태그 입력 컴포넌트 스펙](./memo-tag-input.md)의 태그 선택 목록, [태그 연결 입력 컴포넌트 스펙](./tag-link-input.md)의 연결할 태그 선택 목록, [항목 태그 입력 컴포넌트 스펙](./entity-tag-input.md)의 태그 선택 목록, [태그 필터 스펙](./tag-filter.md)의 선택할 수 있는 태그는 좁혀지지 않는다.
+최상위 태그 필터는 TagHome 목록의 표시에만 적용한다. 필터를 켜 두어도 [TagFinishedList 화면 스펙](./tag-finished-list.md)의 완료된 태그 목록, [SearchHome 화면 스펙](./search-home.md)의 태그 검색 결과, [대표 태그 입력 컴포넌트 스펙](./primary-tag-input.md)의 태그 선택 목록, [태그 연결 입력 컴포넌트 스펙](./tag-link-input.md)의 연결할 태그 선택 목록, [항목 태그 입력 컴포넌트 스펙](./entity-tag-input.md)의 태그 선택 목록, [태그 필터 스펙](./tag-filter.md)의 선택할 수 있는 태그는 좁혀지지 않는다.
 
 따라서 다른 문서가 이 문서의 `노출 기준`과 `정렬`을 참조할 때 최상위 태그 필터는 포함하지 않는다.
 

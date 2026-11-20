@@ -10,4 +10,6 @@ public data class TagDetailNavKey(
     val isStandalone: Boolean = false,
 ) : ScreenNavKey {
     override val screenName: String get() = "TagDetail"
+
+    override val topLevelListKey: ScreenNavKey? get() = if (isStandalone) null else TagHomeNavKey
 }

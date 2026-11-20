@@ -7,17 +7,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactForm
-import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormEvent
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 
 @Composable
 internal fun ContactDetailScaffoldContent(
-    onFormEvent: (ContactFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ContactFormState = rememberContactDetailFormState(),
     uiStateProvider: () -> ContactDetailUiState = { ContactDetailUiState.Loading },

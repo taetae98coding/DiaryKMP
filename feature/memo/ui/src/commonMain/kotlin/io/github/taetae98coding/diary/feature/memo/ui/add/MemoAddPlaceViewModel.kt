@@ -5,10 +5,13 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.picker.MemoSelectablePaging
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputController
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +32,8 @@ internal class MemoAddPlaceViewModel(
     @InjectedParam initialPlaceId: Uuid?,
     pagePlaceUseCase: PagePlaceUseCase,
     getSelectedPlaceUseCase: GetSelectedPlaceUseCase,
-) : ViewModel() {
+) : ViewModel(),
+    MemoPlaceInputController {
     val selectionUiState: StateFlow<MemoAddPlaceSelectionUiState>
         field = MutableStateFlow(MemoAddPlaceSelectionUiState(placeIdSet = setOfNotNull(initialPlaceId)))
 
@@ -48,21 +52,21 @@ internal class MemoAddPlaceViewModel(
             )
 
     private val selectablePaging =
-        MemoSelectablePaging(scope = viewModelScope) { query -> pagePlaceUseCase(parameter = query) }
+        MemoSelectablePaging { query -> pagePlaceUseCase(parameter = PagePlaceUseCase.Parameter(query = query, sort = ListSort.DEFAULT)) }
 
-    val placePagingData: Flow<PagingData<Place>> = selectablePaging.pagingData
+    val placePagingData: Flow<PagingData<Place>> = selectablePaging.pagingData.cachedIn(viewModelScope)
 
-    val selectablePlacePagingData: Flow<PagingData<Place>> = selectablePaging.selectablePagingData
+    val selectablePlacePagingData: Flow<PagingData<Place>> = selectablePaging.selectablePagingData.cachedIn(viewModelScope)
 
-    fun updateQuery(query: String) {
+    override fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }
 
-    fun selectPlace(id: Uuid) {
-        selectionUiState.update { value -> value.copy(placeIdSet = value.placeIdSet + id) }
+    override fun selectPlace(placeId: Uuid) {
+        selectionUiState.update { value -> value.copy(placeIdSet = value.placeIdSet + placeId) }
     }
 
-    fun unselectPlace(id: Uuid) {
-        selectionUiState.update { value -> value.copy(placeIdSet = value.placeIdSet - id) }
+    override fun unselectPlace(placeId: Uuid) {
+        selectionUiState.update { value -> value.copy(placeIdSet = value.placeIdSet - placeId) }
     }
 }

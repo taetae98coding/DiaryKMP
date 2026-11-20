@@ -8,10 +8,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
-import io.github.taetae98coding.diary.feature.web.ui.form.handleWebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebAddFormState
 import kotlin.uuid.Uuid
 
@@ -35,7 +35,7 @@ internal fun WebAddScreen(
     val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
     DiaryTitleInputFocusEffect(state = state.titleState)
-    EntityTagAddedResultEffect(
+    TagAddedResultEffect(
         requestKey = tagAddRequestKey,
         onTagAdded = tagViewModel::add,
     )
@@ -58,9 +58,9 @@ internal fun WebAddScreen(
             }
         },
         onFormEvent = { event ->
-            handleWebFormEvent(
+            handleEntityTagInputEvent(
                 event = event,
-                state = state,
+                tagPickerDialogState = state.tagPickerDialogState,
                 selectableTagPagingItems = selectableTagPagingItems,
                 navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,

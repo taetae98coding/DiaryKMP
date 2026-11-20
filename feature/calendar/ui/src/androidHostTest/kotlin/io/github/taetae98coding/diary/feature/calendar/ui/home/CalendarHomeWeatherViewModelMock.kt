@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalForInheritanceCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
@@ -19,6 +21,7 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,6 +67,11 @@ internal fun ddayViewModel(ddayListFlow: StateFlow<List<CalendarDDay>> = Mutable
     mockk<CalendarHomeDDayViewModel>().also { viewModel ->
         every { viewModel.fetch(any()) } returns Unit
         every { viewModel.uiState } returns ddayListFlow.mapState { ddayList -> CalendarHomeDDayUiState(ddayList = ddayList) }
+    }
+
+internal fun filterViewModel(uiState: CalendarHomeScaffoldFilterUiState = CalendarHomeScaffoldFilterUiState()): CalendarHomeScaffoldFilterViewModel =
+    mockk<CalendarHomeScaffoldFilterViewModel>().also { viewModel ->
+        every { viewModel.uiState } returns MutableStateFlow(uiState)
     }
 
 internal fun lunarObservingBirthdayViewModel(fetchLunarUseCase: FetchLunarUseCase): CalendarHomeBirthdayViewModel {

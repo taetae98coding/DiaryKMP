@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.data.routine.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.routine.calendarRoutineRecordLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.routine.routineRecordLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.CalendarRoutineRecordLocalEntity
 import io.github.taetae98coding.diary.core.model.routine.CalendarRoutineRecord
-import io.github.taetae98coding.diary.core.testing.routine.calendarRoutineRecordLocalEntity
 import io.github.taetae98coding.diary.core.testing.routine.routineRecord
-import io.github.taetae98coding.diary.core.testing.routine.routineRecordLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

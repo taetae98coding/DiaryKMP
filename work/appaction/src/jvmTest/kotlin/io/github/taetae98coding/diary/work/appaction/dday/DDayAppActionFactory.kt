@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.work.appaction.dday
 
 import io.github.taetae98coding.diary.core.testing.dday.dday
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.work.appaction.core.findUseCase
 import io.github.taetae98coding.diary.work.appaction.core.useCase
 import io.kotest.property.Arb
@@ -25,6 +26,9 @@ internal fun ddayAppActionOf(vararg useCaseArray: Any): DDayAppAction {
         updateDDayUseCase = useCaseList.useCase(),
         deleteDDayUseCase = useCaseList.useCase(),
         restoreDDayUseCase = useCaseList.useCase(),
+        findTagUseCase = useCaseList.findUseCase { Arb.tag().next().copy(isDeleted = false) },
+        setDDayPrimaryTagUseCase = useCaseList.useCase(),
+        unsetDDayPrimaryTagUseCase = useCaseList.useCase(),
         clock = useCaseList.useCase(),
     )
 }

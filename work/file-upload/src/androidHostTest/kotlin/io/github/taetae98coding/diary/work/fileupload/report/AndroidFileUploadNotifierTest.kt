@@ -131,14 +131,14 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-5fcad03b-e0b9-4449-a7e5-4b003e23450e 진행 알림과 결과 알림은 일일 메모 알림과 다른 전용 알림 설정 항목으로 표시된다`() {
+    fun `TC-5fcad03b-e0b9-4449-a7e5-4b003e23450e 진행 알림과 결과 알림은 일일 알림과 다른 전용 알림 설정 항목으로 표시된다`() {
         val progress = notifier.createForegroundInfo(name = fileName(), percent = null).notification
         notifier.notifyResult(result = FileUploadResult.TooLarge)
         val result = shadowOf(notificationManager()).getNotification(FILE_UPLOAD_RESULT_NOTIFICATION_ID).shouldNotBeNull()
 
         progress.channelId shouldBe FILE_UPLOAD_NOTIFICATION_CHANNEL_ID
         result.channelId shouldBe FILE_UPLOAD_NOTIFICATION_CHANNEL_ID
-        FILE_UPLOAD_NOTIFICATION_CHANNEL_ID shouldNotBe DAILY_MEMO_NOTIFICATION_CHANNEL_ID
+        FILE_UPLOAD_NOTIFICATION_CHANNEL_ID shouldNotBe DAILY_NOTIFICATION_CHANNEL_ID
         notificationManager().getNotificationChannel(FILE_UPLOAD_NOTIFICATION_CHANNEL_ID).shouldNotBeNull()
     }
 
@@ -170,8 +170,8 @@ class AndroidFileUploadNotifierTest {
         const val FAILED_TITLE: String = "파일을 올리지 못했습니다"
         const val FILE_HOME_DEEP_LINK: String = "diary://file-home"
 
-        // 일일 메모 알림이 쓰는 채널의 이름이다. 그 모듈을 참조하지 않으므로 값을 직접 적는다.
-        const val DAILY_MEMO_NOTIFICATION_CHANNEL_ID: String = "dailyMemo"
+        // 일일 알림이 쓰는 채널의 이름이다. 그 모듈을 참조하지 않으므로 값을 직접 적는다.
+        const val DAILY_NOTIFICATION_CHANNEL_ID: String = "dailyNotification"
     }
 }
 

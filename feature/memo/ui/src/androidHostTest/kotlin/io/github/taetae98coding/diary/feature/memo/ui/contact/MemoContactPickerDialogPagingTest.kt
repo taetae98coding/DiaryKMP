@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.height
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.testing.asPagingSourceFactory
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe

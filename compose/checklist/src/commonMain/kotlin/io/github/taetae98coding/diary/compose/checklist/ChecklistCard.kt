@@ -23,15 +23,15 @@ import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import org.jetbrains.compose.resources.stringResource
 
 public const val CHECKLIST_CARD_TEST_TAG: String = "ChecklistCard"
 
 @Composable
-public fun ChecklistCard(
+internal fun ChecklistCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     summary: ChecklistSummary? = null,

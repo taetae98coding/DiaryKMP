@@ -3,14 +3,18 @@
 package io.github.taetae98coding.diary.feature.dday.ui.detail
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.dday.usecase.FindDDayUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.SetDDayPrimaryTagUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.UnsetDDayPrimaryTagUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageEntityTagSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
-import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -62,9 +66,9 @@ class DDayDetailTagViewModelTest : FunSpec() {
                 coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel = viewModel(id = id, addEntityTagUseCase = addEntityTagUseCase, removeEntityTagUseCase = removeEntityTagUseCase)
 
-                viewModel.add(tagId = linkTagId)
+                viewModel.selectTag(tagId = linkTagId)
                 advanceUntilIdle()
-                viewModel.remove(tagId = unlinkTagId)
+                viewModel.unselectTag(tagId = unlinkTagId)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
@@ -72,6 +76,87 @@ class DDayDetailTagViewModelTest : FunSpec() {
                 }
                 coVerify(exactly = 1) {
                     removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = id, tagId = unlinkTagId))
+                }
+            }
+        }
+
+        test("TC-3e664aa6-b831-4e72-b0d7-38b42cb3166b 대표 태그를 지정하거나 해제하면 상세 대상 디데이의 대표 태그를 바로 저장한다") {
+            runTest(mainDispatcher) {
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val setDDayPrimaryTagUseCase = mockk<SetDDayPrimaryTagUseCase>()
+                coEvery { setDDayPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val unsetDDayPrimaryTagUseCase = mockk<UnsetDDayPrimaryTagUseCase>()
+                coEvery { unsetDDayPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel =
+                    viewModel(
+                        id = id,
+                        setDDayPrimaryTagUseCase = setDDayPrimaryTagUseCase,
+                        unsetDDayPrimaryTagUseCase = unsetDDayPrimaryTagUseCase,
+                    )
+
+                viewModel.selectPrimaryTag(tagId = tagId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { setDDayPrimaryTagUseCase(parameter = SetDDayPrimaryTagUseCase.Parameter(ddayId = id, tagId = tagId)) }
+                coVerify(exactly = 0) { unsetDDayPrimaryTagUseCase(parameter = any()) }
+
+                viewModel.unselectPrimaryTag()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { unsetDDayPrimaryTagUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-07e0044e-806c-40ca-8b91-792d8d5ab5a9 저장된 대표 태그를 태그 입력의 대표 태그로 노출한다") {
+            runTest(mainDispatcher) {
+                val tagA = tag()
+                val tagB = tag()
+                val dday = Arb.dday().next().copy(primaryTagId = tagB.id)
+                val viewModel =
+                    viewModel(
+                        id = dday.id,
+                        getEntityTagUseCase = getEntityTagUseCase(id = dday.id, tagFlow = flowOf(Result.success(listOf(tagA, tagB)))),
+                        findDDayUseCase = findDDayUseCase(id = dday.id, ddayFlow = flowOf(Result.success(dday))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+
+                    val uiState = expectMostRecentItem()
+                    uiState.selectedTagList shouldBe listOf(tagA, tagB)
+                    uiState.primaryTagId shouldBe tagB.id
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-3e664aa6-b831-4e72-b0d7-38b42cb3166b 저장된 대표 태그가 바뀌면 태그 입력의 대표 태그도 바뀐다") {
+            runTest(mainDispatcher) {
+                val tagA = tag()
+                val dday = Arb.dday().next().copy(primaryTagId = null)
+                val ddayFlow = MutableStateFlow(dday)
+                val viewModel =
+                    viewModel(
+                        id = dday.id,
+                        getEntityTagUseCase = getEntityTagUseCase(id = dday.id, tagFlow = flowOf(Result.success(listOf(tagA)))),
+                        findDDayUseCase = findDDayUseCase(id = dday.id, ddayFlow = ddayFlow.map { value -> Result.success(value) }),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().primaryTagId shouldBe null
+
+                    ddayFlow.value = dday.copy(primaryTagId = tagA.id)
+                    advanceUntilIdle()
+                    expectMostRecentItem().primaryTagId shouldBe tagA.id
+
+                    ddayFlow.value = dday.copy(primaryTagId = null)
+                    advanceUntilIdle()
+                    val uiState = expectMostRecentItem()
+                    uiState.primaryTagId shouldBe null
+                    uiState.selectedTagList shouldBe listOf(tagA)
+                    cancelAndIgnoreRemainingEvents()
                 }
             }
         }
@@ -85,12 +170,12 @@ class DDayDetailTagViewModelTest : FunSpec() {
                 val viewModel = viewModel(id = id, getEntityTagUseCase = getEntityTagUseCase(id = id, tagFlow = tagFlow.map { tagList -> Result.success(tagList) }))
 
                 viewModel.uiState.test {
-                    awaitItem().tagList.shouldBeEmpty()
-                    awaitItem().tagList shouldBe listOf(storedTag)
+                    awaitItem().selectedTagList.shouldBeEmpty()
+                    awaitItem().selectedTagList shouldBe listOf(storedTag)
 
                     tagFlow.value = listOf(storedTag, newTag)
 
-                    awaitItem().tagList shouldBe listOf(storedTag, newTag)
+                    awaitItem().selectedTagList shouldBe listOf(storedTag, newTag)
                 }
             }
         }
@@ -113,17 +198,17 @@ class DDayDetailTagViewModelTest : FunSpec() {
                     )
 
                 viewModel.uiState.test {
-                    awaitItem().tagList.shouldBeEmpty()
-                    awaitItem().tagList shouldBe listOf(storedTag)
+                    awaitItem().selectedTagList.shouldBeEmpty()
+                    awaitItem().selectedTagList shouldBe listOf(storedTag)
 
-                    viewModel.add(tagId = newTagId)
-                    viewModel.remove(tagId = storedTag.id)
+                    viewModel.selectTag(tagId = newTagId)
+                    viewModel.unselectTag(tagId = storedTag.id)
                     advanceUntilIdle()
 
                     expectNoEvents()
-                    viewModel.uiState.value.tagList shouldBe listOf(storedTag)
+                    viewModel.uiState.value.selectedTagList shouldBe listOf(storedTag)
 
-                    viewModel.add(tagId = newTagId)
+                    viewModel.selectTag(tagId = newTagId)
                     advanceUntilIdle()
 
                     coVerify(exactly = 2) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = id, tagId = newTagId)) }
@@ -146,10 +231,10 @@ class DDayDetailTagViewModelTest : FunSpec() {
                 }
                 val viewModel = viewModel(id = id, addEntityTagUseCase = addEntityTagUseCase)
 
-                viewModel.add(tagId = tagAId)
+                viewModel.selectTag(tagId = tagAId)
                 runCurrent()
-                viewModel.add(tagId = tagAId)
-                viewModel.add(tagId = tagBId)
+                viewModel.selectTag(tagId = tagAId)
+                viewModel.selectTag(tagId = tagBId)
                 runCurrent()
 
                 coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = id, tagId = tagAId)) }
@@ -174,15 +259,29 @@ class DDayDetailTagViewModelTest : FunSpec() {
         getEntityTagUseCase: GetEntityTagUseCase = getEntityTagUseCase(id = id, tagFlow = flowOf(Result.success(emptyList()))),
         addEntityTagUseCase: AddEntityTagUseCase = mockk(relaxed = true),
         removeEntityTagUseCase: RemoveEntityTagUseCase = mockk(relaxed = true),
-    ): EntityDetailTagViewModel =
-        EntityDetailTagViewModel(
-            kind = EntityTagKind.DDAY,
-            entityId = id,
+        findDDayUseCase: FindDDayUseCase = findDDayUseCase(id = id, ddayFlow = flowOf(Result.success(null))),
+        setDDayPrimaryTagUseCase: SetDDayPrimaryTagUseCase = mockk(relaxed = true),
+        unsetDDayPrimaryTagUseCase: UnsetDDayPrimaryTagUseCase = mockk(relaxed = true),
+    ): DDayDetailTagViewModel =
+        DDayDetailTagViewModel(
+            id = id,
             pageEntityTagSelectableTagUseCase = mockk<PageEntityTagSelectableTagUseCase>(relaxed = true),
             getEntityTagUseCase = getEntityTagUseCase,
+            findDDayUseCase = findDDayUseCase,
             addEntityTagUseCase = addEntityTagUseCase,
             removeEntityTagUseCase = removeEntityTagUseCase,
+            setDDayPrimaryTagUseCase = setDDayPrimaryTagUseCase,
+            unsetDDayPrimaryTagUseCase = unsetDDayPrimaryTagUseCase,
         )
+
+    private fun findDDayUseCase(
+        id: Uuid,
+        ddayFlow: Flow<Result<DDay?>>,
+    ): FindDDayUseCase {
+        val useCase = mockk<FindDDayUseCase>()
+        every { useCase(parameter = id) } returns ddayFlow
+        return useCase
+    }
 
     private companion object {
         fun tag(): Tag = Arb.tag().next().copy(isDeleted = false)

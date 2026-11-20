@@ -12,12 +12,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.MapIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableEmptyBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.MapIcon
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
@@ -26,6 +24,8 @@ import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
 import io.github.taetae98coding.diary.compose.place.moveToOrSelect
 import io.github.taetae98coding.diary.compose.place.previewPlace
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeScaffoldEvent
@@ -37,6 +37,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun PlaceList(
     onEvent: (PlaceHomeScaffoldEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     mapState: DiaryMapState = rememberDiaryMapState(),
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -90,7 +91,7 @@ internal fun PlaceList(
                                             onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = event.id))
                                         }
 
-                                    is PlaceListEvent.SwipeDelete -> onEvent(PlaceHomeScaffoldEvent.DeletePlace(id = event.id))
+                                    is PlaceListEvent.SwipeDelete -> onPlaceListEvent(event)
                                 }
                             },
                             place = place,
@@ -136,6 +137,7 @@ private fun PlaceListPreview() {
     DiaryTheme {
         PlaceList(
             onEvent = {},
+            onPlaceListEvent = {},
             modifier = Modifier.fillMaxSize(),
             placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = placeList) },
         )

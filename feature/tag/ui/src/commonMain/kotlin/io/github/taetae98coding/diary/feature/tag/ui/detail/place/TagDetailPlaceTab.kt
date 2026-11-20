@@ -14,11 +14,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 internal fun TagDetailPlaceTab(
     onEvent: (TagDetailPlaceContentEvent) -> Unit,
+    onPlaceListEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: TagDetailPlaceState = rememberTagDetailPlaceState(),
     sortSheetState: DialogState = rememberDialogState(),
@@ -62,6 +64,7 @@ internal fun TagDetailPlaceTab(
                 TagDetailPlaceViewMode.LIST ->
                     TagDetailPlacePagingList(
                         onEvent = onEvent,
+                        onPlaceListEvent = onPlaceListEvent,
                         modifier = Modifier.fillMaxSize(),
                         placePagingItems = placePagingItems,
                         isRefreshingProvider = isRefreshingProvider,
@@ -76,6 +79,7 @@ internal fun TagDetailPlaceTab(
                         is TagDetailPlaceUiState.Content ->
                             TagDetailPlaceMapContent(
                                 onEvent = onEvent,
+                                onPlaceListEvent = onPlaceListEvent,
                                 modifier = Modifier.fillMaxSize(),
                                 mapState = mapState,
                                 placeListUiStateProvider = placeListUiStateProvider,
@@ -131,6 +135,7 @@ private fun TagDetailPlaceTabPreview(
         Surface {
             TagDetailPlaceTab(
                 onEvent = {},
+                onPlaceListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 state = TagDetailPlaceState(initialViewMode = viewMode),
             )

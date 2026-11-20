@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.rememberAppState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 
 @Composable
 internal fun AppScaffold(

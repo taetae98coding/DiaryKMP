@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.data.contact.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.contact.calendarContactBirthdayLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.contact.lunarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.LunarContactBirthday
-import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthdayLocalEntity
-import io.github.taetae98coding.diary.core.testing.contact.lunarContactBirthdayLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

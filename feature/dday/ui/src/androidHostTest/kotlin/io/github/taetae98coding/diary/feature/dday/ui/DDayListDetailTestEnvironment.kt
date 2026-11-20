@@ -35,10 +35,10 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.dday.DDayDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -48,17 +48,18 @@ import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
-import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddEffect
+import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddTagViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddUiState
 import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailEffect
+import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailTagViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailUiState
 import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterUiState
+import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldFilterViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.filter.DDayHomeFilterUiState
 import io.github.taetae98coding.diary.feature.dday.ui.home.filter.DDayHomeFilterViewModel
@@ -95,7 +96,7 @@ internal class DDayListDetailTestEnvironment(
     val homeViewModelList: MutableList<DDayHomeViewModel> = mutableListOf()
     val filterViewModelList: MutableList<DDayHomeFilterViewModel> = mutableListOf()
     val addViewModelList: MutableList<DDayAddViewModel> = mutableListOf()
-    val addTagViewModelList: MutableList<EntityAddTagViewModel> = mutableListOf()
+    val addTagViewModelList: MutableList<DDayAddTagViewModel> = mutableListOf()
     val detailViewModelList: MutableList<DDayDetailViewModel> = mutableListOf()
     val syncViewModelList: MutableList<SyncRefreshViewModel> = mutableListOf()
 
@@ -141,6 +142,9 @@ internal class DDayListDetailTestEnvironment(
             factory { addTagViewModel().also(addTagViewModelList::add) }
             factory { detailTagViewModel() }
             factory { homeViewModel().also(homeViewModelList::add) }
+            factory {
+                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply { every { uiState } returns homeFilterUiState }
+            }
             factory {
                 mockk<SyncRefreshViewModel>(relaxed = true)
                     .apply { every { uiState } returns MutableStateFlow(SyncRefreshUiState()) }
@@ -200,7 +204,6 @@ internal class DDayListDetailTestEnvironment(
 
         return mockk<DDayHomeViewModel>(relaxed = true).apply {
             every { ddayPagingData } returns homePagingData
-            every { filterUiState } returns homeFilterUiState
             every { effect } returns effectChannel.receiveAsFlow()
             // 삭제가 저장되면 목록에서 빠지고 삭제 안내가 오는 것과 같게 한다.
             every { delete(id = any()) } answers {
@@ -251,7 +254,7 @@ internal class DDayListDetailTestEnvironment(
             every { uiState } returns MutableStateFlow(DDayAddUiState())
             every { effect } returns effectChannel.receiveAsFlow()
             // 추가가 저장되면 목록이 다시 조회되는 것과 같게 추가한 디데이를 저장된 디데이에 더한다.
-            every { add(input = any(), tagIdSet = any()) } answers {
+            every { add(input = any(), tagSelection = any()) } answers {
                 val input = firstArg<DDayInput>()
                 val added = Arb.dday().next().copy(detail = input.toListDetailDDayDetail(color = Arb.ddayDetail().next().color), isDeleted = false)
                 setDDayList(ddayList + added)
@@ -261,28 +264,28 @@ internal class DDayListDetailTestEnvironment(
     }
 
     // 고른 태그는 태그 입력 ViewModel이 들고 있으므로, 인스턴스마다 따로 선택을 기억한다.
-    private fun addTagViewModel(): EntityAddTagViewModel {
+    private fun addTagViewModel(): DDayAddTagViewModel {
         val selectedTagList = MutableStateFlow<List<Tag>>(emptyList())
-        val uiState = MutableStateFlow(EntityTagInputUiState())
-        val selectionUiState = MutableStateFlow(EntityAddTagSelectionUiState(tagIdSet = emptySet()))
+        val uiState = MutableStateFlow(PrimaryTagInputUiState())
+        val selectionUiState = MutableStateFlow(PrimaryTagSelectionUiState(tagIdSet = emptySet()))
 
-        return mockk<EntityAddTagViewModel>(relaxed = true).apply {
+        return mockk<DDayAddTagViewModel>(relaxed = true).apply {
             every { this@apply.uiState } returns uiState
             every { this@apply.selectionUiState } returns selectionUiState
             every { tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
             every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
-            every { add(tagId = any()) } answers {
+            every { selectTag(tagId = any()) } answers {
                 val tag = tagList.first { tag -> tag.id == firstArg<Uuid>() }
                 selectedTagList.update { list -> list + tag }
-                uiState.value = EntityTagInputUiState(tagList = selectedTagList.value)
-                selectionUiState.value = EntityAddTagSelectionUiState(tagIdSet = selectedTagList.value.map { value -> value.id }.toSet())
+                uiState.value = PrimaryTagInputUiState(selectedTagList = selectedTagList.value)
+                selectionUiState.value = PrimaryTagSelectionUiState(tagIdSet = selectedTagList.value.map { value -> value.id }.toSet())
             }
         }
     }
 
-    private fun detailTagViewModel(): EntityDetailTagViewModel =
-        mockk<EntityDetailTagViewModel>(relaxed = true).apply {
-            every { uiState } returns MutableStateFlow(EntityTagInputUiState())
+    private fun detailTagViewModel(): DDayDetailTagViewModel =
+        mockk<DDayDetailTagViewModel>(relaxed = true).apply {
+            every { uiState } returns MutableStateFlow(PrimaryTagInputUiState())
             every { tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
             every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
         }

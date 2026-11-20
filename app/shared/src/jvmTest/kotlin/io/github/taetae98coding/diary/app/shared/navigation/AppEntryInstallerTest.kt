@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalSerializationApi::class)
+@file:OptIn(ExperimentalSerializationApi::class, DelicateKotest::class)
 
 package io.github.taetae98coding.diary.app.shared.navigation
 
@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.common.DelicateKotest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty

@@ -9,8 +9,8 @@ import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageFilteredTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageFinishedTagUseCase
-import io.github.taetae98coding.diary.domain.tag.usecase.PageTagHomeUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestoreTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.UpdateTagUseCase
@@ -42,27 +42,27 @@ class TagAppActionTest :
         test("목록은 정렬을 담지 않으면 제목순으로, 담으면 그 정렬로 조회해 MCP와 같은 항목을 돌려준다") {
             runTest {
                 val tagList = Arb.list(Arb.tag(), 1..3).next()
-                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
-                every { pageTagHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(tagList)))
-                val action = tagAppActionOf(pageTagHomeUseCase)
+                val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
+                every { pageFilteredTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(tagList)))
+                val action = tagAppActionOf(pageFilteredTagUseCase)
 
                 action.list(sort = null, cursor = null) shouldBe AppActionPage(items = tagList.map { tag -> tag.expected() }, nextCursor = null)
                 action.list(sort = "recently_updated", cursor = null).items shouldBe tagList.map { tag -> tag.expected() }
 
-                verify(exactly = 1) { pageTagHomeUseCase(parameter = ListSort.TITLE) }
-                verify(exactly = 1) { pageTagHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) }
+                verify(exactly = 1) { pageFilteredTagUseCase(parameter = ListSort.TITLE) }
+                verify(exactly = 1) { pageFilteredTagUseCase(parameter = ListSort.RECENTLY_UPDATED) }
             }
         }
 
         test("태그 목록이 제공하지 않는 정렬은 고를 수 있는 정렬을 알리며 실패한다") {
             runTest {
-                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
+                val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
                 val pageFinishedTagUseCase = mockk<PageFinishedTagUseCase>()
-                val action = tagAppActionOf(pageTagHomeUseCase, pageFinishedTagUseCase)
+                val action = tagAppActionOf(pageFilteredTagUseCase, pageFinishedTagUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.list(sort = "default", cursor = null) }.message shouldBe "'sort' must be one of title, recently_updated."
                 shouldThrow<AppActionException.InvalidArgument> { action.finishedList(sort = "name", cursor = null) }.message shouldBe "'sort' must be one of title, recently_updated."
-                verify(exactly = 0) { pageTagHomeUseCase(parameter = any()) }
+                verify(exactly = 0) { pageFilteredTagUseCase(parameter = any()) }
                 verify(exactly = 0) { pageFinishedTagUseCase(parameter = any()) }
             }
         }
@@ -70,9 +70,9 @@ class TagAppActionTest :
         test("목록은 100개씩 나눠 다음 페이지 위치를 알리고, 그 위치로 다음 페이지를 받는다") {
             runTest {
                 val tagList = Arb.list(Arb.tag(), 101..150).next()
-                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
-                every { pageTagHomeUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(tagList))) }
-                val action = tagAppActionOf(pageTagHomeUseCase)
+                val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
+                every { pageFilteredTagUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(tagList))) }
+                val action = tagAppActionOf(pageFilteredTagUseCase)
 
                 val firstPage = action.list(sort = null, cursor = null)
                 val secondPage = action.list(sort = null, cursor = firstPage.nextCursor)
@@ -84,8 +84,8 @@ class TagAppActionTest :
 
         test("잘못된 페이지 위치는 앱 기능 결과를 읽지 않고 실패를 알린다") {
             runTest {
-                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
-                val action = tagAppActionOf(pageTagHomeUseCase)
+                val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
+                val action = tagAppActionOf(pageFilteredTagUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.list(sort = null, cursor = "-1") }.message shouldBe "'cursor' must be a nextCursor value from a previous page."
             }
@@ -106,9 +106,9 @@ class TagAppActionTest :
         test("목록 기능이 실패하면 MCP와 같은 메시지로 실패를 알린다") {
             runTest {
                 val message = Arb.nonBlankString().next()
-                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
-                every { pageTagHomeUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(message)))
-                val action = tagAppActionOf(pageTagHomeUseCase)
+                val pageFilteredTagUseCase = mockk<PageFilteredTagUseCase>()
+                every { pageFilteredTagUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(message)))
+                val action = tagAppActionOf(pageFilteredTagUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.list(sort = null, cursor = null) }.message shouldBe "IllegalStateException: $message"
             }

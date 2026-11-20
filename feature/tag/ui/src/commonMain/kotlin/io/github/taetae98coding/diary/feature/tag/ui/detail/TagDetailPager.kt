@@ -5,8 +5,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistTab
@@ -50,13 +50,13 @@ private fun TagDetailPagerPreview() {
             when (tab) {
                 TagDetailTab.DETAIL -> TagDetailFormTab(onEvent = {}, modifier = Modifier.fillMaxSize())
                 TagDetailTab.MEMO -> EntityDetailMemoTab(emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title), emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
-                TagDetailTab.WEB -> TagDetailWebTab(onEvent = {}, modifier = Modifier.fillMaxSize())
-                TagDetailTab.PLACE -> TagDetailPlaceTab(onEvent = {}, modifier = Modifier.fillMaxSize())
-                TagDetailTab.CONTACT -> TagDetailContactTab(onEvent = {}, modifier = Modifier.fillMaxSize())
-                TagDetailTab.CHECKLIST -> TagDetailChecklistTab(onEvent = {}, modifier = Modifier.fillMaxSize())
-                TagDetailTab.MUSIC -> TagDetailMusicTab(onEvent = {}, modifier = Modifier.fillMaxSize())
-                TagDetailTab.QR -> TagDetailQrTab(onEvent = {}, modifier = Modifier.fillMaxSize())
-                TagDetailTab.DDAY -> TagDetailDDayTab(onEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.WEB -> TagDetailWebTab(onEvent = {}, onWebListEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.PLACE -> TagDetailPlaceTab(onEvent = {}, onPlaceListEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.CONTACT -> TagDetailContactTab(onEvent = {}, onContactListEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.CHECKLIST -> TagDetailChecklistTab(onEvent = {}, onChecklistListEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.MUSIC -> TagDetailMusicTab(onEvent = {}, onMusicListEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.QR -> TagDetailQrTab(onEvent = {}, onQrListEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.DDAY -> TagDetailDDayTab(onEvent = {}, onDDayListEvent = {}, modifier = Modifier.fillMaxSize())
                 TagDetailTab.ROUTINE -> TagDetailRoutineTab(onEvent = {}, onRoutineListEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }

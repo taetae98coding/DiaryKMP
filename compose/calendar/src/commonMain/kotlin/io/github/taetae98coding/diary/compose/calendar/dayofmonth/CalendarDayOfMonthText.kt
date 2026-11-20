@@ -16,8 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import kotlin.math.ceil
 import kotlin.math.hypot
 

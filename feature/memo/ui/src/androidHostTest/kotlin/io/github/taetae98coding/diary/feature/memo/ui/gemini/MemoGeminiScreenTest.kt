@@ -27,6 +27,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScreen
@@ -39,7 +40,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
-import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.localDateRange
@@ -64,7 +64,7 @@ class MemoGeminiScreenTest {
 
     @Test
     fun `TC-26885e8c-431a-4b1a-a6b5-1dd7f4dbd92e 반영은 태그, 대표 태그, 웹, 장소, 연락처 선택을 바꾸지 않는다`() {
-        val tag = testTag(title = "태그 ${Arb.nonBlankString().next()}")
+        val tag = Arb.tag(title = "태그 ${Arb.nonBlankString().next()}", isFinished = false).next()
         val web = testWeb(title = "웹 ${Arb.nonBlankString().next()}")
         val contact = testContact(name = "연락처 ${Arb.nonBlankString().next()}")
         val place = testPlace(title = "장소 ${Arb.nonBlankString().next()}")

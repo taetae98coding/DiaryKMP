@@ -9,7 +9,7 @@ import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState

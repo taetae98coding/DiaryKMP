@@ -290,7 +290,6 @@ private class DetailContext(
         UpdateDDayUseCase(
             getAccountUseCase = getAccountUseCase,
             requestSyncUseCase = requestSyncUseCase,
-            findDDayUseCase = findUseCase,
             accountDDayRepository = repository,
             clock = clock,
         )

@@ -6,7 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.logger.analytics.api)
+                implementation(projects.logger.analytics.api)
             }
         }
 

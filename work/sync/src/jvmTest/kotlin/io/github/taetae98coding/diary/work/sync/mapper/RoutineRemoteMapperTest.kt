@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.routine.routineLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.routine.routineRecordLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.routine.routineRecordRemoteEntity
+import io.github.taetae98coding.diary.core.data.testing.routine.routineRemoteEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCycleLocalEntity
 import io.github.taetae98coding.diary.core.network.api.routine.entity.RoutineCycleRemoteEntity
-import io.github.taetae98coding.diary.core.testing.routine.routineLocalEntity
-import io.github.taetae98coding.diary.core.testing.routine.routineRecordLocalEntity
-import io.github.taetae98coding.diary.core.testing.routine.routineRecordRemoteEntity
-import io.github.taetae98coding.diary.core.testing.routine.routineRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

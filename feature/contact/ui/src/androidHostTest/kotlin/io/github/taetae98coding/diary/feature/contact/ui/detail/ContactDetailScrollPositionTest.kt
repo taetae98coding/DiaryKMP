@@ -10,7 +10,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performScrollTo
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.property.Arb

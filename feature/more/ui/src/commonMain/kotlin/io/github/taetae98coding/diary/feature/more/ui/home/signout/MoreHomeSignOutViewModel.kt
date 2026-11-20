@@ -5,25 +5,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.core.invoke
-import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
+import io.github.taetae98coding.diary.domain.sync.usecase.GetSyncPendingExistsUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class MoreHomeSignOutViewModel(
-    private val savedStateHandle: SavedStateHandle,
-    private val findSyncPendingUseCase: FindSyncPendingUseCase,
+    savedStateHandle: SavedStateHandle,
+    private val getSyncPendingExistsUseCase: GetSyncPendingExistsUseCase,
     private val signOutUseCase: SignOutUseCase,
 ) : ViewModel() {
-    val uiState: StateFlow<MoreHomeSignOutUiState>
-        field =
-        MutableStateFlow(
-            MoreHomeSignOutUiState(isConfirmVisible = savedStateHandle[KEY_IS_CONFIRM_VISIBLE] ?: false),
-        )
+    private val isConfirmVisible = savedStateHandle.getMutableStateFlow(key = KEY_IS_CONFIRM_VISIBLE, initialValue = false)
+
+    val uiState: StateFlow<MoreHomeSignOutUiState> =
+        isConfirmVisible
+            .map { isVisible -> MoreHomeSignOutUiState(isConfirmVisible = isVisible) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileUiSubscribed,
+                initialValue = MoreHomeSignOutUiState(isConfirmVisible = isConfirmVisible.value),
+            )
 
     private var isInProgress = false
 
@@ -33,8 +40,8 @@ internal class MoreHomeSignOutViewModel(
 
         viewModelScope.launch {
             try {
-                if (findSyncPendingUseCase().first().getOrDefault(false)) {
-                    updateConfirmVisible(isConfirmVisible = true)
+                if (getSyncPendingExistsUseCase().first().getOrDefault(false)) {
+                    isConfirmVisible.value = true
                 } else {
                     signOutUseCase()
                 }
@@ -47,7 +54,7 @@ internal class MoreHomeSignOutViewModel(
     fun confirmSignOut() {
         if (isInProgress) return
         isInProgress = true
-        updateConfirmVisible(isConfirmVisible = false)
+        isConfirmVisible.value = false
 
         viewModelScope.launch {
             try {
@@ -59,12 +66,7 @@ internal class MoreHomeSignOutViewModel(
     }
 
     fun cancelSignOut() {
-        updateConfirmVisible(isConfirmVisible = false)
-    }
-
-    private fun updateConfirmVisible(isConfirmVisible: Boolean) {
-        savedStateHandle[KEY_IS_CONFIRM_VISIBLE] = isConfirmVisible
-        uiState.update { state -> state.copy(isConfirmVisible = isConfirmVisible) }
+        isConfirmVisible.value = false
     }
 
     private companion object {

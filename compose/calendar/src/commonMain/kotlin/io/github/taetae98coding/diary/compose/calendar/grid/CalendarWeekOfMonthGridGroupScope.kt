@@ -11,6 +11,7 @@ public interface CalendarWeekOfMonthGridGroupScope {
     public fun item(
         dateRange: LocalDateRange,
         key: Any? = null,
+        contentType: Any? = null,
         content: @Composable CalendarWeekOfMonthGridItemScope.() -> Unit,
     )
 }

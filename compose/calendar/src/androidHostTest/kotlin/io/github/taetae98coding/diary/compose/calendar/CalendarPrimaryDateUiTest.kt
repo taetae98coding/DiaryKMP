@@ -15,7 +15,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonth
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe

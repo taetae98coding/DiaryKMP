@@ -13,7 +13,7 @@ import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState

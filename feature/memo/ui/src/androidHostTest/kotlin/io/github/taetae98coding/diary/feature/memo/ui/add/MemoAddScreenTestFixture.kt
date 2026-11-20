@@ -5,7 +5,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -19,12 +20,11 @@ import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
+import io.github.taetae98coding.diary.feature.core.tag.PrimaryTagSelectionUiState
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.contact.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.web.webPagingDataOf
@@ -77,8 +77,8 @@ internal fun screenTestViewModel(
     every { viewModel.effect } returns effect
 
     val tagViewModel = mockk<MemoAddTagViewModel>(relaxed = true)
-    every { tagViewModel.uiState } returns MutableStateFlow(MemoTagInputUiState())
-    every { tagViewModel.selectionUiState } returns MutableStateFlow(MemoTagSelectionUiState())
+    every { tagViewModel.uiState } returns MutableStateFlow(PrimaryTagInputUiState())
+    every { tagViewModel.selectionUiState } returns MutableStateFlow(PrimaryTagSelectionUiState())
     every { tagViewModel.tagPagingData } returns tagPagingData
     every { tagViewModel.selectableTagPagingData } returns tagPagingData
 

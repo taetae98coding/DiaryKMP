@@ -15,9 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.routine.routineAmountText
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.routine.RoutineRecord
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.previewRoutineRecord

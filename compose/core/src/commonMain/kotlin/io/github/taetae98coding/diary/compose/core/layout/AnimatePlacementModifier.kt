@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.compose.core.layout
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
@@ -24,10 +23,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 
 @Composable
-public fun Modifier.animatePlacement(
-    lookaheadScope: LookaheadScope,
-    animationSpec: FiniteAnimationSpec<IntOffset> = DefaultPlacementAnimationSpec,
-): Modifier {
+public fun Modifier.animatePlacement(lookaheadScope: LookaheadScope): Modifier {
     val coroutineScope = rememberCoroutineScope()
     val animation = remember { PlacementAnimation() }
 
@@ -40,7 +36,6 @@ public fun Modifier.animatePlacement(
                         // 스크롤 오프셋까지 애니메이션하면 칩이 스크롤을 따라다니므로 motion frame of reference를 제외한 좌표만 사용한다.
                         target = lookaheadScopeCoordinates.localLookaheadPositionOf(sourceCoordinates = layoutCoordinates, includeMotionFrameOfReference = false).round(),
                         coroutineScope = coroutineScope,
-                        animationSpec = animationSpec,
                     )
                 }
             }
@@ -82,7 +77,6 @@ private class PlacementAnimation {
     fun updateTarget(
         target: IntOffset,
         coroutineScope: CoroutineScope,
-        animationSpec: FiniteAnimationSpec<IntOffset>,
     ) {
         if (this.target != null && this.target != target) {
             isPending = true
@@ -96,7 +90,7 @@ private class PlacementAnimation {
             isPending = false
             // 시작을 다음 프레임으로 미루면 approach 진행 판정이 갱신되기 전에 배치가 끝나 첫 프레임이 목표 위치로 건너뛴다.
             coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                animatable.animateTo(targetValue = target, animationSpec = animationSpec)
+                animatable.animateTo(targetValue = target, animationSpec = DefaultPlacementAnimationSpec)
             }
         }
 

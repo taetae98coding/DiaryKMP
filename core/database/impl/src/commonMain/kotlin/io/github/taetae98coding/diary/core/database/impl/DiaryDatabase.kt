@@ -247,7 +247,7 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         RoutineFilterLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
-    version = 8,
+    version = 9,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = ContactBirthYearAutoMigrationSpec::class),
@@ -256,6 +256,7 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7),
         AutoMigration(from = 7, to = 8),
+        AutoMigration(from = 8, to = 9),
     ],
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)

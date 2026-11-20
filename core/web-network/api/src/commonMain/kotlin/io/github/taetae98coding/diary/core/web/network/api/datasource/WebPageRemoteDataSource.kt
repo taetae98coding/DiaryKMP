@@ -4,7 +4,7 @@ import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageHeaderR
 import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageRemoteEntity
 
 public interface WebPageRemoteDataSource {
-    public suspend fun get(
+    public suspend fun read(
         url: String,
         headerList: List<WebPageHeaderRemoteEntity>,
     ): WebPageRemoteEntity

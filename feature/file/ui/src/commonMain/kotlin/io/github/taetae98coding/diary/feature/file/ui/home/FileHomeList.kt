@@ -27,16 +27,17 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.FileIcon
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGestureBox
 import io.github.taetae98coding.diary.compose.core.systemscroll.systemScroll
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.FileIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
 import io.github.taetae98coding.diary.feature.file.ui.file.FileListItem
@@ -53,6 +54,10 @@ import org.jetbrains.compose.resources.stringResource
 
 internal const val FILE_HOME_LIST_TEST_TAG: String = "FileHomeList"
 internal const val FILE_HOME_APPEND_LOADING_TEST_TAG: String = "FileHomeAppendLoading"
+
+private const val APPEND_LOADING_KEY = "appendLoading"
+private const val APPEND_FAILED_KEY = "appendFailed"
+private const val FILE_CONTENT_TYPE = "file"
 
 private enum class FileHomeListContent {
     LOADING,
@@ -135,6 +140,7 @@ private fun FileHomeLazyColumn(
         items(
             count = filePagingItems.itemCount,
             key = filePagingItems.itemKey { file -> file.id },
+            contentType = filePagingItems.itemContentType { FILE_CONTENT_TYPE },
         ) { index ->
             filePagingItems[index]?.let { file ->
                 FileListItem(
@@ -147,13 +153,13 @@ private fun FileHomeLazyColumn(
 
         when (filePagingItems.loadState.append) {
             is LoadState.Loading -> {
-                item {
+                item(key = APPEND_LOADING_KEY, contentType = APPEND_LOADING_KEY) {
                     FileHomeAppendLoading(modifier = Modifier.fillMaxWidth())
                 }
             }
 
             is LoadState.Error -> {
-                item {
+                item(key = APPEND_FAILED_KEY, contentType = APPEND_FAILED_KEY) {
                     FileHomeAppendFailed(
                         onRetry = { onEvent(FileHomeScaffoldEvent.ClickRetry) },
                         modifier = Modifier.fillMaxWidth(),

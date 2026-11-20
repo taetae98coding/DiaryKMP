@@ -4,6 +4,9 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.web.webDetailLocalEntity
+import io.github.taetae98coding.diary.core.data.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
@@ -16,9 +19,6 @@ import io.github.taetae98coding.diary.core.database.impl.memo.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.memoweb.transaction.AccountMemoWebSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
-import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
-import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
-import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec

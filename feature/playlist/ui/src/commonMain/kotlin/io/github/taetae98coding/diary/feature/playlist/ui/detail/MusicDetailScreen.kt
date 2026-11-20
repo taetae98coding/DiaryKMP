@@ -13,10 +13,10 @@ import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.core.uri.tryOpenUri
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
-import io.github.taetae98coding.diary.feature.playlist.ui.form.handleMusicFormEvent
 import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicDetailFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.music_detail_open_failed_message
 import kotlinx.coroutines.launch
@@ -45,7 +45,7 @@ internal fun MusicDetailScreen(
     val openFailedMessage = stringResource(Res.string.music_detail_open_failed_message)
     val shareAction = rememberMusicDetailShareAction(contentSharerFactory = contentSharerFactory)
 
-    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
+    TagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
 
     key(content?.id) {
         val state = rememberMusicDetailFormState(initialDetail = content?.detail ?: MusicDetail.EMPTY)
@@ -84,9 +84,9 @@ internal fun MusicDetailScreen(
                 }
             },
             onFormEvent = { event ->
-                handleMusicFormEvent(
+                handleEntityTagInputEvent(
                     event = event,
-                    state = state,
+                    tagPickerDialogState = state.tagPickerDialogState,
                     selectableTagPagingItems = selectableTagPagingItems,
                     navigateToTagAdd = navigateToTagAdd,
                     navigateToTagDetail = navigateToTagDetail,

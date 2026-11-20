@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.core.network.impl.file.transport
 
+import io.github.taetae98coding.diary.core.data.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLargeRemoteException
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
-import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -32,7 +32,7 @@ import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteChannel
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.readBuffer
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
@@ -270,7 +270,7 @@ internal suspend fun OutgoingContent.WriteChannelContent.writtenBytes(): ByteArr
     writeTo(channel)
     channel.flushAndClose()
 
-    return channel.readRemaining().readByteArray()
+    return channel.readBuffer().readByteArray()
 }
 
 // 본문을 바이트 그대로 나눠, 파일 내용에 줄바꿈이나 대시가 섞여 있어도 경계로만 자른다.

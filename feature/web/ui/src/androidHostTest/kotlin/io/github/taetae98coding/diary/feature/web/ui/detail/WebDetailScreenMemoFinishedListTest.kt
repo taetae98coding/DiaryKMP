@@ -15,6 +15,7 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -146,6 +147,7 @@ class WebDetailScreenMemoFinishedListTest {
                             pageViewModel = pageViewModel,
                             tagViewModel = tagViewModel,
                             contentSharerFactory = testContentSharerFactory(),
+                            webViewContent = AndroidWebViewContent(),
                         )
                     }
                 }

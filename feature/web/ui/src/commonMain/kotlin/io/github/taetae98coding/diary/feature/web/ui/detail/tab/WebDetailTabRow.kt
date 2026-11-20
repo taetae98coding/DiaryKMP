@@ -4,11 +4,11 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.icon.EditIcon
-import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
-import io.github.taetae98coding.diary.compose.core.icon.WebIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.EditIcon
+import io.github.taetae98coding.diary.compose.icon.MemoIcon
+import io.github.taetae98coding.diary.compose.icon.WebIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldEvent
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldState

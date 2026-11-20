@@ -1,0 +1,136 @@
+package io.github.taetae98coding.diary.domain.tag.usecase
+
+import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
+import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.core.invoke
+import io.github.taetae98coding.diary.domain.tag.repository.AccountTagFilterRepository
+import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.result.shouldBeFailure
+import io.kotest.matchers.result.shouldBeSuccess
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlin.time.Instant
+
+class PageFilteredTagUseCaseTest :
+    BehaviorSpec({
+        Given("현재 계정과 최상위 태그, 그 외 태그가 준비되어 있다") {
+            val account = Arb.accountUser().next()
+            val topLevelTagList = List(2) { tag() }
+            val tagList = topLevelTagList + tag()
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase() } returns flowOf(Result.success(account))
+            val accountTagRepository = mockk<AccountTagRepository>()
+            every { accountTagRepository.page(account = account, query = "", sort = ListSort.TITLE) } returns flowOf(PagingData.from(tagList))
+            every { accountTagRepository.pageTopLevel(account = account, sort = ListSort.TITLE) } returns flowOf(PagingData.from(topLevelTagList))
+
+            When("필터가 꺼져 있다") {
+                val accountTagFilterRepository = mockk<AccountTagFilterRepository>()
+                every { accountTagFilterRepository.getTopLevelOnly(account = account) } returns flowOf(false)
+                val useCase =
+                    PageFilteredTagUseCase(
+                        getAccountUseCase = getAccountUseCase,
+                        accountTagRepository = accountTagRepository,
+                        accountTagFilterRepository = accountTagFilterRepository,
+                    )
+
+                Then("TC-a9dac55d-0689-4876-b138-7041b9950710 노출 대상 태그 전체를 페이지로 전달한다") {
+                    val pagingData = useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()
+
+                    flowOf(pagingData).asSnapshot() shouldBe tagList
+                }
+            }
+
+            When("필터가 켜져 있다") {
+                val accountTagFilterRepository = mockk<AccountTagFilterRepository>()
+                every { accountTagFilterRepository.getTopLevelOnly(account = account) } returns flowOf(true)
+                val useCase =
+                    PageFilteredTagUseCase(
+                        getAccountUseCase = getAccountUseCase,
+                        accountTagRepository = accountTagRepository,
+                        accountTagFilterRepository = accountTagFilterRepository,
+                    )
+
+                Then("TC-7bcf8584-ace4-4e5a-b5fe-6aaf5fc8bb0a 최상위 태그만 페이지로 전달한다") {
+                    val pagingData = useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()
+
+                    flowOf(pagingData).asSnapshot() shouldBe topLevelTagList
+                }
+            }
+
+            When("필터 선택이 켜짐으로 바뀐다") {
+                val isTopLevelOnly = MutableStateFlow(false)
+                val accountTagFilterRepository = mockk<AccountTagFilterRepository>()
+                every { accountTagFilterRepository.getTopLevelOnly(account = account) } returns isTopLevelOnly
+                val useCase =
+                    PageFilteredTagUseCase(
+                        getAccountUseCase = getAccountUseCase,
+                        accountTagRepository = accountTagRepository,
+                        accountTagFilterRepository = accountTagFilterRepository,
+                    )
+
+                Then("TC-48e9d359-c512-44f7-b05c-bde5269455d9 바뀐 선택으로 목록을 다시 조회한다") {
+                    flowOf(useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()).asSnapshot() shouldBe tagList
+
+                    isTopLevelOnly.value = true
+
+                    flowOf(useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()).asSnapshot() shouldBe topLevelTagList
+                }
+            }
+        }
+
+        Given("계정 조회에 실패하도록 준비되어 있다") {
+            val throwable = IllegalStateException(Arb.string().next())
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
+            val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
+            val accountTagFilterRepository = mockk<AccountTagFilterRepository>(relaxed = true)
+            val useCase =
+                PageFilteredTagUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    accountTagRepository = accountTagRepository,
+                    accountTagFilterRepository = accountTagFilterRepository,
+                )
+
+            When("태그 목록을 페이지로 조회한다") {
+                Then("계정 조회 실패를 전달하고 태그 페이지를 요청하지 않는다") {
+                    useCase(parameter = ListSort.TITLE)
+                        .first()
+                        .shouldBeFailure()
+                        .shouldBeSameInstanceAs(throwable)
+
+                    verify(exactly = 0) { accountTagRepository.page(account = any(), query = any(), sort = any()) }
+                    verify(exactly = 0) { accountTagRepository.pageTopLevel(account = any(), sort = any()) }
+                }
+            }
+        }
+    }) {
+    public companion object {
+        private fun tag(): Tag =
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
+    }
+}

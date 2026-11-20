@@ -125,6 +125,45 @@ internal interface AccountDDayDao : RoomDao<AccountDDayLocalEntity> {
 
     @Query(
         """
+        UPDATE dday
+        SET primary_tag_id = :primaryTagId, updated_at = :updatedAt
+        WHERE id = :ddayId
+            AND EXISTS(
+                SELECT 1
+                FROM account_dday
+                WHERE account_dday.dday_id = dday.id AND account_dday.account_id = :accountId
+            )
+        """,
+    )
+    suspend fun updatePrimaryTagId(
+        accountId: Uuid,
+        ddayId: Uuid,
+        primaryTagId: Uuid?,
+        updatedAt: Instant,
+    ): Int
+
+    @Query(
+        """
+        UPDATE dday
+        SET primary_tag_id = NULL, updated_at = :updatedAt
+        WHERE id = :ddayId
+            AND primary_tag_id = :tagId
+            AND EXISTS(
+                SELECT 1
+                FROM account_dday
+                WHERE account_dday.dday_id = dday.id AND account_dday.account_id = :accountId
+            )
+        """,
+    )
+    suspend fun clearPrimaryTagIdIfMatched(
+        accountId: Uuid,
+        ddayId: Uuid,
+        tagId: Uuid,
+        updatedAt: Instant,
+    ): Int
+
+    @Query(
+        """
         UPDATE account_dday
         SET is_dirty = 1
         WHERE account_id = :accountId AND dday_id = :ddayId

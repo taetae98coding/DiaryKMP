@@ -13,6 +13,8 @@ import io.github.taetae98coding.diary.domain.dday.repeat.toRepeatSetOrNull
 import io.github.taetae98coding.diary.domain.dday.usecase.AddDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.FindDDayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.PageDDayUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.SetDDayPrimaryTagUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.UnsetDDayPrimaryTagUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.UpdateDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
@@ -21,9 +23,9 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.work.appaction.core.toColorHex
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolCallResult
 import io.github.taetae98coding.diary.work.mcp.tool.call
-import io.github.taetae98coding.diary.work.mcp.tool.json.toColorHex
 import io.github.taetae98coding.diary.work.mcp.tool.search.SearchMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundDDay
 import io.github.taetae98coding.diary.work.mcp.tool.tag.stubFoundTag
@@ -245,6 +247,7 @@ class DDayMcpToolSetTest :
             runTest {
                 val title = Arb.nonBlankString().next()
                 val tagId = Arb.kotlinUuid().next()
+                val primaryTagId = Arb.kotlinUuid().next()
                 val parameter = slot<AddDDayUseCase.Parameter>()
                 val addDDayUseCase = mockk<AddDDayUseCase>()
                 coEvery { addDDayUseCase(parameter = capture(parameter)) } returns Result.success(Arb.kotlinUuid().next())
@@ -261,6 +264,7 @@ class DDayMcpToolSetTest :
                                 "countsBaseDay" to JsonPrimitive(false),
                                 "endDate" to JsonPrimitive("2026-12-31"),
                                 "overflowPolicy" to JsonPrimitive("next_month_first_day"),
+                                "primaryTagId" to JsonPrimitive(primaryTagId.toString()),
                                 "tagIds" to stringArray(listOf(tagId.toString())),
                             ),
                     ).shouldBeInstanceOf<McpToolCallResult.Success>()
@@ -269,6 +273,7 @@ class DDayMcpToolSetTest :
 
                 coVerify(exactly = 1) { addDDayUseCase(parameter = any()) }
                 parameter.captured.tagIdSet shouldBe setOf(tagId)
+                parameter.captured.primaryTagId shouldBe primaryTagId
                 parameter.captured.input.recordedDetail() shouldBe
                     DDayDetail(
                         title = title,
@@ -317,6 +322,25 @@ class DDayMcpToolSetTest :
 
                 coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = ddayId, tagId = tagId)) }
                 coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.DDAY, entityId = ddayId, tagId = tagId)) }
+            }
+        }
+
+        test("TC-0298ccbb-3953-4f5c-a1ce-a184189a92fa 대표 태그 지정과 해제는 받은 디데이와 태그로 앱 기능을 실행한다") {
+            runTest {
+                val dday = stubFoundDDay(isDeleted = false)
+                val tag = stubFoundTag(isDeleted = false)
+                val setDDayPrimaryTagUseCase = mockk<SetDDayPrimaryTagUseCase>()
+                val unsetDDayPrimaryTagUseCase = mockk<UnsetDDayPrimaryTagUseCase>()
+                coEvery { setDDayPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                coEvery { unsetDDayPrimaryTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val toolSet = toolSetOf<DDayMcpToolSet>(setDDayPrimaryTagUseCase, unsetDDayPrimaryTagUseCase, *dday.useCaseList.toTypedArray(), *tag.useCaseList.toTypedArray())
+                val done = McpToolCallResult.Success(content = buildJsonObject { put("done", true) })
+
+                toolSet.tool(name = "dday_primary_tag_set").call(arguments = JsonObject(mapOf("ddayId" to JsonPrimitive(dday.id.toString()), "tagId" to JsonPrimitive(tag.id.toString())))) shouldBe done
+                toolSet.tool(name = "dday_primary_tag_unset").call(arguments = JsonObject(mapOf("ddayId" to JsonPrimitive(dday.id.toString())))) shouldBe done
+
+                coVerify(exactly = 1) { setDDayPrimaryTagUseCase(parameter = SetDDayPrimaryTagUseCase.Parameter(ddayId = dday.id, tagId = tag.id)) }
+                coVerify(exactly = 1) { unsetDDayPrimaryTagUseCase(parameter = dday.id) }
             }
         }
 
@@ -387,6 +411,7 @@ private fun DDay.expectedJson(count: JsonObject): JsonObject =
                 DDayOverflowPolicy.NEXT_MONTH_FIRST_DAY -> "next_month_first_day"
             },
         )
+        put("primaryTagId", primaryTagId?.toString())
         put("createdAt", createdAt.toString())
         put("updatedAt", updatedAt.toString())
         put("count", count)

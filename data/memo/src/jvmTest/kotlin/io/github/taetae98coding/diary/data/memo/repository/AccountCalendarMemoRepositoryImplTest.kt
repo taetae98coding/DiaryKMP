@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.memo.calendarMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountCalendarMemoLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.account.accountUser
-import io.github.taetae98coding.diary.core.testing.memo.calendarMemoLocalEntity
 import io.github.taetae98coding.diary.data.memo.mapper.toDomain
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

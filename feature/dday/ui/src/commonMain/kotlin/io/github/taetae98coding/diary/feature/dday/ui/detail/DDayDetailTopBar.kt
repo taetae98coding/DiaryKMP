@@ -3,9 +3,10 @@ package io.github.taetae98coding.diary.feature.dday.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.dday.ui.Res
 import io.github.taetae98coding.diary.feature.dday.ui.dday_detail_delete_button_content_description
 import io.github.taetae98coding.diary.feature.dday.ui.dday_navigate_up_button_content_description
@@ -42,7 +43,7 @@ internal fun DDayDetailTopBar(
         actions = {
             if (uiState is DDayDetailUiState.Content) {
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(DDayDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,

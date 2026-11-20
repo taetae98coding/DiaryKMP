@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.search
 
+import androidx.activity.ComponentDialog
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assert
@@ -117,7 +118,7 @@ class PlaceSearchDialogMapDisplayedTest {
         openSearchAndType()
         composeRule.onNodeWithText(placeList.first().name).assertExists()
 
-        composeRule.runOnIdle { ShadowDialog.getLatestDialog().onBackPressed() }
+        composeRule.runOnIdle { (ShadowDialog.getLatestDialog() as ComponentDialog).onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
 
         composeRule.onNode(isDialog()).assertDoesNotExist()
@@ -130,7 +131,7 @@ class PlaceSearchDialogMapDisplayedTest {
         setPlaceAddScreen(searchViewModel = searchViewModel(resultList = placeList))
         openSearchAndType()
         composeRule.onNodeWithText(placeList.first().name).assertExists()
-        composeRule.runOnIdle { ShadowDialog.getLatestDialog().onBackPressed() }
+        composeRule.runOnIdle { (ShadowDialog.getLatestDialog() as ComponentDialog).onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).performClick()

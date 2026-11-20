@@ -11,8 +11,8 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.englishTitle
@@ -77,7 +77,6 @@ class CalendarHomeDestinationReturnTest {
         val memoViewModel = mockk<CalendarHomeMemoViewModel>()
         every { memoViewModel.select(any()) } returns Unit
         every { memoViewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-        every { memoViewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
 
         val birthdayViewModel = birthdayViewModel()
         val weatherViewModel = weatherViewModel()
@@ -108,6 +107,7 @@ class CalendarHomeDestinationReturnTest {
                                     permissionManager = rememberPermissionManager(),
                                     holidayViewModel = holidayViewModel,
                                     memoViewModel = memoViewModel,
+                                    filterViewModel = filterViewModel(),
                                     birthdayViewModel = birthdayViewModel,
                                     weatherViewModel = weatherViewModel,
                                     syncViewModel = syncViewModel,

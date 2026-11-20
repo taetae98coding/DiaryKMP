@@ -19,7 +19,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.kotest.matchers.comparables.shouldBeLessThan
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

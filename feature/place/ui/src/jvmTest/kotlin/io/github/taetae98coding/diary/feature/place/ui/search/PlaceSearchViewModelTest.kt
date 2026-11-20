@@ -146,7 +146,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                 val latestList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val lateCompletion = CompletableDeferred<Result<List<SearchedPlace>>>()
                 val firstRequest = searchRequest()
-                val secondRequest = searchRequest()
+                val secondRequest = firstRequest.copy(query = "${firstRequest.query}-2")
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(firstRequest.toParameter()) } coAnswers { lateCompletion.await() }
                 coEvery { fetchSearchedPlaceUseCase(secondRequest.toParameter()) } returns Result.success(latestList)
@@ -308,6 +308,49 @@ class PlaceSearchViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 1) { fetchSearchedPlaceUseCase(any()) }
+            }
+        }
+
+        test("같은 조건의 검색이 진행 중이면 다시 요청하지 않고 진행 중인 결과를 쓴다") {
+            runTest(mainDispatcher) {
+                val placeList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
+                val completion = CompletableDeferred<Result<List<SearchedPlace>>>()
+                val request = searchRequest()
+                val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
+                coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } coAnswers { completion.await() }
+                val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
+
+                    viewModel.search(request = request)
+                    runCurrent()
+                    viewModel.search(request = request.copy())
+                    runCurrent()
+
+                    completion.complete(Result.success(placeList))
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = placeList)
+                }
+
+                coVerify(exactly = 1) { fetchSearchedPlaceUseCase(any()) }
+            }
+        }
+
+        test("검색이 끝난 뒤 같은 조건으로 다시 검색하면 다시 요청한다") {
+            runTest(mainDispatcher) {
+                val request = searchRequest()
+                val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
+                coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns Result.success(emptyList())
+                val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
+
+                viewModel.search(request = request)
+                advanceUntilIdle()
+                viewModel.search(request = request)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { fetchSearchedPlaceUseCase(request.toParameter()) }
             }
         }
 

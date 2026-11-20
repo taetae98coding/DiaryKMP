@@ -22,8 +22,8 @@ import io.github.taetae98coding.diary.compose.calendar.calendar_home_dday_text
 import io.github.taetae98coding.diary.compose.calendar.calendar_home_dday_years_label
 import io.github.taetae98coding.diary.compose.calendar.previewCalendarDDay
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import kotlinx.datetime.LocalDateRange

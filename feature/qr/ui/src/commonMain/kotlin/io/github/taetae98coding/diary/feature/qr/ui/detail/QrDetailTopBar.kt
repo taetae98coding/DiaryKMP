@@ -5,10 +5,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.share.ShareAction
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.QrCodeScanner
+import io.github.taetae98coding.diary.compose.icon.Undo
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
@@ -70,18 +73,18 @@ internal fun QrDetailTopBar(
                     )
                 }
                 IconAction(
-                    icon = DiaryTopBarIcon.UNDO,
+                    icon = DiaryIcons.Undo,
                     contentDescription = undoContentDescription,
                     onClick = { onEvent(QrDetailScaffoldEvent.ClickUndo) },
                     isEnabled = state.contentState.canUndo,
                 )
                 IconAction(
-                    icon = DiaryTopBarIcon.QR_SCAN,
+                    icon = DiaryIcons.QrCodeScanner,
                     contentDescription = scanContentDescription,
                     onClick = { onEvent(QrDetailScaffoldEvent.ClickScan) },
                 )
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(QrDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,

@@ -15,7 +15,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListItemActions
@@ -37,13 +37,13 @@ internal class MemoHomeViewModel(
     getMemoFilterUseCase: GetMemoFilterUseCase,
     getMemoFilterTagIdUseCase: GetMemoFilterTagIdUseCase,
     getMemoExistenceFilterUseCase: GetMemoExistenceFilterUseCase,
-    pageMemoHomeUseCase: PageMemoHomeUseCase,
+    pageMemoUseCase: PageMemoUseCase,
     finishMemoUseCase: FinishMemoUseCase,
     restartMemoUseCase: RestartMemoUseCase,
     deleteMemoUseCase: DeleteMemoUseCase,
     restoreMemoUseCase: RestoreMemoUseCase,
 ) : ViewModel() {
-    private val memoListState = MemoListState(pageMemo = { sort -> pageMemoHomeUseCase(parameter = sort) })
+    private val memoListState = MemoListState(pageMemo = { sort -> pageMemoUseCase(parameter = sort) })
 
     private val memoActions =
         ListItemActions(

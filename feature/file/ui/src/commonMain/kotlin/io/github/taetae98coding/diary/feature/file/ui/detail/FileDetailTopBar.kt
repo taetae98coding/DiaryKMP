@@ -3,9 +3,10 @@ package io.github.taetae98coding.diary.feature.file.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.Download
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.file.ui.Res
 import io.github.taetae98coding.diary.feature.file.ui.file_detail_download_button_content_description
 import io.github.taetae98coding.diary.feature.file.ui.file_navigate_up_button_content_description
@@ -41,7 +42,7 @@ internal fun FileDetailTopBar(
         actions = {
             if (uiState is FileDetailUiState.Content) {
                 IconAction(
-                    icon = DiaryTopBarIcon.DOWNLOAD,
+                    icon = DiaryIcons.Download,
                     contentDescription = downloadContentDescription,
                     onClick = { onEvent(FileDetailScaffoldEvent.ClickDownload) },
                     isInProgress = uiState.isDownloadInProgress,

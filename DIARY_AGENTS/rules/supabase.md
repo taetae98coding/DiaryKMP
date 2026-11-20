@@ -3,8 +3,9 @@
 ## 마이그레이션
 
 - dev나 real에 배포한 마이그레이션 파일은 고치지 않는다. 바꿀 내용은 새 마이그레이션으로 더한다. 아직 어디에도 배포하지 않은 마이그레이션은 고치거나 합쳐도 된다.
+- 새 테이블은 같은 마이그레이션에서 `enable row level security`로 RLS를 켜고, 앱이 직접 읽는 역할에만 `grant`한다. 함수로만 다루는 테이블(`fcm_token`)에는 `grant`하지 않는다. 2026-10-30부터 `public` 스키마의 새 테이블에는 `anon`·`authenticated`·`service_role`의 기본 권한이 붙지 않아, `grant`가 없으면 Data API로 읽을 수 없다([Supabase changelog](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically)).
 - 마이그레이션을 더하거나 고쳤으면 배포 전에 `supabase/scripts/plpgsql-check.sh`를 통과시킨다. PL/pgSQL 본문은 함수를 만들 때가 아니라 처음 실행할 때 검사되므로, 배포가 성공해도 함수가 동작한다는 뜻이 아니다.
-- 태그 행을 지우는 함수는 지우기 전에 그 태그를 가리키는 `memo.primary_tag_id`를 직접 해제해 순번을 올린다. 행을 지우면 외래 키가 `null`로 바꾸지만 순번을 올리지 않아 기기가 해제를 내려받지 못한다.
+- 태그 행을 지우는 함수는 지우기 전에 그 태그를 가리키는 `memo.primary_tag_id`와 `dday.primary_tag_id`를 직접 해제해 순번을 올린다. 행을 지우면 외래 키가 `null`로 바꾸지만 순번을 올리지 않아 기기가 해제를 내려받지 못한다.
 
 ## PL/pgSQL 함수
 
@@ -24,7 +25,10 @@ create or replace function public.register_fcm_token(token text, time_zone text,
 
 ## Edge Function 인증
 
-- 앱이 세션 없이 보내는 `Authorization`은 호출 경로마다 다르다. supabase-kt로 부르는 함수 호출(`SupabaseFunction.invoke`)은 프로젝트 키가 `sb_publishable_` 형식이면 `apikey` 헤더만 보내고 legacy JWT 키면 그 키를 `Authorization: Bearer`로 붙인다. 시스템 전송 수단이 쓰는 `SupabaseFunction.createRequest`는 키 형식과 무관하게 프로젝트 키를 `Authorization: Bearer`로 붙인다. 그래서 `Authorization`이 없을 수도, 있어도 로그인 세션이 아닐 수도 있다. 세션 없이 받는 처리는 `createPublicClient`로, 로그인 세션이 필요한 처리는 `createUserClient`로 데이터베이스를 부른다.
+- 앱이 세션 없이 보내는 `Authorization`은 호출 경로마다 다르다. supabase-kt로 부르는 함수 호출(`SupabaseFunction.invoke`)은 publishable 키(`sb_publishable_`)를 `apikey` 헤더로만 보낸다. 시스템 전송 수단이 쓰는 `SupabaseFunction.createRequest`는 그 키를 `Authorization: Bearer`로도 붙인다. 그래서 `Authorization`이 없을 수도, 있어도 로그인 세션이 아닐 수도 있다. 세션 없이 받는 처리는 `createPublicClient`로, 로그인 세션이 필요한 처리는 `createUserClient`로 데이터베이스를 부른다.
+- 세션 없이도 호출되는 함수(`v1-session-*`, `v1-fcm-token-submit`, `v1-play-integrity-decode`, `v1-daily-notification-send`)는 `config.toml`에서 `verify_jwt = false`로 두고 함수 코드에서 인가한다. 로그인 세션이 있어야만 호출되는 함수는 `verify_jwt = true`로 둔다. 게이트웨이는 `Authorization`의 사용자 JWT뿐 아니라 어느 헤더로든 온 publishable·secret 키도 통과시키므로([Authorization headers](https://supabase.com/docs/guides/functions/auth-headers)), `verify_jwt = true`인 함수도 호출자를 `requireUserId`나 `createUserClient`로 부른 DB 함수의 `auth.uid()`로 확인한다.
+- 함수가 직접 쓰는 프로젝트 키는 `_shared/supabase.ts`의 `publishableKey()`·`secretKey()`로 읽는다. 이름별 JSON인 `SUPABASE_PUBLISHABLE_KEYS`·`SUPABASE_SECRET_KEYS`의 `default` 키다. legacy 키가 담기는 `SUPABASE_ANON_KEY`·`SUPABASE_SERVICE_ROLE_KEY`는 읽지 않는다.
+- 서버끼리 부르는 함수(`v1-daily-notification-send`)는 호출자가 secret 키를 `apikey` 헤더로 보내고 함수가 `secretKey()`와 일치하는지 본다. secret 키는 JWT가 아니므로 `Authorization: Bearer`로 보내지 않는다. `pg_cron`은 Vault의 `secret_key`를 읽어 보낸다.
 - 함수를 직접 호출해 확인할 때는 앱과 같은 헤더를 쓴다. 게스트 요청은 확인하려는 호출 경로가 위에서 보내는 헤더 그대로, 사용자 요청은 `apikey`와 사용자 세션의 `Authorization`을 보낸다. 앱이 `apikey`만 보내는 경로에 `Authorization: Bearer <apikey>`를 직접 붙이면 앱에서는 실패하는 요청이 성공한다.
 
 ## 동기화 계약의 버전
@@ -57,6 +61,7 @@ coalesce(item -> 'detail' ->> 'howWeMet', ''),
 - 이미 있는 키의 타입이나 의미가 바뀐다.
 - 이전 앱이 보내지 않는 키를 반드시 받아야 한다.
 - 응답에서 이전 앱이 읽는 키를 빼거나 형식을 바꾼다.
+- 키가 없을 때 저장된 값을 유지하는 확장으로도 동작하지만, 그 값을 아는 앱의 요청에서 키가 빠지면 거절해야 한다. 확장하면 새 앱이 키를 빠뜨린 요청도 이전 앱의 요청으로 보여 저장된 값이 조용히 남는다. 이때 이전 버전은 그 키를 받지 않고 저장된 값을 바꾸지 않으며, 새 버전은 그 키를 필수로 받는다(디데이 대표 태그의 `push_ddays`·`push_ddays_v2`).
 
 새 버전은 서버에서만 이름을 나눈다. Edge Function은 `v2-sync-push-contact`, DB 함수는 `push_contacts_v2`, `supabase/functions/_shared`의 요청 스키마는 `contactPushRequestSchemaV2`처럼 버전을 붙이고, 하나뿐인 버전의 스키마에는 버전을 붙이지 않는다(`contactPushRequestSchema`). 이전 버전은 이전 앱이 쓰는 동안 남긴다. 그 버전을 쓰는 앱이 내부 테스트 빌드뿐이어서 사용자가 지원을 끝내도 된다고 정하면 지운다.
 

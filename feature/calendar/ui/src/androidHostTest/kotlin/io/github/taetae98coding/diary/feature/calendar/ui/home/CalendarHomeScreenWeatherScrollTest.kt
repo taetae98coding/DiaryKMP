@@ -18,8 +18,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
@@ -257,6 +257,7 @@ class CalendarHomeScreenWeatherScrollTest {
                             state = state,
                             holidayViewModel = holidayViewModel,
                             memoViewModel = memoViewModel,
+                            filterViewModel = filterViewModel(),
                             weatherViewModel = weatherViewModel,
                             syncViewModel = syncViewModel,
                             permissionManager = rememberPermissionManager(),
@@ -273,7 +274,6 @@ class CalendarHomeScreenWeatherScrollTest {
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
             every { viewModel.select(any()) } returns Unit
             every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
-            every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 
     private fun scrollMemoWeekToLastMemo(memoList: List<CalendarMemo>) {
@@ -317,7 +317,6 @@ class CalendarHomeScreenWeatherScrollTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.select(any()) } returns Unit
                 every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
-                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 
         return {
@@ -337,6 +336,7 @@ class CalendarHomeScreenWeatherScrollTest {
                     state = state,
                     holidayViewModel = holidayViewModel(),
                     memoViewModel = memoViewModel,
+                    filterViewModel = filterViewModel(),
                     weatherViewModel = weatherViewModel(weatherReportFlow = weatherReportFlow),
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),

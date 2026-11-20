@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.data.account.repository
 
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.data.testing.authentication.sessionRemoteEntity
 import io.github.taetae98coding.diary.core.model.authentication.Session
 import io.github.taetae98coding.diary.core.network.api.authentication.datasource.SessionRemoteDataSource
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
@@ -8,7 +9,6 @@ import io.github.taetae98coding.diary.core.supabase.api.SupabaseSessionStatus
 import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
 import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialAuthorizationCode
 import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
-import io.github.taetae98coding.diary.core.testing.authentication.sessionRemoteEntity
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

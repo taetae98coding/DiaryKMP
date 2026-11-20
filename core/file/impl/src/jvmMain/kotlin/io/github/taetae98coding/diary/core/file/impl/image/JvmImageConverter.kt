@@ -108,9 +108,4 @@ internal class JvmImageConverter(
         when (this) {
             ImageFormat.JPEG -> "jpg"
         }
-
-    private fun ImageFormat.extension(): String =
-        when (this) {
-            ImageFormat.JPEG -> "jpg"
-        }
 }

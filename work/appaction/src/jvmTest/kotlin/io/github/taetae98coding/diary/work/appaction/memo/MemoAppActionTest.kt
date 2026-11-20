@@ -22,10 +22,11 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
-import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UpdateMemoUseCase
+import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
@@ -37,6 +38,7 @@ import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
+import io.github.taetae98coding.diary.work.appaction.search.searchAppActionOf
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.kotest.assertions.throwables.shouldThrow
@@ -65,35 +67,35 @@ class MemoAppActionTest :
         test("목록은 정렬을 담지 않으면 처음 정렬로, 담으면 그 정렬로 조회해 MCP와 같은 항목을 돌려준다") {
             runTest {
                 val memoList = Arb.list(Arb.memo(), 1..3).next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(memoList)))
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 action.list(sort = null, cursor = null) shouldBe AppActionPage(items = memoList.map { memo -> memo.expected() }, nextCursor = null)
                 action.list(sort = "recently_updated", cursor = null).items shouldBe memoList.map { memo -> memo.expected() }
 
-                verify(exactly = 1) { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) }
-                verify(exactly = 1) { pageMemoHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) }
+                verify(exactly = 1) { pageMemoUseCase(parameter = ListSort.DEFAULT) }
+                verify(exactly = 1) { pageMemoUseCase(parameter = ListSort.RECENTLY_UPDATED) }
             }
         }
 
         test("목록이 제공하지 않는 정렬은 고를 수 있는 정렬을 알리며 실패한다") {
             runTest {
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 shouldThrow<AppActionException.InvalidArgument> { action.list(sort = "name", cursor = null) }.message shouldBe
                     "'sort' must be one of default, title, recently_updated."
-                verify(exactly = 0) { pageMemoHomeUseCase(parameter = any()) }
+                verify(exactly = 0) { pageMemoUseCase(parameter = any()) }
             }
         }
 
         test("목록은 100개씩 나눠 다음 페이지 위치를 알리고, 그 위치로 다음 페이지를 받는다") {
             runTest {
                 val memoList = Arb.list(Arb.memo(), 101..150).next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(memoList))) }
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } answers { flowOf(Result.success(PagingData.from(memoList))) }
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 val firstPage = action.list(sort = null, cursor = null)
                 val secondPage = action.list(sort = null, cursor = firstPage.nextCursor)
@@ -106,13 +108,13 @@ class MemoAppActionTest :
         test("계정이 확정되기 전 요청은 확정된 뒤의 목록을 받는다") {
             runTest {
                 val memoList = Arb.list(Arb.memo(), 1..3).next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } returns
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns
                     flow {
                         delay(ACCOUNT_CONFIRM_DELAY_MILLIS)
                         emit(Result.success(PagingData.from(memoList)))
                     }
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 action.list(sort = null, cursor = null).items shouldBe memoList.map { memo -> memo.expected() }
             }
@@ -121,9 +123,9 @@ class MemoAppActionTest :
         test("계정 조회가 실패하면 MCP와 같은 메시지로 실패를 알린다") {
             runTest {
                 val message = Arb.nonBlankString().next()
-                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
-                every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(message)))
-                val action = memoListAppActionOf(pageMemoHomeUseCase)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(message)))
+                val action = memoListAppActionOf(pageMemoUseCase)
 
                 shouldThrow<AppActionException.Failure> { action.list(sort = null, cursor = null) }.message shouldBe "IllegalStateException: $message"
             }
@@ -311,6 +313,69 @@ class MemoAppActionTest :
 
                 result shouldBe AppActionId(id = addedId.toString())
                 parameter.captured.tagIdSet shouldBe tagIdSet
+            }
+        }
+
+        test("TC-b2ac485f-e2d1-44a0-8f3b-09b8e42d7f81 추가 요청에 담은 대표 태그를 연결할 태그와 함께 넘긴다") {
+            runTest {
+                val tagIdA = Arb.kotlinUuid().next()
+                val tagIdB = Arb.kotlinUuid().next()
+                val addedId = Arb.kotlinUuid().next()
+                val parameter = slot<AddMemoUseCase.Parameter>()
+                val addMemoUseCase = mockk<AddMemoUseCase>()
+                coEvery { addMemoUseCase(parameter = capture(parameter)) } returns Result.success(addedId)
+                val action = memoAppActionOf(addMemoUseCase)
+
+                action.add(
+                    title = Arb.nonBlankString().next(),
+                    description = null,
+                    color = null,
+                    dateTime = null,
+                    primaryTagId = tagIdB.toString(),
+                    tagIds = listOf(tagIdA.toString()),
+                    placeIds = emptyList(),
+                    webIds = emptyList(),
+                    contactIds = emptyList(),
+                ) shouldBe AppActionId(id = addedId.toString())
+
+                parameter.captured.tagIdSet shouldBe setOf(tagIdA)
+                parameter.captured.primaryTagId shouldBe tagIdB
+            }
+        }
+
+        test("TC-35ed7a8a-37ce-4218-b82d-88c6ad0dd1b8 목록, 상세와 검색 결과에 대표 태그를 담는다") {
+            runTest {
+                val primaryTagId = Arb.kotlinUuid().next()
+                val memo = Arb.memo().next().copy(isDeleted = false, primaryTagId = primaryTagId)
+                val pageMemoUseCase = mockk<PageMemoUseCase>()
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                val getMemoTagUseCase = mockk<GetMemoTagUseCase>()
+                val getMemoPlaceUseCase = mockk<GetMemoPlaceUseCase>()
+                val getMemoWebUseCase = mockk<GetMemoWebUseCase>()
+                val getMemoContactUseCase = mockk<GetMemoContactUseCase>()
+                val searchMemoUseCase = mockk<SearchMemoUseCase>()
+                every { pageMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
+                every { getMemoTagUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoPlaceUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoWebUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { getMemoContactUseCase(parameter = memo.id) } returns flowOf(Result.success(emptyList()))
+                every { searchMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                val action = memoAppActionOf(findMemoUseCase, getMemoTagUseCase, getMemoPlaceUseCase, getMemoWebUseCase, getMemoContactUseCase)
+                val listAction = memoListAppActionOf(pageMemoUseCase)
+                val searchAction = searchAppActionOf(searchMemoUseCase)
+
+                listAction
+                    .list(sort = null, cursor = null)
+                    .items
+                    .single()
+                    .primaryTagId shouldBe primaryTagId.toString()
+                action.get(memoId = memo.id.toString())?.memo?.primaryTagId shouldBe primaryTagId.toString()
+                searchAction
+                    .memo(query = memo.detail.title, sort = null, cursor = null)
+                    .items
+                    .single()
+                    .primaryTagId shouldBe primaryTagId.toString()
             }
         }
 

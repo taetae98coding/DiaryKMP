@@ -4,9 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.Delete
+import io.github.taetae98coding.diary.compose.icon.DiaryIcons
+import io.github.taetae98coding.diary.compose.icon.FilterList
+import io.github.taetae98coding.diary.compose.icon.Verified
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_delete_button_content_description
@@ -51,14 +54,14 @@ internal fun TagDetailTopBar(
             if (uiState is TagDetailUiState.Content) {
                 TagDetailFinishAction(content = uiState, onEvent = onEvent)
                 IconAction(
-                    icon = DiaryTopBarIcon.DELETE,
+                    icon = DiaryIcons.Delete,
                     contentDescription = deleteContentDescription,
                     onClick = { onEvent(TagDetailScaffoldEvent.ClickDelete) },
                     isInProgress = uiState.isDeleteInProgress,
                 )
             }
             AppliedAction(
-                icon = DiaryTopBarIcon.FILTER,
+                icon = DiaryIcons.FilterList,
                 contentDescription = scopeContentDescription,
                 isApplied = isScopeAppliedProvider(),
                 appliedStateDescription = scopeAppliedStateDescription,
@@ -74,7 +77,7 @@ private fun DiaryTopBarActionScope.TagDetailFinishAction(
     onEvent: (TagDetailScaffoldEvent) -> Unit,
 ) {
     ToggleAction(
-        icon = DiaryTopBarIcon.FINISH,
+        icon = DiaryIcons.Verified,
         contentDescription =
             if (content.isFinished) {
                 stringResource(Res.string.tag_detail_restart_button_content_description)

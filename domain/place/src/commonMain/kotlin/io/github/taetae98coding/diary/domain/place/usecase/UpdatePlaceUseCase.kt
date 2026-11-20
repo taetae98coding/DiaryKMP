@@ -18,7 +18,6 @@ import kotlin.uuid.Uuid
 public class UpdatePlaceUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
-    private val findPlaceUseCase: FindPlaceUseCase,
     private val accountPlaceRepository: AccountPlaceRepository,
     private val clock: Clock,
 ) : UseCase<UpdatePlaceUseCase.Parameter, Int>() {
@@ -32,9 +31,9 @@ public class UpdatePlaceUseCase internal constructor(
                 coordinate = coordinate,
                 title =
                     parameter.detail.title.ifBlank {
-                        findPlaceUseCase(parameter.id)
+                        accountPlaceRepository
+                            .find(account = account, placeId = parameter.id)
                             .first()
-                            .getOrThrow()
                             ?.detail
                             ?.title
                             .orEmpty()

@@ -13,18 +13,18 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.BooleanPreviewParameter
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagInputEvent
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.form.WebForm
-import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebAddFormState
 import io.github.taetae98coding.diary.feature.web.ui.web_add_add_button_content_description
@@ -36,7 +36,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun WebAddScaffold(
     onEvent: (WebAddScaffoldEvent) -> Unit,
-    onFormEvent: (WebFormEvent) -> Unit,
+    onFormEvent: (EntityTagInputEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: WebFormState = rememberWebAddFormState(),

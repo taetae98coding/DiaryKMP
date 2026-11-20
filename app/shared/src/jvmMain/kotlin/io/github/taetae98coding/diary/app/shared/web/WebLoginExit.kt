@@ -1,0 +1,15 @@
+package io.github.taetae98coding.diary.app.shared.web
+
+import io.github.taetae98coding.diary.domain.core.invoke
+import io.github.taetae98coding.diary.domain.web.usecase.SaveWebLoginUseCase
+import kotlinx.coroutines.runBlocking
+import org.koin.mp.KoinPlatform
+
+public fun saveWebLoginOnExit() {
+    saveWebLoginOnExit(saveWebLoginUseCase = KoinPlatform.getKoin().get())
+}
+
+// 앱 창이 닫히면 화면과 함께 화면이 시작한 작업도 끝나므로, 프로세스를 끝내기 전에 여기서 보관을 마친다.
+internal fun saveWebLoginOnExit(saveWebLoginUseCase: SaveWebLoginUseCase) {
+    runBlocking { saveWebLoginUseCase() }
+}

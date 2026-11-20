@@ -35,6 +35,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -50,11 +51,10 @@ class CopyMemoUseCaseTest :
             val tagIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -69,7 +69,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -113,11 +112,10 @@ class CopyMemoUseCaseTest :
             val source = memo()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery { accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any()) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -132,7 +130,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -166,11 +163,10 @@ class CopyMemoUseCaseTest :
                 val memoSlot = slot<Memo>()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase() } returns flowOf(Result.success(account))
-                val findMemoUseCase = mockk<FindMemoUseCase>()
-                every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
                 val requestSyncUseCase = mockk<RequestSyncUseCase>()
                 coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
                 val accountMemoRepository = mockk<AccountMemoRepository>()
+                every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
                 coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = any()) } just Runs
                 val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
                 val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -185,7 +181,6 @@ class CopyMemoUseCaseTest :
                 val useCase =
                     CopyMemoUseCase(
                         getAccountUseCase = getAccountUseCase,
-                        findMemoUseCase = findMemoUseCase,
                         requestSyncUseCase = requestSyncUseCase,
                         accountMemoRepository = accountMemoRepository,
                         accountMemoTagRepository = accountMemoTagRepository,
@@ -216,11 +211,10 @@ class CopyMemoUseCaseTest :
             val tagIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -235,7 +229,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -264,11 +257,10 @@ class CopyMemoUseCaseTest :
             val webIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery {
                 accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any(), webIdSet = capture(webIdSetSlot))
             } just Runs
@@ -285,7 +277,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -326,11 +317,10 @@ class CopyMemoUseCaseTest :
             val tagIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery { accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -345,7 +335,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -373,11 +362,10 @@ class CopyMemoUseCaseTest :
             val placeIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery { accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any(), placeIdSet = capture(placeIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -392,7 +380,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -433,11 +420,10 @@ class CopyMemoUseCaseTest :
             val tagIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -452,7 +438,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -478,10 +463,9 @@ class CopyMemoUseCaseTest :
             val memoId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(null))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flowOf(null)
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>(relaxed = true)
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
             val accountMemoContactRepository = mockk<AccountMemoContactRepository>(relaxed = true)
@@ -490,7 +474,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -517,10 +500,9 @@ class CopyMemoUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flow { throw throwable }
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>(relaxed = true)
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
             val accountMemoContactRepository = mockk<AccountMemoContactRepository>(relaxed = true)
@@ -529,7 +511,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -555,7 +536,6 @@ class CopyMemoUseCaseTest :
             val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
-            val findMemoUseCase = mockk<FindMemoUseCase>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>(relaxed = true)
@@ -566,7 +546,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
@@ -593,11 +572,10 @@ class CopyMemoUseCaseTest :
             val capturedMemoList = mutableListOf<Memo>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = source.id) } returns flowOf(Result.success(source))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = source.id) } returns flowOf(source)
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(capturedMemoList), tagIdSet = any()) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
@@ -612,7 +590,6 @@ class CopyMemoUseCaseTest :
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,

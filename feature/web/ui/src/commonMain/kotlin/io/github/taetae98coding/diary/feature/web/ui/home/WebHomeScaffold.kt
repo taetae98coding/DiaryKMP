@@ -16,11 +16,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -32,6 +33,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun WebHomeScaffold(
     onEvent: (WebHomeScaffoldEvent) -> Unit,
+    onWebListEvent: (WebListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -68,6 +70,7 @@ internal fun WebHomeScaffold(
 
             WebHomeList(
                 onEvent = onEvent,
+                onWebListEvent = onWebListEvent,
                 modifier = Modifier.fillMaxSize(),
                 webPagingItems = webPagingItems,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
@@ -88,6 +91,9 @@ internal fun WebHomeScaffold(
 @Composable
 private fun WebHomeScaffoldPreview() {
     DiaryTheme {
-        WebHomeScaffold(onEvent = {})
+        WebHomeScaffold(
+            onEvent = {},
+            onWebListEvent = {},
+        )
     }
 }

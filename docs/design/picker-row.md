@@ -7,7 +7,7 @@
 ## 이 문서를 참조하는 문서
 
 - [태그 선택 입력 공통 디자인](./tag-select-input.md)
-- [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)
+- [대표 태그 입력 컴포넌트 디자인](./primary-tag-input.md)
 - [메모 연락처 입력 컴포넌트 디자인](./memo-contact-input.md)
 - [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md)
 - [메모 장소 카드 컴포넌트 디자인](./memo-place-card.md)

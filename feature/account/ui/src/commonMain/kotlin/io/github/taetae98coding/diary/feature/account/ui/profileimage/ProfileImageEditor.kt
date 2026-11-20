@@ -34,12 +34,12 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
-import io.github.taetae98coding.diary.compose.core.icon.BrokenImageIcon
-import io.github.taetae98coding.diary.compose.core.icon.PhotoIcon
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.BrokenImageIcon
+import io.github.taetae98coding.diary.compose.icon.PhotoIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.account.ui.Res
 import io.github.taetae98coding.diary.feature.account.ui.profile_image_edit_empty_message
 import io.github.taetae98coding.diary.feature.account.ui.profile_image_edit_photo_content_description

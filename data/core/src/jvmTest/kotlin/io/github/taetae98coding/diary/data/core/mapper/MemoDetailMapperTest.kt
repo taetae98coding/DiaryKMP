@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.memo.memoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeDateTime
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
-import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

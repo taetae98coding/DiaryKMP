@@ -3,12 +3,12 @@ package io.github.taetae98coding.diary.core.database.impl.music.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
-import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec

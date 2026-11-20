@@ -4,11 +4,11 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsException
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsManager
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
 import io.kotest.property.Arb

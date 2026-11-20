@@ -5,8 +5,10 @@ package io.github.taetae98coding.diary.feature.playlist.ui
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
@@ -48,7 +50,7 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
 
         PlaylistHomeScreen(
             navigateUp = backStack::navigateUpFromPlaylistHome,
-            navigateToAdd = backStack::navigateToMusicAddFromHome,
+            navigateToAdd = dropUnlessResumed(block = backStack::navigateToMusicAddFromHome),
             navigateToDetail = { id -> backStack.navigateToMusicDetail(id = id) },
             componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isPlaylistAddOnDetailPane()) },
             musicViewModel = koinViewModel(),
@@ -68,8 +70,8 @@ internal fun playlistHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>)
 
                 MusicAddScreen(
                     navigateUp = {},
-                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
                     addViewModel = koinViewModel(),
@@ -88,8 +90,8 @@ private fun EntryProviderScope<ScreenNavKey>.musicAddEntry(backStack: NavBackSta
 
         MusicAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             addViewModel = koinViewModel(),
@@ -110,8 +112,8 @@ private fun EntryProviderScope<ScreenNavKey>.musicDetailEntry(
 
         MusicDetailScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { MusicDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             musicViewModel = koinViewModel { parametersOf(key.id) },

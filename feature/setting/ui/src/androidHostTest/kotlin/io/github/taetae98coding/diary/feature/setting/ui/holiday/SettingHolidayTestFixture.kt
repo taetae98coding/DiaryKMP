@@ -12,7 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting

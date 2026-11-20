@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.domain.dday.preset.DDayPreset
 import io.github.taetae98coding.diary.domain.dday.preset.value
 import io.github.taetae98coding.diary.feature.dday.ui.Res

@@ -18,17 +18,20 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedTagMemoUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
+import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_empty_title
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.property.Arb
@@ -37,6 +40,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -172,7 +176,8 @@ class TagMemoFinishedListExecutionBoundaryTest {
                         entryProvider {
                             entry<TagDetailNavKey> { Text(text = TAG_DETAIL_CONTENT) }
                             entry<TagMemoFinishedListNavKey> { key ->
-                                TagMemoFinishedListScreen(
+                                EntityMemoFinishedListScreen(
+                                    emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
                                     navigateUp = { backStack.removeLastOrNull() },
                                     navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
                                     memoViewModel =

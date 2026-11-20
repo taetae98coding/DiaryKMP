@@ -1,11 +1,11 @@
 ---
 name: verify-wave
-description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사용한다. 코드나 스펙·테스트 케이스 문서를 바꾼 작업의 마지막 단계이자 커밋 전 게이트다. 이번 변경(diff)의 규칙 검토와 스펙·테스트 케이스·테스트 코드·구현 추적 검토를 별도 opus 세션에 위임하고, 그동안 변경 파일에 해당하는 Gradle 검증을 실행한 뒤 통과를 기록해 커밋 hook이 확인하게 한다.
+description: Diary KMP 프로젝트에서 코드나 스펙·테스트 케이스 문서를 바꾼 작업의 마지막 단계로 사용한다. 이번 변경(diff)의 규칙 검토와 스펙·테스트 케이스·테스트 코드·구현 추적 검토를 별도 opus 세션에 위임하고, 그동안 변경 파일에 해당하는 포맷·정적 분석·의존성 baseline 검증을 실행한 뒤 통과를 기록해 커밋 hook이 확인하게 한다. 저장소 전체 테스트는 종료 iterator의 test-wave가 맡는다.
 ---
 
 # Verify Wave
 
-이번 변경이 만든 규칙 위반과, 스펙·테스트 케이스·테스트 코드·구현 사이의 어긋남을 diff 기준으로 찾아 고치고, 저장소 전체의 포맷, 정적 분석, 유닛 테스트를 검증하는 게이트다.
+이번 변경이 만든 규칙 위반과, 스펙·테스트 케이스·테스트 코드·구현 사이의 어긋남을 diff 기준으로 찾아 고치고, 포맷, 정적 분석, 의존성 baseline을 검증하는 게이트다. 실패하면 이 작업 안에서 바로 고칠 수 있는 검사만 여기서 하고, 저장소 전체 유닛 테스트와 class 파일 이름 검사는 커밋 직전에 `test-wave`가 한 번만 실행한다.
 
 ## 검증 절차
 
@@ -14,33 +14,29 @@ description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사�
 1. `검토`의 `대상 선정`과 `검토 위임`까지 수행하고, 보고를 기다리지 않고 다음으로 넘어간다.
 2. `Gradle 태스크 선정`으로 실행 대상을 정하고 순서대로 실행한다.
    1. `./gradlew spotlessApply` (실행 대상일 때)
-   2. `./gradlew <detekt 태스크, dependencyGuard, jvmTest testAndroidHostTest 중 실행 대상> --continue`
-   3. `jvmTest`나 `testAndroidHostTest`를 실행했으면 `DIARY_AGENTS/scripts/check-class-file-name.py`
+   2. `./gradlew <detekt 태스크, dependencyGuard 중 실행 대상> --continue`
 3. `Supabase 검사`의 실행 조건에 해당하면 검사를 실행한다.
 4. 검토 보고가 오면 `결과 반영`을 수행한다. 고친 파일이 있으면 `재검토`에 따라 같은 검토 세션에 재검토만 이어 보낸다.
-5. 반복이 끝나면, 1회차 Gradle 검증 이후 고친 파일이 실행 조건에 해당하는 Gradle 검증(class 파일 이름 검사 포함)과 Supabase 검사를 한 번만 다시 실행한다. 1회차 Gradle 검증이 실패했으면 그 실패를 고친 수정도 여기에 포함한다.
-6. `통과 조건`을 만족하면 `DIARY_AGENTS/scripts/verify-stamp.sh record`를 실행한다.
+5. 반복이 끝나면, 1회차 Gradle 검증 이후 고친 파일이 실행 조건에 해당하는 Gradle 검증과 Supabase 검사를 한 번만 다시 실행한다. 1회차 Gradle 검증이 실패했으면 그 실패를 고친 수정도 여기에 포함한다.
+6. `통과 조건`을 만족하면 `DIARY_AGENTS/scripts/verify-stamp.sh record verify`를 실행한다.
 
 `spotlessApply`는 코드를 바꾸므로 단독으로 먼저 실행한다. 나머지 태스크는 서로 독립이라 한 번의 명령으로 함께 실행하고, `--continue`로 하나가 실패해도 나머지 결과까지 모은다.
 
-Gradle 명령끼리는 빌드 락을 두고 경합하므로 병렬로 실행하지 않는다. 검토는 파일을 읽기만 하므로 Gradle 검증과 겹쳐도 안전하다. 저장소 전체 테스트는 아래 모듈의 작은 변경에도 5분 넘게 걸리므로, 검토 회차마다 다시 돌리지 않고 수정이 모두 끝난 뒤 한 번만 다시 돌린다.
+Gradle 명령끼리는 빌드 락을 두고 경합하므로 병렬로 실행하지 않는다. 검토는 파일을 읽기만 하므로 Gradle 검증과 겹쳐도 안전하다. Gradle 검증은 검토 회차마다 다시 돌리지 않고 수정이 모두 끝난 뒤 한 번만 다시 돌린다.
 
 `spotlessApply` 실행 뒤 변경사항이 생기면 해당 변경까지 포함해 diff를 다시 확인한다.
 
 ### Gradle 태스크 선정
 
-변경 파일은 `검토`의 `대상 선정`과 같은 방법으로 모으되, 삭제된 경로와 staged 변경도 포함한다. `rebase-wave`의 검증으로 실행된 경우에는 컨플릭 해결 파일 목록 대신 `git diff <대상 브랜치>...HEAD --name-only` 전체를 더한다. 컨플릭이 없었어도 옮긴 커밋 전체가 새 base 위에서 컴파일되고 테스트되어야 하기 때문이다. 태스크마다 다음 중 하나라도 해당하면 실행한다.
+변경 파일은 `검토`의 `대상 선정`과 같은 방법으로 모으되, 삭제된 경로와 staged 변경도 포함한다. `rebase-wave`의 검증으로 실행된 경우에는 `rebase-wave`가 넘긴 컨플릭 해결 파일 목록을 더한다. 태스크마다 다음 중 하나라도 해당하면 실행한다.
 
 | 태스크 | 실행하는 경우 |
 | --- | --- |
 | `spotlessApply` | `.kt`, `.kts` 파일이 바뀌었다 |
 | `detekt` | `.kt` 파일, `config/detekt/**`, `build-logic/**`이 바뀌었다. 범위는 아래 `detekt 범위`를 따른다 |
 | `dependencyGuard` | `gradle/libs.versions.toml`, `settings.gradle.kts`, `**/build.gradle.kts`, `build-logic/**`이 바뀌었다 |
-| `jvmTest`, `testAndroidHostTest` | 아래 제외 경로가 아닌 파일이 하나라도 바뀌었다 |
 
-테스트 제외 경로는 `docs/**`, `DIARY_AGENTS/**`, `DIARY_AGENTS.md`, `site/**`, `supabase/**`, `iosApp/**`, `config/detekt/**`, `app/*/dependencies/**`, `.github/**`, `.claude/**`, `.codex/**`, `.agents/**`, `*.md`다. 이 목록에 없는 경로는 테스트 입력으로 본다.
-
-detekt를 뺀 태스크는 저장소 전체를 대상으로 하고 일부 모듈로 좁히지 않는다. 한 모듈의 변경이 그 모듈을 쓰는 다른 모듈의 컴파일과 테스트를 깨뜨릴 수 있고, 바뀌지 않은 모듈은 빌드 캐시가 다시 실행하지 않기 때문이다. 실행 대상이 하나도 없으면 Gradle 검증을 건너뛰고, 건너뛴 태스크를 결과에 남긴다. 결과 반영으로 파일을 고친 뒤에는 고친 파일까지 포함해 다시 선정한다.
+`dependencyGuard`는 앱 모듈의 runtime classpath를 보므로 일부 모듈로 좁히지 않는다. 바뀐 모듈의 테스트는 `testcode-wave`가 작성 중에 돌리고, 저장소 전체 테스트는 `test-wave`가 맡는다. 실행 대상이 하나도 없으면 Gradle 검증을 건너뛰고, 건너뛴 태스크를 결과에 남긴다. 결과 반영으로 파일을 고친 뒤에는 고친 파일까지 포함해 다시 선정한다.
 
 #### detekt 범위
 
@@ -49,12 +45,6 @@ detekt는 모듈마다 자기 소스만 검사해 다른 모듈의 결과에 영
 스크립트는 삭제된 파일과 모듈 밖의 `.kt`(루트 직속, `build-logic/**`, `iosApp/**` 등)를 뺀다. 지운 파일은 남은 소스에 위반을 만들지 않기 때문이다. 출력이 비면 detekt를 건너뛰고 결과에 남긴다.
 
 `config/detekt/**`나 `build-logic/**`이 바뀌었으면 스크립트 출력과 무관하게, 모든 모듈의 결과가 달라질 수 있으므로 모듈을 붙이지 않은 `detekt`로 저장소 전체를 실행한다.
-
-### class 파일 이름 검사
-
-백틱 테스트 이름은 class 파일 이름에 그대로 들어가는데, CI의 Linux는 파일 이름을 UTF-8 255바이트까지만 허용해 한글 이름이 길면 로컬(macOS)에서는 통과하고 CI에서만 컴파일이 실패한다. 어떤 람다가 별도 class를 만드는지는 소스로 알 수 없으므로, 테스트를 실행해 컴파일 결과가 남은 뒤 `check-class-file-name.py`로 각 모듈의 `build/classes`를 검사한다.
-
-`문제 없음`을 출력하고 0으로 끝나야 통과다. 보고된 파일은 `$` 앞의 클래스와 그 뒤의 테스트 이름으로 테스트를 찾아, TC ID는 그대로 두고 설명을 줄인다. 테스트 이름만 바뀌므로 다시 실행할 때 고친 모듈의 테스트만 돌려 확인해도 된다.
 
 ### Supabase 검사
 
@@ -205,12 +195,8 @@ diff 밖에 원래 있던 불일치, 중복 ID, ID를 참조하는 테스트의 
 
 ## 통과 조건
 
-규칙 검토와 추적 검토에서 확인한 문제가 남아 있지 않고 `Gradle 태스크 선정`으로 정한 태스크, 실행 조건에 해당한 `class 파일 이름 검사`와 `Supabase 검사`가 모두 성공한 경우에만 검증을 통과한 것으로 본다.
+규칙 검토와 추적 검토에서 확인한 문제가 남아 있지 않고 `Gradle 태스크 선정`으로 정한 태스크와 실행 조건에 해당한 `Supabase 검사`가 모두 성공한 경우에만 검증을 통과한 것으로 본다.
 
 명령이 하나라도 실패하거나 실행할 수 없으면 검증 실패로 보고, 실패한 명령과 핵심 오류를 사용자에게 보고한 뒤 다음 지시를 받는다.
 
-`jvmTest`가 `initializationError`로 실패하고 원인에 `org.koin.plugin.hints.Koin_hints_configrelay_`와 `NoClassDefFoundError`가 함께 있으면, 빌드 캐시가 지우거나 이름을 바꾼 Koin 클래스를 참조하는 옛 힌트 클래스를 복원한 것이다. 코드를 고치지 않고 실패한 모듈마다 `./gradlew :<모듈>:compileTestKotlinJvm --rerun-tasks --no-build-cache`로 다시 컴파일한 뒤 `jvmTest testAndroidHostTest --continue`를 한 번 더 실행하고, 그 결과로 통과를 판정한다. 재실행 사실은 결과에 남긴다.
-
-이번 변경과 관계없어 보이는 테스트가 실패하면 `bash DIARY_AGENTS/scripts/rerun-test.sh <태스크 경로> <테스트 필터>`로 다시 돌려 항상 실패하는지(종료 코드 1), 간헐적으로 실패하는지(3) 가린 뒤 함께 보고한다. 간헐 실패라도 통과로 처리하지 않는다.
-
-통과한 뒤 코드가 바뀌지 않았으면 다시 실행하지 않는다. 통과 기록(`verify-stamp.sh record`)은 작업 트리 전체의 지문이라, 기록한 뒤 파일이 하나라도 바뀌면 `git commit`을 막는 hook이 검증을 다시 요구한다.
+통과한 뒤 바뀐 줄이 없으면 다시 실행하지 않는다. 통과 기록(`verify-stamp.sh record verify`)은 기준 브랜치 이후 바뀐 줄의 지문이라, 같은 변경을 여러 커밋으로 나누거나 컨플릭 없이 리베이스해도 유지되고, 바뀐 줄이 하나라도 달라지면 `git commit`을 막는 hook과 `test-wave`가 검증을 다시 요구한다.

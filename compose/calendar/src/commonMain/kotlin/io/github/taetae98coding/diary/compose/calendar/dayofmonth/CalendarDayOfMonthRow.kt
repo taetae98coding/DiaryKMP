@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.library.kotlinx.datetime.DAYS_PER_WEEK
 import io.github.taetae98coding.diary.library.kotlinx.datetime.sundayBasedDayOfWeek
 import kotlinx.datetime.LocalDate

@@ -41,6 +41,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
@@ -211,6 +212,7 @@ class TagDetailMusicViewModelTest : FunSpec() {
 
                 viewModel.delete(id = id)
                 viewModel.delete(id = id)
+                runCurrent()
                 gate.complete(Unit)
                 advanceUntilIdle()
 
@@ -231,6 +233,7 @@ class TagDetailMusicViewModelTest : FunSpec() {
 
                 viewModel.restore(id = id)
                 viewModel.restore(id = id)
+                runCurrent()
                 gate.complete(Unit)
                 advanceUntilIdle()
 

@@ -3,13 +3,13 @@ package io.github.taetae98coding.diary.core.database.impl.memocontact.transactio
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.data.testing.memocontact.memoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memocontact.datasource.AccountMemoContactSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
-import io.github.taetae98coding.diary.core.testing.memocontact.memoContactLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly

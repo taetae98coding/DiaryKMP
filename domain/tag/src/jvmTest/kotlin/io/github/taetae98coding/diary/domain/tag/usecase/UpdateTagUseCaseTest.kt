@@ -55,9 +55,8 @@ class UpdateTagUseCaseTest :
                 every { getAccountUseCase() } returns flowOf(Result.success(account))
                 val requestSyncUseCase = mockk<RequestSyncUseCase>()
                 coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
-                val findTagUseCase = mockk<FindTagUseCase>()
-                every { findTagUseCase(parameter = tagId) } returns flowOf(Result.success(storedTag))
                 val accountTagRepository = mockk<AccountTagRepository>()
+                every { accountTagRepository.find(account = account, tagId = tagId) } returns flowOf(storedTag)
                 coEvery {
                     accountTagRepository.updateDetail(account = account, tagId = tagId, detail = capture(detailSlot), updatedAt = any())
                 } returns 1
@@ -66,7 +65,6 @@ class UpdateTagUseCaseTest :
                 val useCase =
                     UpdateTagUseCase(
                         getAccountUseCase = getAccountUseCase,
-                        findTagUseCase = findTagUseCase,
                         requestSyncUseCase = requestSyncUseCase,
                         accountTagRepository = accountTagRepository,
                         clock = clock,
@@ -98,7 +96,6 @@ class UpdateTagUseCaseTest :
             every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
-            val findTagUseCase = mockk<FindTagUseCase>()
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery {
                 accountTagRepository.updateDetail(
@@ -113,7 +110,6 @@ class UpdateTagUseCaseTest :
             val useCase =
                 UpdateTagUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findTagUseCase = findTagUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountTagRepository = accountTagRepository,
                     clock = clock,
@@ -153,13 +149,11 @@ class UpdateTagUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
-            val findTagUseCase = mockk<FindTagUseCase>()
             val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
             val clock = mockk<Clock>(relaxed = true)
             val useCase =
                 UpdateTagUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findTagUseCase = findTagUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountTagRepository = accountTagRepository,
                     clock = clock,
@@ -191,7 +185,6 @@ class UpdateTagUseCaseTest :
             every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
-            val findTagUseCase = mockk<FindTagUseCase>()
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery {
                 accountTagRepository.updateDetail(account = account, tagId = tagId, detail = any(), updatedAt = any())
@@ -201,7 +194,6 @@ class UpdateTagUseCaseTest :
             val useCase =
                 UpdateTagUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findTagUseCase = findTagUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountTagRepository = accountTagRepository,
                     clock = clock,

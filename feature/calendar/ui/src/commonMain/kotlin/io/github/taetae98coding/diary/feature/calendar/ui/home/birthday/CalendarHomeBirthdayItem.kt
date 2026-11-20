@@ -8,6 +8,8 @@ import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthG
 import io.github.taetae98coding.diary.compose.contact.contactDisplayName
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 
+private const val BIRTHDAY_CONTENT_TYPE = "birthday"
+
 internal fun CalendarWeekOfMonthGridGroupScope.birthdayItem(
     birthdayProvider: () -> List<CalendarContactBirthday>,
     birthdayColor: Color,
@@ -17,6 +19,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.birthdayItem(
         item(
             dateRange = birthday.toDateRange(),
             key = birthday.contactId,
+            contentType = BIRTHDAY_CONTENT_TYPE,
         ) {
             CalendarBirthdayText(
                 displayName = contactDisplayName(name = birthday.name, nameQualifier = birthday.nameQualifier),

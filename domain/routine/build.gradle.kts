@@ -8,6 +8,7 @@ kotlin {
             dependencies {
                 implementation(projects.domain.account)
                 implementation(projects.domain.sync)
+                implementation(projects.library.kotlin)
                 implementation(projects.library.kotlinxDatetime)
                 api(libs.androidx.paging.common)
             }

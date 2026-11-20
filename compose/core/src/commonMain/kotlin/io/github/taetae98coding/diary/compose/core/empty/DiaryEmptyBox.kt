@@ -13,11 +13,11 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholder
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.MemoIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 
 public const val DIARY_EMPTY_BOX_TEST_TAG: String = "DiaryEmptyBox"
 

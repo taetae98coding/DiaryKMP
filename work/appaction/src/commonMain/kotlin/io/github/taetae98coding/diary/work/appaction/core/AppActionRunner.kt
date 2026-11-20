@@ -23,4 +23,4 @@ private fun Throwable.toFailureMessage(): String {
     return if (detail.isBlank()) name else "$name: $detail"
 }
 
-internal suspend fun <Parameter, Output> FlowUseCase<Parameter, Output>.readFirst(parameter: Parameter): Output = invoke(parameter = parameter).first().getOrThrow()
+public suspend fun <Parameter, Output> FlowUseCase<Parameter, Output>.readFirst(parameter: Parameter): Output = invoke(parameter = parameter).first().getOrThrow()

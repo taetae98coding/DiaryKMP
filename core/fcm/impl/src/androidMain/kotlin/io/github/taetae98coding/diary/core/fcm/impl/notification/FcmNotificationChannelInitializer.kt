@@ -7,7 +7,7 @@ import androidx.startup.Initializer
 // 그래서 첫 알림이 오기 전에 앱 시작 시점에 채널을 만든다.
 internal class FcmNotificationChannelInitializer : Initializer<Unit> {
     override fun create(context: Context) {
-        context.createDailyMemoNotificationChannel()
+        context.createDailyNotificationChannel()
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()

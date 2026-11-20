@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.data.testing.tag.tagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
-import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.network.impl.qr.datasource
 
+import io.github.taetae98coding.diary.core.data.testing.qr.remoteQr
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
 import io.github.taetae98coding.diary.core.network.impl.qr.entity.QrPullResponseRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.qr.entity.QrPushRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.core.testing.qr.remoteQr
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

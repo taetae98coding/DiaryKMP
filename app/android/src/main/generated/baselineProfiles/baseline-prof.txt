@@ -39091,8 +39091,8 @@ Lio/github/taetae98coding/diary/core/fcm/impl/IoGithubTaetae98codingDiaryCoreFcm
 HSPLio/github/taetae98coding/diary/core/fcm/impl/IoGithubTaetae98codingDiaryCoreFcmImplFcmModuleModuleKt$$ExternalSyntheticLambda1;-><init>()V
 HSPLio/github/taetae98coding/diary/core/fcm/impl/IoGithubTaetae98codingDiaryCoreFcmImplFcmModuleModuleKt$$ExternalSyntheticLambda1;->invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 Lio/github/taetae98coding/diary/core/fcm/impl/R$string;
-Lio/github/taetae98coding/diary/core/fcm/impl/notification/DailyMemoNotificationChannelKt;
-HSPLio/github/taetae98coding/diary/core/fcm/impl/notification/DailyMemoNotificationChannelKt;->createDailyMemoNotificationChannel(Landroid/content/Context;)V
+Lio/github/taetae98coding/diary/core/fcm/impl/notification/DailyNotificationChannelKt;
+HSPLio/github/taetae98coding/diary/core/fcm/impl/notification/DailyNotificationChannelKt;->createDailyNotificationChannel(Landroid/content/Context;)V
 Lio/github/taetae98coding/diary/core/fcm/impl/notification/FcmNotificationChannelInitializer;
 HSPLio/github/taetae98coding/diary/core/fcm/impl/notification/FcmNotificationChannelInitializer;-><init>()V
 HSPLio/github/taetae98coding/diary/core/fcm/impl/notification/FcmNotificationChannelInitializer;->create(Landroid/content/Context;)Ljava/lang/Object;

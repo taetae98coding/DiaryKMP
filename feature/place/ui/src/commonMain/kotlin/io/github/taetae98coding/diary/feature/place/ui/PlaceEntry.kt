@@ -4,8 +4,10 @@ package io.github.taetae98coding.diary.feature.place.ui
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
@@ -48,16 +50,17 @@ private fun EntryProviderScope<ScreenNavKey>.placeHomeEntry(backStack: NavBackSt
     entry<PlaceHomeNavKey> {
         PlaceHomeScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToAdd = { coordinate ->
-                backStack.add(
-                    PlaceAddNavKey(
-                        latitude = coordinate?.latitude,
-                        longitude = coordinate?.longitude,
-                    ),
-                )
-            },
-            navigateToDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
-            navigateToSearch = { backStack.add(SearchHomeNavKey(initialType = SearchHomeType.PLACE)) },
+            navigateToAdd =
+                dropUnlessResumedWithArg { coordinate ->
+                    backStack.add(
+                        PlaceAddNavKey(
+                            latitude = coordinate?.latitude,
+                            longitude = coordinate?.longitude,
+                        ),
+                    )
+                },
+            navigateToDetail = dropUnlessResumedWithArg { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToSearch = dropUnlessResumed { backStack.add(SearchHomeNavKey(initialType = SearchHomeType.PLACE)) },
             mapViewModel = koinViewModel(),
             placeListViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
@@ -74,11 +77,11 @@ private fun EntryProviderScope<ScreenNavKey>.placeDetailEntry(
 
         PlaceDetailScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
-            navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialPlaceId = key.id)) },
-            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
-            navigateToMemoFinishedList = { backStack.add(PlaceMemoFinishedListNavKey(placeId = key.id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToMemoAdd = dropUnlessResumed { backStack.add(MemoAddNavKey(initialPlaceId = key.id)) },
+            navigateToMemoDetail = dropUnlessResumedWithArg { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            navigateToMemoFinishedList = dropUnlessResumed { backStack.add(PlaceMemoFinishedListNavKey(placeId = key.id)) },
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
             detailViewModel = koinViewModel { parametersOf(key.id) },
@@ -95,8 +98,8 @@ private fun EntryProviderScope<ScreenNavKey>.placeAddEntry(backStack: NavBackSta
 
         PlaceAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToTagAdd = dropUnlessResumed { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             addedResultRequestKey = key.requestKey,
             initialCoordinate = key.toCoordinateOrNull(),

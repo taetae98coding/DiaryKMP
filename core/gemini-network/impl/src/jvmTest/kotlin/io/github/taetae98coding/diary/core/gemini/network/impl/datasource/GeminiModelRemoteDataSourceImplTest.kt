@@ -47,7 +47,7 @@ class GeminiModelRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = apiKey)
+            dataSource.readAvailableModel(apiKey = apiKey)
 
             engine.requestHistory
                 .single()
@@ -70,7 +70,7 @@ class GeminiModelRemoteDataSourceImplTest :
                 )
             val dataSource = createDataSource(createEngine(content = content))
 
-            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly
+            dataSource.readAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly
                 listOf(generateOnly, generateAndCount)
         }
 
@@ -81,7 +81,7 @@ class GeminiModelRemoteDataSourceImplTest :
             val engine = createEngine(content = content)
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly order
+            dataSource.readAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly order
 
             val parameters =
                 engine.requestHistory
@@ -101,7 +101,7 @@ class GeminiModelRemoteDataSourceImplTest :
             val engine = createEngine(content = content)
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(name)
+            dataSource.readAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(name)
 
             engine.requestHistory.size shouldBe 1
         }
@@ -111,7 +111,7 @@ class GeminiModelRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = apiKey)
+            dataSource.readAvailableModel(apiKey = apiKey)
 
             val request = engine.requestHistory.single()
             request.method shouldBe HttpMethod.Get
@@ -131,7 +131,7 @@ class GeminiModelRemoteDataSourceImplTest :
                 )
             val dataSource = createDataSource(createEngine(content = content))
 
-            val actual = dataSource.getAvailableModel(apiKey = apiKey)
+            val actual = dataSource.readAvailableModel(apiKey = apiKey)
 
             actual.map { model -> Triple(model.id, model.displayName, model.description) } shouldContainExactly expected
         }
@@ -150,7 +150,7 @@ class GeminiModelRemoteDataSourceImplTest :
                 )
             val dataSource = createDataSource(createEngine(content = content))
 
-            val actual = dataSource.getAvailableModel(apiKey = apiKey).single()
+            val actual = dataSource.readAvailableModel(apiKey = apiKey).single()
 
             actual.id shouldBe name
             actual.displayName shouldBe displayName
@@ -168,7 +168,7 @@ class GeminiModelRemoteDataSourceImplTest :
             contents.forEach { content ->
                 val dataSource = createDataSource(createEngine(content = content))
 
-                dataSource.getAvailableModel(apiKey = apiKey).shouldBeEmpty()
+                dataSource.readAvailableModel(apiKey = apiKey).shouldBeEmpty()
             }
         }
 
@@ -181,7 +181,7 @@ class GeminiModelRemoteDataSourceImplTest :
             ).forEach { engine ->
                 val dataSource = createDataSource(engine)
 
-                val actual = shouldThrow<GeminiException.InvalidApiKey> { dataSource.getAvailableModel(apiKey = apiKey) }
+                val actual = shouldThrow<GeminiException.InvalidApiKey> { dataSource.readAvailableModel(apiKey = apiKey) }
 
                 actual.cause.shouldBeInstanceOf<ResponseException>()
             }
@@ -197,12 +197,12 @@ class GeminiModelRemoteDataSourceImplTest :
             ).forEach { engine ->
                 val dataSource = createDataSource(engine)
 
-                shouldThrow<ResponseException> { dataSource.getAvailableModel(apiKey = apiKey) }.shouldNotBeInstanceOf<GeminiException.InvalidApiKey>()
+                shouldThrow<ResponseException> { dataSource.readAvailableModel(apiKey = apiKey) }.shouldNotBeInstanceOf<GeminiException.InvalidApiKey>()
             }
 
             val brokenDataSource = createDataSource(createEngine(content = "{"))
 
-            shouldThrow<Throwable> { brokenDataSource.getAvailableModel(apiKey = apiKey) }.shouldNotBeInstanceOf<GeminiException.InvalidApiKey>()
+            shouldThrow<Throwable> { brokenDataSource.readAvailableModel(apiKey = apiKey) }.shouldNotBeInstanceOf<GeminiException.InvalidApiKey>()
         }
 
         test("TC-977b79c7-04bc-4bde-a1dc-271cf67cfb8e: 조회할 때마다 새로 조회한다") {
@@ -224,8 +224,8 @@ class GeminiModelRemoteDataSourceImplTest :
                 }
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(first)
-            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(second)
+            dataSource.readAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(first)
+            dataSource.readAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(second)
 
             engine.requestHistory.size shouldBe 2
         }
@@ -235,7 +235,7 @@ class GeminiModelRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = apiKey)
+            dataSource.readAvailableModel(apiKey = apiKey)
 
             val request = engine.requestHistory.single()
 

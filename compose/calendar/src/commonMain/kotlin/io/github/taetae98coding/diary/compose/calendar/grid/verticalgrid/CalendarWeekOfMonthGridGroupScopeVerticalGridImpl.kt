@@ -15,6 +15,7 @@ internal class CalendarWeekOfMonthGridGroupScopeVerticalGridImpl(
     override fun item(
         dateRange: LocalDateRange,
         key: Any?,
+        contentType: Any?,
         content: @Composable (CalendarWeekOfMonthGridItemScope.() -> Unit),
     ) {
         if (!dateRange.overlaps(this.dateRange)) return
@@ -22,6 +23,7 @@ internal class CalendarWeekOfMonthGridGroupScopeVerticalGridImpl(
         itemList.add(
             CalendarWeekOfMonthGridItem(
                 key = key,
+                contentType = contentType,
                 dateRange = dateRange,
                 content = content,
             ),

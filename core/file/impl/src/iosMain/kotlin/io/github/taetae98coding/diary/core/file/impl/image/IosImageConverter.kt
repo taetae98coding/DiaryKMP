@@ -218,11 +218,6 @@ private fun ImageFormat.toUTType(): UTType =
         ImageFormat.JPEG -> UTTypeJPEG
     }
 
-private fun ImageFormat.extension(): String =
-    when (this) {
-        ImageFormat.JPEG -> "jpg"
-    }
-
 private fun readFailureMessage(uri: FileUri): String = "Image cannot be read. uri=$uri"
 
 private fun CFDictionaryRef.intValue(key: CFStringRef?): Int? {

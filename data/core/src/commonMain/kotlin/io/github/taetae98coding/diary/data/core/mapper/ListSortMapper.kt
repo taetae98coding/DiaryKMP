@@ -10,11 +10,3 @@ public fun ListSort.toLocal(): ListSortLocalEntity =
         ListSort.NAME -> ListSortLocalEntity.NAME
         ListSort.RECENTLY_UPDATED -> ListSortLocalEntity.RECENTLY_UPDATED
     }
-
-internal fun ListSortLocalEntity.toDomain(): ListSort =
-    when (this) {
-        ListSortLocalEntity.DEFAULT -> ListSort.DEFAULT
-        ListSortLocalEntity.TITLE -> ListSort.TITLE
-        ListSortLocalEntity.NAME -> ListSort.NAME
-        ListSortLocalEntity.RECENTLY_UPDATED -> ListSort.RECENTLY_UPDATED
-    }

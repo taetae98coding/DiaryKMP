@@ -19,9 +19,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
-import io.github.taetae98coding.diary.compose.core.icon.NextIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.NextIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.previewGeminiSetting
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_label

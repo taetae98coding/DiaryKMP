@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.uikit.LocalUIViewController
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.navigation.topLevelNavigationList
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import platform.UIKit.UIColor
 import platform.UIKit.tabBarController
 

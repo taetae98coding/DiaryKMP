@@ -19,11 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
-import io.github.taetae98coding.diary.compose.core.icon.AddIcon
-import io.github.taetae98coding.diary.compose.core.icon.RemoveIcon
-import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.textfield.ClearTextField
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.icon.AddIcon
+import io.github.taetae98coding.diary.compose.icon.RemoveIcon
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ComponentPreview
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_phone_number_add_button_content_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_phone_number_input_label

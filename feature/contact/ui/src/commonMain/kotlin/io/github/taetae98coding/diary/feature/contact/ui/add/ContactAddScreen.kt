@@ -11,10 +11,10 @@ import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
-import io.github.taetae98coding.diary.feature.contact.ui.form.handleContactFormEvent
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactAddFormState
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
-import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.TagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagInputEvent
 import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import kotlin.uuid.Uuid
 
@@ -38,7 +38,7 @@ internal fun ContactAddScreen(
     val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
     RequestFocusEffect(focusRequester = state.nameState.focusRequester)
-    EntityTagAddedResultEffect(
+    TagAddedResultEffect(
         requestKey = tagAddRequestKey,
         onTagAdded = tagViewModel::add,
     )
@@ -61,9 +61,9 @@ internal fun ContactAddScreen(
             }
         },
         onFormEvent = { event ->
-            handleContactFormEvent(
+            handleEntityTagInputEvent(
                 event = event,
-                state = state,
+                tagPickerDialogState = state.tagPickerDialogState,
                 selectableTagPagingItems = selectableTagPagingItems,
                 navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,

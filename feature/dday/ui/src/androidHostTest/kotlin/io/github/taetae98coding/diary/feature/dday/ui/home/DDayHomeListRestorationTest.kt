@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.resetAndroidUiDispatcher
@@ -47,8 +47,8 @@ class DDayHomeListRestorationTest {
         val ddayList = List(DDAY_COUNT) { index -> homeDDayOf(title = "$TITLE_PREFIX${index.toString().padStart(length = 2, padChar = '0')}") }
         val viewModel = mockk<DDayHomeViewModel>()
         every { viewModel.ddayPagingData } returns MutableStateFlow(homeDDayPagingDataOf(ddayList))
-        every { viewModel.filterUiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)))
         every { viewModel.effect } returns emptyFlow()
+        val filterViewModel = homeFilterViewModelOf(uiStateFlow = MutableStateFlow(DDayHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId))))
         val syncViewModel = mockk<SyncRefreshViewModel>()
         every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
@@ -63,6 +63,7 @@ class DDayHomeListRestorationTest {
                     navigateToFilter = {},
                     componentVisibleProvider = { DDayHomeScaffoldComponentVisible() },
                     ddayViewModel = viewModel,
+                    filterViewModel = filterViewModel,
                     syncViewModel = syncViewModel,
                 )
             }

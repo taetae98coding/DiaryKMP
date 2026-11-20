@@ -28,6 +28,7 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -50,9 +51,8 @@ class MoveMemoUseCaseTest :
             every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flowOf(storedMemo)
             coEvery {
                 accountMemoRepository.updateDetail(
                     account = account,
@@ -66,7 +66,6 @@ class MoveMemoUseCaseTest :
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     clock = clock,
@@ -97,6 +96,7 @@ class MoveMemoUseCaseTest :
                     coVerify(atLeast = 1) {
                         accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
                     }
+                    verify(atLeast = 1) { accountMemoRepository.find(account = account, memoId = memoId) }
                     confirmVerified(accountMemoRepository)
                 }
 
@@ -154,9 +154,8 @@ class MoveMemoUseCaseTest :
             every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flowOf(storedMemo)
             coEvery {
                 accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = capture(detailSlot), updatedAt = any())
             } returns 1
@@ -165,7 +164,6 @@ class MoveMemoUseCaseTest :
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     clock = clock,
@@ -197,9 +195,8 @@ class MoveMemoUseCaseTest :
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
                 Result.failure(IllegalStateException(Arb.string().next()))
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flowOf(storedMemo)
             coEvery {
                 accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
             } returns 1
@@ -208,7 +205,6 @@ class MoveMemoUseCaseTest :
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     clock = clock,
@@ -244,14 +240,12 @@ class MoveMemoUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flowOf(storedMemo)
             val clock = mockk<Clock>(relaxed = true)
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     clock = clock,
@@ -279,14 +273,12 @@ class MoveMemoUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(null))
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flowOf(null)
             val clock = mockk<Clock>(relaxed = true)
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     clock = clock,
@@ -316,9 +308,8 @@ class MoveMemoUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase() } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
-            val findMemoUseCase = mockk<FindMemoUseCase>()
-            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
             val accountMemoRepository = mockk<AccountMemoRepository>()
+            every { accountMemoRepository.find(account = account, memoId = memoId) } returns flowOf(storedMemo)
             coEvery {
                 accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
             } throws throwable
@@ -326,7 +317,6 @@ class MoveMemoUseCaseTest :
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    findMemoUseCase = findMemoUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountMemoRepository = accountMemoRepository,
                     clock = clock,

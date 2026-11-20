@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.core.network.impl.checklist.entity
 
-import io.github.taetae98coding.diary.core.testing.checklist.remoteChecklist
+import io.github.taetae98coding.diary.core.data.testing.checklist.remoteChecklist
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb

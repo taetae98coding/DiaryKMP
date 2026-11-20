@@ -20,8 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.theme.preview.ScreenPreview
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldEvent
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldState

@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.input.showDiaryFormAdded
-import io.github.taetae98coding.diary.compose.core.input.showDiaryFormTitleBlank
+import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.routine.ui.Res
 import io.github.taetae98coding.diary.feature.routine.ui.form.RoutineFormState
 import io.github.taetae98coding.diary.feature.routine.ui.form.rememberRoutineAddFormState
@@ -39,37 +39,40 @@ internal fun RoutineAddScreenEffect(
                 state.reset(startDate = today())
                 coroutineScope.launch { state.descriptionState.reset() }
                 scrollState.scrollTo(0)
-                coroutineScope.showDiaryFormAdded(
-                    titleState = state.titleState,
-                    colorState = state.colorState,
-                    snackbarHostState = state.snackbarHostState,
-                    message = addSucceededMessage,
-                )
+                state.titleState.requestFocus()
+                coroutineScope.launch {
+                    showDiaryFormAdded(
+                        colorState = state.colorState,
+                        snackbarHostState = state.snackbarHostState,
+                        message = addSucceededMessage,
+                    )
+                }
             }
 
             is RoutineAddEffect.TitleBlank -> {
                 scrollState.scrollTo(0)
-                coroutineScope.showDiaryFormTitleBlank(
-                    titleState = state.titleState,
-                    snackbarHostState = state.snackbarHostState,
-                    message = titleBlankMessage,
-                )
+                state.titleState.requestFocus()
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
 
             is RoutineAddEffect.GoalAmountInvalid -> {
-                coroutineScope.showRoutineAmountInvalid(
-                    amountState = state.goalAmountState,
-                    snackbarHostState = state.snackbarHostState,
-                    message = goalAmountInvalidMessage,
-                )
+                coroutineScope.launch {
+                    showRoutineAmountInvalid(
+                        amountState = state.goalAmountState,
+                        snackbarHostState = state.snackbarHostState,
+                        message = goalAmountInvalidMessage,
+                    )
+                }
             }
 
             is RoutineAddEffect.AmountPerRecordInvalid -> {
-                coroutineScope.showRoutineAmountInvalid(
-                    amountState = state.amountPerRecordState,
-                    snackbarHostState = state.snackbarHostState,
-                    message = amountPerRecordInvalidMessage,
-                )
+                coroutineScope.launch {
+                    showRoutineAmountInvalid(
+                        amountState = state.amountPerRecordState,
+                        snackbarHostState = state.snackbarHostState,
+                        message = amountPerRecordInvalidMessage,
+                    )
+                }
             }
         }
     }

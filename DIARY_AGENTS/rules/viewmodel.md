@@ -16,7 +16,7 @@
 
 ## ViewModel 상속 대신 합성
 
-**ViewModel은 androidx `ViewModel`만 상속한다.** 여러 ViewModel이 함께 쓰는 로직은 추상·open ViewModel로 올리지 않고, 필요한 UseCase를 생성자로 받는 일반 상태 홀더 클래스(`feature:core`의 `MemoListState`, `ListItemActions`)로 뽑아 각 ViewModel이 `private` 필드로 합성한다. ViewModel은 화면에 필요한 값과 함수만 홀더에 위임해 노출한다. 상속하면 한 화면의 동작이 부모와 자식 여러 파일에 흩어지고, 부모를 바꾸면 모든 자식에 전파되며, 테스트가 계층 전체를 알아야 한다.
+**ViewModel은 androidx `ViewModel`만 상속한다.** 여러 ViewModel이 함께 쓰는 로직은 추상·open ViewModel로 올리지 않고, 필요한 UseCase를 생성자로 받는 일반 상태 홀더 클래스(`feature:core`의 `MemoListState`, `ListItemActions`, `ListItemDeleteActions`, `TagFilterState`, `RoutinePagingState`)로 뽑아 각 ViewModel이 `private` 필드로 합성한다. ViewModel은 화면에 필요한 값과 함수만 홀더에 위임해 노출한다. 상속하면 한 화면의 동작이 부모와 자식 여러 파일에 흩어지고, 부모를 바꾸면 모든 자식에 전파되며, 테스트가 계층 전체를 알아야 한다.
 
 **홀더는 `CoroutineScope`를 받지 않는다.** Flow 변환과 `suspend` 함수만 내보내고, `launch`·`stateIn`·`cachedIn`은 ViewModel이 `viewModelScope`로 적용한다([main-safety.md](main-safety.md)의 `그 밖의 작업은 suspend로 내보내고 호출자가 scope를 정한다`). 홀더의 `suspend` 함수에 둔 `UseCase 호출 가드`는 함수 첫 줄에서 판단하고 `try`·`finally`로 해제한다.
 
@@ -57,6 +57,8 @@ internal class MemoFinishedListViewModel(pageFinishedMemoUseCase: PageFinishedMe
 - **`cachedIn(viewModelScope)`을 적용한 `Flow<PagingData<T>>`.** `PagingData`는 한 번만 수집할 수 있어 `stateIn`·`shareIn`으로 감싸지 않는다.
 - **`Channel`을 원천으로 하는 일회성 이벤트(`Flow<XxxEffect>`).** ViewModel이 가진 `Channel`의 `receiveAsFlow()`, 아래 계층이 가진 `Channel`을 변환한 Flow가 해당한다.
 
+**Effect에는 유실돼도 화면 상태가 어긋나지 않는 일회성 안내와 이동만 싣는다.** 스낵바 안내, 입력란 포커스 요청, 화면 닫기가 여기 속한다(`WebDetailEffect`). 유실되면 화면이 틀린 상태로 남는 결과는 Effect가 아니라 UiState에 둔다. Android 공식 가이드는 ViewModel이 UI로 이벤트를 보내지 않고 결과를 UiState에 두도록 권장하지만([UI events](https://developer.android.com/topic/architecture/ui-layer/events)), 이 저장소는 `Channel` Effect를 택했으므로 이 항목에서는 `참고 우선순위`보다 이 문서를 우선한다.
+
 상태를 이벤트처럼 노출하지 않는다. 저장소의 값을 `mapNotNull`로 걸러 `Flow<XxxEffect>`로 내보내면 구독할 때마다 원천을 다시 수집하고, 같은 상태가 다시 수집될 때마다 이벤트가 반복된다. 상태 변화에 반응해야 하면 UiState로 노출하고 UI가 `CollectEffect`로 받아 구분한다([compose.md](compose.md)의 `UI Effect 수집`).
 
 ```kotlin
@@ -83,6 +85,8 @@ internal fun SyncEffect(requestSync: () -> Unit, uiState: Flow<AppSyncUiState> =
 
 조회를 마쳤는지로 다음 동작을 가르는 흐름(대상이 없으면 추가 화면으로 보내는 판정 등)은 예외다. 조회 상태를 싣지 않은 `PagingData.empty()`는 `cachedIn`을 다시 수집하는 화면에 조회를 마친 빈 목록으로 전달되므로, 이런 흐름은 실패를 refresh `LoadState.Error`를 실은 빈 `PagingData`로 바꾼다.
 
+불러오기 상태를 싣지 않은 `PagingData.empty()`를 처음 받은 목록은 처음의 불러오는 중에 머문다. 그래서 불러오는 중과 빈 목록을 불러오기 상태로 구분해 그리는 목록(루틴, 디데이)은 실패를 조회를 마친 상태(`LOADED_EMPTY_LOAD_STATES`)를 실은 빈 `PagingData`로 바꿔 빈 상태를 표시하게 한다. 반대로 조회 조건(오늘 날짜)이 정해지기 전에는 상태를 싣지 않은 `PagingData.empty()`를 내보내 불러오는 중으로 둔다.
+
 이어서 불러오기의 실패는 `PagingSource`가 `LoadResult.Error`로 돌려주고 Paging이 이미 불러온 항목을 유지하므로 ViewModel이 관여하지 않는다. ViewModel에 실패로 도달하는 것은 계정 조회처럼 페이징 원천 자체의 실패다.
 
 ## ViewModel 시작 트리거
@@ -92,6 +96,8 @@ ViewModel의 `init` 블록에서 UseCase 호출이나 Flow collect 같은 작업
 작업 시작은 항상 UI의 Effect 컴포저블이 트리거한다(`FetchHolidayEffect`가 `LifecycleEventEffect(Lifecycle.Event.ON_START) { viewModel.fetch() }`로 부른다). 수단은 [compose.md](compose.md)의 `생명주기는 호출자가 소유한다`에서 고른다. 트리거는 재진입마다 반복 호출될 수 있으므로 시작 함수에는 `UseCase 호출 가드`를 둔다.
 
 지속 관찰하는 상태는 `init`에서 collect하는 대신 `stateIn(started = SharingStarted.WhileUiSubscribed)`(`library:coroutines`)로 노출한다. 구독이 끊긴 뒤 값을 초기값으로 되돌려야 하는 `stateIn`에서만 `SharingStarted.WhileSubscribed(stopTimeoutMillis = UI_STOP_TIMEOUT_MILLIS, replayExpirationMillis = 0)`을 직접 쓴다. 예: `AppSyncViewModel`은 같은 계정으로 다시 인증될 때도 값이 다시 바뀌어야 트리거가 실행된다.
+
+**스펙이 화면이 가려진 동안에도 이어져야 한다고 정한 관찰은 `stateIn`으로 노출하지 않고, Effect가 트리거한 시작 함수가 `viewModelScope`에서 한 번만 collect한다.** `stateIn(WhileUiSubscribed)`는 구독이 끊기면 원천 수집을 멈추고 돌아오면 처음부터 다시 수집하므로, 이미 받은 결과를 다시 요청하게 된다. 예: `WebDetailPageViewModel.load()`는 저장된 URL과 요청 헤더가 바뀔 때만 웹 페이지를 다시 불러와야 하고 백그라운드에서 돌아와도 다시 불러오지 않아야 하므로([WebDetail 화면 스펙](../../docs/spec/client/web-detail.md)의 `불러오기 시점`), 시작 여부를 `Boolean`으로 기억하고 한 번만 collect한다.
 
 ## UseCase 호출 가드
 
@@ -107,3 +113,11 @@ ViewModel의 `init` 블록에서 UseCase 호출이나 Flow collect 같은 작업
 가드 플래그는 ViewModel 안에서만 바꾸고, 화면에 보여야 하면 UiState로 노출한다.
 
 계기마다 다시 실행되어야 하는 함수(앱 복귀, 계정 변경마다 부르는 예약·동기화 요청, 화면에 다시 드러날 때마다 하는 조회)는 한 번 실행했다는 사실을 영구히 기억하지 않는다. 진행 중에만 막고 끝나면 다시 받는다. 영구 플래그는 다음 계기의 요청까지 삼킨다.
+
+## 프로세스 종료 뒤에도 남는 상태
+
+**프로세스 종료 뒤에도 남아야 하는 ViewModel 소유 상태만 `SavedStateHandle`에 두고, `getMutableStateFlow(key, 초기값)`으로 얻은 Flow 하나를 읽고 쓴다.** `savedStateHandle[key]`와 `MutableStateFlow`를 따로 두고 함께 쓰면 한쪽만 바꾼 자리에서 화면과 복원 값이 어긋난다. UiState는 그 Flow를 `map`·`stateIn`으로 바꿔 노출하고 초기값에 Flow의 현재 값을 넣는다(`MoreHomeSignOutViewModel`). 진행 중 여부처럼 되살릴 때 초기값으로 돌아가야 하는 상태는 넣지 않는다.
+
+**저장하는 값이 화면에 보이는 값과 달라야 할 때만 `savedStateHandle[key]`에 직접 쓴다.** `ProfileDeleteViewModel`은 Apple 재인증 중 다이얼로그를 화면에는 열어 두고 복원 값은 닫힘으로 둔다. `getMutableStateFlow`의 Flow는 `savedStateHandle[key]`에 쓴 값도 그대로 따라가므로 두 값을 다르게 둘 수 없다.
+
+화면 인자는 `SavedStateHandle`에서 읽지 않고 `@InjectedParam`으로 받는다.

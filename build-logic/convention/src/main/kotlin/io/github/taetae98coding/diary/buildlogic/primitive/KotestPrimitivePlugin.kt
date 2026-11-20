@@ -14,6 +14,7 @@ internal class KotestPrimitivePlugin : Plugin<Project> {
             configurePlugin()
             configureDependencies()
             configureJvmTest()
+            configureTestClassSharing()
         }
     }
 
@@ -57,6 +58,14 @@ internal class KotestPrimitivePlugin : Plugin<Project> {
             useJUnitPlatform()
         }
     }
+
+    // MockK가 테스트 중에 agent를 붙여 부트 classpath를 늘리면 JVM이 클래스 공유(CDS)를 줄이며 테스트 JVM마다 경고를 남기므로, 테스트 JVM에서는 클래스 공유를 끈다.
+    private fun Project.configureTestClassSharing() {
+        tasks.withType<Test>().configureEach {
+            jvmArgs(TEST_CLASS_SHARING_JVM_ARG)
+        }
+    }
 }
 
 private const val FIXTURE_PATH = ":library:fixture"
+private const val TEST_CLASS_SHARING_JVM_ARG = "-Xshare:off"
