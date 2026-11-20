@@ -17,7 +17,8 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: diary-macos
+    # upload-pages-artifact가 GNU tar(gtar)를 쓰므로 기본으로 갖춘 GitHub 호스팅 Linux 러너에서 배포한다.
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
