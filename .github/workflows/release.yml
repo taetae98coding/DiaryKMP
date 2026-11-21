@@ -523,7 +523,8 @@ jobs:
       && contains(fromJSON('["success", "skipped"]'), needs.android.result)
       && contains(fromJSON('["success", "skipped"]'), needs.ios.result)
       && contains(fromJSON('["success", "skipped"]'), needs.macos.result)
-    runs-on: diary-macos
+    # git-cliff를 npx로 돌리므로 셀프호스트 PC의 Node 설치 상태에 기대지 않고 Node를 기본으로 갖춘 GitHub 호스팅 Linux 러너에서 커밋·태그·Release를 만든다.
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
