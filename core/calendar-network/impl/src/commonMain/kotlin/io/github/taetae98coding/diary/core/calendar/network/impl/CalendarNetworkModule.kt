@@ -1,20 +1,21 @@
 package io.github.taetae98coding.diary.core.calendar.network.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.calendar.network.impl.di.CalendarHttpClient
 import io.github.taetae98coding.diary.library.ktor.createJsonHttpClient
 import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@ComponentScan
-@Configuration
-public class CalendarNetworkModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object CalendarNetworkModule {
+    @Provides
+    @SingleIn(AppScope::class)
     @CalendarHttpClient
     internal fun providesCalendarHttpClient(): HttpClient = createCalendarHttpClient()
 }

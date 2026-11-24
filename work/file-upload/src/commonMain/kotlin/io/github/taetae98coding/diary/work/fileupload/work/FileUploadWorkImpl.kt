@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.work.fileupload.work
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
@@ -12,9 +15,9 @@ import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResultRep
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class FileUploadWorkImpl(
     private val uploadFileUseCase: UploadFileUseCase,
     private val fileRepository: FileRepository,

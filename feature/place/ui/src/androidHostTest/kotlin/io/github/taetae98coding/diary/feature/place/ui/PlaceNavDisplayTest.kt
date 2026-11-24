@@ -24,6 +24,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -33,6 +35,7 @@ import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -67,18 +70,12 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 // PlaceDetail 화면의 메모 탭에서 이어 가는 화면과의 전환을 제품 entry로 구성한 NavDisplay 위에서 검증한다.
 @RunWith(RobolectricTestRunner::class)
@@ -93,13 +90,7 @@ class PlaceNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -190,29 +181,28 @@ class PlaceNavDisplayTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides remember { navDisplayViewModelFactory() },
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<PlaceNavDisplayPreviousNavKey> { Text(text = PREVIOUS_CONTENT) }
-                                        placeEntry(backStack = backStack, contentSharerFactory = contentSharerFactoryOf())
-                                        entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
-                                        entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<PlaceNavDisplayPreviousNavKey> { Text(text = PREVIOUS_CONTENT) }
+                                    placeEntry(backStack = backStack, contentSharerFactory = contentSharerFactoryOf())
+                                    entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
+                                    entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
+                                },
+                        )
                     }
                 }
             }
@@ -221,34 +211,46 @@ class PlaceNavDisplayTest {
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory<PlaceDetailViewModel> { parameters -> screenTestViewModel(uiState = MutableStateFlow<PlaceDetailUiState>(content(id = parameters.get<Uuid>()))) }
-            factory<PlaceSearchViewModel> { searchScreenTestViewModel() }
-            factory<EntityDetailTagViewModel> { detailTagScreenTestViewModel() }
-            factory { parameters ->
-                val placeMemo = if (parameters.get<Uuid>() == FIRST_PLACE_ID) memo else otherPlaceMemo
+    private fun navDisplayViewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    PlaceSearchViewModel::class to { searchScreenTestViewModel() },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    PlaceDetailViewModel.Factory::class to {
+                        PlaceDetailViewModel.Factory { id -> screenTestViewModel(uiState = MutableStateFlow<PlaceDetailUiState>(content(id = id))) }
+                    },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                    PlaceDetailMemoViewModel.Factory::class to {
+                        PlaceDetailMemoViewModel.Factory { placeId ->
+                            val placeMemo = if (placeId == FIRST_PLACE_ID) memo else otherPlaceMemo
 
-                mockk<PlaceDetailMemoViewModel>(relaxed = true).apply {
-                    every { memoPagingData } returns flowOf(placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo))))
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-            factory {
-                mockk<PlaceMemoFinishedListViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
-                    every { memoPagingData } returns flowOf(PagingData.empty())
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns emptyFlow()
-                }
-            }
-        }
+                            mockk<PlaceDetailMemoViewModel>(relaxed = true).apply {
+                                every { memoPagingData } returns flowOf(placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo))))
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                                every { effect } returns emptyFlow()
+                            }
+                        }
+                    },
+                    PlaceMemoFinishedListViewModel.Factory::class to {
+                        PlaceMemoFinishedListViewModel.Factory { _ ->
+                            mockk<PlaceMemoFinishedListViewModel>(relaxed = true).apply {
+                                every { uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
+                                every { memoPagingData } returns flowOf(PagingData.empty())
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                                every { effect } returns emptyFlow()
+                            }
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         const val MEMO_TITLE = "PlaceNavDisplayMemo"

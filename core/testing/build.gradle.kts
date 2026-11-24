@@ -8,6 +8,7 @@ kotlin {
             dependencies {
                 api(projects.core.model)
                 api(projects.library.fixture)
+                api(libs.metrox.viewmodel)
             }
         }
     }

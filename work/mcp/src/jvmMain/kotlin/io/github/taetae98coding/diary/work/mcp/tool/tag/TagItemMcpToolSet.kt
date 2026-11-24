@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.tag
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.work.appaction.tag.TagItemAppAction
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -25,7 +29,6 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.qr.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.routine.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.sortText
-import org.koin.core.annotation.Factory
 
 private const val TAG_ID = "tagId"
 
@@ -57,7 +60,8 @@ private fun McpToolArguments.scopeText(): String {
         ?: throw McpToolArgumentException(message = "'$SCOPE' must be one of ${tagScopeList.joinToString { scope -> scope.toArgument() }}.")
 }
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class TagItemMcpToolSet(
     private val tagItemAppAction: TagItemAppAction,
 ) : McpToolSet {

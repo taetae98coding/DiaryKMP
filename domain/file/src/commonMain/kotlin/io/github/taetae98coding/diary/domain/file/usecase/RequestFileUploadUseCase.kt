@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUri
@@ -9,9 +10,8 @@ import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class RequestFileUploadUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val fileUploadManager: FileUploadManager,

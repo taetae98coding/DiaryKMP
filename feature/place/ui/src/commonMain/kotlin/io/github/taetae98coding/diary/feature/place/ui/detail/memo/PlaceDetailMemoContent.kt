@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoConnector
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoFinishedListButton
 import io.github.taetae98coding.diary.feature.place.ui.Res
@@ -15,8 +17,6 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTab
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_title
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
 @Composable
@@ -32,8 +32,8 @@ internal fun PlaceDetailMemoContent(
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
         EntityDetailMemoConnector(
-            memoViewModel = koinViewModel<PlaceDetailMemoViewModel> { parametersOf(id) },
-            syncViewModel = koinViewModel(),
+            memoViewModel = assistedMetroViewModel<PlaceDetailMemoViewModel, PlaceDetailMemoViewModel.Factory> { create(placeId = id) },
+            syncViewModel = metroViewModel(),
             navigateToMemoDetail = navigateToMemoDetail,
             emptyTitle = stringResource(Res.string.place_detail_memo_empty_title),
             emptyDescription = stringResource(Res.string.place_detail_memo_empty_description),

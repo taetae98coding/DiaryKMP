@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.core.network.impl.integrity.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.integrity.datasource.PlayIntegrityRemoteDataSource
 import io.github.taetae98coding.diary.core.network.impl.integrity.entity.PlayIntegrityDecodeRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.invoke
 import io.ktor.client.call.body
 import kotlinx.serialization.json.JsonObject
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class PlayIntegrityRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : PlayIntegrityRemoteDataSource {

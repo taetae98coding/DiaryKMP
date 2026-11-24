@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.supabase.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthErrorCode
@@ -14,9 +17,9 @@ import io.github.taetae98coding.diary.core.supabase.impl.mapper.toSupabaseSessio
 import io.github.taetae98coding.diary.core.supabase.impl.mapper.toSupabaseUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class SupabaseAuthImpl(
     private val client: SupabaseClient,
 ) : SupabaseAuth {

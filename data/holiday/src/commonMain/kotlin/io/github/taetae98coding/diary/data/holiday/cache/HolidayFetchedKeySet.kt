@@ -1,10 +1,13 @@
 package io.github.taetae98coding.diary.data.holiday.cache
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.data.core.cache.FetchedKeySet
-import org.koin.core.annotation.Single
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
 internal class HolidayFetchedKeySet {
     private val keySet = FetchedKeySet<Pair<HolidayCountry, Int>>()
 

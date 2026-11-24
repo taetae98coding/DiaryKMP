@@ -11,6 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
@@ -26,11 +28,10 @@ import io.github.taetae98coding.diary.feature.file.ui.add.FileAddScreen
 import io.github.taetae98coding.diary.feature.file.ui.add.FileAddViewModel
 import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailScreen
+import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailViewModel
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeScreen
 import io.github.taetae98coding.diary.feature.file.ui.picker.FilePickerFactory
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.fileEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -55,8 +56,8 @@ private fun EntryProviderScope<ScreenNavKey>.fileHomeEntry(
             navigateToAdd = { backStack.add(FileAddNavKey) },
             navigateToDetail = { id -> backStack.navigateToFileDetail(id = id) },
             componentVisibleProvider = { FileHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isFileAddOnDetailPane()) },
-            fileViewModel = koinViewModel(),
-            uploadViewModel = koinViewModel(),
+            fileViewModel = metroViewModel(),
+            uploadViewModel = metroViewModel(),
         )
     }
 }
@@ -70,8 +71,8 @@ internal fun fileHomeListPaneMetadata(filePickerFactory: FilePickerFactory): Map
             ListDetailPlaceholderStateProvider(listContentKey = FILE_HOME_CONTENT_KEY) {
                 FileAddDetailPlaceholder(
                     filePickerFactory = filePickerFactory,
-                    uploadViewModel = koinViewModel(),
-                    accountViewModel = koinViewModel(),
+                    uploadViewModel = metroViewModel(),
+                    accountViewModel = metroViewModel(),
                 )
             }
         },
@@ -107,14 +108,14 @@ private fun EntryProviderScope<ScreenNavKey>.fileAddEntry(
         metadata = { key -> backStack.fileListDetailPaneMetadata(key) },
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
-        val uploadViewModel = koinViewModel<FileAddViewModel>()
+        val uploadViewModel = metroViewModel<FileAddViewModel>()
 
         FileAddScreen(
             navigateUp = backStack::removeLastOrNull,
             componentVisibleProvider = { FileAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             filePicker = filePickerFactory.rememberFilePicker(onPick = uploadViewModel::select),
             uploadViewModel = uploadViewModel,
-            accountViewModel = koinViewModel(),
+            accountViewModel = metroViewModel(),
         )
     }
 }
@@ -128,8 +129,8 @@ private fun EntryProviderScope<ScreenNavKey>.fileDetailEntry(backStack: NavBackS
         FileDetailScreen(
             navigateUp = backStack::removeLastOrNull,
             componentVisibleProvider = { FileDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            detailViewModel = koinViewModel { parametersOf(key.id) },
-            accountViewModel = koinViewModel(),
+            detailViewModel = assistedMetroViewModel<FileDetailViewModel, FileDetailViewModel.Factory> { create(id = key.id) },
+            accountViewModel = metroViewModel(),
         )
     }
 }

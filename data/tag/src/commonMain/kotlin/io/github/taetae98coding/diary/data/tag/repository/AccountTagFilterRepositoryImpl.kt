@@ -1,13 +1,16 @@
 package io.github.taetae98coding.diary.data.tag.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.tagfilter.datasource.AccountTagFilterLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagFilterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountTagFilterRepositoryImpl(
     private val accountTagFilterLocalDataSource: AccountTagFilterLocalDataSource,
 ) : AccountTagFilterRepository {

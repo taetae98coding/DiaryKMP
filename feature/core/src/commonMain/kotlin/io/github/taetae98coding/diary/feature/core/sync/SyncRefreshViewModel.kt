@@ -2,6 +2,10 @@ package io.github.taetae98coding.diary.feature.core.sync
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
@@ -12,9 +16,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.KoinViewModel
 
-@KoinViewModel
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
 public class SyncRefreshViewModel internal constructor(
     getProgressReportedUseCase: GetProgressReportedUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,

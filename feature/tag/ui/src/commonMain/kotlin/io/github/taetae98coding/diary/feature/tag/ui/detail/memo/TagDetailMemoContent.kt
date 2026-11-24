@@ -10,6 +10,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.button.ListEntryButton
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoConnector
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -20,8 +22,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_descr
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_finished_list_action_label
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
 @Composable
@@ -37,7 +37,7 @@ internal fun TagDetailMemoContent(
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = TagDetailTab.MEMO, provider = viewModelStoreProvider)
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-        val memoViewModel = koinViewModel<TagDetailMemoViewModel> { parametersOf(id) }
+        val memoViewModel = assistedMetroViewModel<TagDetailMemoViewModel, TagDetailMemoViewModel.Factory> { create(tagId = id) }
         val scopeUiState by memoViewModel.scopeUiState.collectAsStateWithLifecycle()
 
         TagDetailScopeEffect(
@@ -46,7 +46,7 @@ internal fun TagDetailMemoContent(
         )
         EntityDetailMemoConnector(
             memoViewModel = memoViewModel,
-            syncViewModel = koinViewModel(),
+            syncViewModel = metroViewModel(),
             navigateToMemoDetail = navigateToMemoDetail,
             emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title),
             emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description),

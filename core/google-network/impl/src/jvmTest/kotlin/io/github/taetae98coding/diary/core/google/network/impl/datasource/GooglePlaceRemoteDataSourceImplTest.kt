@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.google.network.impl.datasource
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceDisplayNameRemoteEntity
 import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceLocationBiasRemoteEntity
 import io.github.taetae98coding.diary.core.data.testing.google.googlePlaceLocationRemoteEntity
@@ -9,10 +10,9 @@ import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlace
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceRemoteEntity
-import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTestKoinApplication
-import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTestKoinModule
+import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTestGraph
+import io.github.taetae98coding.diary.core.google.network.impl.GooglePlacesConfig
 import io.github.taetae98coding.diary.core.google.network.impl.createGoogleHttpClient
-import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -24,7 +24,6 @@ import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.kotest.property.arbitrary.take
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -47,9 +46,6 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 
 class GooglePlaceRemoteDataSourceImplTest :
     FunSpec({
@@ -155,7 +151,7 @@ class GooglePlaceRemoteDataSourceImplTest :
         }
 
         test("TC-5d72c32d-9128-4486-b1d8-4e69b1fd567d: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
-            val config = GoogleNetworkTestKoinModule.config
+            val config = testConfig
             val query = Arb.string().next()
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
@@ -268,6 +264,9 @@ class GooglePlaceRemoteDataSourceImplTest :
         }
     }) {
     private companion object {
+        // HTTP 헤더 값에 허용되지 않는 제어 문자를 피한 값으로 고정한다.
+        private val testConfig: GooglePlacesConfig = GooglePlacesConfig(apiKey = "test-api-key")
+
         private const val MAX_RADIUS_METERS = 50_000.0
         private const val WITHIN_LIMIT_RADIUS_METERS = 1_000.0
 
@@ -298,12 +297,8 @@ class GooglePlaceRemoteDataSourceImplTest :
             }.toString()
 
         private fun createDataSource(engine: HttpClientEngine): GooglePlaceRemoteDataSource =
-            koinApplication<GoogleNetworkTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClient>(qualifier = named<GoogleHttpClient>()) { createGoogleHttpClient(config = get(), engine = engine) }
-                    },
-                )
-            }.koin.get()
+            createGraphFactory<GoogleNetworkTestGraph.Factory>()
+                .create(httpClient = createGoogleHttpClient(config = testConfig, engine = engine))
+                .googlePlaceRemoteDataSource
     }
 }

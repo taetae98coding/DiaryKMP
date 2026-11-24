@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.dday
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -43,7 +44,6 @@ import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
 private const val BASE_DATE = "baseDate"
@@ -52,7 +52,7 @@ private const val END_DATE = "endDate"
 private const val PRIMARY_TAG_ID = "primaryTagId"
 private const val TAG_ID = "tagId"
 
-@Factory
+@Inject
 public class DDayAppAction internal constructor(
     private val pageDDayUseCase: PageDDayUseCase,
     private val findDDayUseCase: FindDDayUseCase,

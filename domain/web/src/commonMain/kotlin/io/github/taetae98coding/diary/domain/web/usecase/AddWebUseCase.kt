@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -11,11 +12,10 @@ import io.github.taetae98coding.diary.domain.web.exception.WebHeaderNameBlankExc
 import io.github.taetae98coding.diary.domain.web.exception.WebTitleBlankException
 import io.github.taetae98coding.diary.domain.web.exception.WebUrlBlankException
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class AddWebUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,

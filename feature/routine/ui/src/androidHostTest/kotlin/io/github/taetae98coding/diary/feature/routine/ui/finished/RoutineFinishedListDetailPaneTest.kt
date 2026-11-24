@@ -62,7 +62,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -80,14 +79,12 @@ class RoutineFinishedListDetailPaneTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
         setRoutineFinishedListToday(TODAY)
     }
 
     @After
     fun tearDown() {
-        stopKoin()
         releaseRoutineFinishedListToday()
     }
 

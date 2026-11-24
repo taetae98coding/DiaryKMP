@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.web
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
@@ -30,7 +34,6 @@ import io.github.taetae98coding.diary.work.mcp.tool.sortText
 import io.github.taetae98coding.diary.work.mcp.tool.tag.entityTagToolList
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import kotlinx.serialization.json.JsonNull
-import org.koin.core.annotation.Factory
 
 private const val DESCRIPTION = "description"
 private const val TITLE = "title"
@@ -41,7 +44,8 @@ internal val webSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECEN
 internal val webIdParameter: McpToolParameter =
     McpToolParameter(name = WEB_ID, type = McpToolParameterType.STRING, description = "Id of the web.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class WebMcpToolSet(
     private val webAppAction: WebAppAction,
     private val memoListAppAction: MemoListAppAction,

@@ -9,6 +9,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
@@ -24,16 +26,17 @@ import io.github.taetae98coding.diary.feature.dday.api.isDDayAddOnDetailPane
 import io.github.taetae98coding.diary.feature.dday.api.isDDayListDetailPane
 import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddScreen
+import io.github.taetae98coding.diary.feature.dday.ui.add.DDayAddTagViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailScreen
+import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailTagViewModel
+import io.github.taetae98coding.diary.feature.dday.ui.detail.DDayDetailViewModel
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScreen
 import io.github.taetae98coding.diary.feature.dday.ui.home.filter.DDayHomeFilterContent
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.dDayEntry(backStack: NavBackStack<ScreenNavKey>) {
     dDayHomeEntry(backStack = backStack)
@@ -55,9 +58,9 @@ private fun EntryProviderScope<ScreenNavKey>.dDayHomeEntry(backStack: NavBackSta
             navigateToDetail = { id -> backStack.navigateToDDayDetail(id = id) },
             navigateToFilter = dropUnlessResumed { backStack.add(DDayHomeFilterNavKey) },
             componentVisibleProvider = { DDayHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isDDayAddOnDetailPane()) },
-            ddayViewModel = koinViewModel(),
-            filterViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            ddayViewModel = metroViewModel(),
+            filterViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -77,8 +80,8 @@ internal fun dDayHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Ma
                     navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { DDayAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    addViewModel = koinViewModel(),
-                    tagViewModel = koinViewModel { parametersOf(null) },
+                    addViewModel = metroViewModel(),
+                    tagViewModel = assistedMetroViewModel<DDayAddTagViewModel, DDayAddTagViewModel.Factory> { create(initialPrimaryTagId = null) },
                 )
             }
         },
@@ -107,8 +110,8 @@ private fun EntryProviderScope<ScreenNavKey>.dDayAddEntry(backStack: NavBackStac
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { DDayAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<DDayAddTagViewModel, DDayAddTagViewModel.Factory> { create(initialPrimaryTagId = key.initialTagId) },
         )
     }
 }
@@ -126,8 +129,8 @@ private fun EntryProviderScope<ScreenNavKey>.dDayDetailEntry(backStack: NavBackS
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { DDayDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            ddayViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(key.id) },
+            ddayViewModel = assistedMetroViewModel<DDayDetailViewModel, DDayDetailViewModel.Factory> { create(id = key.id) },
+            tagViewModel = assistedMetroViewModel<DDayDetailTagViewModel, DDayDetailTagViewModel.Factory> { create(id = key.id) },
         )
     }
 }

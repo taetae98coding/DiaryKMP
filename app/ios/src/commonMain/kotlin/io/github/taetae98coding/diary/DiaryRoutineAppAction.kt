@@ -194,11 +194,11 @@ public object DiaryRoutineRecordAppAction {
     public suspend fun remove(recordId: String): Int = routineRecordAppAction().remove(recordId = recordId).changedCount
 }
 
-private fun routineAppAction(): RoutineAppAction = diaryAppAction()
+private fun routineAppAction(): RoutineAppAction = diaryAppActionGraph().routineAppAction
 
-private fun routineListAppAction(): RoutineListAppAction = diaryAppAction()
+private fun routineListAppAction(): RoutineListAppAction = diaryAppActionGraph().routineListAppAction
 
-private fun routineRecordAppAction(): RoutineRecordAppAction = diaryAppAction()
+private fun routineRecordAppAction(): RoutineRecordAppAction = diaryAppActionGraph().routineRecordAppAction
 
 private fun AppActionRoutineDetail.toDiary(): DiaryAppActionRoutineDetail = DiaryAppActionRoutineDetail(routine = routine.toDiary(), tags = tags.map { tag -> tag.toDiary() })
 

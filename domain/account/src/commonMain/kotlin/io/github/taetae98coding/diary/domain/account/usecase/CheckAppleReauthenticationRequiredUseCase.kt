@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.authentication.LoginProvider
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
 import io.github.taetae98coding.diary.domain.core.UseCase
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class CheckAppleReauthenticationRequiredUseCase internal constructor(
     private val loginProviderRepository: LoginProviderRepository,
     private val userDataRepository: UserDataRepository,

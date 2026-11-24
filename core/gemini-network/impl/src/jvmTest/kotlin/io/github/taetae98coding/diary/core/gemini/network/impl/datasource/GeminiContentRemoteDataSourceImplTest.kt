@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.core.gemini.network.impl.datasource
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiContentRemoteDataSource
 import io.github.taetae98coding.diary.core.gemini.network.impl.API_KEY_INVALID_REASON
-import io.github.taetae98coding.diary.core.gemini.network.impl.GeminiNetworkTestKoinApplication
+import io.github.taetae98coding.diary.core.gemini.network.impl.GeminiNetworkModule
+import io.github.taetae98coding.diary.core.gemini.network.impl.GeminiNetworkTestGraph
 import io.github.taetae98coding.diary.core.gemini.network.impl.badRequestEngine
 import io.github.taetae98coding.diary.core.gemini.network.impl.createGeminiHttpClient
-import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
-import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiJson
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -23,7 +23,6 @@ import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -57,9 +56,6 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.uuid.Uuid
@@ -465,13 +461,14 @@ class GeminiContentRemoteDataSourceImplTest :
             return reportList
         }
 
-        private fun createDataSource(engine: HttpClientEngine): GeminiContentRemoteDataSource =
-            koinApplication<GeminiNetworkTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClient>(qualifier = named<GeminiHttpClient>()) { createGeminiHttpClient(json = get(named<GeminiJson>()), engine = engine) }
-                    },
-                )
-            }.koin.get()
+        private fun createDataSource(engine: HttpClientEngine): GeminiContentRemoteDataSource {
+            val json = GeminiNetworkModule.providesGeminiJson()
+
+            return createGraphFactory<GeminiNetworkTestGraph.Factory>()
+                .create(
+                    httpClient = createGeminiHttpClient(json = json, engine = engine),
+                    json = json,
+                ).geminiContentRemoteDataSource
+        }
     }
 }

@@ -19,18 +19,24 @@ import androidx.compose.ui.viewinterop.HtmlElementView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlinx.browser.document
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.koin.core.annotation.Single
 import org.w3c.dom.HTMLVideoElement
 import org.w3c.dom.mediacapture.MediaStream
 import kotlin.coroutines.resume
 
 private const val FRAME_SCAN_INTERVAL_MILLIS = 100L
 
-@Single(binds = [QrScanCameraPreviewContent::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<QrScanCameraPreviewContent>())
 internal class WasmQrScanCameraPreviewContent : QrScanCameraPreviewContent {
     @Composable
     override fun Content(

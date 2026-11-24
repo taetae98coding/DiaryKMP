@@ -2,6 +2,9 @@
 
 package io.github.taetae98coding.diary.core.file.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
@@ -24,14 +27,14 @@ import kotlinx.io.IOException
 import kotlinx.io.RawSink
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import org.koin.core.annotation.Factory
 import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSURL
 import platform.Foundation.base64EncodedStringWithOptions
 import platform.Foundation.create
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class IosFileDownloadLocalDataSource(
     @FileDispatcher
     private val dispatcher: CoroutineDispatcher,

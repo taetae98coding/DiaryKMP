@@ -23,7 +23,7 @@ public object DiaryLunarAppAction {
             .map { lunarDate -> lunarDate.toDiary() }
 }
 
-private fun lunarAppAction(): LunarAppAction = diaryAppAction()
+private fun lunarAppAction(): LunarAppAction = diaryAppActionGraph().lunarAppAction
 
 private fun AppActionLunarDate.toDiary(): DiaryAppActionLunarDate =
     DiaryAppActionLunarDate(

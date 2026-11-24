@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.core.database.impl.entitytag.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.datasource.AccountEntityTagSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagTable
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountEntityTagSyncLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountEntityTagSyncLocalDataSource {

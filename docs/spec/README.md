@@ -28,7 +28,7 @@
 
 다음 용어는 스펙에 쓰지 않는다.
 
-- 프로그래밍 언어, 프레임워크, 라이브러리, 플랫폼 SDK가 제공하는 용어. 예: 코루틴, Flow, ViewModel, Composable, UseCase, Repository, Room, DAO, WorkManager, Worker, Intent, SwiftUI, Ktor, Koin, DTO, Result, null, FCM 토큰
+- 프로그래밍 언어, 프레임워크, 라이브러리, 플랫폼 SDK가 제공하는 용어. 예: 코루틴, Flow, ViewModel, Composable, UseCase, Repository, Room, DAO, WorkManager, Worker, Intent, SwiftUI, Ktor, Metro, DTO, Result, null, FCM 토큰
 - 클래스, 함수, 모듈, 테이블, 컬럼, API 필드와 엔드포인트 이름
 - 구현 구조를 드러내는 표현. 예: 캐시, 캐시 무효화, 구독, 스트림, 콜백, 트랜잭션, 커서, 페이지 키, 업서트
 

@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.gemini.network.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiModelRemoteDataSource
 import io.github.taetae98coding.diary.core.gemini.network.api.entity.GeminiModelRemoteEntity
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
@@ -13,9 +16,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import kotlinx.serialization.json.Json
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class GeminiModelRemoteDataSourceImpl(
     @GeminiHttpClient
     private val httpClient: HttpClient,

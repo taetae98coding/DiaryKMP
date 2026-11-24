@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.core.invoke
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class RefreshUserDataUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val userDataRepository: UserDataRepository,

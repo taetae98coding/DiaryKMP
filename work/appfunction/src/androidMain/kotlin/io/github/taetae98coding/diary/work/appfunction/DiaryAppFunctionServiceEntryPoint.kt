@@ -6,6 +6,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunctionStringValueConstraint
+import io.github.taetae98coding.diary.work.appaction.AppActionGraph
 import io.github.taetae98coding.diary.work.appaction.calendar.CalendarAppAction
 import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklistItemSortValue
 import io.github.taetae98coding.diary.work.appaction.checklist.ChecklistAppAction
@@ -112,42 +113,38 @@ import io.github.taetae98coding.diary.work.appfunction.web.AppFunctionWebDetail
 import io.github.taetae98coding.diary.work.appfunction.web.AppFunctionWebPage
 import io.github.taetae98coding.diary.work.appfunction.web.toAppFunctionWebDetail
 import io.github.taetae98coding.diary.work.appfunction.web.toAppFunctionWebPage
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 
 // AppFunction 컴파일러는 이 클래스에 직접 선언한 함수만 읽고, Android 16은 앱마다 서비스 하나만 색인하므로 모든 도메인의 함수를 여기에 둔다.
 // 함수 본문은 공통 XxxAppAction을 부르고 appFunctionCall로 오류를, toAppFunctionXxx로 결과를 AppFunction 타입으로 바꾸기만 하고, 도메인마다 region 하나를 쓴다.
-// Koin은 서비스보다 먼저 만들어지는 androidx.startup 제공자가 시작하므로, 화면 없이 프로세스가 시작되어도 여기서는 이미 준비되어 있다.
 @Suppress("TooManyFunctions", "LargeClass")
 @RequiresApi(Build.VERSION_CODES.BAKLAVA)
 @AppFunctionServiceEntryPoint(
     serviceName = "DiaryAppFunctionService",
     appFunctionXmlFileName = "diary_app_functions",
 )
-public abstract class DiaryAppFunctionServiceEntryPoint :
-    AppFunctionService(),
-    KoinComponent {
-    private val memoAppAction: MemoAppAction by lazy { get() }
-    private val calendarAppAction: CalendarAppAction by lazy { get() }
-    private val checklistAppAction: ChecklistAppAction by lazy { get() }
-    private val checklistItemAppAction: ChecklistItemAppAction by lazy { get() }
-    private val contactAppAction: ContactAppAction by lazy { get() }
-    private val ddayAppAction: DDayAppAction by lazy { get() }
-    private val entityTagAppAction: EntityTagAppAction by lazy { get() }
-    private val lunarAppAction: LunarAppAction by lazy { get() }
-    private val memoLinkAppAction: MemoLinkAppAction by lazy { get() }
-    private val memoListAppAction: MemoListAppAction by lazy { get() }
-    private val musicAppAction: MusicAppAction by lazy { get() }
-    private val placeAppAction: PlaceAppAction by lazy { get() }
-    private val qrAppAction: QrAppAction by lazy { get() }
-    private val routineAppAction: RoutineAppAction by lazy { get() }
-    private val routineListAppAction: RoutineListAppAction by lazy { get() }
-    private val routineRecordAppAction: RoutineRecordAppAction by lazy { get() }
-    private val searchAppAction: SearchAppAction by lazy { get() }
-    private val tagAppAction: TagAppAction by lazy { get() }
-    private val tagItemAppAction: TagItemAppAction by lazy { get() }
-    private val tagLinkAppAction: TagLinkAppAction by lazy { get() }
-    private val webAppAction: WebAppAction by lazy { get() }
+public abstract class DiaryAppFunctionServiceEntryPoint : AppFunctionService() {
+    private val appActionGraph: AppActionGraph by lazy { (applicationContext as AppActionGraphOwner).appActionGraph }
+    private val memoAppAction: MemoAppAction by lazy { appActionGraph.memoAppAction }
+    private val calendarAppAction: CalendarAppAction by lazy { appActionGraph.calendarAppAction }
+    private val checklistAppAction: ChecklistAppAction by lazy { appActionGraph.checklistAppAction }
+    private val checklistItemAppAction: ChecklistItemAppAction by lazy { appActionGraph.checklistItemAppAction }
+    private val contactAppAction: ContactAppAction by lazy { appActionGraph.contactAppAction }
+    private val ddayAppAction: DDayAppAction by lazy { appActionGraph.ddayAppAction }
+    private val entityTagAppAction: EntityTagAppAction by lazy { appActionGraph.entityTagAppAction }
+    private val lunarAppAction: LunarAppAction by lazy { appActionGraph.lunarAppAction }
+    private val memoLinkAppAction: MemoLinkAppAction by lazy { appActionGraph.memoLinkAppAction }
+    private val memoListAppAction: MemoListAppAction by lazy { appActionGraph.memoListAppAction }
+    private val musicAppAction: MusicAppAction by lazy { appActionGraph.musicAppAction }
+    private val placeAppAction: PlaceAppAction by lazy { appActionGraph.placeAppAction }
+    private val qrAppAction: QrAppAction by lazy { appActionGraph.qrAppAction }
+    private val routineAppAction: RoutineAppAction by lazy { appActionGraph.routineAppAction }
+    private val routineListAppAction: RoutineListAppAction by lazy { appActionGraph.routineListAppAction }
+    private val routineRecordAppAction: RoutineRecordAppAction by lazy { appActionGraph.routineRecordAppAction }
+    private val searchAppAction: SearchAppAction by lazy { appActionGraph.searchAppAction }
+    private val tagAppAction: TagAppAction by lazy { appActionGraph.tagAppAction }
+    private val tagItemAppAction: TagItemAppAction by lazy { appActionGraph.tagItemAppAction }
+    private val tagLinkAppAction: TagLinkAppAction by lazy { appActionGraph.tagLinkAppAction }
+    private val webAppAction: WebAppAction by lazy { appActionGraph.webAppAction }
 
     // region Memo
 

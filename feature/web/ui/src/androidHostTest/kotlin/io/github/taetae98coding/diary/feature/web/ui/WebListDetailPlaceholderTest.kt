@@ -29,6 +29,7 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -36,6 +37,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
@@ -68,15 +70,10 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -96,11 +93,6 @@ class WebListDetailPlaceholderTest {
     @Before
     fun setUp() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -235,19 +227,24 @@ class WebListDetailPlaceholderTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides placeholderViewModelFactory(),
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(placeholderViewModelModule()) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
     // 태그 선택은 ViewModel이 들고 있으므로 실제 ViewModel을 쓰고, 만들어진 인스턴스를 세어 저장 범위를 확인한다.
-    private fun placeholderViewModelModule() =
-        module {
-            factory { relaxedAddViewModel().also { viewModel -> addViewModelList += viewModel } }
-            factory { realTagViewModel().also { viewModel -> tagViewModelList += viewModel } }
-        }
+    private fun placeholderViewModelFactory() =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    WebAddViewModel::class to { relaxedAddViewModel().also { viewModel -> addViewModelList += viewModel } },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { realTagViewModel().also { viewModel -> tagViewModelList += viewModel } } },
+                ),
+        )
 
     private fun realTagViewModel(): EntityAddTagViewModel {
         val tag = requireNotNull(currentTag)

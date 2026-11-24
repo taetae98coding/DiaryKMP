@@ -2,6 +2,13 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInvalidException
@@ -19,18 +26,23 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class PlaceDetailViewModel(
-    @InjectedParam private val id: Uuid,
+    @Assisted private val id: Uuid,
     private val updatePlaceUseCase: UpdatePlaceUseCase,
     private val deletePlaceUseCase: DeletePlaceUseCase,
     findPlaceUseCase: FindPlaceUseCase,
     getDefaultMapProviderUseCase: GetDefaultMapProviderUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(id: Uuid): PlaceDetailViewModel
+    }
+
     private val isUpdateInProgress = MutableStateFlow(false)
     private val isDeleteInProgress = MutableStateFlow(false)
 

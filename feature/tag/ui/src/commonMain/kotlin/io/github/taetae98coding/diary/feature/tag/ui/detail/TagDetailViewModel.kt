@@ -2,6 +2,13 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
@@ -18,19 +25,24 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class TagDetailViewModel(
-    @InjectedParam private val id: Uuid,
+    @Assisted private val id: Uuid,
     private val findTagUseCase: FindTagUseCase,
     private val updateTagUseCase: UpdateTagUseCase,
     private val finishTagUseCase: FinishTagUseCase,
     private val restartTagUseCase: RestartTagUseCase,
     private val deleteTagUseCase: DeleteTagUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(id: Uuid): TagDetailViewModel
+    }
+
     private val isUpdateInProgress = MutableStateFlow(false)
     private val isFinishInProgress = MutableStateFlow(false)
     private val isDeleteInProgress = MutableStateFlow(false)

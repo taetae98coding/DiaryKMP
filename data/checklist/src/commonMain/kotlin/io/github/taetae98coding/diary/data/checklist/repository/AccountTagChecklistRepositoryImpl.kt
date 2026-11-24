@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.data.checklist.repository
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.checklist.datasource.AccountTagChecklistLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
@@ -10,10 +13,10 @@ import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountTagChecklistRepository
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountTagChecklistRepositoryImpl(
     private val accountTagChecklistLocalDataSource: AccountTagChecklistLocalDataSource,
 ) : AccountTagChecklistRepository {

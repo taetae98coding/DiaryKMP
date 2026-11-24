@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.routine.datasource
 
 import androidx.paging.PagingSource
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.routine.datasource.AccountRoutineLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCurrentCycleLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCycleLocalEntity
@@ -8,10 +11,10 @@ import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLo
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineSummaryLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountRoutineLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountRoutineLocalDataSource {

@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.domain.file.usecase
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
-import org.koin.core.annotation.Factory
 
 private val LOADING_LOAD_STATES: LoadStates =
     LoadStates(
@@ -28,7 +28,7 @@ private val LOADING_LOAD_STATES: LoadStates =
         append = LoadState.NotLoading(endOfPaginationReached = false),
     )
 
-@Factory
+@Inject
 public class PageFileUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val fileRepository: FileRepository,

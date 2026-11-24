@@ -28,6 +28,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -47,6 +49,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.routine.routine
 import io.github.taetae98coding.diary.core.testing.routine.routineDetail
 import io.github.taetae98coding.diary.core.testing.routine.routineRecord
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.routine.RoutineInput
 import io.github.taetae98coding.diary.domain.routine.progress.progress
 import io.github.taetae98coding.diary.domain.routine.progress.range
@@ -58,8 +61,10 @@ import io.github.taetae98coding.diary.domain.routine.usecase.RestartRoutineUseCa
 import io.github.taetae98coding.diary.domain.routine.usecase.RestoreRoutineUseCase
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
+import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.detail.RoutineDetailEffect
 import io.github.taetae98coding.diary.feature.routine.ui.detail.RoutineDetailUiState
 import io.github.taetae98coding.diary.feature.routine.ui.detail.RoutineDetailViewModel
@@ -96,10 +101,6 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import org.koin.compose.KoinApplication
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
@@ -209,19 +210,25 @@ internal class RoutineFinishedListTestEnvironment(
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    fun module(): Module =
-        module {
-            factory { homeViewModel() }
-            factory { calendarViewModel() }
-            factory { holidayViewModel() }
-            factory { syncViewModel }
-            factory { finishedViewModel() }
-            factory { routineAddViewModel() }
-            factory { routineAddTagViewModel() }
-            factory { parameters -> detailViewModel(id = parameters.get()) }
-            factory { parameters -> recordViewModel(routineId = parameters.get()) }
-            factory { detailTagViewModel() }
-        }
+    fun viewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    RoutineHomeViewModel::class to { homeViewModel() },
+                    RoutineHomeCalendarViewModel::class to { calendarViewModel() },
+                    RoutineHomeHolidayViewModel::class to { holidayViewModel() },
+                    SyncRefreshViewModel::class to { syncViewModel },
+                    RoutineFinishedListViewModel::class to { finishedViewModel() },
+                    RoutineAddViewModel::class to { routineAddViewModel() },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { routineAddTagViewModel() } },
+                    RoutineDetailViewModel.Factory::class to { RoutineDetailViewModel.Factory { id -> detailViewModel(id = id) } },
+                    RoutineDetailRecordViewModel.Factory::class to { RoutineDetailRecordViewModel.Factory { routineId -> recordViewModel(routineId = routineId) } },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagViewModel() } },
+                ),
+        )
 
     @Composable
     fun Content(
@@ -233,34 +240,33 @@ internal class RoutineFinishedListTestEnvironment(
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides viewModelFactory(),
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(module()) }) {
-                DiaryTheme {
-                    val holder = rememberListDetailPlaceholderStateHolder()
+            DiaryTheme {
+                val holder = rememberListDetailPlaceholderStateHolder()
 
-                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                        NavDisplay(
-                            backStack = navBackStack,
-                            sceneStrategies =
-                                listOf(
-                                    remember { BottomSheetSceneStrategy<ScreenNavKey>() },
-                                    rememberDiaryListDetailSceneStrategy(directive = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())),
-                                ),
-                            entryDecorators =
-                                listOf(
-                                    rememberSaveableStateHolderNavEntryDecorator(),
-                                    rememberViewModelStoreNavEntryDecorator(),
-                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                ),
-                            entryProvider =
-                                entryProvider {
-                                    entry<RoutineFinishedListDefaultNavKey> { Text(text = ROUTINE_FINISHED_LIST_DEFAULT_CONTENT) }
-                                    entry<TagAddNavKey> { Text(text = ROUTINE_FINISHED_LIST_TAG_ADD_CONTENT) }
-                                    entry<TagDetailNavKey> { Text(text = ROUTINE_FINISHED_LIST_TAG_DETAIL_CONTENT) }
-                                    routineEntry(backStack = navBackStack, homeReselectEvent = emptyFlow())
-                                },
-                        )
-                    }
+                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                    NavDisplay(
+                        backStack = navBackStack,
+                        sceneStrategies =
+                            listOf(
+                                remember { BottomSheetSceneStrategy<ScreenNavKey>() },
+                                rememberDiaryListDetailSceneStrategy(directive = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())),
+                            ),
+                        entryDecorators =
+                            listOf(
+                                rememberSaveableStateHolderNavEntryDecorator(),
+                                rememberViewModelStoreNavEntryDecorator(),
+                                rememberListDetailPlaceholderNavEntryDecorator(holder),
+                            ),
+                        entryProvider =
+                            entryProvider {
+                                entry<RoutineFinishedListDefaultNavKey> { Text(text = ROUTINE_FINISHED_LIST_DEFAULT_CONTENT) }
+                                entry<TagAddNavKey> { Text(text = ROUTINE_FINISHED_LIST_TAG_ADD_CONTENT) }
+                                entry<TagDetailNavKey> { Text(text = ROUTINE_FINISHED_LIST_TAG_DETAIL_CONTENT) }
+                                routineEntry(backStack = navBackStack, homeReselectEvent = emptyFlow())
+                            },
+                    )
                 }
             }
         }

@@ -4,15 +4,21 @@ package io.github.taetae98coding.diary.feature.qr.ui.detail.action
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
-import org.koin.core.annotation.Single
 
 private const val CONTACT_FILE_NAME = "contact.vcf"
 private const val CONTACT_MIME_TYPE = "text/vcard"
 private const val EVENT_FILE_NAME = "event.ics"
 private const val EVENT_MIME_TYPE = "text/calendar"
 
-@Single(binds = [QrActionLauncherFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<QrActionLauncherFactory>())
 internal class WasmQrActionLauncherFactory : QrActionLauncherFactory {
     @Composable
     override fun rememberQrActionLauncher(): QrActionLauncher = remember { WasmQrActionLauncher() }

@@ -27,7 +27,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Clock
@@ -48,7 +47,6 @@ class SearchHomeRoutineTodayTest {
     @Before
     fun setUp() {
         resetAndroidUiDispatcher()
-        stopKoin()
         mockkObject(Clock.System)
         every { Clock.System.now() } answers { today.atStartOfDayIn(TimeZone.currentSystemDefault()) + NOON_OFFSET }
     }
@@ -56,7 +54,6 @@ class SearchHomeRoutineTodayTest {
     @After
     fun tearDown() {
         unmockkObject(Clock.System)
-        stopKoin()
     }
 
     @Test

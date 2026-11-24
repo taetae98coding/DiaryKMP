@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.tag
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.AddTagLinkUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
@@ -10,12 +11,11 @@ import io.github.taetae98coding.diary.work.appaction.core.appActionNotDone
 import io.github.taetae98coding.diary.work.appaction.core.isActive
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 private const val LINKED_TAG_ID = "linkedTagId"
 
-@Factory
+@Inject
 public class TagLinkAppAction internal constructor(
     private val findTagUseCase: FindTagUseCase,
     private val addTagLinkUseCase: AddTagLinkUseCase,

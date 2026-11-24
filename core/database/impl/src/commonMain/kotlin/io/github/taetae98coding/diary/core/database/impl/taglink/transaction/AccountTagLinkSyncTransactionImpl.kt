@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl.taglink.transaction
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.transaction.AccountTagLinkSyncTransaction
@@ -7,10 +10,10 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountTagLinkSyncTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountTagLinkSyncTransaction {

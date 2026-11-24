@@ -4,6 +4,10 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.dday
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import io.github.taetae98coding.diary.domain.dday.usecase.GetCalendarDDayUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.calendarHomeFetchDateRange
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
@@ -17,9 +21,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.YearMonth
-import org.koin.core.annotation.KoinViewModel
 
-@KoinViewModel
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
 internal class CalendarHomeDDayViewModel(
     private val getCalendarDDayUseCase: GetCalendarDDayUseCase,
 ) : ViewModel() {

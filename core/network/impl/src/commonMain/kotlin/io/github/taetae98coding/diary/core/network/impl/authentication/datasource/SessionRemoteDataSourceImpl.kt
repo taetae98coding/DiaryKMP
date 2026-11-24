@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.authentication.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.authentication.datasource.SessionRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.authentication.entity.SessionRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.authentication.entity.AppleIdTokenRequestRemoteEntity
@@ -8,9 +11,9 @@ import io.github.taetae98coding.diary.core.network.impl.authentication.entity.Go
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.invoke
 import io.ktor.client.call.body
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class SessionRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : SessionRemoteDataSource {

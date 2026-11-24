@@ -1,13 +1,16 @@
 package io.github.taetae98coding.diary.core.network.impl.account.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.account.datasource.AccountRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.account.entity.AppleAuthorizationRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.account.entity.AccountDeleteRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.invoke
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : AccountRemoteDataSource {

@@ -21,7 +21,6 @@ kotlin {
                 implementation(projects.core.navigation)
                 implementation(projects.work.appaction)
                 implementation(libs.jetbrains.compose.ui)
-                implementation(libs.koin.core)
             }
         }
     }

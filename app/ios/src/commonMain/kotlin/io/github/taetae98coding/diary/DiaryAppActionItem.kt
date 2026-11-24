@@ -4,7 +4,6 @@ import io.github.taetae98coding.diary.work.appaction.contact.AppActionContact
 import io.github.taetae98coding.diary.work.appaction.core.appActionEpochMillis
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
-import io.github.taetae98coding.diary.work.appaction.tag.TagAppAction
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 
 // Swift export는 NSObject.description과 겹치는 `description` 멤버를 내보내지 않으므로 종류 이름을 붙인다.
@@ -70,7 +69,7 @@ internal suspend fun readPrimaryTagMap(primaryTagIdList: List<String?>): Map<Str
     val tagIdList = primaryTagIdList.filterNotNull().distinct()
     if (tagIdList.isEmpty()) return emptyMap()
 
-    val tagAppAction = diaryAppAction<TagAppAction>()
+    val tagAppAction = diaryAppActionGraph().tagAppAction
 
     return tagIdList
         .mapNotNull { tagId -> tagAppAction.get(tagId = tagId)?.tag?.toDiary() }

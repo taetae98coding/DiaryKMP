@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.file.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
@@ -11,11 +14,11 @@ import io.github.taetae98coding.diary.data.file.mapper.toDomain
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.domain.file.repository.FileDetailRepository
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 import io.github.taetae98coding.diary.domain.file.exception.FileDownloadDirectoryUnavailableException as DomainFileDownloadDirectoryUnavailableException
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class FileDetailRepositoryImpl(
     private val fileRemoteDataSource: FileRemoteDataSource,
     private val fileUpdateHolder: FileUpdateHolder,

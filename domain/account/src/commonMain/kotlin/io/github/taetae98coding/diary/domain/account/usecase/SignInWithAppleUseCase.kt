@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.LoginProvider
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
@@ -9,9 +10,8 @@ import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.logCrashlyticsFailure
 import kotlinx.coroutines.CancellationException
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class SignInWithAppleUseCase internal constructor(
     private val sessionRepository: SessionRepository,
     private val loginProviderRepository: LoginProviderRepository,

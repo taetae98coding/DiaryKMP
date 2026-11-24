@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountTagMemoLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -11,10 +14,10 @@ import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.memo.repository.AccountTagMemoRepository
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountTagMemoRepositoryImpl(
     private val accountTagMemoLocalDataSource: AccountTagMemoLocalDataSource,
 ) : AccountTagMemoRepository {

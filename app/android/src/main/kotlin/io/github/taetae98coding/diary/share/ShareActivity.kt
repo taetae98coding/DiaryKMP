@@ -11,16 +11,16 @@ import io.github.taetae98coding.diary.DiaryActivity
 import io.github.taetae98coding.diary.R
 import io.github.taetae98coding.diary.app.shared.share.ShareStreamReader
 import io.github.taetae98coding.diary.app.shared.share.shareAddDeepLinkOf
+import io.github.taetae98coding.diary.appGraph
 import io.github.taetae98coding.diary.domain.share.ShareFile
 import io.github.taetae98coding.diary.domain.share.ShareReadResult
 import io.github.taetae98coding.diary.domain.share.ShareRequest
 import io.github.taetae98coding.diary.domain.share.read
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
 // 공유하던 앱의 작업에서 실행되므로 앱 작업을 앞으로 가져오는 일은 DiaryActivity를 새 작업 플래그로 열어 시스템에 맡긴다.
 internal class ShareActivity : ComponentActivity() {
-    private val streamReader: ShareStreamReader by inject()
+    private val streamReader: ShareStreamReader by lazy { appGraph.shareStreamReader }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

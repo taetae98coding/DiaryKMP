@@ -53,12 +53,10 @@ import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -72,11 +70,6 @@ class TagDetailRoutineScreenTest {
     @Before
     fun setUp() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     // 현재 계정과 연결되지 않았거나 삭제된 태그는 조회되지 않으므로 대상 태그를 조회하지 못한 상태로 둔다.

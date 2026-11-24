@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
@@ -12,10 +13,9 @@ import io.github.taetae98coding.diary.domain.file.exception.FileNameTooLongExcep
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
 import io.github.taetae98coding.diary.domain.file.fileNameLength
 import io.github.taetae98coding.diary.domain.file.repository.FileDetailRepository
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class UpdateFileUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val fileDetailRepository: FileDetailRepository,

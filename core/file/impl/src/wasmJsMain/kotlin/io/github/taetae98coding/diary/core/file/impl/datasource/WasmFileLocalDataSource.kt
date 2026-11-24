@@ -2,12 +2,14 @@
 
 package io.github.taetae98coding.diary.core.file.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
-import org.koin.core.annotation.Factory
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.io.encoding.Base64
@@ -18,7 +20,8 @@ private const val CHUNK_BYTES = 1024L * 1024
 
 // 브라우저가 가리키는 파일은 blob URL이라 내용을 한 번에 받아야만 읽을 수 있다. 그래서 읽는 시점에만 메모리에 올린다.
 // blob URL 저장소는 fragment를 뺀 주소를 키로 쓰므로, 파일 이름을 담은 fragment는 떼고 브라우저에 넘긴다.
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WasmFileLocalDataSource : FileLocalDataSource {
     override suspend fun name(uri: FileUri): String {
         val encodedName = uri.value.substringAfter(FRAGMENT_SEPARATOR, missingDelimiterValue = "")

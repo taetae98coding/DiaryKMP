@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.account.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.UserData
@@ -13,9 +16,9 @@ import io.github.taetae98coding.diary.data.account.mapper.toUserData
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class UserDataRepositoryImpl(
     private val supabaseAuth: SupabaseAuth,
     private val imageConverter: ImageConverter,

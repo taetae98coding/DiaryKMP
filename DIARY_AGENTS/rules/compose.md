@@ -4,7 +4,7 @@
 
 **동작에 필수인 파라미터에는 어느 계층에서도 기본값을 두지 않는다.** no-op 기본값은 콜백을 빠뜨린 호출부를 컴파일러가 잡지 못하게 한다. 반환 타입이 `Unit`인 콜백(`onEvent`, `onClick`, `navigateUp`)은 필수로 두고, nullable 콜백은 `null`을 기본값으로 둔다.
 
-**Screen 컴포저블은 `modifier` 외에 기본값을 두지 않는다.** 진입점마다 무엇이 주입되는지가 선언에 드러나야 하고, `koinViewModel()`처럼 호출부 문맥이 필요한 값이 컴포저블 안에 숨지 않아야 한다.
+**Screen 컴포저블은 `modifier` 외에 기본값을 두지 않는다.** 진입점마다 무엇이 주입되는지가 선언에 드러나야 하고, `metroViewModel()`처럼 호출부 문맥이 필요한 값이 컴포저블 안에 숨지 않아야 한다.
 
 **Scaffold 이하 컴포저블은 표현에 관한 파라미터에 모두 기본값을 둔다.** preview와 테스트가 보여주려는 상태만 넘기게 하기 위해서다.
 
@@ -117,9 +117,9 @@ ViewModel의 `Flow<XxxEffect>`를 받는 방향은 `UI Effect 수집`을 따른�
 - 부모 컴포저블이 자식의 표시 여부를 정하는 것(Scaffold가 `componentVisibleProvider`로 떠 있는 버튼을 넣을지, 상단 바가 뒤로가기 버튼을 넣을지). 단, 그 결정으로 부모 자신이 통째로 비면 대상이 된다.
 - `DiaryScaleVisibility`, `DiaryScaleFadeVisibility`처럼 표시 전환 자체가 역할인 래퍼.
 
-## `koinViewModel`을 부르는 자리
+## ViewModel을 꺼내는 자리
 
-**`koinViewModel`은 entry 함수(`XxxEntry.kt`), Content, 앱 루트 `App` 세 곳에서만 부른다.** entry 함수는 얻은 ViewModel을 Screen의 인자로 넘기고, Screen·Scaffold·컴포넌트는 부르지 않고 파라미터로 받는다. 그 밖의 Koin 조회는 [di.md](di.md)의 `컨테이너 조회는 진입점에서만 한다`가 막는다.
+**`metroViewModel`·`assistedMetroViewModel`은 entry 함수(`XxxEntry.kt`), Content, 앱 루트 `App` 세 곳에서만 부른다.** entry 함수는 얻은 ViewModel을 Screen의 인자로 넘기고, Screen·Scaffold·컴포넌트는 부르지 않고 파라미터로 받는다. 그 밖의 그래프 조회는 [di.md](di.md)의 `그래프 조회는 진입점에서만 한다`가 막는다.
 
 ## `compose:*`의 domain 의존
 
@@ -205,7 +205,7 @@ Content를 빼는 것은 다음 둘을 모두 만족할 때만이다. 하나라�
 - 자기 ViewModel을 직접 얻는다. Screen이 주입해 주는 것을 받기만 하면 Content가 아니라 Connector다.
 - 자기 자신은 아무것도 그리지 않고 Preview가 있는 표현 컴포저블에 전부 위임한다. 레이아웃, 여백, 분기 표현이 Content 본문에 있으면 안 된다.
 
-**탭이나 페이지처럼 한 entry 안에서 갈리는 Content는 ViewModel 범위를 자기 것으로 좁힌다.** Screen이 `rememberViewModelStoreProvider()`를 만들어 내려보내고, Content가 `rememberViewModelStoreOwner(key = 탭 또는 페이지, provider = viewModelStoreProvider)`로 얻은 owner를 `LocalViewModelStoreOwner`로 제공한 안에서 `koinViewModel`을 부른다(`WebDetailMemoContent`, `HolidayHomeYearContent`). entry의 범위에서 그대로 얻으면 같은 타입의 ViewModel(`SyncRefreshViewModel`, 연도마다 다른 `HolidayHomeYearViewModel`)이 탭과 페이지 사이에 하나로 공유된다. 필터 Bottom Sheet처럼 화면에 하나뿐인 Content(`MemoHomeFilterContent`)는 좁히지 않는다.
+**탭이나 페이지처럼 한 entry 안에서 갈리는 Content는 ViewModel 범위를 자기 것으로 좁힌다.** Screen이 `rememberViewModelStoreProvider()`를 만들어 내려보내고, Content가 `rememberViewModelStoreOwner(key = 탭 또는 페이지, provider = viewModelStoreProvider)`로 얻은 owner를 `LocalViewModelStoreOwner`로 제공한 안에서 `metroViewModel`·`assistedMetroViewModel`을 부른다(`WebDetailMemoContent`, `HolidayHomeYearContent`). entry의 범위에서 그대로 얻으면 같은 타입의 ViewModel(`SyncRefreshViewModel`, 연도마다 다른 `HolidayHomeYearViewModel`)이 탭과 페이지 사이에 하나로 공유된다. 필터 Bottom Sheet처럼 화면에 하나뿐인 Content(`MemoHomeFilterContent`)는 좁히지 않는다.
 
 ### 상태별 Preview는 @PreviewParameter로 공급
 
@@ -244,7 +244,7 @@ Screen이 만든 인스턴스는 파라미터로 내려보낸다. 요청과 조�
 - iOS 구현은 `iosMain`의 `UiKitXxxOverride`로 두고, iOS Compose 루트에서 `ProvideUiKitComponentOverrides`가 한 번에 제공한다. 화면 코드는 플랫폼을 분기하지 않는다.
 - Scope에는 모든 구현이 그리는 데 필요한 값만 둔다. 테스트에서만 읽는 값을 Scope에 더하지 않는다.
 - 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니다. Composable이 만드는 보조 class는 [di.md](di.md)의 `XxxFactory`로, 그 밖의 갈래는 `expect`/`actual`로 나눈다.
-- 플랫폼 구현이 dispatcher나 서버 같은 Koin 의존을 가지면(지도) 그 구현은 의존을 생성자로 받는 class로 두고, `App` 루트가 `AppDependencies`로 받아 제공한다. 한 feature 안에서만 쓰는 표시 요소(QR 카메라 미리보기, 웹 상세의 웹 표시 수단)는 Koin 의존이 없어도 Override 대신 [di.md](di.md)의 `XxxContent`로 등록 클래스가 주입받는다. 표시 요소가 읽는 앱 범위 상태(웹 로그인을 되돌리는 중인지 알리는 `DiaryWebSession`)는 전역 `object`에 두지 않고 `App` 루트가 CompositionLocal(`LocalDiaryWebSession`)로 한 번 제공하며, 기본값은 `App` 없이 그리는 Preview와 테스트가 그대로 동작하는 값으로 둔다. 그 플랫폼의 `PlatformXxxOverride` 기본값은 제공이 빠졌음을 알리는 구현으로 둔다([di.md](di.md)의 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`).
+- 플랫폼 구현이 dispatcher나 서버 같은 그래프 의존을 가지면(지도) 그 구현은 의존을 생성자로 받는 class로 두고, `App` 루트가 `AppDependencies`로 받아 제공한다. 한 feature 안에서만 쓰는 표시 요소(QR 카메라 미리보기, 웹 상세의 웹 표시 수단)는 그래프 의존이 없어도 Override 대신 [di.md](di.md)의 `XxxContent`로 등록 클래스가 주입받는다. 표시 요소가 읽는 앱 범위 상태(웹 로그인을 되돌리는 중인지 알리는 `DiaryWebSession`)는 전역 `object`에 두지 않고 `App` 루트가 CompositionLocal(`LocalDiaryWebSession`)로 한 번 제공하며, 기본값은 `App` 없이 그리는 Preview와 테스트가 그대로 동작하는 값으로 둔다. 그 플랫폼의 `PlatformXxxOverride` 기본값은 제공이 빠졌음을 알리는 구현으로 둔다([di.md](di.md)의 `플랫폼 표시 요소의 그래프 의존은 Override 구현이 받는다`).
 - 플랫폼별 표현을 두는 공통 컴포넌트는 [플랫폼별 컴포넌트 표현 범위](../../docs/design/platform-presentation.md)의 허용 목록에 있는 것뿐이다. 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3 컴포넌트를 그대로 쓰고 Override를 만들지 않는다. 새 컴포넌트에 플랫폼별 표현이 필요하면 그 문서의 목록에 먼저 더한다. 지도처럼 플랫폼 표시 요소를 그리는 컴포넌트는 이 목록과 관계없이 Override로 둔다.
 
 ## Recomposition Loop (Cyclic Phase Dependency) 금지

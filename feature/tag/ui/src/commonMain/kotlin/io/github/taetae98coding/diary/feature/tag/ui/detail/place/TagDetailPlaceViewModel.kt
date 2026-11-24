@@ -6,6 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
@@ -30,18 +37,23 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class TagDetailPlaceViewModel(
-    @InjectedParam tagId: Uuid,
+    @Assisted tagId: Uuid,
     getTagPlaceListUseCase: GetTagPlaceListUseCase,
     pageTagPlaceUseCase: PageTagPlaceUseCase,
     deletePlaceUseCase: DeletePlaceUseCase,
     restorePlaceUseCase: RestorePlaceUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(tagId: Uuid): TagDetailPlaceViewModel
+    }
+
     private val visibleBounds = MutableStateFlow<CoordinateBounds?>(null)
 
     val sortUiState: StateFlow<ListSortUiState>

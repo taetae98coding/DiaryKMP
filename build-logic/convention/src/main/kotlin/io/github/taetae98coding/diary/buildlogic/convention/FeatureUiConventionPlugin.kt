@@ -5,8 +5,8 @@ import io.github.taetae98coding.diary.buildlogic.primitive.AndroidLibraryPrimiti
 import io.github.taetae98coding.diary.buildlogic.primitive.ComposePrimitivePlugin
 import io.github.taetae98coding.diary.buildlogic.primitive.ComposeTestPrimitivePlugin
 import io.github.taetae98coding.diary.buildlogic.primitive.KmpPrimitivePlugin
-import io.github.taetae98coding.diary.buildlogic.primitive.KoinPrimitivePlugin
 import io.github.taetae98coding.diary.buildlogic.primitive.KotestPrimitivePlugin
+import io.github.taetae98coding.diary.buildlogic.primitive.MetroPrimitivePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -26,7 +26,7 @@ internal class FeatureUiConventionPlugin : Plugin<Project> {
         pluginManager.apply(AndroidLibraryPrimitivePlugin::class.java)
         pluginManager.apply(ComposePrimitivePlugin::class.java)
         pluginManager.apply(ComposeTestPrimitivePlugin::class.java)
-        pluginManager.apply(KoinPrimitivePlugin::class.java)
+        pluginManager.apply(MetroPrimitivePlugin::class.java)
         pluginManager.apply(KotestPrimitivePlugin::class.java)
     }
 
@@ -39,7 +39,7 @@ internal class FeatureUiConventionPlugin : Plugin<Project> {
                         implementation(project(":compose:icon"))
                         implementation(project(":library:coroutines"))
                         implementation(library("jetbrains.lifecycle.viewmodel.compose"))
-                        implementation(library("koin.compose.viewmodel"))
+                        implementation(library("metrox.viewmodel.compose"))
                     }
                 }
 

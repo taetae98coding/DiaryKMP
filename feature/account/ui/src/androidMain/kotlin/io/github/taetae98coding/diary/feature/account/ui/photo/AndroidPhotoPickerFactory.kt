@@ -8,11 +8,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.CompletableDeferred
-import org.koin.core.annotation.Single
 
-@Single(binds = [PhotoPickerFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<PhotoPickerFactory>())
 internal class AndroidPhotoPickerFactory : PhotoPickerFactory {
     @Composable
     override fun rememberPhotoPicker(): PhotoPicker {

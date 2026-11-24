@@ -33,13 +33,18 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -78,18 +83,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -107,13 +106,7 @@ class QrNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -440,48 +433,54 @@ class QrNavDisplayTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides remember { navDisplayViewModelFactory() },
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory { addTagScreenTestViewModel() }
-            factory { detailTagScreenTestViewModel() }
-            factory {
-                mockk<QrHomeViewModel>(relaxed = true).apply {
-                    every { qrPagingData } returns MutableStateFlow(qrPagingDataOf(homeQrList))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-            factory { parameters ->
-                val id = parameters.get<Uuid>()
-                val qr = homeQrList.first { qr -> qr.id == id }
-                mockk<QrDetailViewModel>(relaxed = true)
-                    .apply {
-                        val effectChannel = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
-                        every { uiState } returns MutableStateFlow(QrDetailUiState.Content(id = qr.id, detail = qr.detail))
-                        every { effect } returns effectChannel.receiveAsFlow()
-                        every { delete() } answers { detailEffect?.let(effectChannel::trySend) }
-                    }.also(detailViewModelList::add)
-            }
-            factory {
-                mockk<QrAddViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(QrAddUiState())
-                        every { effect } returns emptyFlow()
-                    }.also(addViewModelList::add)
-            }
-        }
+    private fun navDisplayViewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    QrHomeViewModel::class to {
+                        mockk<QrHomeViewModel>(relaxed = true).apply {
+                            every { qrPagingData } returns MutableStateFlow(qrPagingDataOf(homeQrList))
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                        }
+                    },
+                    QrAddViewModel::class to {
+                        mockk<QrAddViewModel>(relaxed = true)
+                            .apply {
+                                every { uiState } returns MutableStateFlow(QrAddUiState())
+                                every { effect } returns emptyFlow()
+                            }.also(addViewModelList::add)
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { _ -> addTagScreenTestViewModel() } },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                    QrDetailViewModel.Factory::class to {
+                        QrDetailViewModel.Factory { id ->
+                            val qr = homeQrList.first { qr -> qr.id == id }
+                            mockk<QrDetailViewModel>(relaxed = true)
+                                .apply {
+                                    val effectChannel = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
+                                    every { uiState } returns MutableStateFlow(QrDetailUiState.Content(id = qr.id, detail = qr.detail))
+                                    every { effect } returns effectChannel.receiveAsFlow()
+                                    every { delete() } answers { detailEffect?.let(effectChannel::trySend) }
+                                }.also(detailViewModelList::add)
+                        }
+                    },
+                ),
+        )
 
     public companion object {
         private const val DEFAULT_ADD_DESCRIPTION = "Add QR code"

@@ -1,9 +1,12 @@
 package io.github.taetae98coding.diary.data.lunar.cache
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.data.core.cache.FetchedKeySet
-import org.koin.core.annotation.Single
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
 internal class LunarFetchedYearSet {
     private val keySet = FetchedKeySet<Int>()
 

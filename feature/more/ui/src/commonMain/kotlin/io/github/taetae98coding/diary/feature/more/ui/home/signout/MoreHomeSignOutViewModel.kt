@@ -2,7 +2,16 @@ package io.github.taetae98coding.diary.feature.more.ui.home.signout
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.usecase.GetSyncPendingExistsUseCase
@@ -13,14 +22,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.KoinViewModel
 
-@KoinViewModel
+@AssistedInject
 internal class MoreHomeSignOutViewModel(
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
     private val getSyncPendingExistsUseCase: GetSyncPendingExistsUseCase,
     private val signOutUseCase: SignOutUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(MoreHomeSignOutViewModel::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): MoreHomeSignOutViewModel = create(savedStateHandle = extras.createSavedStateHandle())
+
+        fun create(savedStateHandle: SavedStateHandle): MoreHomeSignOutViewModel
+    }
+
     private val isConfirmVisible = savedStateHandle.getMutableStateFlow(key = KEY_IS_CONFIRM_VISIBLE, initialValue = false)
 
     val uiState: StateFlow<MoreHomeSignOutUiState> =

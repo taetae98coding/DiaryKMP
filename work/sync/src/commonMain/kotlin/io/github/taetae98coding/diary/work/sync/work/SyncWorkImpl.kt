@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
@@ -13,11 +16,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class SyncWorkImpl(
     private val getAccountUseCase: GetAccountUseCase,
     private val supabaseAuth: SupabaseAuth,

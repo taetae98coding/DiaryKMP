@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.domain.tag.usecase
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -14,9 +15,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class PageFilteredTagUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountTagRepository: AccountTagRepository,

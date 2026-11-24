@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.routine
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.routine.usecase.PageFinishedRoutineUseCase
 import io.github.taetae98coding.diary.domain.routine.usecase.PageRoutineUseCase
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
@@ -9,10 +10,9 @@ import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
-@Factory
+@Inject
 public class RoutineListAppAction internal constructor(
     private val pageRoutineUseCase: PageRoutineUseCase,
     private val pageFinishedRoutineUseCase: PageFinishedRoutineUseCase,

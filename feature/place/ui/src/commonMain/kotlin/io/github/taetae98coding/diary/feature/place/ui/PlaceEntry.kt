@@ -7,6 +7,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -16,6 +18,8 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
@@ -25,6 +29,7 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.place.ui.add.PlaceAddScreen
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScreen
+import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeScreen
 import io.github.taetae98coding.diary.feature.place.ui.memo.finished.PlaceMemoFinishedListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.place_memo_finished_list_empty_title
@@ -33,8 +38,6 @@ import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.placeEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -61,9 +64,9 @@ private fun EntryProviderScope<ScreenNavKey>.placeHomeEntry(backStack: NavBackSt
                 },
             navigateToDetail = dropUnlessResumedWithArg { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             navigateToSearch = dropUnlessResumed { backStack.add(SearchHomeNavKey(initialType = SearchHomeType.PLACE)) },
-            mapViewModel = koinViewModel(),
-            placeListViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            mapViewModel = metroViewModel(),
+            placeListViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -84,9 +87,9 @@ private fun EntryProviderScope<ScreenNavKey>.placeDetailEntry(
             navigateToMemoFinishedList = dropUnlessResumed { backStack.add(PlaceMemoFinishedListNavKey(placeId = key.id)) },
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
-            detailViewModel = koinViewModel { parametersOf(key.id) },
-            searchViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.PLACE, key.id) },
+            detailViewModel = assistedMetroViewModel<PlaceDetailViewModel, PlaceDetailViewModel.Factory> { create(id = key.id) },
+            searchViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.PLACE, entityId = key.id) },
             contentSharerFactory = contentSharerFactory,
         )
     }
@@ -103,9 +106,9 @@ private fun EntryProviderScope<ScreenNavKey>.placeAddEntry(backStack: NavBackSta
             tagAddRequestKey = tagAddRequestKey,
             addedResultRequestKey = key.requestKey,
             initialCoordinate = key.toCoordinateOrNull(),
-            addViewModel = koinViewModel(),
-            searchViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            searchViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = key.initialTagId) },
         )
     }
 }
@@ -129,8 +132,8 @@ private fun EntryProviderScope<ScreenNavKey>.placeMemoFinishedListEntry(backStac
             navigateUp = backStack::navigateUpFromPlaceMemoFinishedList,
             navigateToMemoDetail = backStack::navigateToMemoDetail,
             emptyTitle = stringResource(Res.string.place_memo_finished_list_empty_title),
-            memoViewModel = koinViewModel<PlaceMemoFinishedListViewModel> { parametersOf(key.placeId) },
-            syncViewModel = koinViewModel(),
+            memoViewModel = assistedMetroViewModel<PlaceMemoFinishedListViewModel, PlaceMemoFinishedListViewModel.Factory> { create(placeId = key.placeId) },
+            syncViewModel = metroViewModel(),
         )
     }
 }

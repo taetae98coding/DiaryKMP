@@ -14,10 +14,14 @@ internal fun mockFileUploadWorkerFactory(
     fileUploadWork: FileUploadWork,
     dispatcher: CoroutineDispatcher,
 ): WorkerFactory =
-    mockk {
-        every { createWorker(any(), any(), any()) } answers { worker(context = firstArg(), parameters = thirdArg(), fileUploadWork = fileUploadWork, dispatcher = dispatcher) }
-        every { createWorkerWithDefaultFallback(any(), any(), any()) } answers { worker(context = firstArg(), parameters = thirdArg(), fileUploadWork = fileUploadWork, dispatcher = dispatcher) }
-    }
+    FileUploadWorkerFactory(
+        fileUploadWorkerFactory =
+            mockk<FileUploadWorker.Factory> {
+                every { create(context = any(), parameters = any()) } answers {
+                    worker(context = firstArg(), parameters = secondArg(), fileUploadWork = fileUploadWork, dispatcher = dispatcher)
+                }
+            },
+    )
 
 private fun worker(
     context: Context,

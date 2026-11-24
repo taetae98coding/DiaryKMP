@@ -25,6 +25,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -34,6 +36,7 @@ import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -76,16 +79,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -104,13 +101,7 @@ class MemoFinishedListDetailNavigationTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -218,7 +209,7 @@ class MemoFinishedListDetailNavigationTest {
     ) {
         finishedMemoList = memoList
         finishedPagingData.value = memoPagingDataOf(itemList = memoList.map { memo -> MemoListItem.Content(memo = memo) })
-        val viewModelModule = viewModelModule(copiedId = copiedId)
+        val viewModelFactory = viewModelFactory(copiedId = copiedId)
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -232,28 +223,27 @@ class MemoFinishedListDetailNavigationTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides viewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<FinishedListTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<FinishedListTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                    memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
+                                },
+                        )
                     }
                 }
             }
@@ -263,35 +253,41 @@ class MemoFinishedListDetailNavigationTest {
         }
     }
 
-    private fun viewModelModule(copiedId: Uuid): Module =
-        module {
-            factory<MemoFinishedListViewModel> {
-                mockk<MemoFinishedListViewModel>(relaxed = true) {
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState())
-                    every { memoPagingData } returns finishedPagingData
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
-            factory<MemoDetailViewModel> { parameters -> detailViewModel(id = parameters.get<Uuid>(), copiedId = copiedId) }
-            factory<MemoTagViewModel> { screenTestTagViewModel() }
-            factory<MemoWebViewModel> { screenTestWebViewModel() }
-            factory<MemoContactViewModel> { screenTestContactViewModel() }
-            factory<MemoPlaceViewModel> { screenTestPlaceViewModel() }
-            // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
-            factory<MemoPlaceMapViewModel> {
-                mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
-            }
-            factory<MemoPlacePickerMapViewModel> {
-                mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
-            }
-            factory<MemoGeminiViewModel> {
-                mockk<MemoGeminiViewModel>(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(MemoGeminiUiState())
-                    every { effect } returns emptyFlow()
-                }
-            }
-        }
+    private fun viewModelFactory(copiedId: Uuid): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    MemoFinishedListViewModel::class to {
+                        mockk<MemoFinishedListViewModel>(relaxed = true) {
+                            every { sortUiState } returns MutableStateFlow(ListSortUiState())
+                            every { memoPagingData } returns finishedPagingData
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                    // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
+                    MemoPlaceMapViewModel::class to {
+                        mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
+                    },
+                    MemoPlacePickerMapViewModel::class to {
+                        mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
+                    },
+                    MemoGeminiViewModel::class to {
+                        mockk<MemoGeminiViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(MemoGeminiUiState())
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    MemoDetailViewModel.Factory::class to { MemoDetailViewModel.Factory { id -> detailViewModel(id = id, copiedId = copiedId) } },
+                    MemoTagViewModel.Factory::class to { MemoTagViewModel.Factory { screenTestTagViewModel() } },
+                    MemoWebViewModel.Factory::class to { MemoWebViewModel.Factory { screenTestWebViewModel() } },
+                    MemoContactViewModel.Factory::class to { MemoContactViewModel.Factory { screenTestContactViewModel() } },
+                    MemoPlaceViewModel.Factory::class to { MemoPlaceViewModel.Factory { screenTestPlaceViewModel() } },
+                ),
+        )
 
     private fun detailViewModel(
         id: Uuid,

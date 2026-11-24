@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.routinerecord.datasource.AccountRoutineRecordSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.routinerecord.transaction.AccountRoutineRecordSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -7,10 +8,9 @@ import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCurs
 import io.github.taetae98coding.diary.core.network.api.routinerecord.datasource.RoutineRecordRemoteDataSource
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 internal class RoutineRecordSyncWork(
     private val accountRoutineRecordSyncLocalDataSource: AccountRoutineRecordSyncLocalDataSource,
     private val syncCursorLocalDataSource: SyncCursorLocalDataSource,

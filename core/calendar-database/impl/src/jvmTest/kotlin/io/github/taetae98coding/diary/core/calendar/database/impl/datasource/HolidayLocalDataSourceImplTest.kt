@@ -257,7 +257,7 @@ class HolidayLocalDataSourceImplTest :
 }
 
 internal fun calendarFileDatabase(file: File): CalendarDatabase =
-    CalendarDatabaseModule().providesCalendarDatabase(
+    CalendarDatabaseModule.providesCalendarDatabase(
         builder = Room.databaseBuilder<CalendarDatabase>(name = file.absolutePath),
         driver = BundledSQLiteDriver(),
     )

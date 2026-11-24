@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.place.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -8,11 +11,11 @@ import io.github.taetae98coding.diary.core.database.api.place.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.placetag.placeTagTable
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountPlaceTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountPlaceTransaction {

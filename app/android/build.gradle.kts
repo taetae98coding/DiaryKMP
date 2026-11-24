@@ -94,11 +94,12 @@ baselineProfile {
 dependencies {
     implementation(projects.app.shared)
     implementation(projects.core.navigation)
+    implementation(projects.work.appfunction)
     implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.firebase.performance)
     implementation(libs.google.material)
-    implementation(libs.koin.android)
 }
 
 dependencyGuard {

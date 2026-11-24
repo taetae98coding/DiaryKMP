@@ -3,6 +3,9 @@ package io.github.taetae98coding.diary.data.file.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUpload
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUploadResult
@@ -21,12 +24,12 @@ import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 private const val UNKNOWN_MIME_TYPE = "application/octet-stream"
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class FileRepositoryImpl(
     private val fileLocalDataSource: FileLocalDataSource,
     private val fileRemoteDataSource: FileRemoteDataSource,

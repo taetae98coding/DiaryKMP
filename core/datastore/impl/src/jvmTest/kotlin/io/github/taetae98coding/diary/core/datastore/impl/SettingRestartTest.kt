@@ -3,17 +3,12 @@ package io.github.taetae98coding.diary.core.datastore.impl
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.GeminiSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.McpSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
-import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
-import org.koin.core.Koin
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 import java.nio.file.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createTempDirectory
@@ -25,21 +20,21 @@ class SettingRestartTest :
             val suffix = Arb.kotlinUuid().next()
             val setting = GeminiSettingLocalEntity(apiKey = "apiKey-$suffix", model = "models/$suffix", systemPrompt = "지시문 $suffix")
             val directory = createTempDirectory("diary-setting")
-            createSettingKoin(directory).get<GeminiSettingLocalDataSource>().upsert(setting = setting)
+            createDataStoreTestGraph(directory).geminiSettingLocalDataSource.upsert(setting = setting)
 
             val restartedDirectory = restartedDirectory(directory = directory, name = DataStoreModule.GEMINI_SETTING_NAME)
 
-            createSettingKoin(restartedDirectory).get<GeminiSettingLocalDataSource>().get().first() shouldBe setting
+            createDataStoreTestGraph(restartedDirectory).geminiSettingLocalDataSource.get().first() shouldBe setting
         }
 
         test("TC-817a1a4b-353c-4ed9-88a7-1e9c63be23b3 다시 시작해도 저장한 연결 사용 설정을 제공한다") {
             listOf(true, false).forEach { isEnabled ->
                 val directory = createTempDirectory("diary-setting")
-                createSettingKoin(directory).get<McpSettingLocalDataSource>().upsertEnabled(isEnabled = isEnabled)
+                createDataStoreTestGraph(directory).mcpSettingLocalDataSource.upsertEnabled(isEnabled = isEnabled)
 
                 val restartedDirectory = restartedDirectory(directory = directory, name = DataStoreModule.MCP_SETTING_NAME)
 
-                createSettingKoin(restartedDirectory).get<McpSettingLocalDataSource>().getEnabled().first() shouldBe isEnabled
+                createDataStoreTestGraph(restartedDirectory).mcpSettingLocalDataSource.getEnabled().first() shouldBe isEnabled
             }
         }
     })
@@ -54,15 +49,3 @@ private fun restartedDirectory(
 
     return restartedDirectory
 }
-
-private fun createSettingKoin(directory: Path): Koin =
-    koinApplication<DataStoreTestKoinApplication> {
-        modules(
-            module {
-                single<String>(qualifier = named<DiarySettingDirectory>()) { directory.toString() }
-                single<SettingPathResolver> {
-                    SettingPathResolver { name -> directory.resolve(name).toString() }
-                }
-            },
-        )
-    }.koin

@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.work.sync.scheduler
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.work.sync.di.PeriodicSyncDispatcher
 import io.github.taetae98coding.diary.work.sync.di.SyncScope
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
@@ -9,11 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.koin.core.annotation.Single
 import platform.BackgroundTasks.BGTask
 import kotlin.time.Duration
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
 internal class BackgroundTaskPeriodicSyncWorkScheduler(
     private val syncWork: SyncWork,
     @param:SyncScope private val scope: CoroutineScope,

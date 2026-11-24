@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
 import app.cash.turbine.test
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
@@ -10,11 +11,9 @@ import io.github.taetae98coding.diary.core.data.testing.holiday.holidayLocalEnti
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
+import io.github.taetae98coding.diary.data.holiday.HolidayUseCaseTestGraph
 import io.github.taetae98coding.diary.data.holiday.cache.HolidayFetchedKeySet
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
-import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
-import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -29,8 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 
 private const val YEAR = 2026
 private const val CONSTITUTION_DAY = "제헌절"
@@ -252,19 +249,11 @@ private fun holidayVisibilityTestContext(
             holidaySettingLocalDataSource = settingLocalDataSource,
         )
     val getCalendarHolidayUseCase =
-        koinApplication<HolidayDataTestKoinApplication> {
-            modules(
-                module {
-                    single<HolidayRepository> { holidayRepository }
-                    single<HolidaySettingRepository> { settingRepository }
-                    // 진입점이 data:holiday 자체 모듈까지 함께 조립하므로 그 의존성도 채운다.
-                    single<HolidayRemoteDataSource> { holidayRemoteDataSource }
-                    single<HolidayLocalDataSource> { holidayLocalDataSource }
-                    single<HolidayTransaction> { holidayTransaction }
-                    single<HolidaySettingLocalDataSource> { settingLocalDataSource }
-                },
-            )
-        }.koin.get<GetCalendarHolidayUseCase>()
+        createGraphFactory<HolidayUseCaseTestGraph.Factory>()
+            .create(
+                holidayRepository = holidayRepository,
+                holidaySettingRepository = settingRepository,
+            ).getCalendarHolidayUseCase
 
     return HolidayVisibilityTestContext(
         holidayListFlow = holidayListFlow,

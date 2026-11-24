@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -9,11 +10,10 @@ import io.github.taetae98coding.diary.domain.memo.exception.MemoTitleBlankExcept
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class AddMemoUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,

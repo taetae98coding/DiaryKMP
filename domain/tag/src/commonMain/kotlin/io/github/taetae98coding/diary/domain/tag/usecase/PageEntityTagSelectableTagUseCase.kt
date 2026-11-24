@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.domain.tag.usecase
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.flatMapAccount
@@ -9,10 +10,9 @@ import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.domain.tag.repository.AccountEntityTagRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class PageEntityTagSelectableTagUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountEntityTagRepository: AccountEntityTagRepository,

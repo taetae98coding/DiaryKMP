@@ -2,6 +2,10 @@ package io.github.taetae98coding.diary.feature.routine.ui.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import io.github.taetae98coding.diary.domain.routine.RoutineInput
 import io.github.taetae98coding.diary.domain.routine.exception.RoutineAmountPerRecordInvalidException
 import io.github.taetae98coding.diary.domain.routine.exception.RoutineGoalAmountInvalidException
@@ -14,10 +18,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
 internal class RoutineAddViewModel(
     private val addRoutineUseCase: AddRoutineUseCase,
 ) : ViewModel() {

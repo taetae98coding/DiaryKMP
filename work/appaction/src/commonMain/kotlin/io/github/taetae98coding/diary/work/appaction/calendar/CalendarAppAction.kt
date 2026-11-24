@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.calendar
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.dday.usecase.GetCalendarDDayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
@@ -7,9 +8,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.work.appaction.core.dateRangeArgument
 import io.github.taetae98coding.diary.work.appaction.core.readFirst
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class CalendarAppAction internal constructor(
     private val getCalendarMemoUseCase: GetCalendarMemoUseCase,
     private val getCalendarContactBirthdayUseCase: GetCalendarContactBirthdayUseCase,

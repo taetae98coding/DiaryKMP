@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.file.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadResultRemoteEntity
@@ -29,12 +32,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.io.Buffer
 import kotlinx.io.RawSink
 import kotlinx.io.RawSource
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 private const val COPY_BUFFER_SIZE = 64 * 1024
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class FileRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
     private val fileUploadTransport: FileUploadTransport,

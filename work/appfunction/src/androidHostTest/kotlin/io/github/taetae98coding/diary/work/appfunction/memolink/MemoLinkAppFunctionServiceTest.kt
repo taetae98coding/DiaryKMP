@@ -7,11 +7,13 @@ import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.testing.AppFunctionTestRule
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.work.appaction.AppActionGraph
 import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.memolink.MemoLinkAppAction
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appfunction.core.TestAppFunctionApplication
 import io.github.taetae98coding.diary.work.appfunction.core.returnValueAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
@@ -20,22 +22,19 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [36], application = TestAppFunctionApplication::class)
 class MemoLinkAppFunctionServiceTest {
     private val context: Context = RuntimeEnvironment.getApplication()
 
@@ -48,13 +47,10 @@ class MemoLinkAppFunctionServiceTest {
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { memoLinkAppAction } }) }
+        val graph = mockk<AppActionGraph>()
+        every { graph.memoLinkAppAction } returns memoLinkAppAction
+        (context as TestAppFunctionApplication).appActionGraph = graph
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test

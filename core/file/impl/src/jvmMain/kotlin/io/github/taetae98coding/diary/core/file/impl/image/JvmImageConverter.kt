@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.file.impl.image
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
 import io.github.taetae98coding.diary.core.file.impl.file.toFile
@@ -9,7 +12,6 @@ import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import io.github.taetae98coding.diary.core.model.image.ImageFormat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Factory
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io.File
@@ -23,7 +25,8 @@ private const val PERCENT = 100f
 // EXIF는 파일 앞쪽 세그먼트에 있어, 방향을 읽으려고 사진 전체를 메모리에 올리지 않는다.
 private const val EXIF_SCAN_BYTES = 64 * 1024
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class JvmImageConverter(
     @FileDispatcher private val dispatcher: CoroutineDispatcher,
 ) : ImageConverter {

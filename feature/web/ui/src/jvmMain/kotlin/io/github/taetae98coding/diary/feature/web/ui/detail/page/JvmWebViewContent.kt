@@ -7,14 +7,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.web.WebPage
 import io.github.taetae98coding.diary.library.webkit.WebKitWebViewPanel
 import io.github.taetae98coding.diary.library.webkit.hideWhileCoveredByOverlay
 import io.github.taetae98coding.diary.library.webkit.webKitWebViewOverlayId
-import org.koin.core.annotation.Single
 import kotlin.uuid.Uuid
 
-@Single(binds = [WebViewContent::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<WebViewContent>())
 internal class JvmWebViewContent : WebViewContent {
     @Composable
     override fun UrlContent(

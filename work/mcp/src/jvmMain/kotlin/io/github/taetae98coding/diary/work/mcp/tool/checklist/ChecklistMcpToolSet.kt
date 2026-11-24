@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.checklist
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.checklist.Checklist
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.domain.checklist.usecase.FindChecklistUseCase
@@ -35,7 +39,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.koin.core.annotation.Factory
 
 private const val CHECKLIST_ID = "checklistId"
 private const val DESCRIPTION = "description"
@@ -49,7 +52,8 @@ private val checklistIdParameter: McpToolParameter =
 private val checklistItemIdParameter: McpToolParameter =
     McpToolParameter(name = ITEM_ID, type = McpToolParameterType.STRING, description = "Id of the checklist item.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class ChecklistMcpToolSet(
     private val checklistAppAction: ChecklistAppAction,
     private val checklistItemAppAction: ChecklistItemAppAction,

@@ -17,6 +17,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
@@ -58,7 +59,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.viewmodel.koinViewModel
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -679,7 +679,7 @@ class TagDetailReturnTest {
                             id = FIRST_TAG_ID,
                             componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                             detailViewModel = detailViewModel,
-                            placeMapViewModel = koinViewModel(),
+                            placeMapViewModel = metroViewModel(),
                             navigateToWebAdd = { leaveTo(WEB_ADD) },
                             navigateToWebDetail = { leaveTo(WEB_DETAIL) },
                             navigateToPlaceAdd = { leaveTo(PLACE_ADD) },

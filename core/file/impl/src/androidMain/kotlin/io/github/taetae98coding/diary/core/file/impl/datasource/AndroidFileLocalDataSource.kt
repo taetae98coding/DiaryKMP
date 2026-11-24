@@ -6,6 +6,9 @@ import android.content.Intent
 import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.provider.OpenableColumns
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
 import io.github.taetae98coding.diary.core.model.file.FileUri
@@ -13,13 +16,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.io.RawSource
 import kotlinx.io.asSource
-import org.koin.core.annotation.Factory
 import java.io.FileNotFoundException
 
 private const val READ_MODE = "r"
 
 // 사진·문서 선택기가 주는 content 위치는 ContentResolver로만 읽을 수 있고, 앱이 만든 파일은 file 위치라 둘을 함께 다룬다.
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AndroidFileLocalDataSource(
     private val context: Context,
     @FileDispatcher private val dispatcher: CoroutineDispatcher,

@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class ToggleHolidayVisibilityUseCase internal constructor(
     private val getSettingHolidayUseCase: GetSettingHolidayUseCase,
     private val holidaySettingRepository: HolidaySettingRepository,

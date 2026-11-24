@@ -8,7 +8,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import io.github.taetae98coding.diary.app.shared.di.DiaryKoinApplication
+import dev.zacsweers.metro.createGraph
+import io.github.taetae98coding.diary.app.shared.di.JvmAppGraph
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.app.shared.navigation.openDeepLink
@@ -48,7 +49,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.mockk
-import org.koin.plugin.module.dsl.koinApplication
 import kotlin.uuid.Uuid
 
 class AppStateDetailDeepLinkTest :
@@ -162,8 +162,8 @@ class AppStateDetailDeepLinkTest :
     )
 
     private companion object {
-        // 앱과 같은 Koin 구성에서 모은 entry로 판정해, 화면이 실제로 받는 배치 메타데이터를 확인한다.
-        private val entryInstallerList by lazy { koinApplication<DiaryKoinApplication>().koin.get<AppDependencies>().entryInstallerList }
+        // 앱과 같은 그래프에서 모은 entry로 판정해, 화면이 실제로 받는 배치 메타데이터를 확인한다.
+        private val entryInstallerList by lazy { createGraph<JvmAppGraph>().appDependencies.entryInstallerList }
 
         private fun detailCaseList(): List<DetailCase> {
             val more = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key)

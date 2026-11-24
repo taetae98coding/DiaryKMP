@@ -1,18 +1,17 @@
 package io.github.taetae98coding.diary.domain.holiday
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import io.github.taetae98coding.diary.domain.holiday.di.HolidayDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Module
 
-@Module
-@Configuration
-@ComponentScan
-public class DomainHolidayModule {
-    @Factory
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object DomainHolidayModule {
+    @Provides
     @HolidayDispatcher
     internal fun providesHolidayDispatcher(): CoroutineDispatcher = Dispatchers.Default
 }

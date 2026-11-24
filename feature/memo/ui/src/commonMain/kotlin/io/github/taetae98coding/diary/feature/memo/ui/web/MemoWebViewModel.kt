@@ -6,6 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoWebUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
@@ -20,19 +27,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class MemoWebViewModel(
-    @InjectedParam private val id: Uuid,
+    @Assisted private val id: Uuid,
     pageMemoSelectableWebUseCase: PageMemoSelectableWebUseCase,
     getMemoWebUseCase: GetMemoWebUseCase,
     private val addMemoWebUseCase: AddMemoWebUseCase,
     private val removeMemoWebUseCase: RemoveMemoWebUseCase,
 ) : ViewModel(),
     MemoWebInputController {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(id: Uuid): MemoWebViewModel
+    }
+
     private val selectablePaging =
         MemoSelectablePaging { query -> pageMemoSelectableWebUseCase(parameter = query) }
 

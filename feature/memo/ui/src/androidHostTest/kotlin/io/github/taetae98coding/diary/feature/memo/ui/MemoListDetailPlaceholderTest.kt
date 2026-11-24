@@ -40,6 +40,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -54,12 +56,14 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoUseCase
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
@@ -67,6 +71,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddTagViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
 import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestRealViewModel
@@ -103,15 +108,10 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -134,11 +134,6 @@ class MemoListDetailPlaceholderTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -425,26 +420,31 @@ class MemoListDetailPlaceholderTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides remember { placeholderViewModelFactory() },
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(placeholderViewModelModule()) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
-    private fun placeholderViewModelModule() =
-        module {
-            factory { screenTestRealViewModel(addMemoUseCase = addMemoUseCase).viewModel }
-            factory { realViewModels().tagViewModel.also { tagViewModelList += it } }
-            factory { realViewModels().webViewModel.also { webViewModelList += it } }
-            factory { realViewModels().contactViewModel.also { contactViewModelList += it } }
-            factory { realViewModels().placeViewModel.also { placeViewModelList += it } }
-            factory { relaxedPlaceMapViewModel() }
-            factory { relaxedPlacePickerMapViewModel() }
-            factory { relaxedGeminiViewModel() }
-            factory { memoHomeViewModel(storedMemoList = MutableStateFlow(emptyList())) }
-            factory { screenTestSyncViewModel() }
-        }
+    private fun placeholderViewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    MemoAddViewModel::class to { screenTestRealViewModel(addMemoUseCase = addMemoUseCase).viewModel },
+                    MemoPlaceMapViewModel::class to { relaxedPlaceMapViewModel() },
+                    MemoPlacePickerMapViewModel::class to { relaxedPlacePickerMapViewModel() },
+                    MemoGeminiViewModel::class to { relaxedGeminiViewModel() },
+                    MemoHomeViewModel::class to { memoHomeViewModel(storedMemoList = MutableStateFlow(emptyList())) },
+                    SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    MemoAddTagViewModel.Factory::class to { MemoAddTagViewModel.Factory { realViewModels().tagViewModel.also { tagViewModelList += it } } },
+                    MemoAddWebViewModel.Factory::class to { MemoAddWebViewModel.Factory { realViewModels().webViewModel.also { webViewModelList += it } } },
+                    MemoAddContactViewModel.Factory::class to { MemoAddContactViewModel.Factory { realViewModels().contactViewModel.also { contactViewModelList += it } } },
+                    MemoAddPlaceViewModel.Factory::class to { MemoAddPlaceViewModel.Factory { realViewModels().placeViewModel.also { placeViewModelList += it } } },
+                ),
+        )
 
     private fun memoHomeViewModel(storedMemoList: MutableStateFlow<List<Memo>>): MemoHomeViewModel {
         val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()

@@ -8,6 +8,7 @@ import androidx.appfunctions.testing.AppFunctionTestRule
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.work.appaction.AppActionGraph
 import io.github.taetae98coding.diary.work.appaction.core.AppActionChangedCount
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionId
@@ -21,6 +22,7 @@ import io.github.taetae98coding.diary.work.appaction.memo.MemoListAppAction
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionChangedCount
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appfunction.core.TestAppFunctionApplication
 import io.github.taetae98coding.diary.work.appfunction.core.appActionColor
 import io.github.taetae98coding.diary.work.appfunction.core.expectedTag
 import io.github.taetae98coding.diary.work.appfunction.core.returnValueAs
@@ -39,22 +41,19 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [36], application = TestAppFunctionApplication::class)
 class DiaryAppFunctionServiceTest {
     private val context: Context = RuntimeEnvironment.getApplication()
 
@@ -68,20 +67,11 @@ class DiaryAppFunctionServiceTest {
 
     @Before
     fun setUp() {
-        startKoin {
-            modules(
-                module {
-                    single { memoAppAction }
-                    single { memoListAppAction }
-                },
-            )
-        }
+        val graph = mockk<AppActionGraph>()
+        every { graph.memoAppAction } returns memoAppAction
+        every { graph.memoListAppAction } returns memoListAppAction
+        (context as TestAppFunctionApplication).appActionGraph = graph
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test

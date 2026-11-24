@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.core.network.impl.file.transport
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Module
 
-@Module
-@Configuration
-public class JvmFileUploadTransportModule {
-    @Factory
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object JvmFileUploadTransportModule {
+    @Provides
     internal fun providesFileUploadTransport(supabaseFunction: SupabaseFunction): FileUploadTransport = SupabaseFunctionFileUploadTransport(supabaseFunction = supabaseFunction)
 }

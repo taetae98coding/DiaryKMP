@@ -16,9 +16,12 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.YEAR
@@ -36,10 +39,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
-import org.koin.compose.KoinApplication
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import kotlin.time.Clock
 
 internal const val THIS_YEAR_PERIOD: String = "Feb 6 ~ Feb 8"
@@ -133,21 +132,24 @@ internal fun nextYearGoldenHolidayGroup(): GoldenHolidayGroup {
     )
 }
 
-// 모듈이 호출마다 달라지는 UseCase를 붙잡아야 해 최상위 val로 둘 수 없고, 그래서 KOIN-W003(그래프 컴파일 타임 검증 불가)이 남는다.
-// 억제 수단은 compileSafety를 끄는 것뿐인데 이 모듈의 프로덕션 정의 검증까지 잃으므로 경고를 그대로 받아들인다.
-internal fun holidayHomeYearViewModelModule(
+internal fun holidayHomeYearViewModelFactory(
     fetchHolidayUseCase: FetchHolidayUseCase,
     getGoldenHolidayUseCase: GetGoldenHolidayUseCase,
-): Module =
-    module {
-        factory { parametersHolder ->
-            HolidayHomeYearViewModel(
-                year = parametersHolder.get(),
-                fetchHolidayUseCase = fetchHolidayUseCase,
-                getGoldenHolidayUseCase = getGoldenHolidayUseCase,
-            )
-        }
-    }
+): MetroViewModelFactory =
+    TestViewModelFactory(
+        manualAssistedFactoryProviders =
+            mapOf(
+                HolidayHomeYearViewModel.Factory::class to {
+                    HolidayHomeYearViewModel.Factory { year ->
+                        HolidayHomeYearViewModel(
+                            year = year,
+                            fetchHolidayUseCase = fetchHolidayUseCase,
+                            getGoldenHolidayUseCase = getGoldenHolidayUseCase,
+                        )
+                    }
+                },
+            ),
+    )
 
 internal fun ComposeContentTestRule.setHolidayHomeScreen(
     targetYear: State<Int?>,
@@ -179,31 +181,25 @@ internal fun ComposeContentTestRule.setHolidayHomeScreen(
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalLifecycleOwner provides (lifecycleOwner() ?: LocalLifecycleOwner.current),
+                LocalMetroViewModelFactory provides holidayHomeYearViewModelFactory(fetchHolidayUseCase, getGoldenHolidayUseCase),
             ) {
-                KoinApplication(
-                    configuration =
-                        koinConfiguration {
-                            modules(holidayHomeYearViewModelModule(fetchHolidayUseCase, getGoldenHolidayUseCase))
-                        },
-                ) {
-                    val state =
-                        if (clock == null) {
-                            rememberHolidayHomeScaffoldState(initialYear = YEAR)
-                        } else {
-                            rememberHolidayHomeScaffoldState(clock = clock)
-                        }
-
-                    ScrollToYearEffect(
-                        state = state,
-                        targetYear = targetYear,
-                    )
-                    DiaryTheme {
-                        HolidayHomeScreen(
-                            navigateUp = navigateUp,
-                            navigateToMemoAdd = navigateToMemoAdd,
-                            state = state,
-                        )
+                val state =
+                    if (clock == null) {
+                        rememberHolidayHomeScaffoldState(initialYear = YEAR)
+                    } else {
+                        rememberHolidayHomeScaffoldState(clock = clock)
                     }
+
+                ScrollToYearEffect(
+                    state = state,
+                    targetYear = targetYear,
+                )
+                DiaryTheme {
+                    HolidayHomeScreen(
+                        navigateUp = navigateUp,
+                        navigateToMemoAdd = navigateToMemoAdd,
+                        state = state,
+                    )
                 }
             }
         }

@@ -139,7 +139,7 @@ class McpToolRegistryTest :
     })
 
 // 각 기능 묶음이 받는 앱 기능은 목록을 만드는 데 쓰이지 않으므로 모두 mock으로 채운다.
-private fun createRegistry(): McpToolRegistry = McpToolRegistry(toolSetList = mcpToolSetOrderList.map { toolSetClass -> toolSetClass.createWithMocks() }.shuffled())
+private fun createRegistry(): McpToolRegistry = McpToolRegistry(toolSetSet = mcpToolSetOrderList.map { toolSetClass -> toolSetClass.createWithMocks() }.shuffled().toSet())
 
 private fun <T : Any> KClass<T>.createWithMocks(): T {
     val constructor = primaryConstructor!!

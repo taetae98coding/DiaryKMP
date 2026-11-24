@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class UnselectAllHolidayUseCase internal constructor(
     private val getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase,
     private val holidayRepository: HolidayRepository,

@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.web.network.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.web.network.api.datasource.WebPageRemoteDataSource
 import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageHeaderRemoteEntity
 import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageRemoteEntity
@@ -9,9 +12,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WebPageRemoteDataSourceImpl(
     @WebPageHttpClient
     private val httpClient: HttpClient,

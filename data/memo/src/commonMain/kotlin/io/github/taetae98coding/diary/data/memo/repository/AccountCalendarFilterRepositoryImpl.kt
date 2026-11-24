@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.calendarfilter.datasource.AccountCalendarFilterLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -7,10 +10,10 @@ import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.domain.memo.repository.AccountCalendarFilterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountCalendarFilterRepositoryImpl(
     private val accountCalendarFilterLocalDataSource: AccountCalendarFilterLocalDataSource,
 ) : AccountCalendarFilterRepository {

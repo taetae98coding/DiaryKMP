@@ -10,6 +10,7 @@ kotlin {
             dependencies {
                 implementation(projects.library.room3)
                 implementation(libs.androidx.room3.paging)
+                api(libs.androidx.room3.runtime)
                 implementation(libs.kotlinx.serialization.json)
             }
         }

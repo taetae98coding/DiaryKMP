@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.core.database.impl.memofilter.datasource
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.memofilter.datasource.MemoExistenceFilterLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memofilter.dao.MemoExistenceFilterDao
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class MemoExistenceFilterLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : MemoExistenceFilterLocalDataSource {

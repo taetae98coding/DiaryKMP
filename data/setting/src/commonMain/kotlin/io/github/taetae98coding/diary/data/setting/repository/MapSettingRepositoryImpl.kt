@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.setting.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.MapSettingLocalDataSource
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.data.setting.mapper.toDomain
@@ -7,9 +10,9 @@ import io.github.taetae98coding.diary.data.setting.mapper.toLocal
 import io.github.taetae98coding.diary.domain.setting.repository.MapSettingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class MapSettingRepositoryImpl(
     private val mapSettingLocalDataSource: MapSettingLocalDataSource,
 ) : MapSettingRepository {

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftGeneration
@@ -11,10 +12,9 @@ import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRep
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
-@Factory
+@Inject
 public class FetchMemoDraftUseCase internal constructor(
     private val geminiSettingRepository: GeminiSettingRepository,
     private val memoDraftRepository: MemoDraftRepository,

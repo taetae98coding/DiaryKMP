@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.tag
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
@@ -30,13 +31,12 @@ import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toSortArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
-import org.koin.core.annotation.Factory
 
 internal const val TAG_ID = "tagId"
 
 internal val tagSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED)
 
-@Factory
+@Inject
 public class TagAppAction internal constructor(
     private val pageFilteredTagUseCase: PageFilteredTagUseCase,
     private val pageFinishedTagUseCase: PageFinishedTagUseCase,

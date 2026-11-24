@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.routine.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.routine.datasource.RoutineRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.routine.entity.RoutinePullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.routine.entity.RoutineRemoteEntity
@@ -9,9 +12,9 @@ import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestR
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.invoke
 import io.ktor.client.call.body
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class RoutineRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : RoutineRemoteDataSource {

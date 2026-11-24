@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.weather.network.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRemoteEntity
@@ -9,14 +12,14 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import org.koin.core.annotation.Factory
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 
 private const val LOCATION_NAME_LIMIT = 1
 private const val LANGUAGE = "en"
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WeatherRemoteDataSourceImpl(
     @WeatherHttpClient
     private val httpClient: HttpClient,

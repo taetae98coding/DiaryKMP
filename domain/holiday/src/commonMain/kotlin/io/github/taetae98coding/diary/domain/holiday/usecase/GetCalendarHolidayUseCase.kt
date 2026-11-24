@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
@@ -10,9 +11,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class GetCalendarHolidayUseCase internal constructor(
     private val getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase,
     private val holidayRepository: HolidayRepository,

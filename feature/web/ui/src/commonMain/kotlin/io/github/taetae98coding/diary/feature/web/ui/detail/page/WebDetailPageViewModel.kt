@@ -2,6 +2,13 @@ package io.github.taetae98coding.diary.feature.web.ui.detail.page
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.domain.web.usecase.FetchWebPageUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,16 +20,21 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class WebDetailPageViewModel(
-    @InjectedParam private val id: Uuid,
+    @Assisted private val id: Uuid,
     private val findWebUseCase: FindWebUseCase,
     private val fetchWebPageUseCase: FetchWebPageUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(id: Uuid): WebDetailPageViewModel
+    }
+
     val uiState: StateFlow<WebDetailPageUiState>
         field = MutableStateFlow<WebDetailPageUiState>(WebDetailPageUiState.Loading)
 

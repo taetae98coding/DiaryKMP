@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.work.fileupload.text
 
 import android.content.Context
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.work.fileupload.di.FileUploadTextDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Factory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -13,7 +13,7 @@ import kotlin.uuid.Uuid
 private const val DIRECTORY_NAME: String = "file-upload-text"
 
 // WorkManager의 입력 값은 모두 합쳐 10KB까지만 담을 수 있어, 길이 제한이 없는 제목과 설명은 앱 전용 파일에 두고 작업에는 그 이름만 넘긴다.
-@Factory
+@Inject
 internal class FileUploadTextStore(
     private val context: Context,
     @FileUploadTextDispatcher private val dispatcher: CoroutineDispatcher,

@@ -5,6 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Rect
 import android.net.Uri
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
 import io.github.taetae98coding.diary.core.file.impl.file.toFileUri
@@ -13,12 +16,12 @@ import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import io.github.taetae98coding.diary.core.model.image.ImageFormat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Factory
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AndroidImageConverter(
     private val context: Context,
     @FileDispatcher private val dispatcher: CoroutineDispatcher,

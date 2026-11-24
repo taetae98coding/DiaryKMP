@@ -1,17 +1,16 @@
 package io.github.taetae98coding.diary.core.ip.network.impl.datasource
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.data.testing.ip.ipRemoteEntity
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
-import io.github.taetae98coding.diary.core.ip.network.impl.IpNetworkTestKoinApplication
+import io.github.taetae98coding.diary.core.ip.network.impl.IpNetworkTestGraph
 import io.github.taetae98coding.diary.core.ip.network.impl.createIpHttpClient
-import io.github.taetae98coding.diary.core.ip.network.impl.di.IpHttpClient
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -20,9 +19,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 
 class IpRemoteDataSourceImplTest :
     FunSpec({
@@ -84,12 +80,8 @@ class IpRemoteDataSourceImplTest :
             }
 
         private fun createDataSource(engine: HttpClientEngine): IpRemoteDataSource =
-            koinApplication<IpNetworkTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClient>(qualifier = named<IpHttpClient>()) { createIpHttpClient(engine = engine) }
-                    },
-                )
-            }.koin.get()
+            createGraphFactory<IpNetworkTestGraph.Factory>()
+                .create(httpClient = createIpHttpClient(engine = engine))
+                .ipRemoteDataSource
     }
 }

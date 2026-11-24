@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.app.shared
 
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
@@ -41,7 +42,11 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.app.shared.di.DiaryKoinApplication
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.createGraphFactory
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
@@ -111,11 +116,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinIsolatedContext
-import org.koin.core.KoinApplication
-import org.koin.core.module.Module
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Clock
@@ -266,9 +266,9 @@ class TagRoutineFinishedListDetailPaneTest {
 
     private fun setNavDisplay(routineList: List<Routine>) {
         store.setRoutineList(routineList)
-        val koinApplication = store.koinApplication()
+        val viewModelFactory = store.graph(context = composeRule.activity).appDependencies.viewModelFactory
         composeRule.setContent {
-            KoinIsolatedContext(context = koinApplication) {
+            CompositionLocalProvider(LocalMetroViewModelFactory provides viewModelFactory) {
                 CompositionLocalProvider(LocalViewModelStoreOwner provides remember { TestViewModelStoreOwner() }) {
                     DiaryTheme {
                         AppNavDisplay()
@@ -463,27 +463,59 @@ private class RoutineStore(
     val storedRecordList: List<RoutineRecord>
         get() = recordFlow.value
 
+    private val pageFinishedTagRoutineUseCase = mockk<PageFinishedTagRoutineUseCase>()
+    private val findRoutineUseCase = mockk<FindRoutineUseCase>()
+    private val updateRoutineUseCase = mockk<UpdateRoutineUseCase>()
+    private val finishRoutineUseCase = mockk<FinishRoutineUseCase>()
+    private val restartRoutineUseCase = mockk<RestartRoutineUseCase>()
+    private val deleteRoutineUseCase = mockk<DeleteRoutineUseCase>()
+    private val restoreRoutineUseCase = mockk<RestoreRoutineUseCase>()
+    private val pageRoutineRecordUseCase = mockk<PageRoutineRecordUseCase>()
+    private val addRoutineRecordUseCase = mockk<AddRoutineRecordUseCase>()
+    private val deleteRoutineRecordUseCase = mockk<DeleteRoutineRecordUseCase>()
+    private val findTagUseCase = mockk<FindTagUseCase>()
+    private val getProgressReportedUseCase = mockk<GetProgressReportedUseCase>()
+    private val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+    private val pageEntityTagSelectableTagUseCase = mockk<PageEntityTagSelectableTagUseCase>()
+    private val requestSyncUseCase = mockk<RequestSyncUseCase>()
+    private val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+    private val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+
+    init {
+        stubRoutine()
+        stubRecord()
+        stubTag()
+    }
+
     fun setRoutineList(routineList: List<Routine>) {
         routineFlow.value = routineList
     }
 
     fun stored(routine: Routine): Routine = routineFlow.value.first { value -> value.id == routine.id }
 
-    fun koinApplication(): KoinApplication =
-        koinApplication<DiaryKoinApplication> {
-            allowOverride(true)
-            modules(routineModule(), recordModule(), tagModule())
-        }
+    fun graph(context: Context): TagRoutineFinishedListTestGraph =
+        createGraphFactory<TagRoutineFinishedListTestGraph.Factory>().create(
+            context = context,
+            pageFinishedTagRoutineUseCase = pageFinishedTagRoutineUseCase,
+            findRoutineUseCase = findRoutineUseCase,
+            updateRoutineUseCase = updateRoutineUseCase,
+            finishRoutineUseCase = finishRoutineUseCase,
+            restartRoutineUseCase = restartRoutineUseCase,
+            deleteRoutineUseCase = deleteRoutineUseCase,
+            restoreRoutineUseCase = restoreRoutineUseCase,
+            pageRoutineRecordUseCase = pageRoutineRecordUseCase,
+            addRoutineRecordUseCase = addRoutineRecordUseCase,
+            deleteRoutineRecordUseCase = deleteRoutineRecordUseCase,
+            findTagUseCase = findTagUseCase,
+            getProgressReportedUseCase = getProgressReportedUseCase,
+            getEntityTagUseCase = getEntityTagUseCase,
+            pageEntityTagSelectableTagUseCase = pageEntityTagSelectableTagUseCase,
+            requestSyncUseCase = requestSyncUseCase,
+            addEntityTagUseCase = addEntityTagUseCase,
+            removeEntityTagUseCase = removeEntityTagUseCase,
+        )
 
-    private fun routineModule(): Module {
-        val pageFinishedTagRoutineUseCase = mockk<PageFinishedTagRoutineUseCase>()
-        val findRoutineUseCase = mockk<FindRoutineUseCase>()
-        val updateRoutineUseCase = mockk<UpdateRoutineUseCase>()
-        val finishRoutineUseCase = mockk<FinishRoutineUseCase>()
-        val restartRoutineUseCase = mockk<RestartRoutineUseCase>()
-        val deleteRoutineUseCase = mockk<DeleteRoutineUseCase>()
-        val restoreRoutineUseCase = mockk<RestoreRoutineUseCase>()
-
+    private fun stubRoutine() {
         every { pageFinishedTagRoutineUseCase(parameter = any()) } answers {
             val parameter = firstArg<PageFinishedTagRoutineUseCase.Parameter>()
 
@@ -505,23 +537,9 @@ private class RoutineStore(
         coEvery { restartRoutineUseCase(parameter = any()) } coAnswers { change(id = firstArg()) { routine -> routine.copy(isFinished = false) } }
         coEvery { deleteRoutineUseCase(parameter = any()) } coAnswers { change(id = firstArg()) { routine -> routine.copy(isDeleted = true) } }
         coEvery { restoreRoutineUseCase(parameter = any()) } coAnswers { change(id = firstArg()) { routine -> routine.copy(isDeleted = false) } }
-
-        return module {
-            factory { pageFinishedTagRoutineUseCase }
-            factory { findRoutineUseCase }
-            factory { updateRoutineUseCase }
-            factory { finishRoutineUseCase }
-            factory { restartRoutineUseCase }
-            factory { deleteRoutineUseCase }
-            factory { restoreRoutineUseCase }
-        }
     }
 
-    private fun recordModule(): Module {
-        val pageRoutineRecordUseCase = mockk<PageRoutineRecordUseCase>()
-        val addRoutineRecordUseCase = mockk<AddRoutineRecordUseCase>()
-        val deleteRoutineRecordUseCase = mockk<DeleteRoutineRecordUseCase>()
-
+    private fun stubRecord() {
         every { pageRoutineRecordUseCase(parameter = any()) } answers {
             val routineId = firstArg<Uuid>()
 
@@ -540,34 +558,13 @@ private class RoutineStore(
 
             Result.success(1)
         }
-
-        return module {
-            factory { pageRoutineRecordUseCase }
-            factory { addRoutineRecordUseCase }
-            factory { deleteRoutineRecordUseCase }
-        }
     }
 
-    private fun tagModule(): Module {
-        val findTagUseCase = mockk<FindTagUseCase>()
-        val getProgressReportedUseCase = mockk<GetProgressReportedUseCase>()
-        val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
-        val pageEntityTagSelectableTagUseCase = mockk<PageEntityTagSelectableTagUseCase>()
-
+    private fun stubTag() {
         every { findTagUseCase(parameter = any()) } returns flowOf(Result.success(Arb.tag().next().copy(id = tagId, isDeleted = false)))
         every { getProgressReportedUseCase() } returns flowOf(Result.success(false))
         every { getEntityTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
         every { pageEntityTagSelectableTagUseCase(parameter = any()) } returns flowOf(Result.success(loadedPagingDataOf(emptyList())))
-
-        return module {
-            factory { findTagUseCase }
-            factory { getProgressReportedUseCase }
-            factory { getEntityTagUseCase }
-            factory { pageEntityTagSelectableTagUseCase }
-            factory { mockk<RequestSyncUseCase>() }
-            factory { mockk<AddEntityTagUseCase>() }
-            factory { mockk<RemoveEntityTagUseCase>() }
-        }
     }
 
     private fun change(
@@ -625,3 +622,32 @@ private fun RoutineInput.toRoutineDetail(): RoutineDetail =
     )
 
 private fun LocalDate.toInputText(): String = "${month.ordinal.plus(1).toString().padStart(2, '0')}${day.toString().padStart(2, '0')}$year"
+
+@DependencyGraph(AppScope::class)
+internal interface TagRoutineFinishedListTestGraph {
+    val appDependencies: AppDependencies
+
+    @DependencyGraph.Factory
+    fun interface Factory {
+        fun create(
+            @Provides context: Context,
+            @Provides pageFinishedTagRoutineUseCase: PageFinishedTagRoutineUseCase,
+            @Provides findRoutineUseCase: FindRoutineUseCase,
+            @Provides updateRoutineUseCase: UpdateRoutineUseCase,
+            @Provides finishRoutineUseCase: FinishRoutineUseCase,
+            @Provides restartRoutineUseCase: RestartRoutineUseCase,
+            @Provides deleteRoutineUseCase: DeleteRoutineUseCase,
+            @Provides restoreRoutineUseCase: RestoreRoutineUseCase,
+            @Provides pageRoutineRecordUseCase: PageRoutineRecordUseCase,
+            @Provides addRoutineRecordUseCase: AddRoutineRecordUseCase,
+            @Provides deleteRoutineRecordUseCase: DeleteRoutineRecordUseCase,
+            @Provides findTagUseCase: FindTagUseCase,
+            @Provides getProgressReportedUseCase: GetProgressReportedUseCase,
+            @Provides getEntityTagUseCase: GetEntityTagUseCase,
+            @Provides pageEntityTagSelectableTagUseCase: PageEntityTagSelectableTagUseCase,
+            @Provides requestSyncUseCase: RequestSyncUseCase,
+            @Provides addEntityTagUseCase: AddEntityTagUseCase,
+            @Provides removeEntityTagUseCase: RemoveEntityTagUseCase,
+        ): TagRoutineFinishedListTestGraph
+    }
+}

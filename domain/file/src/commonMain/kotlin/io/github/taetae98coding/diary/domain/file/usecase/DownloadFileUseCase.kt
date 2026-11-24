@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
@@ -10,9 +11,8 @@ import io.github.taetae98coding.diary.domain.file.FileDownloadName
 import io.github.taetae98coding.diary.domain.file.repository.FileDetailRepository
 import io.github.taetae98coding.diary.domain.file.repository.FileDownloadSettingRepository
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class DownloadFileUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val fileDetailRepository: FileDetailRepository,

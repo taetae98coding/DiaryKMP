@@ -2,19 +2,22 @@
 
 package io.github.taetae98coding.diary.core.file.impl.image
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import io.github.taetae98coding.diary.core.model.image.ImageFormat
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.koin.core.annotation.Factory
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 private const val PERCENT = 100.0
 
 // 브라우저에는 앱이 쓸 파일 시스템이 없어 바꾼 이미지를 blob URL로 가리킨다. 그 위치를 읽고 지우는 것은 WasmFileLocalDataSource가 맡는다.
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WasmImageConverter : ImageConverter {
     override suspend fun convert(
         source: FileUri,

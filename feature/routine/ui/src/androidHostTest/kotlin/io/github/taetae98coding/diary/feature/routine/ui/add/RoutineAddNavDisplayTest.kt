@@ -25,7 +25,10 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.ui.RoutineTestTheme
 import io.github.taetae98coding.diary.feature.routine.ui.form.ROUTINE_FORM_DEFAULT_NAVIGATE_UP
@@ -43,15 +46,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -65,13 +63,7 @@ class RoutineAddNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -136,25 +128,29 @@ class RoutineAddNavDisplayTest {
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                RoutineTestTheme(content = content)
-            }
+        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner, LocalMetroViewModelFactory provides navDisplayViewModelFactory()) {
+            RoutineTestTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory { routineFormAddTagViewModel() }
-            factory {
-                mockk<RoutineAddViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(RoutineAddUiState())
-                        every { effect } returns emptyFlow()
-                    }.also(addViewModelList::add)
-            }
-        }
+    private fun navDisplayViewModelFactory() =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    RoutineAddViewModel::class to {
+                        mockk<RoutineAddViewModel>(relaxed = true)
+                            .apply {
+                                every { uiState } returns MutableStateFlow(RoutineAddUiState())
+                                every { effect } returns emptyFlow()
+                            }.also(addViewModelList::add)
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { routineFormAddTagViewModel() } },
+                ),
+        )
 
     private companion object {
         const val MORE_CONTENT = "MoreContent"

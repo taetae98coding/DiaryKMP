@@ -2,15 +2,18 @@
 
 package io.github.taetae98coding.diary.core.location.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.koin.core.annotation.Factory
 import kotlin.coroutines.resume
 
 private const val DEVICE_LOCATION_TIMEOUT_MILLIS = 5_000
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WasmLocationProvider : LocationProvider {
     override suspend fun getCurrentLocation(): Location? {
         if (!isPermissionGranted()) return null

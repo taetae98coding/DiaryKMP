@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.memo
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.work.appaction.core.AppActionDone
 import io.github.taetae98coding.diary.work.appaction.memolink.MemoLinkAppAction
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -12,11 +16,11 @@ import io.github.taetae98coding.diary.work.mcp.tool.appActionCall
 import io.github.taetae98coding.diary.work.mcp.tool.idText
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.tag.NOT_DONE_DESCRIPTION
-import org.koin.core.annotation.Factory
 
 private const val TAG_ID = "tagId"
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class MemoLinkMcpToolSet(
     private val memoLinkAppAction: MemoLinkAppAction,
 ) : McpToolSet {

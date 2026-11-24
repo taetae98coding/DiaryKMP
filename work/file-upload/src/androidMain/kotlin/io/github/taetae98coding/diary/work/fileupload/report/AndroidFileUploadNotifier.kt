@@ -9,10 +9,10 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.net.Uri
 import androidx.work.ForegroundInfo
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.library.kotlin.math.FULL_PERCENT
 import io.github.taetae98coding.diary.work.file.upload.R
-import org.koin.core.annotation.Factory
 
 internal const val FILE_UPLOAD_NOTIFICATION_CHANNEL_ID: String = "fileUpload"
 
@@ -21,7 +21,7 @@ internal const val FILE_UPLOAD_RESULT_NOTIFICATION_ID: Int = 2
 
 private const val OPEN_FILE_HOME_REQUEST_CODE = 0
 
-@Factory
+@Inject
 internal class AndroidFileUploadNotifier(
     private val context: Context,
 ) : FileUploadNotifier {

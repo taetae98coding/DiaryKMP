@@ -2,6 +2,10 @@ package io.github.taetae98coding.diary.feature.file.ui.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
@@ -27,10 +31,11 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.KoinViewModel
 
 // 고른 파일은 화면이 다시 만들어져도 남아야 하지만, 앱이 다시 시작되면 다시 읽을 수 있다고 보장할 수 없어 ViewModel에만 둔다.
-@KoinViewModel
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
 internal class FileAddViewModel(
     private val readFileUploadSourceUseCase: ReadFileUploadSourceUseCase,
     private val requestFileUploadUseCase: RequestFileUploadUseCase,

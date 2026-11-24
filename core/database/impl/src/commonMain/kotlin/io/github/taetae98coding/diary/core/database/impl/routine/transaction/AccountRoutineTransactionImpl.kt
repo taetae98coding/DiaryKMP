@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.routine.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineLocalEntity
@@ -8,11 +11,11 @@ import io.github.taetae98coding.diary.core.database.api.routine.transaction.Acco
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.routine.entity.AccountRoutineLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.routinetag.routineTagTable
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountRoutineTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountRoutineTransaction {

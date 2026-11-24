@@ -2,8 +2,8 @@
 
 package io.github.taetae98coding.diary.work.sync.scheduler
 
+import dev.zacsweers.metro.Inject
 import kotlinx.cinterop.ExperimentalForeignApi
-import org.koin.mp.KoinPlatform
 import platform.BackgroundTasks.BGProcessingTaskRequest
 import platform.BackgroundTasks.BGTaskRequest
 import platform.BackgroundTasks.BGTaskScheduler
@@ -19,16 +19,22 @@ internal const val PERIODIC_SYNC_TASK_IDENTIFIER: String = "io.github.taetae98co
 
 private const val PERIODIC_SYNC_PERIOD_SECONDS_KEY: String = "periodicSyncPeriodSeconds"
 
-// 시스템은 앱이 실행을 마치기 전에 등록된 식별자만 깨울 수 있으므로, 앱 시작 시점에 한 번 호출한다.
-public fun registerPeriodicSyncBackgroundTask() {
-    BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(
-        identifier = PERIODIC_SYNC_TASK_IDENTIFIER,
-        usingQueue = null,
-    ) { task ->
+public class PeriodicSyncBackgroundTaskRegistrar
+    @Inject
+    internal constructor(
         // 시스템이 앱을 깨운 시점에야 동기화 수단이 필요하므로 등록 시점에 미리 만들지 않는다.
-        KoinPlatform.getKoin().get<BackgroundTaskPeriodicSyncWorkScheduler>().runTask(task = task)
+        private val scheduler: () -> BackgroundTaskPeriodicSyncWorkScheduler,
+    ) {
+        // 시스템은 앱이 실행을 마치기 전에 등록된 식별자만 깨울 수 있으므로, 앱 시작 시점에 한 번 호출한다.
+        public fun register() {
+            BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(
+                identifier = PERIODIC_SYNC_TASK_IDENTIFIER,
+                usingQueue = null,
+            ) { task ->
+                scheduler().runTask(task = task)
+            }
+        }
     }
-}
 
 internal fun savePeriodicSyncPeriod(period: Duration) {
     NSUserDefaults.standardUserDefaults.setDouble(period.inWholeSeconds.toDouble(), PERIODIC_SYNC_PERIOD_SECONDS_KEY)

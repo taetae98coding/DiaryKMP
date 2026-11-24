@@ -19,6 +19,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
@@ -30,6 +31,7 @@ import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -53,9 +55,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.LocalDate
-import org.koin.compose.KoinApplication
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.shadows.ShadowDialog
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -74,7 +73,7 @@ internal val FIRST_WEB_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-0000000000
 
 private const val EFFECT_BUFFER_CAPACITY = 8
 
-// KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 메모 탭이 얻는 값은 모듈이 붙잡는 이 흐름들로 테스트마다 바꾼다.
+// 메모 탭의 ViewModel 공급자는 파일 수준 하나를 모든 테스트가 함께 쓰므로, 메모 탭이 얻는 값은 공급자가 붙잡는 이 흐름들로 테스트마다 바꾼다.
 internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
 internal val memoListUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
@@ -85,22 +84,30 @@ internal var memoViewModelRef: WebDetailMemoViewModel? = null
 internal var memoSyncViewModelRef: SyncRefreshViewModel? = null
     private set
 
-private val webDetailTabViewModelModule =
-    module {
-        factory {
-            mockk<WebDetailMemoViewModel>(relaxed = true)
-                .apply {
-                    every { memoPagingData } returns memoPagingDataFlow
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns memoEffectFlow
-                }.also { memoViewModelRef = it }
-        }
-        factory {
-            mockk<SyncRefreshViewModel>(relaxed = true)
-                .apply { every { uiState } returns memoListUiStateFlow }
-                .also { memoSyncViewModelRef = it }
-        }
-    }
+private val webDetailTabViewModelFactory =
+    TestViewModelFactory(
+        viewModelProviders =
+            mapOf(
+                SyncRefreshViewModel::class to {
+                    mockk<SyncRefreshViewModel>(relaxed = true)
+                        .apply { every { uiState } returns memoListUiStateFlow }
+                        .also { memoSyncViewModelRef = it }
+                },
+            ),
+        manualAssistedFactoryProviders =
+            mapOf(
+                WebDetailMemoViewModel.Factory::class to {
+                    WebDetailMemoViewModel.Factory {
+                        mockk<WebDetailMemoViewModel>(relaxed = true)
+                            .apply {
+                                every { memoPagingData } returns memoPagingDataFlow
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                                every { effect } returns memoEffectFlow
+                            }.also { memoViewModelRef = it }
+                    }
+                },
+            ),
+    )
 
 internal fun prepareWebDetailTabViewModels(
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
@@ -283,7 +290,7 @@ internal fun ComposeContentTestRule.addHeaderRow() {
 }
 
 /**
- * WebDetail 화면은 결과 이벤트 버스를 [LocalResultEventBus]에서 읽고 메모 탭의 ViewModel을 Koin에서 얻으므로, 화면을 배치하는 테스트는 이 테마로 감싼다.
+ * WebDetail 화면은 결과 이벤트 버스를 [LocalResultEventBus]에서 읽고 메모 탭의 ViewModel을 [LocalMetroViewModelFactory]에서 얻으므로, 화면을 배치하는 테스트는 이 테마로 감싼다.
  */
 @Composable
 internal fun WebDetailScreenTestTheme(
@@ -300,9 +307,8 @@ internal fun WebDetailScreenTestTheme(
     CompositionLocalProvider(
         LocalResultEventBus provides resultEventBus,
         LocalViewModelStoreOwner provides viewModelStoreOwner,
+        LocalMetroViewModelFactory provides webDetailTabViewModelFactory,
     ) {
-        KoinApplication(configuration = koinConfiguration { modules(webDetailTabViewModelModule) }) {
-            DiaryTheme(content = content)
-        }
+        DiaryTheme(content = content)
     }
 }

@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.core.gemini.network.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiJson
 import io.github.taetae98coding.diary.library.ktor.createJsonHttpClient
@@ -10,16 +15,12 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@ComponentScan
-@Configuration
-public class GeminiNetworkModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object GeminiNetworkModule {
+    @Provides
+    @SingleIn(AppScope::class)
     @GeminiJson
     internal fun providesGeminiJson(): Json =
         Json {
@@ -27,7 +28,8 @@ public class GeminiNetworkModule {
             explicitNulls = false
         }
 
-    @Single
+    @Provides
+    @SingleIn(AppScope::class)
     @GeminiHttpClient
     internal fun providesGeminiHttpClient(
         @GeminiJson

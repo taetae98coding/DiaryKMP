@@ -5,6 +5,11 @@ package io.github.taetae98coding.diary.feature.qr.ui.detail.action
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.uikit.LocalUIViewController
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.domain.qr.content.QrEventSchedule
@@ -14,7 +19,6 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
-import org.koin.core.annotation.Single
 import platform.Contacts.CNContact
 import platform.Contacts.CNContactVCardSerialization
 import platform.ContactsUI.CNContactViewController
@@ -44,7 +48,9 @@ import kotlin.time.Instant
 
 private const val APPLE_MAP_URI = "https://maps.apple.com/"
 
-@Single(binds = [QrActionLauncherFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<QrActionLauncherFactory>())
 internal class IosQrActionLauncherFactory : QrActionLauncherFactory {
     @Composable
     override fun rememberQrActionLauncher(): QrActionLauncher {

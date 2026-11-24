@@ -1,15 +1,18 @@
 package io.github.taetae98coding.diary.core.database.impl.checklist.datasource
 
 import androidx.paging.PagingSource
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.checklist.datasource.AccountChecklistLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistSummaryLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountChecklistLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountChecklistLocalDataSource {

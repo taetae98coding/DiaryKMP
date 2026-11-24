@@ -4,16 +4,11 @@ import io.github.taetae98coding.diary.core.datastore.api.web.datasource.WebLogin
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginCookieLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginCookieSameSiteLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginLocalEntity
-import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import org.koin.core.Koin
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 import java.nio.file.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createTempDirectory
@@ -21,7 +16,7 @@ import kotlin.io.path.createTempDirectory
 class WebLoginLocalDataSourceTest :
     FunSpec({
         test("한 번도 보관하지 않았으면 비어 있는 로그인 정보를 읽는다") {
-            createKoin(createTempDirectory("diary-setting")).get<WebLoginLocalDataSource>().read() shouldBe WebLoginLocalEntity()
+            createDataStoreTestGraph(createTempDirectory("diary-setting")).webLoginLocalDataSource.read() shouldBe WebLoginLocalEntity()
         }
 
         test("TC-b71008c6-8c4b-420b-9a29-541ebbbe014e 보관한 세션 쿠키는 앱을 다시 시작해도 같은 정보로 읽힌다") {
@@ -31,14 +26,14 @@ class WebLoginLocalDataSourceTest :
                     siteUrlSet = setOf("https://${Arb.int().next()}.example.com/"),
                 )
             val directory = createTempDirectory("diary-setting")
-            createKoin(directory).get<WebLoginLocalDataSource>().upsert(login = login)
+            createDataStoreTestGraph(directory).webLoginLocalDataSource.upsert(login = login)
 
-            createKoin(restartedDirectory(directory = directory)).get<WebLoginLocalDataSource>().read() shouldBe login
+            createDataStoreTestGraph(restartedDirectory(directory = directory)).webLoginLocalDataSource.read() shouldBe login
         }
 
         test("TC-d8af2d99-95b6-42e6-b4c4-a221586c9350 보관하면 이전에 보관한 세션 쿠키를 모두 바꾼다") {
             val (first, second, third) = List(3) { cookie(sameSite = WebLoginCookieSameSiteLocalEntity.LAX) }
-            val dataSource = createKoin(createTempDirectory("diary-setting")).get<WebLoginLocalDataSource>()
+            val dataSource = createDataStoreTestGraph(createTempDirectory("diary-setting")).webLoginLocalDataSource
             dataSource.upsert(login = WebLoginLocalEntity(sessionCookieList = listOf(first, second)))
 
             dataSource.upsert(login = WebLoginLocalEntity(sessionCookieList = listOf(second, third)))
@@ -56,15 +51,3 @@ private fun restartedDirectory(directory: Path): Path {
 
     return restartedDirectory
 }
-
-private fun createKoin(directory: Path): Koin =
-    koinApplication<DataStoreTestKoinApplication> {
-        modules(
-            module {
-                single<String>(qualifier = named<DiarySettingDirectory>()) { directory.toString() }
-                single<SettingPathResolver> {
-                    SettingPathResolver { name -> directory.resolve(name).toString() }
-                }
-            },
-        )
-    }.koin

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.playlist.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -10,11 +11,10 @@ import io.github.taetae98coding.diary.domain.playlist.link.toOptionalYoutubeVide
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class AddMusicUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,

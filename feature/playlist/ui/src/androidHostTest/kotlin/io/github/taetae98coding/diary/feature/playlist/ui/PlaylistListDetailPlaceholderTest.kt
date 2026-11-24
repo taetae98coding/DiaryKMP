@@ -27,6 +27,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -35,7 +37,9 @@ import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddViewModel
@@ -52,15 +56,10 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -79,11 +78,6 @@ class PlaylistListDetailPlaceholderTest {
     @Before
     fun setUp() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -216,23 +210,30 @@ class PlaylistListDetailPlaceholderTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides remember(tag) { placeholderViewModelFactory(tag = tag) },
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(placeholderViewModelModule(tag = tag)) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
     // 배치를 떠나면 ViewModel이 정리되므로 곡 추가 ViewModel은 정리 호출에 답하는 relaxed mock을 쓴다. 태그 ViewModel은 고른 태그가 남는지 봐야 하므로 실제 객체를 쓴다.
     // 둘 다 만들어진 인스턴스를 세어 저장 범위를 확인한다.
-    private fun placeholderViewModelModule(tag: Tag) =
-        module {
-            factory { parameters ->
-                addTagViewModel(initialTagId = parameters.getOrNull(), allTagList = listOf(tag)).also { viewModel -> tagViewModelList += viewModel }
-            }
-            factory { detailTagScreenTestViewModel() }
-            factory { screenTestViewModel().also { viewModel -> viewModelList += viewModel } }
-        }
+    private fun placeholderViewModelFactory(tag: Tag): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    MusicAddViewModel::class to { screenTestViewModel().also { viewModel -> viewModelList += viewModel } },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to {
+                        EntityAddTagViewModel.Factory { initialTagId ->
+                            addTagViewModel(initialTagId = initialTagId, allTagList = listOf(tag)).also { viewModel -> tagViewModelList += viewModel }
+                        }
+                    },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                ),
+        )
 
     private fun ComposeContentTestRule.fillPlaceholder(input: PlaceholderInput) {
         titleInput().performTextInput(input.title)

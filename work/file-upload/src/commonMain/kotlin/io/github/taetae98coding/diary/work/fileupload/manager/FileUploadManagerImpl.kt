@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.fileupload.manager
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
@@ -9,10 +13,11 @@ import io.github.taetae98coding.diary.work.fileupload.scheduler.FileUploadWorkSc
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Single
 import kotlin.uuid.Uuid
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
 internal class FileUploadManagerImpl(
     private val fileUploadWorkScheduler: FileUploadWorkScheduler,
     private val fileRepository: FileRepository,

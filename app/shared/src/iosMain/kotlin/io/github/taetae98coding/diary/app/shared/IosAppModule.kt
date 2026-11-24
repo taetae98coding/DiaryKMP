@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.app.shared
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManagerFactory
 import io.github.taetae98coding.diary.compose.credential.apple.IosAppleCredentialsManagerFactory
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsManagerFactory
@@ -10,24 +15,23 @@ import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@Configuration
-internal class IosAppModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+internal object IosAppModule {
+    @Provides
+    @SingleIn(AppScope::class)
     fun providesDiaryMapContentOverride(): DiaryMapContentOverride = UiKitDiaryMapContentOverride(dispatcher = Dispatchers.Default)
 
-    @Single
+    @Provides
+    @SingleIn(AppScope::class)
     fun providesGoogleCredentialsManagerFactory(): GoogleCredentialsManagerFactory = IosGoogleCredentialsManagerFactory
 
-    @Single
+    @Provides
+    @SingleIn(AppScope::class)
     fun providesAppleCredentialsManagerFactory(): AppleCredentialsManagerFactory = IosAppleCredentialsManagerFactory
 
-    @Factory
+    @Provides
     @QrScanCameraDispatcher
     fun providesQrScanCameraDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

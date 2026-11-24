@@ -28,7 +28,7 @@ public object DiaryEntityTagAppAction {
     ): Boolean = entityTagAppAction().remove(kind = kind.toKind(), entityId = entityId, tagId = tagId).done
 }
 
-private fun entityTagAppAction(): EntityTagAppAction = diaryAppAction()
+private fun entityTagAppAction(): EntityTagAppAction = diaryAppActionGraph().entityTagAppAction
 
 private fun DiaryAppActionEntityTagKind.toKind(): AppActionEntityTagKind =
     when (this) {

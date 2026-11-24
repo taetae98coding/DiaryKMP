@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.domain.setting.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRepository
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class SetGeminiSettingUseCase internal constructor(
     private val geminiSettingRepository: GeminiSettingRepository,
 ) : UseCase<GeminiSetting, Unit>() {

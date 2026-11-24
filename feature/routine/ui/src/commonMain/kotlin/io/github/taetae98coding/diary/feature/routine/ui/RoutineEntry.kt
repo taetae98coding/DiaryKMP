@@ -9,6 +9,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
@@ -18,6 +20,8 @@ import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.compose.routine.FinishedRoutineListDetailPlaceholder
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineFinishedListNavKey
@@ -30,6 +34,8 @@ import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScaffoldC
 import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScreen
 import io.github.taetae98coding.diary.feature.routine.ui.detail.RoutineDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.routine.ui.detail.RoutineDetailScreen
+import io.github.taetae98coding.diary.feature.routine.ui.detail.RoutineDetailViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.detail.record.RoutineDetailRecordViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.finished.RoutineFinishedListScreen
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScreen
@@ -39,8 +45,6 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagRoutineFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import kotlinx.coroutines.flow.Flow
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.routineEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -73,10 +77,10 @@ private fun EntryProviderScope<ScreenNavKey>.routineHomeEntry(
             navigateToFinishedList = dropUnlessResumed { backStack.add(RoutineFinishedListNavKey) },
             componentVisibleProvider = { RoutineHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isRoutineAddOnDetailPane()) },
             homeReselectEvent = homeReselectEvent,
-            routineViewModel = koinViewModel(),
-            calendarViewModel = koinViewModel(),
-            holidayViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            routineViewModel = metroViewModel(),
+            calendarViewModel = metroViewModel(),
+            holidayViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -96,8 +100,8 @@ internal fun routineHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>):
                     navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { RoutineAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    addViewModel = koinViewModel(),
-                    tagViewModel = koinViewModel { parametersOf(null) },
+                    addViewModel = metroViewModel(),
+                    tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = null) },
                 )
             }
         },
@@ -120,8 +124,8 @@ private fun EntryProviderScope<ScreenNavKey>.routineFinishedListEntry(backStack:
         RoutineFinishedListScreen(
             navigateUp = backStack::navigateUpFromRoutineFinishedList,
             navigateToDetail = { id -> backStack.navigateToRoutineDetail(id = id) },
-            routineViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            routineViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -145,8 +149,8 @@ private fun EntryProviderScope<ScreenNavKey>.routineAddEntry(backStack: NavBackS
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { RoutineAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = key.initialTagId) },
         )
     }
 }
@@ -164,9 +168,9 @@ private fun EntryProviderScope<ScreenNavKey>.routineDetailEntry(backStack: NavBa
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { RoutineDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            routineViewModel = koinViewModel { parametersOf(key.id) },
-            recordViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.ROUTINE, key.id) },
+            routineViewModel = assistedMetroViewModel<RoutineDetailViewModel, RoutineDetailViewModel.Factory> { create(id = key.id) },
+            recordViewModel = assistedMetroViewModel<RoutineDetailRecordViewModel, RoutineDetailRecordViewModel.Factory> { create(routineId = key.id) },
+            tagViewModel = assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.ROUTINE, entityId = key.id) },
         )
     }
 }

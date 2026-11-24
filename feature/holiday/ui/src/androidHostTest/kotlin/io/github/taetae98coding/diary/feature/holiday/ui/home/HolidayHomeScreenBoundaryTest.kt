@@ -44,11 +44,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -59,11 +57,6 @@ class HolidayHomeScreenBoundaryTest {
     val composeRule = createComposeRule()
 
     private val targetYear = mutableStateOf<Int?>(null)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-32437aff-ed30-4cf0-8031-2929ddeb7672 연차 개수를 바꾸면 각 항목은 첫 번째 대안으로 돌아간다`() {

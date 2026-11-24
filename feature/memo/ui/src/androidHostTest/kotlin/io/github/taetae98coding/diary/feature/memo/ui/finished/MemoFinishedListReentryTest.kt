@@ -24,6 +24,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -34,6 +35,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
@@ -52,18 +54,12 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import io.github.taetae98coding.diary.feature.memo.ui.home.screenTestSyncViewModel as homeScreenTestSyncViewModel
 
 // 짝이 되는 목록으로 돌아갔다가 다시 들어오는 것은 화면 전환 이력의 변화이므로, 제품 memoEntry로 메모 목적지를 띄워 이력을 바꾼다.
 @RunWith(RobolectricTestRunner::class)
@@ -78,11 +74,6 @@ class MemoFinishedListReentryTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -113,33 +104,35 @@ class MemoFinishedListReentryTest {
         finishedViewModelList.size shouldBe 2
     }
 
-    private fun viewModelModule(itemList: List<MemoListItem>) =
-        module {
-            factory<MemoFinishedListViewModel> {
-                val sort = MutableStateFlow(ListSortUiState())
+    private fun viewModelFactory(itemList: List<MemoListItem>) =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    MemoFinishedListViewModel::class to {
+                        val sort = MutableStateFlow(ListSortUiState())
 
-                mockk<MemoFinishedListViewModel>(relaxed = true) {
-                    every { this@mockk.sortUiState } returns sort
-                    every { select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
-                    every { memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = itemList))
-                    every { effect } returns emptyFlow()
-                }.also { viewModel -> finishedViewModelList += viewModel }
-            }
-            factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
-            factory<MemoHomeViewModel> {
-                mockk<MemoHomeViewModel>(relaxed = true) {
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState())
-                    every { memoPagingData } returns
-                        MutableStateFlow(memoPagingDataOf(itemList = listOf(MemoListItem.Content(memo = finishedMemo(title = MEMO_HOME_MARKER_TITLE)))))
-                    every { filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState())
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory<SyncRefreshViewModel> { homeScreenTestSyncViewModel() }
-        }
+                        mockk<MemoFinishedListViewModel>(relaxed = true) {
+                            every { this@mockk.sortUiState } returns sort
+                            every { select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
+                            every { memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = itemList))
+                            every { effect } returns emptyFlow()
+                        }.also { viewModel -> finishedViewModelList += viewModel }
+                    },
+                    SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                    MemoHomeViewModel::class to {
+                        mockk<MemoHomeViewModel>(relaxed = true) {
+                            every { sortUiState } returns MutableStateFlow(ListSortUiState())
+                            every { memoPagingData } returns
+                                MutableStateFlow(memoPagingDataOf(itemList = listOf(MemoListItem.Content(memo = finishedMemo(title = MEMO_HOME_MARKER_TITLE)))))
+                            every { filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState())
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                ),
+        )
 
     private fun setMemoNavDisplay(itemList: List<MemoListItem>) {
-        val viewModelModule = viewModelModule(itemList = itemList)
+        val viewModelFactory = viewModelFactory(itemList = itemList)
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -153,28 +146,27 @@ class MemoFinishedListReentryTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides viewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<ReentryTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<ReentryTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                    memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
+                                },
+                        )
                     }
                 }
             }

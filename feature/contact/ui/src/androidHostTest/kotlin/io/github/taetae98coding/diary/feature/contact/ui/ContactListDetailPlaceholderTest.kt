@@ -49,6 +49,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
@@ -61,6 +63,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
@@ -102,6 +105,8 @@ import io.github.taetae98coding.diary.feature.contact.ui.home.testContact
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -120,15 +125,10 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -150,11 +150,6 @@ class ContactListDetailPlaceholderTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -880,62 +875,65 @@ class ContactListDetailPlaceholderTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides remember { placeholderViewModelFactory() },
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(placeholderViewModelModule()) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓰고, 만들어진 인스턴스를 세어 저장 범위를 확인한다.
-    private fun placeholderViewModelModule() =
-        module {
-            factory { contactAddViewModelFactory().also { viewModel -> viewModelList += viewModel } }
-            factory { addTagScreenTestViewModel() }
-            factory { detailTagScreenTestViewModel() }
-            factory {
-                val filterState = MutableStateFlow(ContactHomeFilterUiState())
-                mockk<ContactHomeViewModel>(relaxed = true)
-                    .apply {
-                        every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList.map { contact -> contact.toListItem() }))
-                        every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
-                        every { filterUiState } returns filterState
-                        every { setBirthdayExistence(existence = any()) } answers {
-                            filterState.update { uiState -> uiState.copy(filter = uiState.filter.copy(birthday = firstArg())) }
+    private fun placeholderViewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    ContactAddViewModel::class to { contactAddViewModelFactory().also { viewModel -> viewModelList += viewModel } },
+                    ContactHomeViewModel::class to {
+                        val filterState = MutableStateFlow(ContactHomeFilterUiState())
+                        mockk<ContactHomeViewModel>(relaxed = true)
+                            .apply {
+                                every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList.map { contact -> contact.toListItem() }))
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
+                                every { filterUiState } returns filterState
+                                every { setBirthdayExistence(existence = any()) } answers {
+                                    filterState.update { uiState -> uiState.copy(filter = uiState.filter.copy(birthday = firstArg())) }
+                                }
+                                every { effect } returns emptyFlow()
+                            }.also { viewModel -> homeViewModelList += viewModel }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                         }
-                        every { effect } returns emptyFlow()
-                    }.also { viewModel -> homeViewModelList += viewModel }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-            factory { parameters ->
-                val id = parameters.get<Uuid>()
-                val effectChannel = Channel<ContactDetailEffect>(capacity = Channel.BUFFERED)
-                mockk<ContactDetailViewModel>(relaxed = true).apply {
-                    every { uiState } returns
-                        MutableStateFlow(
-                            ContactDetailUiState.Content(id = id, detail = homeContactList.first { contact -> contact.id == id }.detail),
-                        )
-                    every { effect } returns effectChannel.receiveAsFlow()
-                    every { delete() } answers { effectChannel.trySend(ContactDetailEffect.DeleteSucceeded).getOrThrow() }
-                }
-            }
-            factory {
-                mockk<ContactDetailMemoViewModel>(relaxed = true).apply {
-                    every { memoPagingData } returns flowOf(PagingData.empty())
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { addTagScreenTestViewModel() } },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                    ContactDetailViewModel.Factory::class to {
+                        ContactDetailViewModel.Factory { id ->
+                            val effectChannel = Channel<ContactDetailEffect>(capacity = Channel.BUFFERED)
+                            mockk<ContactDetailViewModel>(relaxed = true).apply {
+                                every { uiState } returns
+                                    MutableStateFlow(
+                                        ContactDetailUiState.Content(id = id, detail = homeContactList.first { contact -> contact.id == id }.detail),
+                                    )
+                                every { effect } returns effectChannel.receiveAsFlow()
+                                every { delete() } answers { effectChannel.trySend(ContactDetailEffect.DeleteSucceeded).getOrThrow() }
+                            }
+                        }
+                    },
+                    ContactDetailMemoViewModel.Factory::class to {
+                        ContactDetailMemoViewModel.Factory {
+                            mockk<ContactDetailMemoViewModel>(relaxed = true).apply {
+                                every { memoPagingData } returns flowOf(PagingData.empty())
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                                every { effect } returns emptyFlow()
+                            }
+                        }
+                    },
+                ),
+        )
 
     private fun ComposeContentTestRule.fillPlaceholder(input: PlaceholderInput) {
         nameInput().performTextInput(input.name)

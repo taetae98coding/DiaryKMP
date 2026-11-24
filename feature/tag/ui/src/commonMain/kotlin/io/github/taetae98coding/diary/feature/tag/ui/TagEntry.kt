@@ -12,6 +12,8 @@ import androidx.compose.runtime.key
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
@@ -43,6 +45,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagRoutineFinishedListNavK
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
+import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.finished.TagFinishedListScreen
 import io.github.taetae98coding.diary.feature.tag.ui.home.ScrollToFirstTagOnReselectEffect
 import io.github.taetae98coding.diary.feature.tag.ui.home.TagHomeScaffoldComponentVisible
@@ -52,8 +55,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinish
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.tagEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -107,8 +108,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
                 TagHomeScaffoldComponentVisible(isAddButtonVisible = !isAddPaneVisible)
             },
             gridState = gridState,
-            tagViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            tagViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -136,8 +137,8 @@ private fun TagAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         addedResultRequestKey = null,
         tagAddRequestKey = tagAddRequestKey,
         componentVisibleProvider = { TagAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-        addViewModel = koinViewModel(),
-        linkViewModel = koinViewModel(),
+        addViewModel = metroViewModel(),
+        linkViewModel = metroViewModel(),
     )
 }
 
@@ -156,8 +157,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagFinishedListEntry(backStack: Nav
         TagFinishedListScreen(
             navigateUp = backStack::navigateUpFromTagFinishedList,
             navigateToDetail = { id -> backStack.navigateToTagDetail(id) },
-            tagViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            tagViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -176,8 +177,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagAddEntry(backStack: NavBackStack
             addedResultRequestKey = key.requestKey,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { TagAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            linkViewModel = koinViewModel(),
+            addViewModel = metroViewModel(),
+            linkViewModel = metroViewModel(),
         )
     }
 }
@@ -218,8 +219,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { backStack.tagDetailScaffoldComponentVisible(key = navKey, isListPaneVisible = isListPaneVisible) },
             // 목록에서 다른 태그를 고르면 같은 화면이 대상만 바꿔 이어지므로, 대상마다 따로 ViewModel을 둔다.
-            detailViewModel = koinViewModel(key = "TagDetailViewModel:${navKey.id}") { parametersOf(navKey.id) },
-            placeMapViewModel = koinViewModel(),
+            detailViewModel = assistedMetroViewModel<TagDetailViewModel, TagDetailViewModel.Factory>(key = "TagDetailViewModel:${navKey.id}") { create(id = navKey.id) },
+            placeMapViewModel = metroViewModel(),
         )
     }
 }
@@ -232,8 +233,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack:
             navigateUp = backStack::navigateUpFromTagMemoFinishedList,
             navigateToMemoDetail = backStack::navigateToMemoDetail,
             emptyTitle = stringResource(Res.string.tag_memo_finished_list_empty_title),
-            memoViewModel = koinViewModel<TagMemoFinishedListViewModel> { parametersOf(key.tagId) },
-            syncViewModel = koinViewModel(),
+            memoViewModel = assistedMetroViewModel<TagMemoFinishedListViewModel, TagMemoFinishedListViewModel.Factory> { create(tagId = key.tagId) },
+            syncViewModel = metroViewModel(),
         )
     }
 }

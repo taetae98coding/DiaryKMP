@@ -1,16 +1,19 @@
 package io.github.taetae98coding.diary.core.database.impl.routine.datasource
 
 import androidx.paging.PagingSource
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.routine.datasource.AccountTagRoutineLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCurrentCycleLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineCycleLocalEntity
 import io.github.taetae98coding.diary.core.database.api.routine.entity.RoutineSummaryLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountTagRoutineLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountTagRoutineLocalDataSource {

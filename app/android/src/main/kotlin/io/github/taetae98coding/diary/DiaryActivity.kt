@@ -9,11 +9,10 @@ import io.github.taetae98coding.diary.app.shared.App
 import io.github.taetae98coding.diary.app.shared.AppDependencies
 import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
-import org.koin.android.ext.android.inject
 
 internal class DiaryActivity : ComponentActivity() {
-    private val appDeepLink: AppDeepLink by inject()
-    private val appDependencies: AppDependencies by inject()
+    private val appDeepLink: AppDeepLink by lazy { appGraph.appDeepLink }
+    private val appDependencies: AppDependencies by lazy { appGraph.appDependencies }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

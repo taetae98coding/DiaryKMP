@@ -9,6 +9,8 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.paging.isConfirmedEmpty
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
@@ -18,8 +20,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormS
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkAddedResultEffect
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkPickerDialogHost
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkPickerEvent
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
 @Composable
@@ -36,7 +36,7 @@ internal fun TagDetailFormContent(
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = TagDetailTab.DETAIL, provider = viewModelStoreProvider)
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-        val viewModel = koinViewModel<TagDetailLinkViewModel> { parametersOf(id) }
+        val viewModel = assistedMetroViewModel<TagDetailLinkViewModel, TagDetailLinkViewModel.Factory> { create(id = id) }
         val linkUiState by viewModel.uiState.collectAsStateWithLifecycle()
         val tagPagingItems = viewModel.tagPagingData.collectAsLazyPagingItems()
         val selectableTagPagingItems = viewModel.selectableTagPagingData.collectAsLazyPagingItems()

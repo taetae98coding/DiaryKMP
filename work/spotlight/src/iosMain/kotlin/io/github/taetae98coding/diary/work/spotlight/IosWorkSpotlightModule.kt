@@ -1,15 +1,18 @@
 package io.github.taetae98coding.diary.work.spotlight
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.Dispatchers
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 import platform.CoreSpotlight.CSSearchableIndex
 
-@Module
-@Configuration
-public class IosWorkSpotlightModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object IosWorkSpotlightModule {
+    @Provides
+    @SingleIn(AppScope::class)
     internal fun providesSpotlightIndex(): SpotlightIndex =
         CoreSpotlightIndex(
             searchableIndex = CSSearchableIndex.defaultSearchableIndex(),

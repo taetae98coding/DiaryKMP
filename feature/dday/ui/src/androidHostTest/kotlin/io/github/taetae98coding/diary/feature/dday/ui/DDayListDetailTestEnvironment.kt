@@ -30,6 +30,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -45,6 +47,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.dday.dday
 import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.dday.DDayInput
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -79,10 +82,6 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import org.koin.compose.KoinApplication
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
@@ -137,23 +136,29 @@ internal class DDayListDetailTestEnvironment(
     }
 
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    fun module(): Module =
-        module {
-            factory { addTagViewModel().also(addTagViewModelList::add) }
-            factory { detailTagViewModel() }
-            factory { homeViewModel().also(homeViewModelList::add) }
-            factory {
-                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply { every { uiState } returns homeFilterUiState }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true)
-                    .apply { every { uiState } returns MutableStateFlow(SyncRefreshUiState()) }
-                    .also(syncViewModelList::add)
-            }
-            factory { filterViewModel().also(filterViewModelList::add) }
-            factory { parameters -> detailViewModel(id = parameters.get()).also(detailViewModelList::add) }
-            factory { addViewModel().also(addViewModelList::add) }
-        }
+    fun viewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    DDayHomeViewModel::class to { homeViewModel().also(homeViewModelList::add) },
+                    DDayHomeScaffoldFilterViewModel::class to {
+                        mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply { every { uiState } returns homeFilterUiState }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true)
+                            .apply { every { uiState } returns MutableStateFlow(SyncRefreshUiState()) }
+                            .also(syncViewModelList::add)
+                    },
+                    DDayHomeFilterViewModel::class to { filterViewModel().also(filterViewModelList::add) },
+                    DDayAddViewModel::class to { addViewModel().also(addViewModelList::add) },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    DDayAddTagViewModel.Factory::class to { DDayAddTagViewModel.Factory { _ -> addTagViewModel().also(addTagViewModelList::add) } },
+                    DDayDetailTagViewModel.Factory::class to { DDayDetailTagViewModel.Factory { _ -> detailTagViewModel() } },
+                    DDayDetailViewModel.Factory::class to { DDayDetailViewModel.Factory { id -> detailViewModel(id = id).also(detailViewModelList::add) } },
+                ),
+        )
 
     @Composable
     fun Content(
@@ -165,35 +170,34 @@ internal class DDayListDetailTestEnvironment(
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides remember { viewModelFactory() },
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(module()) }) {
-                DiaryTheme {
-                    val holder = rememberListDetailPlaceholderStateHolder()
+            DiaryTheme {
+                val holder = rememberListDetailPlaceholderStateHolder()
 
-                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                        NavDisplay(
-                            backStack = navBackStack,
-                            sceneStrategies =
-                                listOf(
-                                    remember { BottomSheetSceneStrategy<ScreenNavKey>() },
-                                    rememberDiaryListDetailSceneStrategy(
-                                        directive = directiveOverride ?: calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
-                                    ),
+                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                    NavDisplay(
+                        backStack = navBackStack,
+                        sceneStrategies =
+                            listOf(
+                                remember { BottomSheetSceneStrategy<ScreenNavKey>() },
+                                rememberDiaryListDetailSceneStrategy(
+                                    directive = directiveOverride ?: calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
                                 ),
-                            entryDecorators =
-                                listOf(
-                                    rememberSaveableStateHolderNavEntryDecorator(),
-                                    rememberViewModelStoreNavEntryDecorator(),
-                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                ),
-                            entryProvider =
-                                entryProvider {
-                                    entry<DDayListDetailMoreNavKey> { Text(text = DDAY_LIST_DETAIL_MORE_CONTENT) }
-                                    entry<TagAddNavKey> { Text(text = DDAY_LIST_DETAIL_TAG_ADD_CONTENT) }
-                                    dDayEntry(backStack = navBackStack)
-                                },
-                        )
-                    }
+                            ),
+                        entryDecorators =
+                            listOf(
+                                rememberSaveableStateHolderNavEntryDecorator(),
+                                rememberViewModelStoreNavEntryDecorator(),
+                                rememberListDetailPlaceholderNavEntryDecorator(holder),
+                            ),
+                        entryProvider =
+                            entryProvider {
+                                entry<DDayListDetailMoreNavKey> { Text(text = DDAY_LIST_DETAIL_MORE_CONTENT) }
+                                entry<TagAddNavKey> { Text(text = DDAY_LIST_DETAIL_TAG_ADD_CONTENT) }
+                                dDayEntry(backStack = navBackStack)
+                            },
+                    )
                 }
             }
         }

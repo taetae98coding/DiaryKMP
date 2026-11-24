@@ -1,15 +1,18 @@
 package io.github.taetae98coding.diary.core.datastore.impl.datasource
 
 import androidx.datastore.core.DataStore
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.FileDownloadSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.FileDownloadDirectoryLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.FileDownloadSettingData
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class FileDownloadSettingLocalDataSourceImpl(
     @FileDownloadSettingDataStore
     private val dataStore: DataStore<FileDownloadSettingData>,

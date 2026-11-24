@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.file.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
 import io.github.taetae98coding.diary.core.model.file.FileUri
@@ -8,12 +11,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.io.RawSource
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import org.koin.core.annotation.Factory
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
 import platform.UniformTypeIdentifiers.UTType
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class IosFileLocalDataSource(
     @FileDispatcher private val dispatcher: CoroutineDispatcher,
 ) : FileLocalDataSource {

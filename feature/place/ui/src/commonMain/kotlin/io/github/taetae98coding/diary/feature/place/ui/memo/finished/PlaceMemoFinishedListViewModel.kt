@@ -4,6 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
@@ -25,13 +32,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class PlaceMemoFinishedListViewModel(
-    @InjectedParam placeId: Uuid,
+    @Assisted placeId: Uuid,
     pageFinishedPlaceMemoUseCase: PageFinishedPlaceMemoUseCase,
     findPlaceUseCase: FindPlaceUseCase,
     finishMemoUseCase: FinishMemoUseCase,
@@ -40,6 +45,13 @@ internal class PlaceMemoFinishedListViewModel(
     restoreMemoUseCase: RestoreMemoUseCase,
 ) : ViewModel(),
     EntityMemoFinishedListController {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(placeId: Uuid): PlaceMemoFinishedListViewModel
+    }
+
     private val memoListState =
         MemoListState(
             pageMemo = { sort -> pageFinishedPlaceMemoUseCase(parameter = PageFinishedPlaceMemoUseCase.Parameter(placeId = placeId, sort = sort)) },

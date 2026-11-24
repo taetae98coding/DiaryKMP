@@ -2,12 +2,12 @@ package io.github.taetae98coding.diary.feature.login.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManagerFactory
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsManagerFactory
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
 import io.github.taetae98coding.diary.feature.login.ui.home.LoginHomeScreen
-import org.koin.compose.viewmodel.koinViewModel
 
 internal fun EntryProviderScope<ScreenNavKey>.loginEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -31,7 +31,7 @@ private fun EntryProviderScope<ScreenNavKey>.loginHomeEntry(
             navigateUp = backStack::removeLastOrNull,
             googleCredentialsManager = googleCredentialsManagerFactory.rememberGoogleCredentialsManager(),
             appleCredentialsManager = appleCredentialsManagerFactory.rememberAppleCredentialsManager(),
-            viewModel = koinViewModel(),
+            viewModel = metroViewModel(),
         )
     }
 }

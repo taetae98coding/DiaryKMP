@@ -127,9 +127,9 @@ public object DiaryChecklistSearchAppAction {
         }
 }
 
-private fun checklistAppAction(): ChecklistAppAction = diaryAppAction()
+private fun checklistAppAction(): ChecklistAppAction = diaryAppActionGraph().checklistAppAction
 
-private fun checklistItemAppAction(): ChecklistItemAppAction = diaryAppAction()
+private fun checklistItemAppAction(): ChecklistItemAppAction = diaryAppActionGraph().checklistItemAppAction
 
 private suspend fun searchPageChecklistList(): List<AppActionChecklistSummary> = readNumberedPage(pageNumber = SEARCH_PAGE_NUMBER) { cursor -> checklistAppAction().list(cursor = cursor) }.items
 

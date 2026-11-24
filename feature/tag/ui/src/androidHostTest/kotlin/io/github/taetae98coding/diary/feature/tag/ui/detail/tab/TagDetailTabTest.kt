@@ -26,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
@@ -93,7 +94,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.viewmodel.koinViewModel
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -834,7 +834,7 @@ class TagDetailTabScreenTest {
                 id = FIRST_TAG_ID,
                 componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                 detailViewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
-                placeMapViewModel = koinViewModel(),
+                placeMapViewModel = metroViewModel(),
                 navigateToWebAdd = {},
                 navigateToWebDetail = {},
                 navigateToPlaceAdd = {},

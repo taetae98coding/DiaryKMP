@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.flatMapAccount
@@ -8,10 +9,9 @@ import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class GetSelectedWebUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountWebRepository: AccountWebRepository,

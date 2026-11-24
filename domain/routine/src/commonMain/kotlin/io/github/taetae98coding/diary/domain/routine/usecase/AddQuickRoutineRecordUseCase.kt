@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.domain.routine.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.routine.exception.RoutineNotFoundException
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class AddQuickRoutineRecordUseCase internal constructor(
     private val findRoutineUseCase: FindRoutineUseCase,
     private val addRoutineRecordUseCase: AddRoutineRecordUseCase,

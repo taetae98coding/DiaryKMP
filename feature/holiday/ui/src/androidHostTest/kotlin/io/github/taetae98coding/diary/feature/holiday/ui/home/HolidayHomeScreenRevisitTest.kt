@@ -20,11 +20,9 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -35,11 +33,6 @@ class HolidayHomeScreenRevisitTest {
     val composeRule = createComposeRule()
 
     private val targetYear = mutableStateOf<Int?>(null)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-f5b7fb7e-77ea-4bc6-a668-0b85da0aff13 한 년도의 오류는 다른 년도의 표시에 영향을 주지 않는다`() {

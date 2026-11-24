@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.web
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
@@ -27,13 +28,12 @@ import io.github.taetae98coding.diary.work.appaction.core.toSortArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
 import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
-import org.koin.core.annotation.Factory
 
 private const val WEB_ID = "webId"
 
 internal val webSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED)
 
-@Factory
+@Inject
 public class WebAppAction internal constructor(
     private val pageWebUseCase: PageWebUseCase,
     private val findWebUseCase: FindWebUseCase,

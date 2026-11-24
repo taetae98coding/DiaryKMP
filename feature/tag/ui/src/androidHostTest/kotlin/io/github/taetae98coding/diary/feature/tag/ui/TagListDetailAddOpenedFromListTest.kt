@@ -29,6 +29,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
@@ -38,6 +40,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
@@ -60,16 +63,9 @@ import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -83,16 +79,6 @@ class TagListDetailAddOpenedFromListTest {
     private val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey)
     private val linkViewModelList = mutableListOf<TagAddLinkViewModel>()
     private val linkedTag: Tag = testTag(title = Arb.alphanumericString(prefix = "tag").next())
-
-    @Before
-    fun setUp() {
-        stopKoin()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-739579c6-b63e-4829-9d2e-865c42cf1009 태그 상세 위에서 연 태그 추가는 빈 입력으로 시작한다`() {
@@ -185,47 +171,46 @@ class TagListDetailAddOpenedFromListTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides remember { ResultEventBus() },
+                LocalMetroViewModelFactory provides viewModelFactory(),
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule()) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<TagHomeNavKey>(
-                                            clazzContentKey = { TAG_HOME_CONTENT_KEY },
-                                            metadata = tagHomeListPaneMetadata(backStack = backStack),
-                                        ) { Text(text = TAG_HOME_CONTENT) }
-                                        entry<TagDetailNavKey>(metadata = detailPaneMetadata()) {
-                                            Text(text = DETAIL_CONTENT)
-                                        }
-                                        entry<TagAddNavKey>(metadata = detailPaneMetadata()) { key ->
-                                            val tagAddRequestKey = rememberResultRequestKey()
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<TagHomeNavKey>(
+                                        clazzContentKey = { TAG_HOME_CONTENT_KEY },
+                                        metadata = tagHomeListPaneMetadata(backStack = backStack),
+                                    ) { Text(text = TAG_HOME_CONTENT) }
+                                    entry<TagDetailNavKey>(metadata = detailPaneMetadata()) {
+                                        Text(text = DETAIL_CONTENT)
+                                    }
+                                    entry<TagAddNavKey>(metadata = detailPaneMetadata()) { key ->
+                                        val tagAddRequestKey = rememberResultRequestKey()
 
-                                            TagAddScreen(
-                                                navigateUp = { backStack.removeLastOrNull() },
-                                                navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                                                navigateToDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-                                                addedResultRequestKey = key.requestKey,
-                                                tagAddRequestKey = tagAddRequestKey,
-                                                componentVisibleProvider = { TagAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                                                addViewModel = koinViewModel(),
-                                                linkViewModel = koinViewModel(),
-                                            )
-                                        }
-                                    },
-                            )
-                        }
+                                        TagAddScreen(
+                                            navigateUp = { backStack.removeLastOrNull() },
+                                            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                                            navigateToDetail = { id -> backStack.add(TagDetailNavKey(id)) },
+                                            addedResultRequestKey = key.requestKey,
+                                            tagAddRequestKey = tagAddRequestKey,
+                                            componentVisibleProvider = { TagAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
+                                            addViewModel = metroViewModel(),
+                                            linkViewModel = metroViewModel(),
+                                        )
+                                    }
+                                },
+                        )
                     }
                 }
             }
@@ -235,11 +220,14 @@ class TagListDetailAddOpenedFromListTest {
 
     private fun detailPaneMetadata(): Map<String, Any> = ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
-    private fun viewModelModule() =
-        module {
-            factory { TagAddViewModel(addTagUseCase = mockk<AddTagUseCase>()) }
-            factory { linkViewModel().also { linkViewModelList += it } }
-        }
+    private fun viewModelFactory() =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    TagAddViewModel::class to { TagAddViewModel(addTagUseCase = mockk<AddTagUseCase>()) },
+                    TagAddLinkViewModel::class to { linkViewModel().also { linkViewModelList += it } },
+                ),
+        )
 
     private fun linkViewModel(): TagAddLinkViewModel {
         val tagList = listOf(linkedTag)

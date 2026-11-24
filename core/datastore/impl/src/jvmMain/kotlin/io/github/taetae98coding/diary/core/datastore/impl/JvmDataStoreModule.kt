@@ -1,18 +1,21 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.userHomeDirectory
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Module
-@Configuration
-public class JvmDataStoreModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object JvmDataStoreModule {
+    @Provides
+    @SingleIn(AppScope::class)
     internal fun providesSettingPathResolver(
         @DiarySettingDirectory
         settingDirectory: String,

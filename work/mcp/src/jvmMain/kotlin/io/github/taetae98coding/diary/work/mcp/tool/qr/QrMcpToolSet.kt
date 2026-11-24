@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.qr
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
@@ -33,7 +37,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.koin.core.annotation.Factory
 
 private const val DESCRIPTION = "description"
 private const val TITLE = "title"
@@ -42,7 +45,8 @@ private const val VALUE = "value"
 private val qrIdParameter: McpToolParameter =
     McpToolParameter(name = "qrId", type = McpToolParameterType.STRING, description = "Id of the QR.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class QrMcpToolSet(
     private val qrAppAction: QrAppAction,
     private val entityTagAppAction: EntityTagAppAction,

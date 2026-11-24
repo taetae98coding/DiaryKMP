@@ -8,15 +8,20 @@ import com.google.android.play.core.integrity.StandardIntegrityManager.StandardI
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
 import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode
 import com.google.firebase.FirebaseApp
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityToken
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityTokenProvider
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
-import org.koin.core.annotation.Single
 
 // 토큰 제공자 준비는 수 초가 걸리므로 한 번 준비한 제공자를 프로세스 동안 재사용한다.
-@Single
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
 internal class AndroidPlayIntegrityTokenProvider(
     private val context: Context,
 ) : PlayIntegrityTokenProvider {

@@ -14,7 +14,7 @@ dependencies {
     compileOnly(libs.gradle.plugin.android)
     compileOnly(libs.gradle.plugin.androidx.room3)
     compileOnly(libs.gradle.plugin.detekt)
-    compileOnly(libs.gradle.plugin.koin.compiler)
+    compileOnly(libs.gradle.plugin.metro)
     compileOnly(libs.gradle.plugin.ksp)
 }
 
@@ -48,9 +48,9 @@ gradlePlugin {
             id = "io.github.taetae98coding.diary.primitive.kmp"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.KmpPrimitivePlugin"
         }
-        register("primitiveKoin") {
-            id = "io.github.taetae98coding.diary.primitive.koin"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.KoinPrimitivePlugin"
+        register("primitiveMetro") {
+            id = "io.github.taetae98coding.diary.primitive.metro"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.MetroPrimitivePlugin"
         }
         register("primitiveKotest") {
             id = "io.github.taetae98coding.diary.primitive.kotest"

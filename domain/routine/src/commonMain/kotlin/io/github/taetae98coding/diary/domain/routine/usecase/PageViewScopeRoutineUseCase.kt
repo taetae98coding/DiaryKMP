@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.domain.routine.usecase
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.routine.RoutineCycle
 import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.routine.RoutineViewScope
@@ -19,9 +20,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class PageViewScopeRoutineUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountRoutineRepository: AccountRoutineRepository,

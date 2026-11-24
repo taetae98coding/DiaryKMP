@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.routine
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.routine.Routine
 import io.github.taetae98coding.diary.core.model.routine.RoutineRecord
 import io.github.taetae98coding.diary.domain.routine.ROUTINE_AMOUNT_RANGE
@@ -24,14 +25,13 @@ import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
 private const val AMOUNT = "amount"
 private const val DATE = "date"
 private const val RECORD_ID = "recordId"
 
-@Factory
+@Inject
 public class RoutineRecordAppAction internal constructor(
     private val findRoutineUseCase: FindRoutineUseCase,
     private val findRoutineRecordUseCase: FindRoutineRecordUseCase,

@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
 import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.work.appaction.AppActionGraph
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarBirthday
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarMemo
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionHoliday
@@ -16,6 +17,7 @@ import io.github.taetae98coding.diary.work.appaction.calendar.CalendarAppAction
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDateTime
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appfunction.core.TestAppFunctionApplication
 import io.github.taetae98coding.diary.work.appfunction.core.appActionColor
 import io.github.taetae98coding.diary.work.appfunction.core.returnValueListAs
 import io.github.taetae98coding.diary.work.appfunction.memo.AppFunctionMemoDateTime
@@ -30,23 +32,20 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [36], application = TestAppFunctionApplication::class)
 class CalendarAppFunctionServiceTest {
     private val context: Context = RuntimeEnvironment.getApplication()
 
@@ -59,13 +58,10 @@ class CalendarAppFunctionServiceTest {
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { calendarAppAction } }) }
+        val graph = mockk<AppActionGraph>()
+        every { graph.calendarAppAction } returns calendarAppAction
+        (context as TestAppFunctionApplication).appActionGraph = graph
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test

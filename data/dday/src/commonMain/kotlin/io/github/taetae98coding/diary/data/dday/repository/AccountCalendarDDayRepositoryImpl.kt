@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.dday.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.dday.datasource.AccountCalendarDDayLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
@@ -8,9 +11,9 @@ import io.github.taetae98coding.diary.domain.dday.repository.AccountCalendarDDay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateRange
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountCalendarDDayRepositoryImpl(
     private val accountCalendarDDayLocalDataSource: AccountCalendarDDayLocalDataSource,
 ) : AccountCalendarDDayRepository {

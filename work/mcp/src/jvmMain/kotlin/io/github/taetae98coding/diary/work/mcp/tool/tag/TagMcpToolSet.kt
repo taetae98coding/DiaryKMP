@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.tag
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
@@ -33,7 +37,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.koin.core.annotation.Factory
 
 private const val DESCRIPTION = "description"
 private const val EMOJI = "emoji"
@@ -45,7 +48,8 @@ internal val tagSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECEN
 internal val tagIdParameter: McpToolParameter =
     McpToolParameter(name = TAG_ID, type = McpToolParameterType.STRING, description = "Id of the tag.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class TagMcpToolSet(
     private val tagAppAction: TagAppAction,
     private val findTagUseCase: FindTagUseCase,

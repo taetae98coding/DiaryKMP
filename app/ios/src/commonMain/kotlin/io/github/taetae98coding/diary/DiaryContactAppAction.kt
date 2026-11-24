@@ -135,7 +135,7 @@ public object DiaryContactAppAction {
     public suspend fun restore(contactId: String): Int = contactAppAction().restore(contactId = contactId).changedCount
 }
 
-private fun contactAppAction(): ContactAppAction = diaryAppAction()
+private fun contactAppAction(): ContactAppAction = diaryAppActionGraph().contactAppAction
 
 private fun DiaryAppActionContactBirthdayCalendar.toValue(): String =
     when (this) {

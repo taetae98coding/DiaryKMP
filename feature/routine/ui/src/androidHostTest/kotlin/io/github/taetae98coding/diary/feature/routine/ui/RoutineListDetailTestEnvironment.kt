@@ -26,6 +26,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -47,11 +49,13 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.routine.routine
 import io.github.taetae98coding.diary.core.testing.routine.routineDetail
 import io.github.taetae98coding.diary.core.testing.routine.routineRecord
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.routine.ROUTINE_DEFAULT_VIEW_SCOPE
 import io.github.taetae98coding.diary.domain.routine.RoutineInput
 import io.github.taetae98coding.diary.domain.routine.progress.progress
 import io.github.taetae98coding.diary.domain.routine.progress.range
 import io.github.taetae98coding.diary.domain.routine.progress.routineCurrentCycle
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
@@ -70,6 +74,7 @@ import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScaffol
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.RoutineHomeCalendarUiState
 import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.RoutineHomeCalendarViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.holiday.RoutineHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.filter.RoutineHomeFilterUiState
 import io.github.taetae98coding.diary.feature.routine.ui.home.filter.RoutineHomeFilterViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.home.record.RoutineHomeRecord
@@ -93,10 +98,6 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
-import org.koin.compose.KoinApplication
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
@@ -275,20 +276,26 @@ internal class RoutineListDetailTestEnvironment(
     }
 
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    fun module(): Module =
-        module {
-            factory { homeViewModel().also(homeViewModelList::add) }
-            factory { calendarViewModel() }
-            factory { routineHomeHolidayViewModel() }
-            factory { routineSyncRefreshViewModel() }
-            factory { filterViewModel() }
-            factory { finishedListViewModel() }
-            factory { addViewModel().also(addViewModelList::add) }
-            factory { addTagViewModel().also(addTagViewModelList::add) }
-            factory { parameters -> detailViewModel(id = parameters.get()).also(detailViewModelList::add) }
-            factory { parameters -> recordViewModel(routineId = parameters.get()) }
-            factory { detailTagViewModel() }
-        }
+    fun viewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    RoutineHomeViewModel::class to { homeViewModel().also(homeViewModelList::add) },
+                    RoutineHomeCalendarViewModel::class to { calendarViewModel() },
+                    RoutineHomeHolidayViewModel::class to { routineHomeHolidayViewModel() },
+                    SyncRefreshViewModel::class to { routineSyncRefreshViewModel() },
+                    RoutineHomeFilterViewModel::class to { filterViewModel() },
+                    RoutineFinishedListViewModel::class to { finishedListViewModel() },
+                    RoutineAddViewModel::class to { addViewModel().also(addViewModelList::add) },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { addTagViewModel().also(addTagViewModelList::add) } },
+                    RoutineDetailViewModel.Factory::class to { RoutineDetailViewModel.Factory { id -> detailViewModel(id = id).also(detailViewModelList::add) } },
+                    RoutineDetailRecordViewModel.Factory::class to { RoutineDetailRecordViewModel.Factory { routineId -> recordViewModel(routineId = routineId) } },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagViewModel() } },
+                ),
+        )
 
     @Composable
     fun Content(
@@ -300,36 +307,35 @@ internal class RoutineListDetailTestEnvironment(
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides viewModelFactory(),
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(module()) }) {
-                DiaryTheme {
-                    val holder = rememberListDetailPlaceholderStateHolder()
+            DiaryTheme {
+                val holder = rememberListDetailPlaceholderStateHolder()
 
-                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                        NavDisplay(
-                            backStack = navBackStack,
-                            sceneStrategies =
-                                listOf(
-                                    remember { BottomSheetSceneStrategy<ScreenNavKey>() },
-                                    rememberDiaryListDetailSceneStrategy(
-                                        directive = directiveOverride ?: calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
-                                    ),
+                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                    NavDisplay(
+                        backStack = navBackStack,
+                        sceneStrategies =
+                            listOf(
+                                remember { BottomSheetSceneStrategy<ScreenNavKey>() },
+                                rememberDiaryListDetailSceneStrategy(
+                                    directive = directiveOverride ?: calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
                                 ),
-                            entryDecorators =
-                                listOf(
-                                    rememberSaveableStateHolderNavEntryDecorator(),
-                                    rememberViewModelStoreNavEntryDecorator(),
-                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                ),
-                            entryProvider =
-                                entryProvider {
-                                    entry<RoutineListDetailDefaultNavKey> { Text(text = ROUTINE_LIST_DETAIL_DEFAULT_CONTENT) }
-                                    entry<RoutineListDetailOtherNavKey> { Text(text = ROUTINE_LIST_DETAIL_OTHER_CONTENT) }
-                                    entry<TagAddNavKey> { Text(text = ROUTINE_LIST_DETAIL_TAG_ADD_CONTENT) }
-                                    routineEntry(backStack = navBackStack, homeReselectEvent = reselectEvent)
-                                },
-                        )
-                    }
+                            ),
+                        entryDecorators =
+                            listOf(
+                                rememberSaveableStateHolderNavEntryDecorator(),
+                                rememberViewModelStoreNavEntryDecorator(),
+                                rememberListDetailPlaceholderNavEntryDecorator(holder),
+                            ),
+                        entryProvider =
+                            entryProvider {
+                                entry<RoutineListDetailDefaultNavKey> { Text(text = ROUTINE_LIST_DETAIL_DEFAULT_CONTENT) }
+                                entry<RoutineListDetailOtherNavKey> { Text(text = ROUTINE_LIST_DETAIL_OTHER_CONTENT) }
+                                entry<TagAddNavKey> { Text(text = ROUTINE_LIST_DETAIL_TAG_ADD_CONTENT) }
+                                routineEntry(backStack = navBackStack, homeReselectEvent = reselectEvent)
+                            },
+                    )
                 }
             }
         }

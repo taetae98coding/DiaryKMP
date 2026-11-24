@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl.place.transaction
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.transaction.AccountPlaceSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -7,10 +10,10 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountPlaceSyncTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountPlaceSyncTransaction {

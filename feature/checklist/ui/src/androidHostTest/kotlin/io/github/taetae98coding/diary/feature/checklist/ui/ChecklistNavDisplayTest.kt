@@ -28,6 +28,8 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
@@ -35,6 +37,7 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
 import io.github.taetae98coding.diary.core.testing.checklist.checklistSummary
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
@@ -48,6 +51,8 @@ import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetai
 import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeViewModel
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -59,18 +64,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -88,13 +87,7 @@ class ChecklistNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -348,65 +341,75 @@ class ChecklistNavDisplayTest {
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                ChecklistTagTestTheme(content = content)
-            }
+        CompositionLocalProvider(
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+            LocalMetroViewModelFactory provides remember { navDisplayViewModelFactory() },
+        ) {
+            ChecklistTagTestTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory { addTagScreenTestViewModel() }
-            factory { detailTagScreenTestViewModel() }
-            factory {
-                mockk<ChecklistHomeViewModel>(relaxed = true).apply {
-                    every { checklistPagingData } returns MutableStateFlow(checklistPagingDataOf(homeSummaryList))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                    }.also(syncViewModelList::add)
-            }
-            factory { parameters ->
-                val id = parameters.get<Uuid>()
-                val summary = homeSummaryList.first { summary -> summary.checklist.id == id }
-                mockk<ChecklistDetailViewModel>(relaxed = true)
-                    .apply {
-                        val effectChannel = Channel<ChecklistDetailEffect>(capacity = Channel.BUFFERED)
-                        every { uiState } returns MutableStateFlow(ChecklistDetailUiState.Content(id = id, detail = summary.checklist.detail))
-                        every { effect } returns effectChannel.receiveAsFlow()
-                        every { delete() } answers { detailEffect?.let(effectChannel::trySend) }
-                    }.also(detailViewModelList::add)
-            }
-            factory {
-                val itemUiState =
-                    MutableStateFlow(
-                        ChecklistDetailItemUiState(
-                            itemList = listOf(item(content = ITEM)),
-                            isLoaded = true,
-                            sort = ChecklistItemSort.ADDED,
-                        ),
-                    )
-                mockk<ChecklistDetailItemViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns itemUiState
-                        every { effect } returns emptyFlow()
-                        every { selectSort(sort = any()) } answers { itemUiState.update { state -> state.copy(sort = firstArg()) } }
-                    }.also(itemViewModelList::add)
-            }
-            factory {
-                mockk<ChecklistAddViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(ChecklistAddUiState())
-                        every { effect } returns emptyFlow()
-                    }.also(addViewModelList::add)
-            }
-        }
+    private fun navDisplayViewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    ChecklistHomeViewModel::class to {
+                        mockk<ChecklistHomeViewModel>(relaxed = true).apply {
+                            every { checklistPagingData } returns MutableStateFlow(checklistPagingDataOf(homeSummaryList))
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true)
+                            .apply {
+                                every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                            }.also(syncViewModelList::add)
+                    },
+                    ChecklistAddViewModel::class to {
+                        mockk<ChecklistAddViewModel>(relaxed = true)
+                            .apply {
+                                every { uiState } returns MutableStateFlow(ChecklistAddUiState())
+                                every { effect } returns emptyFlow()
+                            }.also(addViewModelList::add)
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { addTagScreenTestViewModel() } },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                    ChecklistDetailViewModel.Factory::class to {
+                        ChecklistDetailViewModel.Factory { id ->
+                            val summary = homeSummaryList.first { summary -> summary.checklist.id == id }
+                            mockk<ChecklistDetailViewModel>(relaxed = true)
+                                .apply {
+                                    val effectChannel = Channel<ChecklistDetailEffect>(capacity = Channel.BUFFERED)
+                                    every { uiState } returns MutableStateFlow(ChecklistDetailUiState.Content(id = id, detail = summary.checklist.detail))
+                                    every { effect } returns effectChannel.receiveAsFlow()
+                                    every { delete() } answers { detailEffect?.let(effectChannel::trySend) }
+                                }.also(detailViewModelList::add)
+                        }
+                    },
+                    ChecklistDetailItemViewModel.Factory::class to {
+                        ChecklistDetailItemViewModel.Factory {
+                            val itemUiState =
+                                MutableStateFlow(
+                                    ChecklistDetailItemUiState(
+                                        itemList = listOf(item(content = ITEM)),
+                                        isLoaded = true,
+                                        sort = ChecklistItemSort.ADDED,
+                                    ),
+                                )
+                            mockk<ChecklistDetailItemViewModel>(relaxed = true)
+                                .apply {
+                                    every { uiState } returns itemUiState
+                                    every { effect } returns emptyFlow()
+                                    every { selectSort(sort = any()) } answers { itemUiState.update { state -> state.copy(sort = firstArg()) } }
+                                }.also(itemViewModelList::add)
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         const val DEFAULT_ADD_DESCRIPTION = "Add checklist"

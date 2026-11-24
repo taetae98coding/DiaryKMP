@@ -2,6 +2,13 @@ package io.github.taetae98coding.diary.feature.playlist.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
@@ -19,18 +26,23 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class MusicDetailViewModel(
-    @InjectedParam private val id: Uuid,
+    @Assisted private val id: Uuid,
     private val updateMusicUseCase: UpdateMusicUseCase,
     private val deleteMusicUseCase: DeleteMusicUseCase,
     private val fetchYoutubeVideoUseCase: FetchYoutubeVideoUseCase,
     findMusicUseCase: FindMusicUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(id: Uuid): MusicDetailViewModel
+    }
+
     private val isUpdateInProgress = MutableStateFlow(false)
     private val isLinkFetchInProgress = MutableStateFlow(false)
     private val isDeleteInProgress = MutableStateFlow(false)

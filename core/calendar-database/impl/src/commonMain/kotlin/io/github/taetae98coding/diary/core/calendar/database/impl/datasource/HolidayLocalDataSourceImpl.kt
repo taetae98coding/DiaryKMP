@@ -1,13 +1,16 @@
 package io.github.taetae98coding.diary.core.calendar.database.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class HolidayLocalDataSourceImpl(
     private val database: CalendarDatabase,
 ) : HolidayLocalDataSource {

@@ -1,20 +1,21 @@
 package io.github.taetae98coding.diary.core.ip.network.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.ip.network.impl.di.IpHttpClient
 import io.github.taetae98coding.diary.library.ktor.createJsonHttpClient
 import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@ComponentScan
-@Configuration
-public class IpNetworkModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object IpNetworkModule {
+    @Provides
+    @SingleIn(AppScope::class)
     @IpHttpClient
     internal fun providesIpHttpClient(): HttpClient = createIpHttpClient()
 }

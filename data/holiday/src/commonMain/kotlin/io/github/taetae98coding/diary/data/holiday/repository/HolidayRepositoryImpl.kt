@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.HolidayRemoteDataSource
@@ -13,9 +16,9 @@ import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepositor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class HolidayRepositoryImpl(
     private val holidayRemoteDataSource: HolidayRemoteDataSource,
     private val holidayLocalDataSource: HolidayLocalDataSource,

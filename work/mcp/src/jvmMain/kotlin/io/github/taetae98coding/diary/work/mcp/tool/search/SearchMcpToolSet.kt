@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.search
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.work.appaction.search.SearchAppAction
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -16,7 +20,6 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParamete
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.routine.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.sortText
-import org.koin.core.annotation.Factory
 
 private const val QUERY = "query"
 
@@ -32,7 +35,8 @@ private val queryParameter: McpToolParameter =
 
 private val searchParameterList: List<McpToolParameter> = listOf(queryParameter, sortParameter(searchSortList), mcpPageCursorParameter)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class SearchMcpToolSet(
     private val searchAppAction: SearchAppAction,
 ) : McpToolSet {

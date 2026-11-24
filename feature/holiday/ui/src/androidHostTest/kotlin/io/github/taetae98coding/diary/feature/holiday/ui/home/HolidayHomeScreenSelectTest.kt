@@ -28,11 +28,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -44,11 +42,6 @@ class HolidayHomeScreenSelectTest {
     val composeRule = createComposeRule()
 
     private val targetYear = mutableStateOf<Int?>(null)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-e88cbcf5-5088-42d4-ba0c-f1d190f91e15 카드에서 하루 기간 선택을 완료하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {

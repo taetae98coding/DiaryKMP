@@ -26,6 +26,7 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -38,6 +39,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
@@ -56,15 +58,10 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -81,11 +78,6 @@ class MemoHomeFilterOpenBoundaryTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -149,57 +141,59 @@ class MemoHomeFilterOpenBoundaryTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides viewModelFactory(tag = tag),
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(viewModelModule(tag = tag)) }) {
-                DiaryTheme {
-                    val holder = rememberListDetailPlaceholderStateHolder()
+            DiaryTheme {
+                val holder = rememberListDetailPlaceholderStateHolder()
 
-                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                        NavDisplay(
-                            backStack = backStack,
-                            sceneStrategies =
-                                listOf(
-                                    remember { BottomSheetSceneStrategy<ScreenNavKey>() },
-                                    rememberDiaryListDetailSceneStrategy(),
-                                ),
-                            entryDecorators =
-                                listOf(
-                                    rememberSaveableStateHolderNavEntryDecorator(),
-                                    rememberViewModelStoreNavEntryDecorator(),
-                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                ),
-                            entryProvider =
-                                entryProvider {
-                                    entry<FilterBoundaryTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                    memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
-                                },
-                        )
-                    }
+                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                    NavDisplay(
+                        backStack = backStack,
+                        sceneStrategies =
+                            listOf(
+                                remember { BottomSheetSceneStrategy<ScreenNavKey>() },
+                                rememberDiaryListDetailSceneStrategy(),
+                            ),
+                        entryDecorators =
+                            listOf(
+                                rememberSaveableStateHolderNavEntryDecorator(),
+                                rememberViewModelStoreNavEntryDecorator(),
+                                rememberListDetailPlaceholderNavEntryDecorator(holder),
+                            ),
+                        entryProvider =
+                            entryProvider {
+                                entry<FilterBoundaryTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
+                            },
+                    )
                 }
             }
         }
     }
 
-    private fun viewModelModule(tag: Tag) =
-        module {
-            factory<MemoHomeViewModel> {
-                mockk<MemoHomeViewModel>(relaxed = true) {
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState())
-                    every { memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
-                    every { filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState(existence = storedExistence()))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
-            factory<MemoHomeFilterViewModel> {
-                // 필터 선택은 기기에 저장되어 있으므로 새로 만든 ViewModel도 같은 선택을 읽는다.
-                mockk<MemoHomeFilterViewModel>(relaxed = true) {
-                    every { uiState } returns
-                        MutableStateFlow(MemoHomeFilterUiState(selectedTagIdSet = setOf(tag.id), existence = storedExistence()))
-                    every { tagPagingData } returns flowOf(PagingData.from(listOf(tag)))
-                }.also { viewModel -> filterViewModelList += viewModel }
-            }
-        }
+    private fun viewModelFactory(tag: Tag) =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    MemoHomeViewModel::class to {
+                        mockk<MemoHomeViewModel>(relaxed = true) {
+                            every { sortUiState } returns MutableStateFlow(ListSortUiState())
+                            every { memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
+                            every { filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState(existence = storedExistence()))
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                    MemoHomeFilterViewModel::class to {
+                        // 필터 선택은 기기에 저장되어 있으므로 새로 만든 ViewModel도 같은 선택을 읽는다.
+                        mockk<MemoHomeFilterViewModel>(relaxed = true) {
+                            every { uiState } returns
+                                MutableStateFlow(MemoHomeFilterUiState(selectedTagIdSet = setOf(tag.id), existence = storedExistence()))
+                            every { tagPagingData } returns flowOf(PagingData.from(listOf(tag)))
+                        }.also { viewModel -> filterViewModelList += viewModel }
+                    },
+                ),
+        )
 
     private fun assertFilterOpened(tag: Tag) {
         composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {

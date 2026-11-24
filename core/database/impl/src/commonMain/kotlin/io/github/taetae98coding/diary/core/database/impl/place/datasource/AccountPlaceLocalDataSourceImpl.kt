@@ -1,15 +1,18 @@
 package io.github.taetae98coding.diary.core.database.impl.place.datasource
 
 import androidx.paging.PagingSource
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.datasource.AccountPlaceLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountPlaceLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountPlaceLocalDataSource {

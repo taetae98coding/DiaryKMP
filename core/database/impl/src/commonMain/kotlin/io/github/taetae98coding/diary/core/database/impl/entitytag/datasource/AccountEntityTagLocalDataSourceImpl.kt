@@ -1,16 +1,19 @@
 package io.github.taetae98coding.diary.core.database.impl.entitytag.datasource
 
 import androidx.paging.PagingSource
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.datasource.AccountEntityTagLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagTable
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountEntityTagLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountEntityTagLocalDataSource {

@@ -6,6 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -22,7 +23,6 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import kotlinx.coroutines.flow.Flow
-import org.koin.compose.viewmodel.koinViewModel
 
 internal fun EntryProviderScope<ScreenNavKey>.calendarEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -66,13 +66,13 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
             navigateToTimetable = dropUnlessResumedWithArg { key -> backStack.add(key) },
             state = state,
             permissionManager = rememberPermissionManager(),
-            holidayViewModel = koinViewModel(),
-            memoViewModel = koinViewModel(),
-            ddayViewModel = koinViewModel(),
-            birthdayViewModel = koinViewModel(),
-            filterViewModel = koinViewModel(),
-            weatherViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            holidayViewModel = metroViewModel(),
+            memoViewModel = metroViewModel(),
+            ddayViewModel = metroViewModel(),
+            birthdayViewModel = metroViewModel(),
+            filterViewModel = metroViewModel(),
+            weatherViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }

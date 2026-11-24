@@ -15,6 +15,9 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
@@ -28,6 +31,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultUiState
 import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayViewModel
@@ -48,13 +52,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import org.koin.compose.KoinApplication
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import kotlin.uuid.Uuid
 
-// KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 조회 결과는 모듈이 붙잡는 이 흐름의 값으로 테스트마다 바꾼다.
+// 대역 ViewModel은 이 흐름들을 붙잡으므로, 조회 결과는 이 흐름의 값으로 테스트마다 바꾼다.
 private val memoPagingDataFlow = MutableStateFlow(pagingDataOf<Memo>(emptyList()))
 private val tagPagingDataFlow = MutableStateFlow(pagingDataOf<Tag>(emptyList()))
 private val placePagingDataFlow = MutableStateFlow(pagingDataOf<Place>(emptyList()))
@@ -94,87 +94,90 @@ internal var searchDDayViewModelRef: SearchHomeDDayViewModel? = null
 internal var searchRoutineViewModelRef: SearchHomeRoutineViewModel? = null
     private set
 
-private val searchHomeViewModelModule =
-    module {
-        factory {
-            mockk<SearchHomeMemoViewModel>(relaxed = true).apply {
-                every { pagingData } returns memoPagingDataFlow
-                val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { uiState } returns fakeUiState(sortFlow)
-                every { select(sort = any()) } answers { sortFlow.value = firstArg() }
-                every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { effect } returns memoEffectChannel.receiveAsFlow()
-                every { finish(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Finished(id = firstArg())) }
-                every { restart(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Restarted(id = firstArg())) }
-                every { delete(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Deleted(id = firstArg())) }
-                searchMemoViewModelRef = this
-            }
-        }
-        factory {
-            mockk<SearchHomeTagViewModel>(relaxed = true).apply {
-                every { pagingData } returns tagPagingDataFlow
-                val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { uiState } returns fakeUiState(sortFlow)
-                every { select(sort = any()) } answers { sortFlow.value = firstArg() }
-                every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { effect } returns tagEffectChannel.receiveAsFlow()
-                every { finish(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Finished(id = firstArg())) }
-                every { restart(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Restarted(id = firstArg())) }
-                every { delete(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Deleted(id = firstArg())) }
-                searchTagViewModelRef = this
-            }
-        }
-        factory {
-            mockk<SearchHomePlaceViewModel>(relaxed = true).apply {
-                every { pagingData } returns placePagingDataFlow
-                val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { uiState } returns fakeUiState(sortFlow)
-                every { select(sort = any()) } answers { sortFlow.value = firstArg() }
-                every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { effect } returns placeEffectChannel.receiveAsFlow()
-                every { delete(id = any()) } answers { placeEffectChannel.trySend(PlaceListEffect.Deleted(id = firstArg())) }
-                searchPlaceViewModelRef = this
-            }
-        }
-        factory {
-            mockk<SearchHomeWebViewModel>(relaxed = true).apply {
-                every { pagingData } returns webPagingDataFlow
-                val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { uiState } returns fakeUiState(sortFlow)
-                every { select(sort = any()) } answers { sortFlow.value = firstArg() }
-                every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { effect } returns webEffectChannel.receiveAsFlow()
-                every { delete(id = any()) } answers { webEffectChannel.trySend(WebListEffect.Deleted(id = firstArg())) }
-                searchWebViewModelRef = this
-            }
-        }
-        factory {
-            mockk<SearchHomeDDayViewModel>(relaxed = true).apply {
-                every { pagingData } returns ddayPagingDataFlow
-                val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { uiState } returns fakeUiState(sortFlow)
-                every { select(sort = any()) } answers { sortFlow.value = firstArg() }
-                every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { effect } returns ddayEffectChannel.receiveAsFlow()
-                every { delete(id = any()) } answers { ddayEffectChannel.trySend(DDayListEffect.Deleted(id = firstArg())) }
-                searchDDayViewModelRef = this
-            }
-        }
-        factory {
-            mockk<SearchHomeRoutineViewModel>(relaxed = true).apply {
-                every { pagingData } returns routinePagingDataFlow
-                every { uiState } returns fakeUiState(MutableStateFlow(ListSort.TITLE))
-                every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { effect } returns routineEffectChannel.receiveAsFlow()
-                every { finish(id = any()) } answers { routineEffectChannel.trySend(RoutineListEffect.Finished(id = firstArg())) }
-                every { restart(id = any()) } answers { routineEffectChannel.trySend(RoutineListEffect.Restarted(id = firstArg())) }
-                every { delete(id = any()) } answers { routineEffectChannel.trySend(RoutineListEffect.Deleted(id = firstArg())) }
-                searchRoutineViewModelRef = this
-            }
-        }
-    }
+private val searchHomeViewModelFactory: MetroViewModelFactory =
+    TestViewModelFactory(
+        viewModelProviders =
+            mapOf(
+                SearchHomeMemoViewModel::class to {
+                    mockk<SearchHomeMemoViewModel>(relaxed = true).apply {
+                        every { pagingData } returns memoPagingDataFlow
+                        val sortFlow = MutableStateFlow(ListSort.TITLE)
+                        every { uiState } returns fakeUiState(sortFlow)
+                        every { select(sort = any()) } answers { sortFlow.value = firstArg() }
+                        every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                        every { effect } returns memoEffectChannel.receiveAsFlow()
+                        every { finish(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Finished(id = firstArg())) }
+                        every { restart(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Restarted(id = firstArg())) }
+                        every { delete(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Deleted(id = firstArg())) }
+                        searchMemoViewModelRef = this
+                    }
+                },
+                SearchHomeTagViewModel::class to {
+                    mockk<SearchHomeTagViewModel>(relaxed = true).apply {
+                        every { pagingData } returns tagPagingDataFlow
+                        val sortFlow = MutableStateFlow(ListSort.TITLE)
+                        every { uiState } returns fakeUiState(sortFlow)
+                        every { select(sort = any()) } answers { sortFlow.value = firstArg() }
+                        every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                        every { effect } returns tagEffectChannel.receiveAsFlow()
+                        every { finish(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Finished(id = firstArg())) }
+                        every { restart(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Restarted(id = firstArg())) }
+                        every { delete(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Deleted(id = firstArg())) }
+                        searchTagViewModelRef = this
+                    }
+                },
+                SearchHomePlaceViewModel::class to {
+                    mockk<SearchHomePlaceViewModel>(relaxed = true).apply {
+                        every { pagingData } returns placePagingDataFlow
+                        val sortFlow = MutableStateFlow(ListSort.TITLE)
+                        every { uiState } returns fakeUiState(sortFlow)
+                        every { select(sort = any()) } answers { sortFlow.value = firstArg() }
+                        every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                        every { effect } returns placeEffectChannel.receiveAsFlow()
+                        every { delete(id = any()) } answers { placeEffectChannel.trySend(PlaceListEffect.Deleted(id = firstArg())) }
+                        searchPlaceViewModelRef = this
+                    }
+                },
+                SearchHomeWebViewModel::class to {
+                    mockk<SearchHomeWebViewModel>(relaxed = true).apply {
+                        every { pagingData } returns webPagingDataFlow
+                        val sortFlow = MutableStateFlow(ListSort.TITLE)
+                        every { uiState } returns fakeUiState(sortFlow)
+                        every { select(sort = any()) } answers { sortFlow.value = firstArg() }
+                        every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                        every { effect } returns webEffectChannel.receiveAsFlow()
+                        every { delete(id = any()) } answers { webEffectChannel.trySend(WebListEffect.Deleted(id = firstArg())) }
+                        searchWebViewModelRef = this
+                    }
+                },
+                SearchHomeDDayViewModel::class to {
+                    mockk<SearchHomeDDayViewModel>(relaxed = true).apply {
+                        every { pagingData } returns ddayPagingDataFlow
+                        val sortFlow = MutableStateFlow(ListSort.TITLE)
+                        every { uiState } returns fakeUiState(sortFlow)
+                        every { select(sort = any()) } answers { sortFlow.value = firstArg() }
+                        every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                        every { effect } returns ddayEffectChannel.receiveAsFlow()
+                        every { delete(id = any()) } answers { ddayEffectChannel.trySend(DDayListEffect.Deleted(id = firstArg())) }
+                        searchDDayViewModelRef = this
+                    }
+                },
+                SearchHomeRoutineViewModel::class to {
+                    mockk<SearchHomeRoutineViewModel>(relaxed = true).apply {
+                        every { pagingData } returns routinePagingDataFlow
+                        every { uiState } returns fakeUiState(MutableStateFlow(ListSort.TITLE))
+                        every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                        every { effect } returns routineEffectChannel.receiveAsFlow()
+                        every { finish(id = any()) } answers { routineEffectChannel.trySend(RoutineListEffect.Finished(id = firstArg())) }
+                        every { restart(id = any()) } answers { routineEffectChannel.trySend(RoutineListEffect.Restarted(id = firstArg())) }
+                        every { delete(id = any()) } answers { routineEffectChannel.trySend(RoutineListEffect.Deleted(id = firstArg())) }
+                        searchRoutineViewModelRef = this
+                    }
+                },
+            ),
+    )
 
-// 유형별 ViewModel은 Koin으로 얻으므로, 조회 결과는 ViewModel을 대신 넣어 정한다.
+// 유형별 ViewModel은 LocalMetroViewModelFactory로 얻으므로, 조회 결과는 ViewModel을 대신 넣어 정한다.
 internal fun ComposeContentTestRule.setSearchHomeScreen(
     isQueryAppliedImmediately: Boolean = true,
     memoList: List<Memo> = emptyList(),
@@ -222,33 +225,32 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current),
+                LocalMetroViewModelFactory provides searchHomeViewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(searchHomeViewModelModule) }) {
-                    DiaryTheme {
-                        // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태와 유지 값만 보관하는 것을 그대로 따른다.
-                        val saveableStateHolder = rememberSaveableStateHolder()
-                        val retainedValuesStoreRegistry = retainRetainedValuesStoreRegistry()
+                DiaryTheme {
+                    // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태와 유지 값만 보관하는 것을 그대로 따른다.
+                    val saveableStateHolder = rememberSaveableStateHolder()
+                    val retainedValuesStoreRegistry = retainRetainedValuesStoreRegistry()
 
-                        if (isShownProvider()) {
-                            retainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(SEARCH_HOME_ENTRY_KEY) {
-                                saveableStateHolder.SaveableStateProvider(key = SEARCH_HOME_ENTRY_KEY) {
-                                    SearchHomeScreen(
-                                        navigateUp = navigateUp,
-                                        navigateToMemoDetail = navigateToMemoDetail,
-                                        navigateToTagDetail = navigateToTagDetail,
-                                        navigateToPlaceDetail = navigateToPlaceDetail,
-                                        navigateToWebDetail = navigateToWebDetail,
-                                        navigateToDDayDetail = navigateToDDayDetail,
-                                        navigateToRoutineDetail = navigateToRoutineDetail,
-                                        initialType = initialTypeProvider(),
-                                        memoViewModel = koinViewModel(),
-                                        tagViewModel = koinViewModel(),
-                                        placeViewModel = koinViewModel(),
-                                        webViewModel = koinViewModel(),
-                                        ddayViewModel = koinViewModel(),
-                                        routineViewModel = koinViewModel(),
-                                    )
-                                }
+                    if (isShownProvider()) {
+                        retainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(SEARCH_HOME_ENTRY_KEY) {
+                            saveableStateHolder.SaveableStateProvider(key = SEARCH_HOME_ENTRY_KEY) {
+                                SearchHomeScreen(
+                                    navigateUp = navigateUp,
+                                    navigateToMemoDetail = navigateToMemoDetail,
+                                    navigateToTagDetail = navigateToTagDetail,
+                                    navigateToPlaceDetail = navigateToPlaceDetail,
+                                    navigateToWebDetail = navigateToWebDetail,
+                                    navigateToDDayDetail = navigateToDDayDetail,
+                                    navigateToRoutineDetail = navigateToRoutineDetail,
+                                    initialType = initialTypeProvider(),
+                                    memoViewModel = metroViewModel(),
+                                    tagViewModel = metroViewModel(),
+                                    placeViewModel = metroViewModel(),
+                                    webViewModel = metroViewModel(),
+                                    ddayViewModel = metroViewModel(),
+                                    routineViewModel = metroViewModel(),
+                                )
                             }
                         }
                     }

@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.domain.mcp.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.mcp.manager.McpServerManager
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class ReadMcpServerSupportUseCase internal constructor(
     private val mcpServerManager: McpServerManager,
 ) : UseCase<Unit, Boolean>() {

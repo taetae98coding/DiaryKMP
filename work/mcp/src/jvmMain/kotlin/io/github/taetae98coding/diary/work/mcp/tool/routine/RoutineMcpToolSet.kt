@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.routine
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.routine.Routine
 import io.github.taetae98coding.diary.domain.routine.ROUTINE_AMOUNT_RANGE
 import io.github.taetae98coding.diary.domain.routine.ROUTINE_DEFAULT_AMOUNT_PER_RECORD
@@ -46,7 +50,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
 private const val AMOUNT = "amount"
@@ -64,7 +67,8 @@ private val amountRangeText: String = "${ROUTINE_AMOUNT_RANGE.first} and ${ROUTI
 private val routineIdParameter: McpToolParameter =
     McpToolParameter(name = ROUTINE_ID, type = McpToolParameterType.STRING, description = "Id of the routine.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class RoutineMcpToolSet(
     private val routineListAppAction: RoutineListAppAction,
     private val routineAppAction: RoutineAppAction,

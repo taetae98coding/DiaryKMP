@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.music.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
@@ -8,11 +11,11 @@ import io.github.taetae98coding.diary.core.database.api.music.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.musictag.musicTagTable
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountMusicTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountMusicTransaction {

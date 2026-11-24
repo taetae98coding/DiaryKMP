@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.contact.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactTransaction
@@ -8,11 +11,11 @@ import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityT
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contacttag.contactTagTable
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountContactTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountContactTransaction {

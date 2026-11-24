@@ -62,7 +62,7 @@ public object DiaryQrAppAction {
     public suspend fun restore(qrId: String): Int = qrAppAction().restore(qrId = qrId).changedCount
 }
 
-private fun qrAppAction(): QrAppAction = diaryAppAction()
+private fun qrAppAction(): QrAppAction = diaryAppActionGraph().qrAppAction
 
 private fun AppActionQrDetail.toDiary(): DiaryAppActionQrDetail = DiaryAppActionQrDetail(qr = qr.toDiary(), tags = tags.map { tag -> tag.toDiary() })
 

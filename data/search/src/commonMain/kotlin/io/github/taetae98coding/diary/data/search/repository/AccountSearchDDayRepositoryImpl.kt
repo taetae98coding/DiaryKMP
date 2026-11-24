@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.data.search.repository
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.search.datasource.SearchDDayLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.dday.DDay
@@ -10,9 +13,9 @@ import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.search.repository.AccountSearchDDayRepository
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountSearchDDayRepositoryImpl(
     private val searchDDayLocalDataSource: SearchDDayLocalDataSource,
 ) : AccountSearchDDayRepository {

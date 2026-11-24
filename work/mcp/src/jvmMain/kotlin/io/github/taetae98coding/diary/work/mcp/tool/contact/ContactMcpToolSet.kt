@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.contact
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
@@ -39,7 +43,6 @@ import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import io.github.taetae98coding.diary.work.mcp.tool.uuidSet
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
-import org.koin.core.annotation.Factory
 
 private const val CONTACT_ID = "contactId"
 private const val DESCRIPTION = "description"
@@ -51,7 +54,8 @@ internal val contactSortList: List<ListSort> = listOf(ListSort.NAME, ListSort.RE
 private val contactIdParameter: McpToolParameter =
     McpToolParameter(name = CONTACT_ID, type = McpToolParameterType.STRING, description = "Id of the contact.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class ContactMcpToolSet(
     private val contactAppAction: ContactAppAction,
     private val memoListAppAction: MemoListAppAction,

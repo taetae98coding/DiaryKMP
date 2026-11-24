@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.tag.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.tag.datasource.TagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagRemoteEntity
@@ -9,9 +12,9 @@ import io.github.taetae98coding.diary.core.network.impl.tag.entity.TagPushReques
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.invoke
 import io.ktor.client.call.body
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class TagRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : TagRemoteDataSource {

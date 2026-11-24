@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.lunar.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.LunarLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.LunarTransaction
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.LunarRemoteDataSource
@@ -14,9 +17,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class LunarRepositoryImpl(
     private val lunarRemoteDataSource: LunarRemoteDataSource,
     private val lunarLocalDataSource: LunarLocalDataSource,

@@ -2,17 +2,20 @@
 
 package io.github.taetae98coding.diary.core.fcm.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.fcm.api.FcmTokenProvider
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.koin.core.annotation.Factory
 import platform.Foundation.NSError
 import swiftPMImport.DiaryKmp.core.fcm.core.fcm.impl.FIRInstallations
 import swiftPMImport.DiaryKmp.core.fcm.core.fcm.impl.FIRMessaging
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class IosFcmTokenProvider : FcmTokenProvider {
     override suspend fun getInstallationId(): String? {
         val messaging = FIRMessaging.messaging()

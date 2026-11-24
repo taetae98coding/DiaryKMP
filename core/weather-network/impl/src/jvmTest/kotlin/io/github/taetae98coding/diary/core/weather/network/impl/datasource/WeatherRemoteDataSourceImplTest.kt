@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.weather.network.impl.datasource
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.data.testing.weather.currentWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.data.testing.weather.forecastRemoteEntity
 import io.github.taetae98coding.diary.core.data.testing.weather.forecastWeatherRemoteEntity
@@ -9,10 +10,9 @@ import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWea
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.LocationNameRemoteEntity
-import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestKoinApplication
-import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestKoinModule
+import io.github.taetae98coding.diary.core.weather.network.impl.OpenWeatherApiConfig
+import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestGraph
 import io.github.taetae98coding.diary.core.weather.network.impl.createWeatherHttpClient
-import io.github.taetae98coding.diary.core.weather.network.impl.di.WeatherHttpClient
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -20,7 +20,6 @@ import io.kotest.matchers.string.shouldStartWith
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.numericDouble
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -31,9 +30,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 import kotlin.time.Instant
 
 class WeatherRemoteDataSourceImplTest :
@@ -65,7 +61,7 @@ class WeatherRemoteDataSourceImplTest :
         }
 
         test("TC-78a2e5fa-13b9-4052-b009-5b917bba0354: 위치와 인증 정보를 담아 현재 날씨를 요청한다") {
-            val config = WeatherNetworkTestKoinModule.config
+            val config = testConfig
             val latitude = randomLatitude()
             val longitude = randomLongitude()
             val engine = createEngine()
@@ -90,7 +86,7 @@ class WeatherRemoteDataSourceImplTest :
         }
 
         test("TC-556cb679-ec05-4c96-ac35-1fcbf8e3320f: 위치와 인증 정보를 담아 시간대별 예보를 요청한다") {
-            val config = WeatherNetworkTestKoinModule.config
+            val config = testConfig
             val latitude = randomLatitude()
             val longitude = randomLongitude()
             val engine = createEngine()
@@ -136,7 +132,7 @@ class WeatherRemoteDataSourceImplTest :
         }
 
         test("TC-fe58d96a-c870-41d9-a66b-9cec9bbade4c: 위치와 인증 정보를 담아 지역명을 요청한다") {
-            val config = WeatherNetworkTestKoinModule.config
+            val config = testConfig
             val latitude = randomLatitude()
             val longitude = randomLongitude()
             val engine = createEngine()
@@ -212,6 +208,9 @@ class WeatherRemoteDataSourceImplTest :
         }
     }) {
     private companion object {
+        // URL 쿼리 값 비교가 인코딩에 흔들리지 않도록 영숫자로 고정한다.
+        private val testConfig: OpenWeatherApiConfig = OpenWeatherApiConfig(appId = "testAppId")
+
         // 2100-01-01T00:00:00Z
         private const val MAX_EPOCH_SECONDS = 4_102_444_800L
 
@@ -237,13 +236,9 @@ class WeatherRemoteDataSourceImplTest :
             }
 
         private fun createDataSource(engine: HttpClientEngine): WeatherRemoteDataSource =
-            koinApplication<WeatherNetworkTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClient>(qualifier = named<WeatherHttpClient>()) { createWeatherHttpClient(config = get(), engine = engine) }
-                    },
-                )
-            }.koin.get()
+            createGraphFactory<WeatherNetworkTestGraph.Factory>()
+                .create(httpClient = createWeatherHttpClient(config = testConfig, engine = engine))
+                .weatherRemoteDataSource
 
         private fun randomLatitude(): Double = Arb.numericDouble(min = -90.0, max = 90.0).next()
 

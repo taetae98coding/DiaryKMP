@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.file.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.FileDownloadSettingLocalDataSource
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.model.file.FileDownloadSetting
@@ -9,9 +12,9 @@ import io.github.taetae98coding.diary.domain.file.repository.FileDownloadSetting
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class FileDownloadSettingRepositoryImpl(
     private val fileDownloadSettingLocalDataSource: FileDownloadSettingLocalDataSource,
     private val fileDownloadLocalDataSource: FileDownloadLocalDataSource,

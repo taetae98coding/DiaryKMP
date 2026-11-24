@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.file.repository.FileDetailRepository
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class FetchFileUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val fileDetailRepository: FileDetailRepository,

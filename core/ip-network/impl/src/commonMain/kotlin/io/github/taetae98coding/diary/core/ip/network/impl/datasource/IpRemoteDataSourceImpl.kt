@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.core.ip.network.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.ip.network.impl.di.IpHttpClient
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class IpRemoteDataSourceImpl(
     @IpHttpClient
     private val httpClient: HttpClient,

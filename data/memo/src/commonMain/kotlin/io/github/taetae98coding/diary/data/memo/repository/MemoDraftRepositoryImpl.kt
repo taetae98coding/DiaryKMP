@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiContentRemoteDataSource
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
@@ -18,11 +21,11 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import org.koin.core.annotation.Factory
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class MemoDraftRepositoryImpl(
     private val geminiContentRemoteDataSource: GeminiContentRemoteDataSource,
 ) : MemoDraftRepository {

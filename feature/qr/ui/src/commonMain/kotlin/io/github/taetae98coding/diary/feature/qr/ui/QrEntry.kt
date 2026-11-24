@@ -9,6 +9,8 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.result.LocalResultEventBus
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -18,6 +20,8 @@ import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -28,6 +32,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScaffoldComponentVi
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScreen
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScreen
+import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.detail.share.QrCodePngEncoder
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScaffoldComponentVisible
@@ -36,8 +41,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraPreviewCont
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanScreen
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.qrEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -69,8 +72,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrHomeEntry(backStack: NavBackStack
             navigateToAdd = dropUnlessResumed(block = backStack::navigateToQrAddFromHome),
             navigateToDetail = { id -> backStack.navigateToQrDetail(id = id) },
             componentVisibleProvider = { QrHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isQrAddOnDetailPane()) },
-            qrViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            qrViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -93,8 +96,8 @@ internal fun qrHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = LocalResultEventBus.current,
                     componentVisibleProvider = { QrAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    addViewModel = koinViewModel(),
-                    tagViewModel = koinViewModel { parametersOf(null) },
+                    addViewModel = metroViewModel(),
+                    tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = null) },
                 )
             }
         },
@@ -116,8 +119,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrAddEntry(backStack: NavBackStack<
             permissionManager = rememberPermissionManager(),
             resultEventBus = LocalResultEventBus.current,
             componentVisibleProvider = { QrAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = key.initialTagId) },
         )
     }
 }
@@ -146,8 +149,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(
             qrCodePngEncoder = qrCodePngEncoder,
             resultEventBus = LocalResultEventBus.current,
             componentVisibleProvider = { QrDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            qrViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.QR, key.id) },
+            qrViewModel = assistedMetroViewModel<QrDetailViewModel, QrDetailViewModel.Factory> { create(id = key.id) },
+            tagViewModel = assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.QR, entityId = key.id) },
         )
     }
 }

@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.core.database.impl.memotag.datasource
 
 import androidx.paging.PagingSource
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.memotag.datasource.AccountMemoTagLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountMemoTagLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountMemoTagLocalDataSource {

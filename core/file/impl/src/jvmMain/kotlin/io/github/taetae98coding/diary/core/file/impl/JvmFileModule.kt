@@ -1,19 +1,20 @@
 package io.github.taetae98coding.diary.core.file.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectory
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
 import io.github.taetae98coding.diary.core.file.impl.di.FileDownloadDefaultDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.userHomeDirectory
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Module
 import java.nio.file.Path
 
-@Module
-@Configuration
-public class JvmFileModule {
-    @Factory
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object JvmFileModule {
+    @Provides
     @AppFileDirectory
     internal fun providesAppFileDirectory(
         @AppFileDirectoryName
@@ -23,7 +24,7 @@ public class JvmFileModule {
             .toAbsolutePath()
             .toString()
 
-    @Factory
+    @Provides
     @FileDownloadDefaultDirectory
     internal fun providesFileDownloadDefaultDirectory(): String =
         resolveFileDownloadDefaultDirectory(userHome = userHomeDirectory())

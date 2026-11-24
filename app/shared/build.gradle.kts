@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.primitive.android.library)
     alias(libs.plugins.primitive.compose)
     alias(libs.plugins.primitive.compose.test)
-    alias(libs.plugins.primitive.koin)
+    alias(libs.plugins.primitive.metro)
     alias(libs.plugins.primitive.kotest)
     alias(libs.plugins.build.konfig)
 }
@@ -123,7 +123,7 @@ kotlin {
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)
                 implementation(projects.library.kotlin)
-                implementation(projects.work.appaction)
+                api(projects.work.appaction)
                 implementation(projects.work.fileUpload)
                 implementation(projects.work.mcp)
                 implementation(projects.work.sync)
@@ -135,7 +135,7 @@ kotlin {
                 implementation(libs.jetbrains.navigation3.ui)
                 implementation(libs.jetbrains.compose.material3.adaptive.navigation.suite)
 
-                implementation(libs.koin.compose.viewmodel)
+                implementation(libs.metrox.viewmodel.compose)
 
                 runtimeOnly(libs.coil.network.ktor3)
             }
@@ -152,7 +152,7 @@ kotlin {
                 implementation(projects.work.appfunction)
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.startup.runtime)
-                implementation(libs.koin.androidx.workmanager)
+                implementation(libs.androidx.work.runtime)
             }
         }
 

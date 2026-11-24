@@ -43,6 +43,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -68,7 +70,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.prepareTagDetailTabViewModels
 import io.github.taetae98coding.diary.feature.tag.ui.detail.screenTestViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
-import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailTabViewModelModule
+import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailTabViewModelFactory
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
@@ -86,16 +88,9 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -115,16 +110,6 @@ class TagListDetailPlaceholderTest {
     private var launchCount by mutableIntStateOf(0)
     private val addTagUseCase = mockk<AddTagUseCase>()
     private val resultEventBus = spyk(ResultEventBus())
-
-    @Before
-    fun setUp() {
-        stopKoin()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-41f7589c-0d82-4bc5-9be2-db34cbf70264 TC-93946645-7dc1-438b-85b4-b5b84a926dbb 선택한 태그가 없으면 목록과 함께 상세 영역에 태그 추가 화면이 표시된다`() {
@@ -484,7 +469,7 @@ class TagListDetailPlaceholderTest {
             id = key.id,
             componentVisibleProvider = { backStack.tagDetailScaffoldComponentVisible(key = key, isListPaneVisible = isListPaneVisible) },
             detailViewModel = remember(key) { screenTestViewModel(MutableStateFlow(tagDetailUiState(id = key.id, detail = tagDetail(TAG_TITLE)))) },
-            placeMapViewModel = koinViewModel(),
+            placeMapViewModel = metroViewModel(),
             navigateToWebAdd = {},
             navigateToWebDetail = {},
             navigateToPlaceAdd = {},
@@ -516,18 +501,20 @@ class TagListDetailPlaceholderTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides placeholderViewModelFactory(),
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(placeholderViewModelModule(), tagDetailTabViewModelModule) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
-    private fun placeholderViewModelModule() =
-        module {
-            factory { TagAddViewModel(addTagUseCase = addTagUseCase) }
-            factory { linkViewModel().also { linkViewModelList += it } }
-        }
+    private fun placeholderViewModelFactory() =
+        tagDetailTabViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    TagAddViewModel::class to { TagAddViewModel(addTagUseCase = addTagUseCase) },
+                    TagAddLinkViewModel::class to { linkViewModel().also { linkViewModelList += it } },
+                ),
+        )
 
     private fun linkViewModel(): TagAddLinkViewModel {
         val tagList = listOf(requireNotNull(currentInput).linkedTag)

@@ -1,13 +1,16 @@
 package io.github.taetae98coding.diary.core.calendar.database.impl.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class HolidayTransactionImpl(
     private val database: CalendarDatabase,
 ) : HolidayTransaction {

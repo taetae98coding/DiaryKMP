@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
 import io.github.taetae98coding.diary.app.shared.fcm.SubmitFcmTokenEffect
 import io.github.taetae98coding.diary.app.shared.integrity.AppPlayIntegrityViewModel
@@ -21,19 +23,31 @@ import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenEntryInstaller
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 public fun App(
     dependencies: AppDependencies,
     modifier: Modifier = Modifier,
 ) {
-    val syncViewModel = koinViewModel<AppSyncViewModel>()
-    val periodicSyncViewModel = koinViewModel<AppPeriodicSyncViewModel>()
-    val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
-    val playIntegrityViewModel = koinViewModel<AppPlayIntegrityViewModel>()
-    val fileUploadViewModel = koinViewModel<AppFileUploadViewModel>()
-    val webLoginViewModel = koinViewModel<AppWebLoginViewModel>()
+    CompositionLocalProvider(LocalMetroViewModelFactory provides dependencies.viewModelFactory) {
+        AppRoot(
+            dependencies = dependencies,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+private fun AppRoot(
+    dependencies: AppDependencies,
+    modifier: Modifier = Modifier,
+) {
+    val syncViewModel = metroViewModel<AppSyncViewModel>()
+    val periodicSyncViewModel = metroViewModel<AppPeriodicSyncViewModel>()
+    val fcmTokenViewModel = metroViewModel<AppFcmTokenViewModel>()
+    val playIntegrityViewModel = metroViewModel<AppPlayIntegrityViewModel>()
+    val fileUploadViewModel = metroViewModel<AppFileUploadViewModel>()
+    val webLoginViewModel = metroViewModel<AppWebLoginViewModel>()
     val appState = rememberAppState()
 
     DiaryImageLoaderEffect()

@@ -37,11 +37,14 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
@@ -73,14 +76,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -92,11 +90,6 @@ class SettingListDetailNavigationTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestMoreNavKey, SettingHomeNavKey)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-7991766b-0000-4738-aa2d-27ff26d36bd5 상세를 선택한 뒤 시스템 뒤로가기를 사용하면 선택 전 상태로 돌아간다`() {
@@ -387,54 +380,58 @@ class SettingListDetailNavigationTest {
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(viewModelModule()) }) {
-                DiaryTheme(content = content)
-            }
+        CompositionLocalProvider(
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+            LocalMetroViewModelFactory provides remember { viewModelFactory() },
+        ) {
+            DiaryTheme(content = content)
         }
     }
 
     // 뒤로가기로 entry가 닫히면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun viewModelModule() =
-        module {
-            factory<SettingHomeViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingHomeUiState.Content(itemList = settingHomeItemList))
-                }
-            }
-            factory<SettingHolidayViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingHolidayUiState.Loading)
-                }
-            }
-            factory<SettingGeminiViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory<SettingGeminiModelViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingGeminiModelUiState())
-                }
-            }
-            factory<SettingFileViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingFileUiState.Content(directory = null))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory<SettingMapViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
-                }
-            }
-            factory<SettingMcpViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingMcpUiState.Loading)
-                }
-            }
-        }
+    private fun viewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    SettingHomeViewModel::class to {
+                        mockk<SettingHomeViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SettingHomeUiState.Content(itemList = settingHomeItemList))
+                        }
+                    },
+                    SettingHolidayViewModel::class to {
+                        mockk<SettingHolidayViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SettingHolidayUiState.Loading)
+                        }
+                    },
+                    SettingGeminiViewModel::class to {
+                        mockk<SettingGeminiViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SettingGeminiModelViewModel::class to {
+                        mockk<SettingGeminiModelViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SettingGeminiModelUiState())
+                        }
+                    },
+                    SettingFileViewModel::class to {
+                        mockk<SettingFileViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SettingFileUiState.Content(directory = null))
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SettingMapViewModel::class to {
+                        mockk<SettingMapViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
+                        }
+                    },
+                    SettingMcpViewModel::class to {
+                        mockk<SettingMcpViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SettingMcpUiState.Loading)
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         const val MORE_CONTENT = "MoreContent"

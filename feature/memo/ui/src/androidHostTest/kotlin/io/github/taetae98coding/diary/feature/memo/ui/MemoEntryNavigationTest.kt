@@ -37,6 +37,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -55,6 +57,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
@@ -139,16 +142,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.LocalDate
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -175,13 +172,7 @@ class MemoEntryNavigationTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -534,57 +525,71 @@ class MemoEntryNavigationTest {
 
     private fun detailContentOf(id: Uuid): DetailContent = detailContentMap.getOrPut(id) { detailContent(prefix = "Detail${detailContentMap.size}", color = ORIGINAL_COLOR, dateTime = null) }
 
-    private fun viewModelModule(): Module =
-        module {
-            factory<MemoHomeViewModel> { memoHomeViewModel() }
-            factory<MemoFinishedListViewModel> {
-                mockk<MemoFinishedListViewModel>(relaxed = true) {
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState())
-                    every { memoPagingData } returns finishedPagingData
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
-            factory<MemoDetailViewModel> { parameters -> detailViewModel(id = parameters.get<Uuid>()) }
-            factory<MemoTagViewModel> { parameters ->
-                screenTestTagViewModel(uiState = MutableStateFlow(PrimaryTagInputUiState(selectedTagList = listOf(detailContentOf(parameters.get<Uuid>()).tag))))
-            }
-            factory<MemoWebViewModel> { parameters ->
-                screenTestWebViewModel(uiState = MutableStateFlow(MemoWebInputUiState(selectedWebList = listOf(detailContentOf(parameters.get<Uuid>()).web))))
-            }
-            factory<MemoContactViewModel> { parameters ->
-                screenTestContactViewModel(uiState = MutableStateFlow(MemoContactInputUiState(selectedContactList = listOf(detailContentOf(parameters.get<Uuid>()).contact))))
-            }
-            factory<MemoPlaceViewModel> { parameters ->
-                screenTestPlaceViewModel(
-                    uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(detailContentOf(parameters.get<Uuid>()).place))),
-                )
-            }
-            factory<MemoAddViewModel> { screenTestRealViewModel().viewModel }
-            factory<MemoAddTagViewModel> { screenTestRealViewModel().tagViewModel }
-            factory<MemoAddWebViewModel> { screenTestRealViewModel(webList = addWebList).webViewModel }
-            factory<MemoAddContactViewModel> { screenTestRealViewModel(contactList = addContactList).contactViewModel }
-            factory<MemoAddPlaceViewModel> { screenTestRealViewModel().placeViewModel }
-            // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
-            factory<MemoPlaceMapViewModel> {
-                mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
-            }
-            factory<MemoPlacePickerMapViewModel> {
-                mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
-            }
-            factory<MemoGeminiViewModel> {
-                val geminiEffectChannel = Channel<MemoGeminiEffect>(capacity = Channel.BUFFERED)
+    private fun viewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    MemoHomeViewModel::class to { memoHomeViewModel() },
+                    MemoFinishedListViewModel::class to {
+                        mockk<MemoFinishedListViewModel>(relaxed = true) {
+                            every { sortUiState } returns MutableStateFlow(ListSortUiState())
+                            every { memoPagingData } returns finishedPagingData
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                    MemoAddViewModel::class to { screenTestRealViewModel().viewModel },
+                    // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
+                    MemoPlaceMapViewModel::class to {
+                        mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
+                    },
+                    MemoPlacePickerMapViewModel::class to {
+                        mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
+                    },
+                    MemoGeminiViewModel::class to {
+                        val geminiEffectChannel = Channel<MemoGeminiEffect>(capacity = Channel.BUFFERED)
 
-                mockk<MemoGeminiViewModel>(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(MemoGeminiUiState(isButtonVisible = isGeminiSettingMissing))
-                    every { effect } returns geminiEffectChannel.receiveAsFlow()
-                    every { open() } answers { geminiEffectChannel.trySend(MemoGeminiEffect.SettingRequired).getOrThrow() }
-                }
-            }
-        }
+                        mockk<MemoGeminiViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(MemoGeminiUiState(isButtonVisible = isGeminiSettingMissing))
+                            every { effect } returns geminiEffectChannel.receiveAsFlow()
+                            every { open() } answers { geminiEffectChannel.trySend(MemoGeminiEffect.SettingRequired).getOrThrow() }
+                        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    MemoDetailViewModel.Factory::class to { MemoDetailViewModel.Factory { id -> detailViewModel(id = id) } },
+                    MemoTagViewModel.Factory::class to {
+                        MemoTagViewModel.Factory { id ->
+                            screenTestTagViewModel(uiState = MutableStateFlow(PrimaryTagInputUiState(selectedTagList = listOf(detailContentOf(id).tag))))
+                        }
+                    },
+                    MemoWebViewModel.Factory::class to {
+                        MemoWebViewModel.Factory { id ->
+                            screenTestWebViewModel(uiState = MutableStateFlow(MemoWebInputUiState(selectedWebList = listOf(detailContentOf(id).web))))
+                        }
+                    },
+                    MemoContactViewModel.Factory::class to {
+                        MemoContactViewModel.Factory { id ->
+                            screenTestContactViewModel(uiState = MutableStateFlow(MemoContactInputUiState(selectedContactList = listOf(detailContentOf(id).contact))))
+                        }
+                    },
+                    MemoPlaceViewModel.Factory::class to {
+                        MemoPlaceViewModel.Factory { id ->
+                            screenTestPlaceViewModel(
+                                uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(detailContentOf(id).place))),
+                            )
+                        }
+                    },
+                    MemoAddTagViewModel.Factory::class to { MemoAddTagViewModel.Factory { screenTestRealViewModel().tagViewModel } },
+                    MemoAddWebViewModel.Factory::class to { MemoAddWebViewModel.Factory { screenTestRealViewModel(webList = addWebList).webViewModel } },
+                    MemoAddContactViewModel.Factory::class to { MemoAddContactViewModel.Factory { screenTestRealViewModel(contactList = addContactList).contactViewModel } },
+                    MemoAddPlaceViewModel.Factory::class to { MemoAddPlaceViewModel.Factory { screenTestRealViewModel().placeViewModel } },
+                ),
+        )
 
     private fun setMemoNavDisplay() {
-        val viewModelModule = viewModelModule()
+        val viewModelFactory = viewModelFactory()
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -598,36 +603,35 @@ class MemoEntryNavigationTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides viewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<TagDetailNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<TagMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<ContactDetailNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<ContactMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<PlaceDetailNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<PlaceMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<WebDetailNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<WebMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
-                                        entry<SettingGeminiNavKey> { key -> Text(text = entryContent(key)) }
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<TagDetailNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<TagMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<ContactDetailNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<ContactMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<PlaceDetailNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<PlaceMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<WebDetailNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<WebMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
+                                    entry<SettingGeminiNavKey> { key -> Text(text = entryContent(key)) }
+                                    memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
+                                },
+                        )
                     }
                 }
             }

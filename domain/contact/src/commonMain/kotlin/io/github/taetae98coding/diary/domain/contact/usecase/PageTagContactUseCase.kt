@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.domain.contact.usecase
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
@@ -10,10 +11,9 @@ import io.github.taetae98coding.diary.domain.contact.repository.AccountTagContac
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class PageTagContactUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountTagContactRepository: AccountTagContactRepository,

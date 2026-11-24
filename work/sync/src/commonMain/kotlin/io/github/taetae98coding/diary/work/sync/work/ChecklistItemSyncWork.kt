@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.checklistitem.datasource.AccountChecklistItemSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.checklistitem.transaction.AccountChecklistItemSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -7,10 +8,9 @@ import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCurs
 import io.github.taetae98coding.diary.core.network.api.checklistitem.datasource.ChecklistItemRemoteDataSource
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 internal class ChecklistItemSyncWork(
     private val accountChecklistItemSyncLocalDataSource: AccountChecklistItemSyncLocalDataSource,
     private val syncCursorLocalDataSource: SyncCursorLocalDataSource,

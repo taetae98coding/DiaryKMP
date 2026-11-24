@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.datasource.AccountWebSyncLocalDataSource
@@ -7,10 +8,9 @@ import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountW
 import io.github.taetae98coding.diary.core.network.api.web.datasource.WebRemoteDataSource
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 internal class WebSyncWork(
     private val accountWebSyncLocalDataSource: AccountWebSyncLocalDataSource,
     private val syncCursorLocalDataSource: SyncCursorLocalDataSource,

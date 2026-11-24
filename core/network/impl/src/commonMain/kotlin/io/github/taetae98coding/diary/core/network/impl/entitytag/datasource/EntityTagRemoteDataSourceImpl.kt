@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.entitytag.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.entitytag.datasource.EntityTagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.entitytag.entity.EntityTagKindRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.entitytag.entity.EntityTagPullRemoteEntity
@@ -18,9 +21,9 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class EntityTagRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : EntityTagRemoteDataSource {

@@ -1,14 +1,14 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import io.github.taetae98coding.diary.domain.holiday.repository.DeviceCountryRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class GetHolidayCountrySettingUseCase internal constructor(
     private val holidaySettingRepository: HolidaySettingRepository,
     private val deviceCountryRepository: DeviceCountryRepository,

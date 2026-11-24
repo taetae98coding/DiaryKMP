@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.naver.network.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
@@ -8,9 +11,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class NaverPlaceRemoteDataSourceImpl(
     @NaverHttpClient
     private val httpClient: HttpClient,

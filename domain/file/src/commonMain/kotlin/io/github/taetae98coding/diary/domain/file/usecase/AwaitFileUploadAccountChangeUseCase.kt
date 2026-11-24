@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.core.invoke
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class AwaitFileUploadAccountChangeUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
 ) : UseCase<Uuid, Unit>() {

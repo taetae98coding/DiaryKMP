@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
@@ -14,9 +15,8 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.plus
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class GetGoldenHolidayUseCase internal constructor(
     private val getHolidayUseCase: GetHolidayUseCase,
     @HolidayDispatcher private val dispatcher: CoroutineDispatcher,

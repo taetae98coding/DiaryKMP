@@ -28,11 +28,17 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.awaitCancellation
-import org.koin.core.annotation.Single
 import java.util.concurrent.Executors
 
-@Single(binds = [QrScanCameraPreviewContent::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<QrScanCameraPreviewContent>())
 internal class AndroidQrScanCameraPreviewContent : QrScanCameraPreviewContent {
     @Composable
     override fun Content(

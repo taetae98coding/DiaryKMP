@@ -21,6 +21,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -28,6 +30,7 @@ import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
@@ -57,15 +60,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
@@ -84,11 +82,6 @@ class CalendarHomeFilterOpenBoundaryTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -184,78 +177,83 @@ class CalendarHomeFilterOpenBoundaryTest {
         filterUiStateFlow: MutableStateFlow<CalendarHomeFilterUiState>,
         viewModelStoreOwner: ViewModelStoreOwner,
     ) {
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(viewModelModule(tagList = tagList, filterUiStateFlow = filterUiStateFlow)) }) {
-                DiaryTheme {
-                    NavDisplay(
-                        backStack = backStack,
-                        sceneStrategies = listOf(remember { BottomSheetSceneStrategy<ScreenNavKey>() }),
-                        entryDecorators =
-                            listOf(
-                                rememberSaveableStateHolderNavEntryDecorator(),
-                                rememberViewModelStoreNavEntryDecorator(),
-                            ),
-                        entryProvider =
-                            entryProvider {
-                                calendarEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                            },
-                    )
-                }
+        CompositionLocalProvider(
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+            LocalMetroViewModelFactory provides viewModelFactory(tagList = tagList, filterUiStateFlow = filterUiStateFlow),
+        ) {
+            DiaryTheme {
+                NavDisplay(
+                    backStack = backStack,
+                    sceneStrategies = listOf(remember { BottomSheetSceneStrategy<ScreenNavKey>() }),
+                    entryDecorators =
+                        listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(),
+                        ),
+                    entryProvider =
+                        entryProvider {
+                            calendarEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                        },
+                )
             }
         }
     }
 
-    private fun viewModelModule(
+    private fun viewModelFactory(
         tagList: List<Tag>,
         filterUiStateFlow: MutableStateFlow<CalendarHomeFilterUiState>,
-    ) = module {
-        // 다시 만들 때 앞선 ViewModel이 정리되므로 정리 호출에도 답하도록 느슨한 mock으로 둔다.
-        factory<CalendarHomeHolidayViewModel> {
-            mockk<CalendarHomeHolidayViewModel>(relaxed = true) {
-                every { uiState } returns MutableStateFlow(CalendarHomeHolidayUiState())
-            }
-        }
-        factory<CalendarHomeMemoViewModel> {
-            mockk<CalendarHomeMemoViewModel>(relaxed = true) {
-                every { uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
-            }
-        }
-        factory<CalendarHomeScaffoldFilterViewModel> {
-            mockk<CalendarHomeScaffoldFilterViewModel>(relaxed = true) {
-                every { uiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState(isApplied = true))
-            }
-        }
-        factory<CalendarHomeBirthdayViewModel> {
-            mockk<CalendarHomeBirthdayViewModel>(relaxed = true) {
-                every { uiState } returns MutableStateFlow(CalendarHomeBirthdayUiState())
-            }
-        }
-        factory<CalendarHomeDDayViewModel> {
-            mockk<CalendarHomeDDayViewModel>(relaxed = true) {
-                every { uiState } returns MutableStateFlow(CalendarHomeDDayUiState())
-            }
-        }
-        factory<CalendarHomeWeatherViewModel> {
-            mockk<CalendarHomeWeatherViewModel>(relaxed = true) {
-                every { uiState } returns MutableStateFlow(CalendarHomeWeatherUiState())
-            }
-        }
-        factory<SyncRefreshViewModel> {
-            mockk<SyncRefreshViewModel>(relaxed = true) {
-                every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-            }
-        }
-        factory<CalendarHomeFilterViewModel> {
-            // 필터 선택은 기기에 저장되므로, 선택은 ViewModel 밖의 흐름에 쌓고 새로 만든 ViewModel도 그 흐름을 읽는다.
-            mockk<CalendarHomeFilterViewModel>(relaxed = true) {
-                every { uiState } returns filterUiStateFlow
-                every { tagPagingData } returns flowOf(PagingData.from(tagList))
-                every { selectTag(id = any()) } answers {
-                    filterUiStateFlow.update { uiState -> uiState.copy(selectedTagIdSet = uiState.selectedTagIdSet + firstArg<Uuid>()) }
-                }
-            }.also { viewModel -> filterViewModelList += viewModel }
-        }
-    }
+    ): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    // 다시 만들 때 앞선 ViewModel이 정리되므로 정리 호출에도 답하도록 느슨한 mock으로 둔다.
+                    CalendarHomeHolidayViewModel::class to {
+                        mockk<CalendarHomeHolidayViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(CalendarHomeHolidayUiState())
+                        }
+                    },
+                    CalendarHomeMemoViewModel::class to {
+                        mockk<CalendarHomeMemoViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
+                        }
+                    },
+                    CalendarHomeScaffoldFilterViewModel::class to {
+                        mockk<CalendarHomeScaffoldFilterViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState(isApplied = true))
+                        }
+                    },
+                    CalendarHomeBirthdayViewModel::class to {
+                        mockk<CalendarHomeBirthdayViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(CalendarHomeBirthdayUiState())
+                        }
+                    },
+                    CalendarHomeDDayViewModel::class to {
+                        mockk<CalendarHomeDDayViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(CalendarHomeDDayUiState())
+                        }
+                    },
+                    CalendarHomeWeatherViewModel::class to {
+                        mockk<CalendarHomeWeatherViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(CalendarHomeWeatherUiState())
+                        }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                        }
+                    },
+                    CalendarHomeFilterViewModel::class to {
+                        // 필터 선택은 기기에 저장되므로, 선택은 ViewModel 밖의 흐름에 쌓고 새로 만든 ViewModel도 그 흐름을 읽는다.
+                        mockk<CalendarHomeFilterViewModel>(relaxed = true) {
+                            every { uiState } returns filterUiStateFlow
+                            every { tagPagingData } returns flowOf(PagingData.from(tagList))
+                            every { selectTag(id = any()) } answers {
+                                filterUiStateFlow.update { uiState -> uiState.copy(selectedTagIdSet = uiState.selectedTagIdSet + firstArg<Uuid>()) }
+                            }
+                        }.also { viewModel -> filterViewModelList += viewModel }
+                    },
+                ),
+        )
 
     private fun waitUntilFilterTagDisplayed(tagList: List<Tag>) {
         composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {

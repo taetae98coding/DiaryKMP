@@ -5,7 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.uikit.LocalUIViewController
-import org.koin.core.annotation.Single
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import platform.Foundation.NSURL
 import platform.UIKit.UIDocumentPickerDelegateProtocol
 import platform.UIKit.UIDocumentPickerViewController
@@ -13,7 +17,9 @@ import platform.UIKit.UIViewController
 import platform.UniformTypeIdentifiers.UTTypeFolder
 import platform.darwin.NSObject
 
-@Single(binds = [DirectoryPickerFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<DirectoryPickerFactory>())
 internal class IosDirectoryPickerFactory : DirectoryPickerFactory {
     @Composable
     override fun rememberDirectoryPicker(onPick: (uri: String) -> Unit): DirectoryPicker {

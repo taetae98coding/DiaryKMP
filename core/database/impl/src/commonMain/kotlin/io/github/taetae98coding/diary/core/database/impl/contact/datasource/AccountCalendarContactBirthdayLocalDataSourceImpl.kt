@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl.contact.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountCalendarContactBirthdayLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
@@ -7,10 +10,10 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarCont
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDateRange
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountCalendarContactBirthdayLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountCalendarContactBirthdayLocalDataSource {

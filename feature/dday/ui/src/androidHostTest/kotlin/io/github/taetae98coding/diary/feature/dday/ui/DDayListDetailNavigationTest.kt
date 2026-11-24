@@ -64,7 +64,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -81,14 +80,12 @@ class DDayListDetailNavigationTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
         setListDetailToday(TODAY)
     }
 
     @After
     fun tearDown() {
-        stopKoin()
         releaseListDetailToday()
     }
 

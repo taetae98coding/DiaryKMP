@@ -1,13 +1,16 @@
 package io.github.taetae98coding.diary.work.mcp.launcher
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.mcp.usecase.RunMcpServerUseCase
 import io.github.taetae98coding.diary.work.mcp.di.McpScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.Single
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
 public class McpServerLauncher internal constructor(
     @McpScope
     private val scope: CoroutineScope,

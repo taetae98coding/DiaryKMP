@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.dday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.flatMapAccount
@@ -8,9 +9,8 @@ import io.github.taetae98coding.diary.domain.dday.repository.AccountCalendarDDay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateRange
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class GetCalendarDDayUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountCalendarDDayRepository: AccountCalendarDDayRepository,

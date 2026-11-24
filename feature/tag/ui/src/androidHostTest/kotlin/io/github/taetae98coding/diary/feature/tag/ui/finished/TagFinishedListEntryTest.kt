@@ -21,6 +21,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -28,6 +29,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -42,15 +44,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -65,13 +62,7 @@ class TagFinishedListEntryTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -88,26 +79,29 @@ class TagFinishedListEntryTest {
     }
 
     private fun setTagNavDisplay() {
-        val viewModelModule =
-            module {
-                factory<TagHomeViewModel> {
-                    mockk<TagHomeViewModel>(relaxed = true) {
-                        every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
-                        every { tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))
-                        every { filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = false))
-                        every { effect } returns emptyFlow()
-                    }
-                }
-                // 완료된 태그가 하나도 없는 계정의 완료된 태그 목록이다.
-                factory<TagFinishedListViewModel> {
-                    mockk<TagFinishedListViewModel>(relaxed = true) {
-                        every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
-                        every { tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))
-                        every { effect } returns emptyFlow()
-                    }
-                }
-                factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
-            }
+        val viewModelFactory =
+            TestViewModelFactory(
+                viewModelProviders =
+                    mapOf(
+                        TagHomeViewModel::class to {
+                            mockk<TagHomeViewModel>(relaxed = true) {
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
+                                every { tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))
+                                every { filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = false))
+                                every { effect } returns emptyFlow()
+                            }
+                        },
+                        // 완료된 태그가 하나도 없는 계정의 완료된 태그 목록이다.
+                        TagFinishedListViewModel::class to {
+                            mockk<TagFinishedListViewModel>(relaxed = true) {
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
+                                every { tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))
+                                every { effect } returns emptyFlow()
+                            }
+                        },
+                        SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                    ),
+            )
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -121,28 +115,27 @@ class TagFinishedListEntryTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides viewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<EntryTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<EntryTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                    tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                },
+                        )
                     }
                 }
             }

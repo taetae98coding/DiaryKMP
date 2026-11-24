@@ -4,13 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.viewinterop.UIKitView
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.web.WebPage
-import org.koin.core.annotation.Single
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest
 import platform.WebKit.WKWebView
 
-@Single(binds = [WebViewContent::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<WebViewContent>())
 internal class IosWebViewContent : WebViewContent {
     @Composable
     override fun UrlContent(

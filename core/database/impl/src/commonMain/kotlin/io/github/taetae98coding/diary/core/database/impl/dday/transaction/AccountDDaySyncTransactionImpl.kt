@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl.dday.transaction
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.transaction.AccountDDaySyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -7,10 +10,10 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountDDaySyncTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountDDaySyncTransaction {

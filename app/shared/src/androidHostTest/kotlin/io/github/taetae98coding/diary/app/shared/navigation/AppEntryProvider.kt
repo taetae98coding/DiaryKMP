@@ -3,17 +3,15 @@ package io.github.taetae98coding.diary.app.shared.navigation
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
-import io.github.taetae98coding.diary.app.shared.di.DiaryKoinApplication
 import io.github.taetae98coding.diary.core.navigation.ScreenEntryInstaller
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.navigation.ScreenNavigator
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
-import org.koin.plugin.module.dsl.koinApplication
 
 private val appEntryInstallerList: List<ScreenEntryInstaller> by lazy {
-    koinApplication<DiaryKoinApplication>().koin.getAll()
+    appTestDependencies.entryInstallerList
 }
 
 internal fun appEntryProvider(backStack: NavBackStack<ScreenNavKey>): (ScreenNavKey) -> NavEntry<ScreenNavKey> {

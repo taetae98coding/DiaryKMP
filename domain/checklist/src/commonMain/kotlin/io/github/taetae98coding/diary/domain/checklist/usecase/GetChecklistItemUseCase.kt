@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.checklist.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -8,10 +9,9 @@ import io.github.taetae98coding.diary.domain.checklist.repository.AccountCheckli
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class GetChecklistItemUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountChecklistItemRepository: AccountChecklistItemRepository,

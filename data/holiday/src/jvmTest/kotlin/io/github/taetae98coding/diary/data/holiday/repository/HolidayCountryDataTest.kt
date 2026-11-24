@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.HolidayTransaction
@@ -11,12 +12,9 @@ import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.Holi
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
-import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
+import io.github.taetae98coding.diary.data.holiday.HolidayDataTestGraph
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
-import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
-import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
-import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayCountryOptionUseCase
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
@@ -33,9 +31,6 @@ import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import org.koin.core.Koin
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 
 class HolidayCountryDataTest :
     FunSpec({
@@ -47,8 +42,8 @@ class HolidayCountryDataTest :
                 IllegalStateException(Arb.string().next())
             coEvery { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns unitedStatesRemoteList
 
-            context.koin
-                .get<FetchHolidayUseCase>()(parameter = year)
+            context.graph
+                .fetchHolidayUseCase(parameter = year)
                 .shouldBeFailure()
 
             coVerify(exactly = 1) {
@@ -69,7 +64,7 @@ class HolidayCountryDataTest :
             coEvery { context.remoteDataSource.read(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns listOf(Arb.holidayRemoteEntity().next())
             every { context.localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.UNITED_STATES), year = year) } returns
                 MutableStateFlow(listOf(Arb.holidayLocalEntity().next().copy(year = year, country = HolidayCountryLocalEntity.UNITED_STATES)))
-            val useCase = context.koin.get<FetchHolidayUseCase>()
+            val useCase = context.graph.fetchHolidayUseCase
             useCase(parameter = year).shouldBeFailure()
 
             useCase(parameter = year).shouldBeSuccess()
@@ -84,13 +79,13 @@ class HolidayCountryDataTest :
             val context = holidayCountryDataTestContext(optionSet = setOf(HolidayCountryOptionLocalEntity.KOREA))
             every { context.localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns MutableStateFlow(storedHolidayList)
 
-            context.koin
-                .get<ToggleHolidayCountryOptionUseCase>()(parameter = HolidayCountryOption.UNITED_STATES)
+            context.graph
+                .toggleHolidayCountryOptionUseCase(parameter = HolidayCountryOption.UNITED_STATES)
                 .shouldBeSuccess()
 
             context.optionSetFlow.value shouldBe setOf(HolidayCountryOptionLocalEntity.KOREA, HolidayCountryOptionLocalEntity.UNITED_STATES)
-            context.koin
-                .get<HolidayRepository>()
+            context.graph
+                .holidayRepository
                 .get(countrySet = setOf(HolidayCountry.KOREA), year = year)
                 .first() shouldBe storedHolidayList.map { local -> local.toDomain() }
             coVerify(exactly = 0) { context.transaction.upsert(country = any(), year = any(), holidayList = any()) }
@@ -101,7 +96,7 @@ private val BOTH_OPTION_SET: Set<HolidayCountryOptionLocalEntity> =
     setOf(HolidayCountryOptionLocalEntity.KOREA, HolidayCountryOptionLocalEntity.UNITED_STATES)
 
 private class HolidayCountryDataTestContext(
-    val koin: Koin,
+    val graph: HolidayDataTestGraph,
     val remoteDataSource: HolidayRemoteDataSource,
     val localDataSource: HolidayLocalDataSource,
     val transaction: HolidayTransaction,
@@ -125,20 +120,17 @@ private fun holidayCountryDataTestContext(optionSet: Set<HolidayCountryOptionLoc
                 optionSetFlow.value = optionSetFlow.value - firstArg<HolidayCountryOptionLocalEntity>()
             }
         }
-    val koin =
-        koinApplication<HolidayDataTestKoinApplication> {
-            modules(
-                module {
-                    single<HolidayRemoteDataSource> { remoteDataSource }
-                    single<HolidayLocalDataSource> { localDataSource }
-                    single<HolidayTransaction> { transaction }
-                    single<HolidaySettingLocalDataSource> { settingLocalDataSource }
-                },
+    val graph =
+        createGraphFactory<HolidayDataTestGraph.Factory>()
+            .create(
+                holidayRemoteDataSource = remoteDataSource,
+                holidayLocalDataSource = localDataSource,
+                holidayTransaction = transaction,
+                holidaySettingLocalDataSource = settingLocalDataSource,
             )
-        }.koin
 
     return HolidayCountryDataTestContext(
-        koin = koin,
+        graph = graph,
         remoteDataSource = remoteDataSource,
         localDataSource = localDataSource,
         transaction = transaction,

@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.naver.network.impl.datasource
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.data.testing.naver.naverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
-import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinApplication
-import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinModule
+import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestGraph
+import io.github.taetae98coding.diary.core.naver.network.impl.NaverOpenApiConfig
 import io.github.taetae98coding.diary.core.naver.network.impl.createNaverHttpClient
-import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -15,7 +15,6 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.kotest.property.arbitrary.take
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -33,9 +32,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 
 class NaverPlaceRemoteDataSourceImplTest :
     FunSpec({
@@ -52,7 +48,7 @@ class NaverPlaceRemoteDataSourceImplTest :
         }
 
         test("TC-d9e62edd-3a31-459f-906d-e1eec4600fa5: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
-            val config = NaverNetworkTestKoinModule.config
+            val config = testConfig
             val query = Arb.string().next()
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
@@ -135,6 +131,13 @@ class NaverPlaceRemoteDataSourceImplTest :
         }
     }) {
     private companion object {
+        // HTTP 헤더 값에 허용되지 않는 제어 문자를 피한 값으로 고정한다.
+        private val testConfig: NaverOpenApiConfig =
+            NaverOpenApiConfig(
+                clientId = "test-client-id",
+                clientSecret = "test-client-secret",
+            )
+
         private fun createSuccessEngine(places: List<NaverPlaceRemoteEntity>): MockEngine = createEngine(content = successContent(items = Json.encodeToJsonElement(places), count = places.size))
 
         private fun createEngine(content: String): MockEngine =
@@ -159,12 +162,8 @@ class NaverPlaceRemoteDataSourceImplTest :
             }.toString()
 
         private fun createDataSource(engine: HttpClientEngine): NaverPlaceRemoteDataSource =
-            koinApplication<NaverNetworkTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClient>(qualifier = named<NaverHttpClient>()) { createNaverHttpClient(config = get(), engine = engine) }
-                    },
-                )
-            }.koin.get()
+            createGraphFactory<NaverNetworkTestGraph.Factory>()
+                .create(httpClient = createNaverHttpClient(config = testConfig, engine = engine))
+                .naverPlaceRemoteDataSource
     }
 }

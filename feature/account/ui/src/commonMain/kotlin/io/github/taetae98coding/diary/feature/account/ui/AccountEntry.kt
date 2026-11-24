@@ -3,16 +3,18 @@ package io.github.taetae98coding.diary.feature.account.ui
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManagerFactory
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileImageEditNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileImageViewerNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileNavKey
 import io.github.taetae98coding.diary.feature.account.ui.photo.PhotoPickerFactory
+import io.github.taetae98coding.diary.feature.account.ui.profile.ProfileDeleteViewModel
 import io.github.taetae98coding.diary.feature.account.ui.profile.ProfileScreen
 import io.github.taetae98coding.diary.feature.account.ui.profileimage.ProfileImageEditScreen
 import io.github.taetae98coding.diary.feature.account.ui.viewer.ProfileImageViewerScreen
-import org.koin.compose.viewmodel.koinViewModel
 
 internal fun EntryProviderScope<ScreenNavKey>.accountEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -36,8 +38,8 @@ private fun EntryProviderScope<ScreenNavKey>.profileEntry(
                     backStack.add(ProfileImageEditNavKey)
                 },
             appleCredentialsManager = appleCredentialsManagerFactory.rememberAppleCredentialsManager(),
-            accountViewModel = koinViewModel(),
-            deleteViewModel = koinViewModel(),
+            accountViewModel = metroViewModel(),
+            deleteViewModel = assistedMetroViewModel<ProfileDeleteViewModel>(),
         )
     }
 }
@@ -50,7 +52,7 @@ private fun EntryProviderScope<ScreenNavKey>.profileImageEditEntry(
         ProfileImageEditScreen(
             navigateUp = backStack::removeLastOrNull,
             photoPicker = photoPickerFactory.rememberPhotoPicker(),
-            viewModel = koinViewModel(),
+            viewModel = metroViewModel(),
         )
     }
 }

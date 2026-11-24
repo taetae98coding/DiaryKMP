@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.webcookie.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieDataSource
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieSameSiteEntity
@@ -7,7 +10,6 @@ import io.github.taetae98coding.diary.core.webcookie.api.WebViewSessionCookieEnt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Factory
 import platform.Foundation.NSHTTPCookie
 import platform.Foundation.NSHTTPCookieDomain
 import platform.Foundation.NSHTTPCookieName
@@ -26,7 +28,8 @@ private const val HTTP_ONLY_KEY = "HttpOnly"
 private const val TRUE_VALUE = "TRUE"
 
 // WKHTTPCookieStore는 메인 스레드에서만 다룬다.
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class IosWebViewCookieDataSource : WebViewCookieDataSource {
     // WKWebView의 쿠키 보관 공간은 모든 쿠키를 꺼낼 수 있어 주소를 따로 확인하지 않는다.
     override suspend fun readSessionCookie(siteUrlSet: Set<String>): WebViewSessionCookieEntity =

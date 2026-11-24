@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl.entitytag.transaction
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.entitytag.transaction.AccountEntityTagSyncTransaction
@@ -7,10 +10,10 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagTable
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountEntityTagSyncTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountEntityTagSyncTransaction {

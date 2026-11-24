@@ -71,7 +71,7 @@ public object DiaryMemoListAppAction {
     }
 }
 
-private fun memoListAppAction(): MemoListAppAction = diaryAppAction()
+private fun memoListAppAction(): MemoListAppAction = diaryAppActionGraph().memoListAppAction
 
 internal suspend fun readMemoPage(
     pageNumber: Int,

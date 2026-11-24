@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.tag
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageTagChecklistUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageTagContactUseCase
@@ -44,10 +45,9 @@ import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.github.taetae98coding.diary.work.appaction.web.toAppActionWeb
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
-@Factory
+@Inject
 public class TagItemAppAction internal constructor(
     private val findTagUseCase: FindTagUseCase,
     private val pageTagMemoUseCase: PageTagMemoUseCase,

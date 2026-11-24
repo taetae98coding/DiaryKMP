@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.web.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
@@ -8,11 +11,11 @@ import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountW
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.webtag.webTagTable
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountWebTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountWebTransaction {

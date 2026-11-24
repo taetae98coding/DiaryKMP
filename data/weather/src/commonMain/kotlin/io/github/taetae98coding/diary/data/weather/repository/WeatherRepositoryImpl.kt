@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.weather.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.weather.WeatherReport
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.cache.WeatherReportCache
@@ -13,14 +16,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 
 private val FETCH_INTERVAL: Duration = 1.hours
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WeatherRepositoryImpl(
     private val locationRepository: LocationRepository,
     private val weatherRemoteDataSource: WeatherRemoteDataSource,

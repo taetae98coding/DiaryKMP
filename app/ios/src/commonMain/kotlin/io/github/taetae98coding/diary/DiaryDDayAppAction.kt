@@ -128,7 +128,7 @@ public object DiaryDDayAppAction {
     public suspend fun primaryTagUnset(ddayId: String): Boolean = ddayAppAction().primaryTagUnset(ddayId = ddayId).done
 }
 
-private fun ddayAppAction(): DDayAppAction = diaryAppAction()
+private fun ddayAppAction(): DDayAppAction = diaryAppActionGraph().ddayAppAction
 
 private fun AppActionDDayDetail.toDiary(): DiaryAppActionDDayDetail {
     val tagList = tags.map { tag -> tag.toDiary() }

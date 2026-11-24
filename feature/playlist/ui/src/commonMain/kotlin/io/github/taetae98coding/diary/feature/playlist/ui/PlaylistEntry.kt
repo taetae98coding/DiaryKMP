@@ -8,6 +8,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -16,6 +18,8 @@ import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
@@ -25,12 +29,11 @@ import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddScaffoldCo
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddScreen
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailScreen
+import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeScreen
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.playlistEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -53,8 +56,8 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
             navigateToAdd = dropUnlessResumed(block = backStack::navigateToMusicAddFromHome),
             navigateToDetail = { id -> backStack.navigateToMusicDetail(id = id) },
             componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isPlaylistAddOnDetailPane()) },
-            musicViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            musicViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -74,8 +77,8 @@ internal fun playlistHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>)
                     navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    addViewModel = koinViewModel(),
-                    tagViewModel = koinViewModel { parametersOf(null) },
+                    addViewModel = metroViewModel(),
+                    tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = null) },
                 )
             }
         },
@@ -94,8 +97,8 @@ private fun EntryProviderScope<ScreenNavKey>.musicAddEntry(backStack: NavBackSta
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = key.initialTagId) },
         )
     }
 }
@@ -116,8 +119,8 @@ private fun EntryProviderScope<ScreenNavKey>.musicDetailEntry(
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { MusicDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            musicViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.MUSIC, key.id) },
+            musicViewModel = assistedMetroViewModel<MusicDetailViewModel, MusicDetailViewModel.Factory> { create(id = key.id) },
+            tagViewModel = assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.MUSIC, entityId = key.id) },
             contentSharerFactory = contentSharerFactory,
         )
     }

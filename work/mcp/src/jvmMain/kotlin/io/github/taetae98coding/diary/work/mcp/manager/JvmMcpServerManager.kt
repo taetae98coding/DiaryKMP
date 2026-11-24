@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.work.mcp.manager
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.mcp.McpServerState
 import io.github.taetae98coding.diary.domain.mcp.manager.McpServerManager
 import io.github.taetae98coding.diary.work.mcp.di.McpServerDispatcher
@@ -21,13 +26,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Single
 import java.net.BindException
 
 private const val STOP_GRACE_PERIOD_MILLIS = 0L
 private const val STOP_TIMEOUT_MILLIS = 1_000L
 
-@Single(binds = [McpServerManager::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<McpServerManager>())
 internal class JvmMcpServerManager(
     @McpServerPort
     private val port: Int,

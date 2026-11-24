@@ -1,15 +1,14 @@
 package io.github.taetae98coding.diary.core.calendar.network.impl.datasource
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.HolidayRemoteDataSource
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCountryRemoteEntity
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
-import io.github.taetae98coding.diary.core.calendar.network.impl.CalendarNetworkTestKoinApplication
+import io.github.taetae98coding.diary.core.calendar.network.impl.CalendarNetworkTestGraph
 import io.github.taetae98coding.diary.core.calendar.network.impl.createCalendarHttpClient
-import io.github.taetae98coding.diary.core.calendar.network.impl.di.CalendarHttpClient
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -18,9 +17,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.datetime.LocalDate
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 
 class HolidayRemoteDataSourceImplTest :
     FunSpec({
@@ -98,13 +94,9 @@ class HolidayRemoteDataSourceImplTest :
             }
 
         private fun createDataSource(engine: HttpClientEngine): HolidayRemoteDataSource =
-            koinApplication<CalendarNetworkTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClient>(qualifier = named<CalendarHttpClient>()) { createCalendarHttpClient(engine = engine) }
-                    },
-                )
-            }.koin.get()
+            createGraphFactory<CalendarNetworkTestGraph.Factory>()
+                .create(httpClient = createCalendarHttpClient(engine = engine))
+                .holidayRemoteDataSource
 
         private fun readResource(name: String): String = checkNotNull(HolidayRemoteDataSourceImplTest::class.java.classLoader.getResource(name)).readText()
     }

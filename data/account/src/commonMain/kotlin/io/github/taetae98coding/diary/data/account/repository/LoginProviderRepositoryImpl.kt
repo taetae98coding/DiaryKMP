@@ -1,12 +1,15 @@
 package io.github.taetae98coding.diary.data.account.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.datastore.api.account.datasource.LoginProviderLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.account.entity.LoginProviderLocalEntity
 import io.github.taetae98coding.diary.core.model.authentication.LoginProvider
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class LoginProviderRepositoryImpl(
     private val loginProviderLocalDataSource: LoginProviderLocalDataSource,
 ) : LoginProviderRepository {

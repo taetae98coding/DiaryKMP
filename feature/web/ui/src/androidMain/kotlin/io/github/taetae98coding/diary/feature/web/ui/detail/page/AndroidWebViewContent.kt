@@ -5,14 +5,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.viewinterop.AndroidView
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.web.WebPage
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewVisitedUrlRegistry
-import org.koin.core.annotation.Single
 
 private const val MIME_TYPE = "text/html"
 private const val ENCODING = "UTF-8"
 
-@Single(binds = [WebViewContent::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<WebViewContent>())
 internal class AndroidWebViewContent : WebViewContent {
     @Composable
     override fun UrlContent(

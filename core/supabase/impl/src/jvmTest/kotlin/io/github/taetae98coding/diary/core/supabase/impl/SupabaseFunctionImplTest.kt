@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.core.supabase.impl
 
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.MemorySessionManager
 import io.github.jan.supabase.auth.auth
@@ -10,7 +9,6 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.taetae98coding.diary.core.network.api.fcm.entity.FcmTokenRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
-import io.github.taetae98coding.diary.core.supabase.impl.di.SupabaseHttpClientEngine
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
@@ -39,9 +37,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 import kotlin.math.absoluteValue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -52,7 +47,7 @@ class SupabaseFunctionImplTest :
     FunSpec({
         test("실패 상태의 응답은 상태 코드를 담은 예외로 알린다") {
             listOf(HttpStatusCode.PayloadTooLarge, HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError).forEach { status ->
-                val client = createSupabaseClient(MockEngine { respond(content = "{}", status = status) })
+                val client = createTestSupabaseClient(MockEngine { respond(content = "{}", status = status) })
                 val function = SupabaseFunctionImpl(client = client)
 
                 val exception =
@@ -72,7 +67,7 @@ class SupabaseFunctionImplTest :
         test("TC-acb88bc0-2de2-4bd1-8a22-86c9c5caa91d 요청 시간 제한을 풀면 기본 시간 제한보다 늦은 응답도 기다려 돌려준다") {
             runTest {
                 val dispatcher = StandardTestDispatcher(testScheduler)
-                val client = createSupabaseClient(slowEngine(dispatcher = dispatcher, delay = 30.minutes))
+                val client = createTestSupabaseClient(slowEngine(dispatcher = dispatcher, delay = 30.minutes))
                 val function = SupabaseFunctionImpl(client = client)
 
                 val response =
@@ -91,7 +86,7 @@ class SupabaseFunctionImplTest :
         test("TC-acb88bc0-2de2-4bd1-8a22-86c9c5caa91d 요청 시간 제한을 풀면 엔진의 소켓 시간 제한도 함께 푼다") {
             var capability: HttpTimeoutConfig? = null
             val client =
-                createSupabaseClient(
+                createTestSupabaseClient(
                     MockEngine { request ->
                         capability = request.getCapabilityOrNull(HttpTimeoutCapability)
                         respondOk()
@@ -114,7 +109,7 @@ class SupabaseFunctionImplTest :
         test("요청 시간 제한을 따로 정하지 않으면 기본 시간 제한을 넘긴 응답은 기다리지 않는다") {
             runTest {
                 val dispatcher = StandardTestDispatcher(testScheduler)
-                val client = createSupabaseClient(slowEngine(dispatcher = dispatcher, delay = 30.minutes))
+                val client = createTestSupabaseClient(slowEngine(dispatcher = dispatcher, delay = 30.minutes))
                 val function = SupabaseFunctionImpl(client = client)
 
                 shouldThrowAny {
@@ -167,7 +162,7 @@ class SupabaseFunctionImplTest :
         test("TC-151a7384-b1d2-4272-a502-e16304ba0087 TC-3822e4ff-6e13-4ed0-8859-8ee236fd553d 수신 등록 본문은 비어 있는 시간대와 언어를 담지 않는다") {
             val bodyList = mutableListOf<String?>()
             val client =
-                createSupabaseClient(
+                createTestSupabaseClient(
                     MockEngine { data ->
                         bodyList += (data.body as? TextContent)?.text
                         respondOk()
@@ -194,7 +189,7 @@ class SupabaseFunctionImplTest :
         }
 
         test("로그인하지 않았으면 함수 주소와 프로젝트 키로 인증하는 헤더를 만든다") {
-            val client = createSupabaseClient(MockEngine { respondOk() })
+            val client = createTestSupabaseClient(MockEngine { respondOk() })
             val function = SupabaseFunctionImpl(client = client)
 
             val functionName = functionName()
@@ -223,14 +218,5 @@ class SupabaseFunctionImplTest :
                     }
                 },
             )
-
-        private fun createSupabaseClient(engine: HttpClientEngine): SupabaseClient =
-            koinApplication<SupabaseTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClientEngine>(qualifier = named<SupabaseHttpClientEngine>()) { engine }
-                    },
-                )
-            }.koin.get()
     }
 }

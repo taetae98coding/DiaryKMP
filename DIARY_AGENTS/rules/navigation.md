@@ -2,15 +2,14 @@
 
 화면 키(`NavKey`)와 딥링크를 어느 모듈이 소유하는지와, 화면 사이에 결과를 어떻게 돌려주는지를 소유한다. 코루틴과 생명주기는 [main-safety.md](main-safety.md)와 [compose.md](compose.md)가 소유한다.
 
-## 화면과 딥링크는 feature ui가 Koin에 등록하고 앱이 모은다
+## 화면과 딥링크는 feature ui가 그래프에 기여하고 앱이 모은다
 
-**화면 entry는 `ScreenEntryInstaller`로, 딥링크는 `DeepLinkNavigation`으로 그 화면의 `feature:*:ui`가 `@Single(binds = [...])` 클래스로 등록하고, `app:shared`는 `AppDependencies`의 `List<ScreenEntryInstaller>`·`List<DeepLinkNavigation>` 생성자 인자로 모으기만 한다([di.md](di.md)).** [Navigation 3 모듈화 가이드](https://developer.android.com/guide/navigation/navigation-3/modularize)가 DI의 Set으로 entry builder와 `DeepLinkMatcher`를 모으는 구성을 Koin으로 옮긴 것이다. 새 feature는 앱을 고치지 않고 등록 클래스만 더한다.
+**화면 entry는 `ScreenEntryInstaller`로, 딥링크는 `DeepLinkNavigation`으로 그 화면의 `feature:*:ui`가 `@ContributesIntoSet(AppScope::class, binding = binding<...>())` 클래스로 기여하고, `app:shared`는 `AppDependencies`의 `Set<ScreenEntryInstaller>`·`Set<DeepLinkNavigation>` 생성자 인자로 모으기만 한다([di.md](di.md)).** [Navigation 3 모듈화 가이드](https://developer.android.com/guide/navigation/navigation-3/modularize)가 DI의 Set으로 entry builder와 `DeepLinkMatcher`를 모으는 구성을 Metro 멀티바인딩으로 옮긴 것이다. 새 feature는 앱을 고치지 않고 등록 클래스만 더한다.
 
-- 백스택처럼 Compose가 소유한 앱 상태는 Koin에 넣지 않고, 앱이 구현한 `ScreenNavigator`를 `install`과 `open`의 인자로 넘긴다. Koin scope에 넣으면 구성 변경으로 백스택이 다시 만들어질 때 scope 수명을 따로 맞춰야 한다.
-- `koin-compose-navigation3`의 `navigation<T>`·`koinEntryProvider`는 쓰지 않는다. entry 메타데이터가 고정 `Map`뿐이라 백스택에 따라 바뀌는 목록·상세 배치와 `clazzContentKey`를 표현하지 못하고, DSL 전용이라 어노테이션 구성과 섞인다.
-- 등록을 빠뜨리면 컴파일이 잡지 못하고 그 화면을 열 때 실패하므로, `AppEntryInstallerTest`가 앱과 같은 Koin 구성에서 꺼낸 `AppDependencies`로 저장 가능한 모든 화면 키에 entry가 있는지 확인한다.
+- 백스택처럼 Compose가 소유한 앱 상태는 그래프에 넣지 않고, 앱이 구현한 `ScreenNavigator`를 `install`과 `open`의 인자로 넘긴다. 그래프 scope에 넣으면 구성 변경으로 백스택이 다시 만들어질 때 scope 수명을 따로 맞춰야 한다.
+- 등록을 빠뜨리면 컴파일이 잡지 못하고 그 화면을 열 때 실패하므로, `AppEntryInstallerTest`가 앱과 같은 그래프에서 꺼낸 `AppDependencies`로 저장 가능한 모든 화면 키에 entry가 있는지 확인한다.
 - 화면의 플랫폼 보조 class(파일 선택기 등)는 등록 클래스가 `XxxFactory`를 생성자로 받아 entry 함수의 인자로 내려보낸다([di.md](di.md)).
-- entry 함수(`fileEntry` 등)는 internal로 두어 앱이 등록을 거치지 않고 부르지 못하게 한다. 여러 feature의 화면을 함께 배치하는 `app:shared` 테스트도 앱과 같은 Koin 구성에서 모은 등록으로 entry를 만든다.
+- entry 함수(`fileEntry` 등)는 internal로 두어 앱이 등록을 거치지 않고 부르지 못하게 한다. 여러 feature의 화면을 함께 배치하는 `app:shared` 테스트도 앱과 같은 그래프에서 모은 등록으로 entry를 만든다.
 - **앱이 내비게이션 바 표시를 정할 때 필요한 화면의 성질은 `ScreenNavKey`의 getter 프로퍼티로 화면 키가 알린다.** 아래 화면 위에 겹쳐 열리는 화면은 `isOverlay`를, 주요 목적지 목록의 상세 영역에 놓이는 화면은 `topLevelListKey`를 override하고, `AppState`는 feature의 화면 키 타입을 분기하지 않고 이 값만 읽는다. backing field를 두면 저장 상태에 함께 직렬화되므로 `screenName`처럼 getter로만 선언한다.
 
 ### 딥링크
@@ -44,4 +43,4 @@
 
 ## 앱 시작 중 받은 딥링크
 
-앱 밖에서 받은 주소는 Koin `@Single`인 `AppDeepLink`에 넣는다. Android `Activity`는 `by inject()`로, Swift가 부르는 iOS `DiaryDeepLink`는 `KoinPlatform.getKoin().get()`으로 같은 인스턴스를 얻고, `App`은 `AppDependencies`로 받아 `OpenDeepLinkEffect`에 넘긴다. Koin 밖의 전역 object에 두지 않는다. 화면이 아직 없을 때 받은 주소는 `AppDeepLink`가 가장 최근 하나를 남겨 두었다가 `OpenDeepLinkEffect`가 받는다. Android는 재생성(`savedInstanceState != null`)이면 처음 받은 주소를 다시 열지 않고 `onNewIntent`로 새 주소만 받는다.
+앱 밖에서 받은 주소는 `@SingleIn(AppScope::class)`인 `AppDeepLink`에 넣는다. Android `Activity`는 `appGraph.appDeepLink`로, Swift가 부르는 iOS `DiaryDeepLink`는 `DiaryStartupInitializer.graph.appDeepLink`로 같은 인스턴스를 얻고, `App`은 `AppDependencies`로 받아 `OpenDeepLinkEffect`에 넘긴다. 그래프 밖의 전역 object에 두지 않는다. 화면이 아직 없을 때 받은 주소는 `AppDeepLink`가 가장 최근 하나를 남겨 두었다가 `OpenDeepLinkEffect`가 받는다. Android는 재생성(`savedInstanceState != null`)이면 처음 받은 주소를 다시 열지 않고 `onNewIntent`로 새 주소만 받는다.

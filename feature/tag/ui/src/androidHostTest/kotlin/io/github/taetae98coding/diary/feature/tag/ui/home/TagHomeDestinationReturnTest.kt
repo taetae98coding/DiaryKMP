@@ -23,6 +23,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -34,6 +35,7 @@ import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
@@ -49,15 +51,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
@@ -78,13 +75,7 @@ class TagHomeDestinationReturnTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -115,21 +106,24 @@ class TagHomeDestinationReturnTest {
     }
 
     private fun setTagNavDisplay(tagList: List<Tag>) {
-        val viewModelModule =
-            module {
-                factory<TagHomeViewModel> {
-                    val sort = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
+        val viewModelFactory =
+            TestViewModelFactory(
+                viewModelProviders =
+                    mapOf(
+                        TagHomeViewModel::class to {
+                            val sort = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
-                    mockk<TagHomeViewModel>(relaxed = true) {
-                        every { this@mockk.sortUiState } returns sort
-                        every { select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
-                        every { tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
-                        every { filterUiState } returns storedFilterUiState
-                        every { effect } returns emptyFlow()
-                    }.also { viewModel -> tagViewModelList += viewModel }
-                }
-                factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
-            }
+                            mockk<TagHomeViewModel>(relaxed = true) {
+                                every { this@mockk.sortUiState } returns sort
+                                every { select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
+                                every { tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
+                                every { filterUiState } returns storedFilterUiState
+                                every { effect } returns emptyFlow()
+                            }.also { viewModel -> tagViewModelList += viewModel }
+                        },
+                        SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                    ),
+            )
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -143,28 +137,27 @@ class TagHomeDestinationReturnTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides viewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<DestinationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<DestinationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                    tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                },
+                        )
                     }
                 }
             }

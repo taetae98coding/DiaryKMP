@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.datastore.impl.datasource
 
 import androidx.datastore.core.DataStore
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.datastore.api.web.datasource.WebLoginLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginCookieLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginCookieSameSiteLocalEntity
@@ -9,9 +12,9 @@ import io.github.taetae98coding.diary.core.datastore.impl.WebLoginCookieData
 import io.github.taetae98coding.diary.core.datastore.impl.WebLoginData
 import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginDataStore
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WebLoginLocalDataSourceImpl(
     @WebLoginDataStore
     private val dataStore: DataStore<WebLoginData>,

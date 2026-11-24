@@ -18,24 +18,27 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
+import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.RoutineHomeCalendarViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.holiday.RoutineHomeHolidayViewModel
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -51,11 +54,6 @@ class RoutineListDetailNavigationTest {
     @Before
     fun setUp() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -116,15 +114,21 @@ class RoutineListDetailNavigationTest {
     }
 
     private fun setRoutineNavDisplay() {
-        val viewModelModule =
-            module {
-                factory { routineHomeViewModel() }
-                factory { routineHomeCalendarViewModel() }
-                factory { routineHomeHolidayViewModel() }
-                factory { routineSyncRefreshViewModel() }
-                factory { routineAddViewModel() }
-                factory { routineAddTagViewModel() }
-            }
+        val viewModelFactory =
+            TestViewModelFactory(
+                viewModelProviders =
+                    mapOf(
+                        RoutineHomeViewModel::class to { routineHomeViewModel() },
+                        RoutineHomeCalendarViewModel::class to { routineHomeCalendarViewModel() },
+                        RoutineHomeHolidayViewModel::class to { routineHomeHolidayViewModel() },
+                        SyncRefreshViewModel::class to { routineSyncRefreshViewModel() },
+                        RoutineAddViewModel::class to { routineAddViewModel() },
+                    ),
+                manualAssistedFactoryProviders =
+                    mapOf(
+                        EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { routineAddTagViewModel() } },
+                    ),
+            )
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -134,27 +138,25 @@ class RoutineListDetailNavigationTest {
                     }
                 }
 
-            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    RoutineTestTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner, LocalMetroViewModelFactory provides viewModelFactory) {
+                RoutineTestTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<NavigationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        routineEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<NavigationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                    routineEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                                },
+                        )
                     }
                 }
             }

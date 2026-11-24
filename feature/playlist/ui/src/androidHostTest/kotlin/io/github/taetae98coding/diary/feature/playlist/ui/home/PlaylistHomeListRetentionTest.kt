@@ -36,6 +36,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -46,9 +48,12 @@ import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.add.screenTestViewModel
@@ -68,19 +73,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 // 한 화면만 제공하는 너비에서 제품 playlistEntry로 NavDisplay를 구성해 목록 위치가 이동·복귀·재진입에서 어떻게 되는지 확인한다.
 @RunWith(RobolectricTestRunner::class)
@@ -94,11 +92,6 @@ class PlaylistHomeListRetentionTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -248,18 +241,18 @@ class PlaylistHomeListRetentionTest {
         musicList: List<Music>,
         launchCountProvider: () -> Int = { 0 },
     ) {
-        val module = viewModelModule(musicList = musicList)
+        val viewModelFactory = viewModelFactory(musicList = musicList)
         composeRule.setContent {
             key(launchCountProvider()) {
-                PlaylistNavDisplay(module = module)
+                PlaylistNavDisplay(viewModelFactory = viewModelFactory)
             }
         }
         composeRule.waitForIdle()
     }
 
     @Composable
-    private fun PlaylistNavDisplay(module: Module) {
-        RetentionTestHost(module = module) {
+    private fun PlaylistNavDisplay(viewModelFactory: MetroViewModelFactory) {
+        RetentionTestHost(viewModelFactory = viewModelFactory) {
             val holder = rememberListDetailPlaceholderStateHolder()
 
             CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
@@ -284,7 +277,7 @@ class PlaylistHomeListRetentionTest {
 
     @Composable
     private fun RetentionTestHost(
-        module: Module,
+        viewModelFactory: MetroViewModelFactory,
         content: @Composable () -> Unit,
     ) {
         val viewModelStoreOwner =
@@ -298,40 +291,46 @@ class PlaylistHomeListRetentionTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides viewModelFactory,
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(module) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
-    private fun viewModelModule(musicList: List<Music>): Module =
-        module {
-            factory { addTagScreenTestViewModel() }
-            factory { detailTagScreenTestViewModel() }
-            factory<PlaylistHomeViewModel> {
-                mockk<PlaylistHomeViewModel>(relaxed = true) {
-                    every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory<SyncRefreshViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-            factory<MusicAddViewModel> { screenTestViewModel() }
-            factory<MusicDetailViewModel> { parameters ->
-                val id: Uuid = parameters.get()
-                val effectChannel = Channel<MusicDetailEffect>(capacity = Channel.BUFFERED)
-                // 뒤로가기로 entry가 닫히면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-                mockk<MusicDetailViewModel>(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(MusicDetailUiState.Content(id = id, detail = testMusicDetail()))
-                    every { effect } returns effectChannel.receiveAsFlow()
-                }
-            }
-        }
+    private fun viewModelFactory(musicList: List<Music>): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    PlaylistHomeViewModel::class to {
+                        mockk<PlaylistHomeViewModel>(relaxed = true) {
+                            every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
+                            every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                        }
+                    },
+                    MusicAddViewModel::class to { screenTestViewModel() },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { addTagScreenTestViewModel() } },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                    MusicDetailViewModel.Factory::class to {
+                        MusicDetailViewModel.Factory { id ->
+                            val effectChannel = Channel<MusicDetailEffect>(capacity = Channel.BUFFERED)
+                            // 뒤로가기로 entry가 닫히면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
+                            mockk<MusicDetailViewModel>(relaxed = true) {
+                                every { uiState } returns MutableStateFlow(MusicDetailUiState.Content(id = id, detail = testMusicDetail()))
+                                every { effect } returns effectChannel.receiveAsFlow()
+                            }
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         const val MUSIC_COUNT = 40

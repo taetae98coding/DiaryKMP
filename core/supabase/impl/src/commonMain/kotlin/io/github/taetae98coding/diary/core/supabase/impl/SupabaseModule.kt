@@ -2,6 +2,11 @@
 
 package io.github.taetae98coding.diary.core.supabase.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseInternal
 import io.github.jan.supabase.auth.Auth
@@ -11,20 +16,21 @@ import io.github.taetae98coding.diary.core.supabase.impl.di.SupabaseHttpClientEn
 import io.github.taetae98coding.diary.library.ktor.RemoteResponseFailureReport
 import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.engine.HttpClientEngine
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@ComponentScan
-@Configuration
-public class SupabaseModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object SupabaseHttpClientEngineModule {
+    @Provides
+    @SingleIn(AppScope::class)
     @SupabaseHttpClientEngine
     internal fun providesSupabaseHttpClientEngine(): HttpClientEngine = createPlatformHttpClientEngine()
+}
 
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object SupabaseModule {
+    @Provides
+    @SingleIn(AppScope::class)
     internal fun providesSupabaseClient(
         config: SupabaseConfig,
         @SupabaseHttpClientEngine

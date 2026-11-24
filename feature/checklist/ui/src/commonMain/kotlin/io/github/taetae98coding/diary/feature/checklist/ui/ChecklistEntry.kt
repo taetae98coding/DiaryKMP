@@ -8,6 +8,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -22,14 +24,16 @@ import io.github.taetae98coding.diary.feature.checklist.api.isChecklistAddOnDeta
 import io.github.taetae98coding.diary.feature.checklist.api.isChecklistListDetailPane
 import io.github.taetae98coding.diary.feature.checklist.ui.add.ChecklistAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.checklist.ui.add.ChecklistAddScreen
+import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailItemViewModel
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailScreen
+import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailViewModel
 import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeScreen
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.checklistEntry(backStack: NavBackStack<ScreenNavKey>) {
     checklistHomeEntry(backStack = backStack)
@@ -49,8 +53,8 @@ private fun EntryProviderScope<ScreenNavKey>.checklistHomeEntry(backStack: NavBa
             navigateToAdd = dropUnlessResumed(block = backStack::navigateToChecklistAddFromHome),
             navigateToDetail = { id -> backStack.navigateToChecklistDetail(id = id) },
             componentVisibleProvider = { ChecklistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isChecklistAddOnDetailPane()) },
-            checklistViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            checklistViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -70,8 +74,8 @@ internal fun checklistHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>
                     navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
                     tagAddRequestKey = tagAddRequestKey,
                     componentVisibleProvider = { ChecklistAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    addViewModel = koinViewModel(),
-                    tagViewModel = koinViewModel { parametersOf(null) },
+                    addViewModel = metroViewModel(),
+                    tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = null) },
                 )
             }
         },
@@ -90,8 +94,8 @@ private fun EntryProviderScope<ScreenNavKey>.checklistAddEntry(backStack: NavBac
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { ChecklistAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = key.initialTagId) },
         )
     }
 }
@@ -109,9 +113,9 @@ private fun EntryProviderScope<ScreenNavKey>.checklistDetailEntry(backStack: Nav
             navigateToTagDetail = dropUnlessResumedWithArg { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { ChecklistDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            checklistViewModel = koinViewModel { parametersOf(key.id) },
-            itemViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.CHECKLIST, key.id) },
+            checklistViewModel = assistedMetroViewModel<ChecklistDetailViewModel, ChecklistDetailViewModel.Factory> { create(id = key.id) },
+            itemViewModel = assistedMetroViewModel<ChecklistDetailItemViewModel, ChecklistDetailItemViewModel.Factory> { create(checklistId = key.id) },
+            tagViewModel = assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.CHECKLIST, entityId = key.id) },
         )
     }
 }

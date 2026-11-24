@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.data.web.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
 import io.github.taetae98coding.diary.core.web.network.api.datasource.WebPageRemoteDataSource
 import io.github.taetae98coding.diary.data.web.mapper.toDomain
 import io.github.taetae98coding.diary.data.web.mapper.toRemote
 import io.github.taetae98coding.diary.domain.web.repository.WebPageRepository
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WebPageRepositoryImpl(
     private val webPageRemoteDataSource: WebPageRemoteDataSource,
 ) : WebPageRepository {

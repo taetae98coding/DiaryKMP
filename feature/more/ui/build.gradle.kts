@@ -27,6 +27,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         androidHostTest {
             dependencies {
                 implementation(libs.coil.test)

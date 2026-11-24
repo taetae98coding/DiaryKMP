@@ -8,7 +8,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.androidx.datastore.core.okio)
+                api(libs.androidx.datastore.core.okio)
                 implementation(libs.kotlinx.serialization.json)
             }
         }

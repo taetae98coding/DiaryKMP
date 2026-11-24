@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.supabase.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.exceptions.RestException
@@ -15,10 +18,10 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.content.OutgoingContent
 import io.ktor.util.reflect.TypeInfo
-import org.koin.core.annotation.Factory
 import kotlin.time.Duration
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class SupabaseFunctionImpl(
     private val client: SupabaseClient,
 ) : SupabaseFunction {

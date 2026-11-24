@@ -13,9 +13,13 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
@@ -34,16 +38,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
@@ -60,12 +58,6 @@ class SearchHomeTypeReturnTest {
     @Before
     fun setUp() {
         resetAndroidUiDispatcher()
-        stopKoin()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -125,6 +117,43 @@ class SearchHomeTypeReturnTest {
         otherQueryMemo: Memo = resultMemo(),
         queryTag: Tag = resultTag(),
     ) {
+        val viewModelFactory = searchHomeViewModelFactory(queryMemo = queryMemo, otherQueryMemo = otherQueryMemo, queryTag = queryTag)
+
+        composeRule.setContent {
+            val viewModelStoreOwner = rememberSearchHomeTestViewModelStoreOwner()
+
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner provides viewModelStoreOwner,
+                LocalMetroViewModelFactory provides viewModelFactory,
+            ) {
+                DiaryTheme {
+                    SearchHomeScreen(
+                        navigateUp = {},
+                        navigateToMemoDetail = {},
+                        navigateToTagDetail = {},
+                        navigateToPlaceDetail = {},
+                        navigateToWebDetail = {},
+                        navigateToDDayDetail = {},
+                        navigateToRoutineDetail = {},
+                        initialType = SearchHomeType.MEMO,
+                        memoViewModel = metroViewModel(),
+                        tagViewModel = metroViewModel(),
+                        placeViewModel = metroViewModel(),
+                        webViewModel = metroViewModel(),
+                        ddayViewModel = metroViewModel(),
+                        routineViewModel = metroViewModel(),
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+    }
+
+    private fun searchHomeViewModelFactory(
+        queryMemo: Memo,
+        otherQueryMemo: Memo,
+        queryTag: Tag,
+    ): MetroViewModelFactory {
         val searchMemoUseCase =
             mockk<SearchMemoUseCase>().apply {
                 every { this@apply(any()) } answers {
@@ -146,43 +175,17 @@ class SearchHomeTypeReturnTest {
                 }
             }
         val searchPlaceUseCase = mockk<SearchPlaceUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
-        val viewModelModule =
-            module {
-                factory { SearchHomeMemoViewModel(searchMemoUseCase, mockk(), mockk(), mockk(), mockk()) }
-                factory { SearchHomeTagViewModel(searchTagUseCase, mockk(), mockk(), mockk(), mockk()) }
-                factory { SearchHomePlaceViewModel(searchPlaceUseCase, mockk(), mockk()) }
-                factory { SearchHomeWebViewModel(emptySearchWebUseCase(), mockk(), mockk()) }
-                factory { SearchHomeDDayViewModel(emptySearchDDayUseCase(), mockk(), mockk()) }
-                factory { SearchHomeRoutineViewModel(emptySearchRoutineUseCase(), mockk(), mockk(), mockk(), mockk()) }
-            }
-
-        composeRule.setContent {
-            val viewModelStoreOwner = rememberSearchHomeTestViewModelStoreOwner()
-
-            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        SearchHomeScreen(
-                            navigateUp = {},
-                            navigateToMemoDetail = {},
-                            navigateToTagDetail = {},
-                            navigateToPlaceDetail = {},
-                            navigateToWebDetail = {},
-                            navigateToDDayDetail = {},
-                            navigateToRoutineDetail = {},
-                            initialType = SearchHomeType.MEMO,
-                            memoViewModel = koinViewModel(),
-                            tagViewModel = koinViewModel(),
-                            placeViewModel = koinViewModel(),
-                            webViewModel = koinViewModel(),
-                            ddayViewModel = koinViewModel(),
-                            routineViewModel = koinViewModel(),
-                        )
-                    }
-                }
-            }
-        }
-        composeRule.waitForIdle()
+        return TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    SearchHomeMemoViewModel::class to { SearchHomeMemoViewModel(searchMemoUseCase, mockk(), mockk(), mockk(), mockk()) },
+                    SearchHomeTagViewModel::class to { SearchHomeTagViewModel(searchTagUseCase, mockk(), mockk(), mockk(), mockk()) },
+                    SearchHomePlaceViewModel::class to { SearchHomePlaceViewModel(searchPlaceUseCase, mockk(), mockk()) },
+                    SearchHomeWebViewModel::class to { SearchHomeWebViewModel(emptySearchWebUseCase(), mockk(), mockk()) },
+                    SearchHomeDDayViewModel::class to { SearchHomeDDayViewModel(emptySearchDDayUseCase(), mockk(), mockk()) },
+                    SearchHomeRoutineViewModel::class to { SearchHomeRoutineViewModel(emptySearchRoutineUseCase(), mockk(), mockk(), mockk(), mockk()) },
+                ),
+        )
     }
 
     private companion object {

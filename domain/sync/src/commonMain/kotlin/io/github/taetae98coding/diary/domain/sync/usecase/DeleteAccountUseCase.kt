@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.sync.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import io.github.taetae98coding.diary.domain.account.repository.AccountRepository
@@ -11,9 +12,8 @@ import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncDataRepository
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
 import kotlinx.coroutines.CancellationException
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class DeleteAccountUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountRepository: AccountRepository,

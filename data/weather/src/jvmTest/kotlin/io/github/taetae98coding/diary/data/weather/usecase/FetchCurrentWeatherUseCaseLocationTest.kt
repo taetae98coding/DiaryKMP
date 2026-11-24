@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.data.weather.usecase
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.data.testing.ip.ipRemoteEntity
 import io.github.taetae98coding.diary.core.data.testing.location.location
 import io.github.taetae98coding.diary.core.data.testing.weather.currentWeatherRemoteEntity
@@ -9,7 +10,7 @@ import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
-import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication
+import io.github.taetae98coding.diary.data.weather.WeatherDataTestGraph
 import io.github.taetae98coding.diary.domain.core.invoke
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -21,8 +22,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
@@ -92,16 +91,13 @@ private fun useCase(
     val clock = mockk<Clock>()
     every { clock.now() } returns Arb.secondPrecisionInstant().next()
 
-    return koinApplication<WeatherDataTestKoinApplication> {
-        modules(
-            module {
-                single<LocationProvider> { locationProvider }
-                single<IpRemoteDataSource> { ipRemoteDataSource }
-                single<WeatherRemoteDataSource> { weatherRemoteDataSource }
-                single<Clock> { clock }
-            },
-        )
-    }.koin.get()
+    return createGraphFactory<WeatherDataTestGraph.Factory>()
+        .create(
+            locationProvider = locationProvider,
+            ipRemoteDataSource = ipRemoteDataSource,
+            weatherRemoteDataSource = weatherRemoteDataSource,
+            clock = clock,
+        ).fetchCurrentWeatherUseCase
 }
 
 private fun ipRemoteDataSource(location: IpRemoteEntity): IpRemoteDataSource =

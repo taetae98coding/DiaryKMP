@@ -30,7 +30,7 @@ Gradle 명령끼리는 빌드 락을 두고 경합하므로 병렬로 실행하�
 
 ### 코드를 고치지 않는 재실행
 
-`jvmTest`가 `initializationError`로 실패하고 원인에 `org.koin.plugin.hints.Koin_hints_configrelay_`와 `NoClassDefFoundError`가 함께 있으면, 빌드 캐시가 지우거나 이름을 바꾼 Koin 클래스를 참조하는 옛 힌트 클래스를 복원한 것이다. 실패한 모듈마다 `./gradlew :<모듈>:compileTestKotlinJvm --rerun-tasks --no-build-cache`로 다시 컴파일한 뒤 `jvmTest testAndroidHostTest --continue`를 한 번 더 실행하고, 그 결과로 통과를 판정한다. 재실행 사실은 결과에 남긴다.
+`jvmTest`가 `initializationError`로 실패하고 원인에 `metro.hints` 패키지 클래스와 `NoClassDefFoundError`가 함께 있으면, 빌드 캐시가 지우거나 이름을 바꾼 클래스를 참조하는 옛 Metro 힌트 클래스를 복원한 것이다. 실패한 모듈마다 `./gradlew :<모듈>:compileTestKotlinJvm --rerun-tasks --no-build-cache`로 다시 컴파일한 뒤 `jvmTest testAndroidHostTest --continue`를 한 번 더 실행하고, 그 결과로 통과를 판정한다. 재실행 사실은 결과에 남긴다.
 
 이번 변경과 관계없어 보이는 테스트가 실패하면 `bash DIARY_AGENTS/scripts/rerun-test.sh <태스크 경로> <테스트 필터>`로 다시 돌려 항상 실패하는지(종료 코드 1), 간헐적으로 실패하는지(3) 가린 뒤 함께 보고한다. 간헐 실패라도 통과로 처리하지 않는다.
 

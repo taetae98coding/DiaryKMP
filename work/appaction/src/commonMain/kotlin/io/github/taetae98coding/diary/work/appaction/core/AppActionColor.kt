@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.core
 
-import org.koin.core.annotation.Factory
+import dev.zacsweers.metro.Inject
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -28,7 +28,7 @@ internal fun String?.toColorArgumentOrNull(): Long? {
 internal fun String?.toColorArgumentOrRandom(random: Random = Random.Default): Long = toColorArgumentOrNull() ?: randomColor(random = random)
 
 // 데스크톱 MCP 연결도 컬러를 받지 않는 추가의 컬러를 이 값으로 정한다.
-@Factory
+@Inject
 public class AppActionRandomColor {
     public fun next(): Long = randomColor(random = Random.Default)
 }

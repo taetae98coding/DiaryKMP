@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.domain.mcp.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.mcp.repository.McpSettingRepository
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class DisableMcpServerUseCase internal constructor(
     private val mcpSettingRepository: McpSettingRepository,
 ) : UseCase<Unit, Unit>() {

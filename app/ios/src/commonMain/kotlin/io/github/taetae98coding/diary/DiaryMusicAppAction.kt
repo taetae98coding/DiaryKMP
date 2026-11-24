@@ -65,7 +65,7 @@ public object DiaryMusicAppAction {
     public suspend fun restore(musicId: String): Int = musicAppAction().restore(musicId = musicId).changedCount
 }
 
-private fun musicAppAction(): MusicAppAction = diaryAppAction()
+private fun musicAppAction(): MusicAppAction = diaryAppActionGraph().musicAppAction
 
 private fun AppActionMusicDetail.toDiary(): DiaryAppActionMusicDetail = DiaryAppActionMusicDetail(music = music.toDiary(), tags = tags.map { tag -> tag.toDiary() })
 

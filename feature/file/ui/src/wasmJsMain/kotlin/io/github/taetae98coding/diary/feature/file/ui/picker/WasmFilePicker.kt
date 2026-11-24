@@ -6,13 +6,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.browser.document
-import org.koin.core.annotation.Single
 import org.w3c.dom.HTMLInputElement
 import org.w3c.files.File
 
-@Single(binds = [FilePickerFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<FilePickerFactory>())
 internal class WasmFilePickerFactory : FilePickerFactory {
     @Composable
     override fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {

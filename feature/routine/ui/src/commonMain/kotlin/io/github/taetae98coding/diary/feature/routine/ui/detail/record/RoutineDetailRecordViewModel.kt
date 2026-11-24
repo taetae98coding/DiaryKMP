@@ -4,6 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.routine.RoutineRecord
 import io.github.taetae98coding.diary.domain.routine.usecase.AddRoutineRecordUseCase
 import io.github.taetae98coding.diary.domain.routine.usecase.DeleteRoutineRecordUseCase
@@ -20,17 +27,22 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class RoutineDetailRecordViewModel(
-    @InjectedParam private val routineId: Uuid,
+    @Assisted private val routineId: Uuid,
     private val addRoutineRecordUseCase: AddRoutineRecordUseCase,
     private val deleteRoutineRecordUseCase: DeleteRoutineRecordUseCase,
     pageRoutineRecordUseCase: PageRoutineRecordUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(routineId: Uuid): RoutineDetailRecordViewModel
+    }
+
     private val isAddInProgress = MutableStateFlow(false)
     private val deleteInProgressIdSet = mutableSetOf<Uuid>()
 

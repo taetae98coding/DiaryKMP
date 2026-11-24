@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
@@ -44,7 +45,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.viewmodel.koinViewModel
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
@@ -143,7 +143,7 @@ class TagDetailScreenTest {
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                     detailViewModel = viewModel,
-                    placeMapViewModel = koinViewModel(),
+                    placeMapViewModel = metroViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -243,7 +243,7 @@ class TagDetailScreenTest {
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                     detailViewModel = viewModel,
-                    placeMapViewModel = koinViewModel(),
+                    placeMapViewModel = metroViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -425,7 +425,7 @@ class TagDetailScreenUpdateTest {
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                     detailViewModel = viewModel,
-                    placeMapViewModel = koinViewModel(),
+                    placeMapViewModel = metroViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -663,7 +663,7 @@ class TagDetailScreenActionTest {
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                     detailViewModel = viewModel,
-                    placeMapViewModel = koinViewModel(),
+                    placeMapViewModel = metroViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -729,7 +729,7 @@ class TagDetailScreenMessageTest {
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                     detailViewModel = titleLoadedViewModel(),
-                    placeMapViewModel = koinViewModel(),
+                    placeMapViewModel = metroViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -782,7 +782,7 @@ class TagDetailScreenMessageTest {
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                     detailViewModel = viewModel,
-                    placeMapViewModel = koinViewModel(),
+                    placeMapViewModel = metroViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},

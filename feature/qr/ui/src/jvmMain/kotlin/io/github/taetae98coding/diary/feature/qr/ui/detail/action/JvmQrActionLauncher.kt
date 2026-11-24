@@ -2,10 +2,14 @@ package io.github.taetae98coding.diary.feature.qr.ui.detail.action
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Single
 import java.awt.Desktop
 import java.io.IOException
 import java.net.URI
@@ -16,7 +20,9 @@ private const val CONTACT_FILE_SUFFIX = ".vcf"
 private const val EVENT_FILE_SUFFIX = ".ics"
 private const val FILE_PREFIX = "qr"
 
-@Single(binds = [QrActionLauncherFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<QrActionLauncherFactory>())
 internal class JvmQrActionLauncherFactory(
     @QrActionDispatcher private val dispatcher: CoroutineDispatcher,
 ) : QrActionLauncherFactory {

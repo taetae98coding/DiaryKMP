@@ -7,8 +7,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.library.ktor)
-                implementation(libs.supabase.functions)
+                api(projects.library.ktor)
+                api(libs.supabase.functions)
             }
         }
 

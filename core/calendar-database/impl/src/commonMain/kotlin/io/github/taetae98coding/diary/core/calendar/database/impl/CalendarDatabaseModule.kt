@@ -2,18 +2,19 @@ package io.github.taetae98coding.diary.core.calendar.database.impl
 
 import androidx.room3.RoomDatabase
 import androidx.sqlite.SQLiteDriver
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseBuilder
 import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseDriver
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@ComponentScan
-@Configuration
-public class CalendarDatabaseModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object CalendarDatabaseModule {
+    @Provides
+    @SingleIn(AppScope::class)
     internal fun providesCalendarDatabase(
         @CalendarDatabaseBuilder
         builder: RoomDatabase.Builder<CalendarDatabase>,

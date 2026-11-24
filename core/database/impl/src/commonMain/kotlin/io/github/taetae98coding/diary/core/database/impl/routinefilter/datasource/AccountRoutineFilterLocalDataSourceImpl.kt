@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.database.impl.routinefilter.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.routinefilter.datasource.AccountRoutineFilterLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.routinefilter.entity.RoutineViewScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -7,10 +10,10 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.routinefilter.entity.RoutineFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.routinefilter.entity.RoutineFilterTagLocalEntity
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountRoutineFilterLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountRoutineFilterLocalDataSource {

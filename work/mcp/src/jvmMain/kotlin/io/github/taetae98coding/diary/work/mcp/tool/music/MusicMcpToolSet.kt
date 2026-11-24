@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.music
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
@@ -36,7 +40,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.koin.core.annotation.Factory
 
 private const val ARTIST = "artist"
 private const val MUSIC_ID = "musicId"
@@ -49,7 +52,8 @@ private val musicIdParameter: McpToolParameter =
 
 private const val LINK_DESCRIPTION = "A YouTube video link. An empty string means no link. A non-empty link that is not a YouTube link is rejected."
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class MusicMcpToolSet(
     private val musicAppAction: MusicAppAction,
     private val entityTagAppAction: EntityTagAppAction,

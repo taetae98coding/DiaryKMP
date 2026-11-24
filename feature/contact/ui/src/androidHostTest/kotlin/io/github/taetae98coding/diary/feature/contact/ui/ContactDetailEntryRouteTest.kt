@@ -23,6 +23,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -31,6 +33,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailUiState
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailViewModel
@@ -44,6 +47,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.testContentShare
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -56,16 +60,10 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -82,12 +80,6 @@ class ContactDetailEntryRouteTest {
     @Before
     fun resetUiDispatcher() {
         resetAndroidUiDispatcher()
-        stopKoin()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -124,40 +116,50 @@ class ContactDetailEntryRouteTest {
         memoContactIdList.distinct() shouldBe listOf(contactId)
     }
 
-    private fun viewModelModule(
+    private fun viewModelFactory(
         contactId: Uuid,
         memoTitle: String,
-    ): Module =
-        module {
-            factory { detailTagScreenTestViewModel() }
-            factory {
-                mockk<ContactDetailViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(ContactDetailUiState.Content(id = contactId, detail = testContactDetail()))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory { parameters ->
-                memoContactIdList += parameters.get<Uuid>()
-                mockk<ContactDetailMemoViewModel>(relaxed = true).apply {
-                    every { memoPagingData } returns
-                        flowOf(contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = memoTitle)))))
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-        }
+    ): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                    ContactDetailViewModel.Factory::class to {
+                        ContactDetailViewModel.Factory {
+                            mockk<ContactDetailViewModel>(relaxed = true).apply {
+                                every { uiState } returns MutableStateFlow(ContactDetailUiState.Content(id = contactId, detail = testContactDetail()))
+                                every { effect } returns emptyFlow()
+                            }
+                        }
+                    },
+                    ContactDetailMemoViewModel.Factory::class to {
+                        ContactDetailMemoViewModel.Factory { memoContactId ->
+                            memoContactIdList += memoContactId
+                            mockk<ContactDetailMemoViewModel>(relaxed = true).apply {
+                                every { memoPagingData } returns
+                                    flowOf(contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = memoTitle)))))
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                                every { effect } returns emptyFlow()
+                            }
+                        }
+                    },
+                ),
+        )
 
     private fun setNavDisplay(
         backStack: NavBackStack<ScreenNavKey>,
         contactId: Uuid,
         memoTitle: String,
     ) {
-        val viewModelModule = viewModelModule(contactId = contactId, memoTitle = memoTitle)
+        val viewModelFactory = viewModelFactory(contactId = contactId, memoTitle = memoTitle)
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -171,31 +173,30 @@ class ContactDetailEntryRouteTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides viewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<CalendarHomeStandInNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
-                                        entry<MemoHomeStandInNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
-                                        entry<MemoAddNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
-                                        entry<MemoDetailNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
-                                        contactDetailEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<CalendarHomeStandInNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
+                                    entry<MemoHomeStandInNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
+                                    entry<MemoAddNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
+                                    entry<MemoDetailNavKey> { Text(text = PREVIOUS_ROUTE_CONTENT) }
+                                    contactDetailEntry(backStack = backStack, contentSharerFactory = testContentSharerFactory())
+                                },
+                        )
                     }
                 }
             }

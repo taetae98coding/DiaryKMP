@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.webcookie.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieDataSource
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieSameSiteEntity
@@ -7,9 +10,9 @@ import io.github.taetae98coding.diary.core.webcookie.api.WebViewSessionCookieEnt
 import io.github.taetae98coding.diary.library.webkit.WebKitCookie
 import io.github.taetae98coding.diary.library.webkit.WebKitCookieSameSite
 import io.github.taetae98coding.diary.library.webkit.WebKitCookieStore
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class JvmWebViewCookieDataSource : WebViewCookieDataSource {
     // WKWebView의 쿠키 보관 공간은 모든 쿠키를 꺼낼 수 있어 주소를 따로 확인하지 않는다.
     override suspend fun readSessionCookie(siteUrlSet: Set<String>): WebViewSessionCookieEntity =

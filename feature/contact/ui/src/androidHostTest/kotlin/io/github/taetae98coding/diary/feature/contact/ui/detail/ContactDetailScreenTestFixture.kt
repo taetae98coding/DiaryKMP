@@ -19,6 +19,8 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.share.ContentSharer
 import io.github.taetae98coding.diary.compose.core.share.ContentSharerFactory
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
@@ -31,6 +33,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
@@ -61,9 +64,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.KoinApplication
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -78,7 +78,7 @@ internal val FIRST_CONTACT_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000
 
 private const val EFFECT_BUFFER_CAPACITY = 8
 
-// KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 메모 탭이 얻는 값은 모듈이 붙잡는 이 흐름들로 테스트마다 바꾼다.
+// 메모 탭은 화면 안에서 ViewModel을 꺼내므로, 탭이 얻는 값은 대역 ViewModel이 붙잡는 이 흐름들로 테스트마다 바꾼다.
 internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
 internal val memoListUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
@@ -89,22 +89,30 @@ internal var memoViewModelRef: ContactDetailMemoViewModel? = null
 internal var memoSyncViewModelRef: SyncRefreshViewModel? = null
     private set
 
-private val contactDetailTabViewModelModule =
-    module {
-        factory {
-            mockk<ContactDetailMemoViewModel>(relaxed = true)
-                .apply {
-                    every { memoPagingData } returns memoPagingDataFlow
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns memoEffectFlow
-                }.also { memoViewModelRef = it }
-        }
-        factory {
-            mockk<SyncRefreshViewModel>(relaxed = true)
-                .apply { every { uiState } returns memoListUiStateFlow }
-                .also { memoSyncViewModelRef = it }
-        }
-    }
+private fun contactDetailTabViewModelFactory(): MetroViewModelFactory =
+    TestViewModelFactory(
+        viewModelProviders =
+            mapOf(
+                SyncRefreshViewModel::class to {
+                    mockk<SyncRefreshViewModel>(relaxed = true)
+                        .apply { every { uiState } returns memoListUiStateFlow }
+                        .also { memoSyncViewModelRef = it }
+                },
+            ),
+        manualAssistedFactoryProviders =
+            mapOf(
+                ContactDetailMemoViewModel.Factory::class to {
+                    ContactDetailMemoViewModel.Factory {
+                        mockk<ContactDetailMemoViewModel>(relaxed = true)
+                            .apply {
+                                every { memoPagingData } returns memoPagingDataFlow
+                                every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                                every { effect } returns memoEffectFlow
+                            }.also { memoViewModelRef = it }
+                    }
+                },
+            ),
+    )
 
 internal fun prepareContactDetailTabViewModels(
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
@@ -128,10 +136,12 @@ internal fun ContactDetailScreenTestHost(
             }
         }
 
-    CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner, LocalResultEventBus provides resultEventBus) {
-        KoinApplication(configuration = koinConfiguration { modules(contactDetailTabViewModelModule) }) {
-            DiaryTheme(content = content)
-        }
+    CompositionLocalProvider(
+        LocalViewModelStoreOwner provides viewModelStoreOwner,
+        LocalResultEventBus provides resultEventBus,
+        LocalMetroViewModelFactory provides remember { contactDetailTabViewModelFactory() },
+    ) {
+        DiaryTheme(content = content)
     }
 }
 

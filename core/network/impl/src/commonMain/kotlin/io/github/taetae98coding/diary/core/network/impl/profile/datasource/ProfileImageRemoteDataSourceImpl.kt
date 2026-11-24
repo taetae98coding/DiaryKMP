@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.profile.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.profile.datasource.ProfileImageRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.profile.entity.ProfileImageRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.content.RawSourceContent
@@ -8,9 +11,9 @@ import io.github.taetae98coding.diary.core.supabase.api.invoke
 import io.ktor.client.call.body
 import io.ktor.http.ContentType
 import kotlinx.io.RawSource
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class ProfileImageRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : ProfileImageRemoteDataSource {

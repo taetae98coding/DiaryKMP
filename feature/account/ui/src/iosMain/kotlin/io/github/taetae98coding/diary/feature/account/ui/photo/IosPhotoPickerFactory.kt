@@ -5,11 +5,15 @@ package io.github.taetae98coding.diary.feature.account.ui.photo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.uikit.LocalUIViewController
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.koin.core.annotation.Single
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
@@ -25,7 +29,9 @@ import kotlin.coroutines.resume
 
 private const val IMAGE_TYPE_IDENTIFIER = "public.image"
 
-@Single(binds = [PhotoPickerFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<PhotoPickerFactory>())
 internal class IosPhotoPickerFactory : PhotoPickerFactory {
     @Composable
     override fun rememberPhotoPicker(): PhotoPicker {

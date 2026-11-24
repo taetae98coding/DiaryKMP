@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.work.fileupload.report
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.library.locale.DeviceLocale
-import org.koin.core.annotation.Factory
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNUserNotificationCenter
@@ -10,7 +12,8 @@ import platform.UserNotifications.UNUserNotificationCenter
 private const val RESULT_NOTIFICATION_IDENTIFIER: String = "fileUploadResult"
 private const val KOREAN_LANGUAGE_PREFIX: String = "ko"
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class IosFileUploadNotifier : FileUploadNotifier {
     override fun notifyResult(result: FileUploadResult) {
         val text = if (isKorean()) KoreanFileUploadNotificationText else EnglishFileUploadNotificationText

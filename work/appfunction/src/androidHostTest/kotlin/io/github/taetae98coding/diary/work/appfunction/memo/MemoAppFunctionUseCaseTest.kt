@@ -36,10 +36,12 @@ import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.work.appaction.AppActionGraph
 import io.github.taetae98coding.diary.work.appaction.memo.MemoAppAction
 import io.github.taetae98coding.diary.work.appaction.memo.MemoListAppAction
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionId
 import io.github.taetae98coding.diary.work.appfunction.core.AppFunctionServiceTester
+import io.github.taetae98coding.diary.work.appfunction.core.TestAppFunctionApplication
 import io.github.taetae98coding.diary.work.appfunction.core.returnValueAs
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -55,21 +57,17 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 // 데스크톱 MCP 도구와 같은 앱 기능을 거쳐 같은 결과를 내는지 보도록, 공통 동작은 실제로 만들고 앱 기능만 mock으로 둔다.
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [36], application = TestAppFunctionApplication::class)
 class MemoAppFunctionUseCaseTest {
     private val context: Context = RuntimeEnvironment.getApplication()
 
@@ -123,20 +121,11 @@ class MemoAppFunctionUseCaseTest {
                 mockk<PageContactMemoUseCase>(),
                 mockk<PageFinishedContactMemoUseCase>(),
             )
-        startKoin {
-            modules(
-                module {
-                    single { memoAppAction }
-                    single { memoListAppAction }
-                },
-            )
-        }
+        val graph = mockk<AppActionGraph>()
+        every { graph.memoAppAction } returns memoAppAction
+        every { graph.memoListAppAction } returns memoListAppAction
+        (context as TestAppFunctionApplication).appActionGraph = graph
         tester = AppFunctionServiceTester(context = context, appFunctionManager = appFunctionTestRule.getAppFunctionManager())
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test

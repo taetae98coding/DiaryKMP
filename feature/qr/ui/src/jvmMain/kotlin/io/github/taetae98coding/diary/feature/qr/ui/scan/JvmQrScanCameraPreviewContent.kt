@@ -13,15 +13,21 @@ import androidx.compose.ui.awt.SwingPanel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.library.avfoundation.AVCaptureVideoPreviewPanel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.Single
 
-@Single(binds = [QrScanCameraPreviewContent::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<QrScanCameraPreviewContent>())
 internal class JvmQrScanCameraPreviewContent(
     @QrScanCameraDispatcher private val dispatcher: CoroutineDispatcher,
 ) : QrScanCameraPreviewContent {

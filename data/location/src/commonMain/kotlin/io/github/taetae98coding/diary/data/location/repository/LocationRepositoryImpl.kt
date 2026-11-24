@@ -1,12 +1,15 @@
 package io.github.taetae98coding.diary.data.location.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.domain.location.repository.LocationRepository
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class LocationRepositoryImpl(
     private val locationProvider: LocationProvider,
     private val ipRemoteDataSource: IpRemoteDataSource,

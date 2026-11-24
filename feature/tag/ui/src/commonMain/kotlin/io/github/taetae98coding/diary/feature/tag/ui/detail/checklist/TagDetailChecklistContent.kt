@@ -11,14 +11,14 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
 @Composable
@@ -33,8 +33,8 @@ internal fun TagDetailChecklistContent(
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = TagDetailTab.CHECKLIST, provider = viewModelStoreProvider)
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-        val checklistViewModel = koinViewModel<TagDetailChecklistViewModel> { parametersOf(id) }
-        val syncViewModel = koinViewModel<SyncRefreshViewModel>()
+        val checklistViewModel = assistedMetroViewModel<TagDetailChecklistViewModel, TagDetailChecklistViewModel.Factory> { create(tagId = id) }
+        val syncViewModel = metroViewModel<SyncRefreshViewModel>()
         val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
         val checklistPagingItems = checklistViewModel.checklistPagingData.collectAsLazyPagingItems()
         val scopeUiState by checklistViewModel.scopeUiState.collectAsStateWithLifecycle()

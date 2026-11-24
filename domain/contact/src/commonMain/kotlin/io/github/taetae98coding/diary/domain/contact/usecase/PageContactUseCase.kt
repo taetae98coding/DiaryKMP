@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.domain.contact.usecase
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -10,9 +11,8 @@ import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRe
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class PageContactUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountContactRepository: AccountContactRepository,

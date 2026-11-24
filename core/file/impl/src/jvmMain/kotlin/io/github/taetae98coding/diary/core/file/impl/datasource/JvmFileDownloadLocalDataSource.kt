@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.file.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
@@ -12,7 +15,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.io.RawSink
 import kotlinx.io.asSink
-import org.koin.core.annotation.Factory
 import java.io.IOException
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
@@ -20,7 +22,8 @@ import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class JvmFileDownloadLocalDataSource(
     @FileDispatcher
     private val dispatcher: CoroutineDispatcher,

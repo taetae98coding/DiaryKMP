@@ -9,15 +9,19 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
@@ -29,14 +33,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -48,11 +47,6 @@ class MoreHomeDestinationReturnTest {
     val composeRule = createComposeRule()
 
     private val backStack = NavBackStack<ScreenNavKey>(DestinationTestTopLevelNavKey, MoreHomeNavKey)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-875e0a2f-30d2-40fc-9359-65925970d3f9 더보기 목적지에 다녀오면 화면의 맨 위부터 시작한다`() {
@@ -93,20 +87,32 @@ class MoreHomeDestinationReturnTest {
     }
 
     private fun setMoreNavDisplay() {
-        val viewModelModule =
-            module {
-                factory<MoreHomeAccountViewModel> {
-                    mockk<MoreHomeAccountViewModel>(relaxed = true) {
-                        every { uiState } returns MutableStateFlow(MoreHomeAccountUiState.Guest)
-                    }
-                }
-                factory<MoreHomeSignOutViewModel> {
-                    mockk<MoreHomeSignOutViewModel>(relaxed = true) {
-                        every { uiState } returns MutableStateFlow(MoreHomeSignOutUiState())
-                    }
-                }
-                factory<MoreHomeRefreshViewModel> { mockk<MoreHomeRefreshViewModel>(relaxed = true) }
-            }
+        val viewModelFactory =
+            TestViewModelFactory(
+                viewModelProviders =
+                    mapOf(
+                        MoreHomeAccountViewModel::class to {
+                            mockk<MoreHomeAccountViewModel>(relaxed = true) {
+                                every { uiState } returns MutableStateFlow(MoreHomeAccountUiState.Guest)
+                            }
+                        },
+                        MoreHomeRefreshViewModel::class to { mockk<MoreHomeRefreshViewModel>(relaxed = true) },
+                    ),
+                assistedFactoryProviders =
+                    mapOf(
+                        MoreHomeSignOutViewModel::class to {
+                            // 테스트의 ViewModel 소유자는 저장 상태를 주지 않고 대역은 저장 상태를 쓰지 않으므로, 저장 상태를 만들지 않고 대역을 돌려준다.
+                            object : MoreHomeSignOutViewModel.Factory {
+                                override fun create(extras: CreationExtras): MoreHomeSignOutViewModel = create(savedStateHandle = SavedStateHandle())
+
+                                override fun create(savedStateHandle: SavedStateHandle): MoreHomeSignOutViewModel =
+                                    mockk<MoreHomeSignOutViewModel>(relaxed = true) {
+                                        every { uiState } returns MutableStateFlow(MoreHomeSignOutUiState())
+                                    }
+                            }
+                        },
+                    ),
+            )
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -116,21 +122,22 @@ class MoreHomeDestinationReturnTest {
                     }
                 }
 
-            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        NavDisplay(
-                            backStack = backStack,
-                            // 보던 자리는 화면별 저장 상태가 정하므로, 앱이 쓰는 저장 상태 decorator만 둔다.
-                            entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
-                            entryProvider =
-                                entryProvider {
-                                    entry<DestinationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                    entry<DestinationTestDetailNavKey> { Text(text = DETAIL_CONTENT) }
-                                    moreEntry(backStack = backStack)
-                                },
-                        )
-                    }
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner provides viewModelStoreOwner,
+                LocalMetroViewModelFactory provides viewModelFactory,
+            ) {
+                DiaryTheme {
+                    NavDisplay(
+                        backStack = backStack,
+                        // 보던 자리는 화면별 저장 상태가 정하므로, 앱이 쓰는 저장 상태 decorator만 둔다.
+                        entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+                        entryProvider =
+                            entryProvider {
+                                entry<DestinationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                entry<DestinationTestDetailNavKey> { Text(text = DETAIL_CONTENT) }
+                                moreEntry(backStack = backStack)
+                            },
+                    )
                 }
             }
         }

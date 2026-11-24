@@ -7,6 +7,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
@@ -29,7 +30,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldC
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScreen
 import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpScreen
-import org.koin.compose.viewmodel.koinViewModel
 
 internal fun EntryProviderScope<ScreenNavKey>.settingEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -58,7 +58,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
             navigateToGemini = { backStack.navigateToSettingDetail(SettingGeminiNavKey) },
             navigateToFile = { backStack.navigateToSettingDetail(SettingFileNavKey) },
             navigateToMcp = { backStack.navigateToSettingDetail(SettingMcpNavKey) },
-            viewModel = koinViewModel(),
+            viewModel = metroViewModel(),
         )
     }
 }
@@ -74,7 +74,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHolidayEntry(backStack: NavB
             componentVisibleProvider = {
                 SettingHolidayScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
             },
-            viewModel = koinViewModel(),
+            viewModel = metroViewModel(),
         )
     }
 }
@@ -90,7 +90,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingMapEntry(backStack: NavBackS
             componentVisibleProvider = {
                 SettingMapScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
             },
-            viewModel = koinViewModel(),
+            viewModel = metroViewModel(),
         )
     }
 }
@@ -106,8 +106,8 @@ private fun EntryProviderScope<ScreenNavKey>.settingGeminiEntry(backStack: NavBa
             componentVisibleProvider = {
                 SettingGeminiScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
             },
-            settingViewModel = koinViewModel(),
-            modelViewModel = koinViewModel(),
+            settingViewModel = metroViewModel(),
+            modelViewModel = metroViewModel(),
         )
     }
 }
@@ -120,7 +120,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(
         metadata = { key -> backStack.settingDetailPaneMetadata(key) },
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
-        val viewModel = koinViewModel<SettingFileViewModel>()
+        val viewModel = metroViewModel<SettingFileViewModel>()
 
         SettingFileScreen(
             navigateUp = backStack::removeLastOrNull,
@@ -144,7 +144,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingMcpEntry(backStack: NavBackS
             componentVisibleProvider = {
                 SettingMcpScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
             },
-            viewModel = koinViewModel(),
+            viewModel = metroViewModel(),
         )
     }
 }

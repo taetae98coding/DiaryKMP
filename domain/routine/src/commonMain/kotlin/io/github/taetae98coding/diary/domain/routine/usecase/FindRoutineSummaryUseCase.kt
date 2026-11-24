@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.routine.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.routine.RoutineSummary
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.flatMapAccount
@@ -9,10 +10,9 @@ import io.github.taetae98coding.diary.domain.routine.repository.AccountRoutineRe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class FindRoutineSummaryUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountRoutineRepository: AccountRoutineRepository,

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.tag
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.checklist.Checklist
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.dday.DDay
@@ -27,7 +28,6 @@ import io.github.taetae98coding.diary.work.appaction.core.appActionNotDone
 import io.github.taetae98coding.diary.work.appaction.core.isActive
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 public enum class AppActionEntityTagKind(
@@ -44,7 +44,7 @@ public enum class AppActionEntityTagKind(
     ROUTINE(kind = EntityTagKind.ROUTINE, entityIdName = "routineId"),
 }
 
-@Factory
+@Inject
 public class EntityTagAppAction internal constructor(
     private val findPlaceUseCase: FindPlaceUseCase,
     private val findWebUseCase: FindWebUseCase,

@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.dday
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.dday.DDayOverflowPolicy
 import io.github.taetae98coding.diary.domain.dday.DDayInput
@@ -40,7 +44,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
 private const val BASE_DATE = "baseDate"
@@ -56,7 +59,8 @@ private const val TITLE = "title"
 private val ddayIdParameter: McpToolParameter =
     McpToolParameter(name = DDAY_ID, type = McpToolParameterType.STRING, description = "Id of the D-Day.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class DDayMcpToolSet(
     private val ddayAppAction: DDayAppAction,
     private val entityTagAppAction: EntityTagAppAction,

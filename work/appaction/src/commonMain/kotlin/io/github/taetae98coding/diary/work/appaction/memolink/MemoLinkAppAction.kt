@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.memolink
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -27,7 +28,6 @@ import io.github.taetae98coding.diary.work.appaction.core.appActionNotDone
 import io.github.taetae98coding.diary.work.appaction.core.isActive
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 private const val MEMO_ID = "memoId"
@@ -36,7 +36,7 @@ private const val PLACE_ID = "placeId"
 private const val WEB_ID = "webId"
 private const val CONTACT_ID = "contactId"
 
-@Factory
+@Inject
 public class MemoLinkAppAction internal constructor(
     private val findMemoUseCase: FindMemoUseCase,
     private val findTagUseCase: FindTagUseCase,

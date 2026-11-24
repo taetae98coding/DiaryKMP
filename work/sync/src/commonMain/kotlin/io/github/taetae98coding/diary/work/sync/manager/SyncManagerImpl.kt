@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.manager
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.domain.sync.SyncManager
 import io.github.taetae98coding.diary.work.sync.di.SyncScope
 import io.github.taetae98coding.diary.work.sync.scheduler.PeriodicSyncWorkScheduler
@@ -15,10 +19,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
-import org.koin.core.annotation.Single
 import kotlin.time.Duration
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
 internal class SyncManagerImpl(
     private val syncWorkScheduler: SyncWorkScheduler,
     private val periodicSyncWorkScheduler: PeriodicSyncWorkScheduler,

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.memo
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -23,7 +24,6 @@ import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toSortArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
-import org.koin.core.annotation.Factory
 
 private const val PLACE_ID = "placeId"
 private const val WEB_ID = "webId"
@@ -31,7 +31,7 @@ private const val CONTACT_ID = "contactId"
 
 internal val memoSortList: List<ListSort> = listOf(ListSort.DEFAULT, ListSort.TITLE, ListSort.RECENTLY_UPDATED)
 
-@Factory
+@Inject
 public class MemoListAppAction internal constructor(
     private val findPlaceUseCase: FindPlaceUseCase,
     private val findWebUseCase: FindWebUseCase,

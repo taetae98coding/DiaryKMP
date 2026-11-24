@@ -8,9 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import org.koin.core.annotation.Single
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 
-@Single(binds = [DirectoryPickerFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<DirectoryPickerFactory>())
 internal class AndroidDirectoryPickerFactory : DirectoryPickerFactory {
     @Composable
     override fun rememberDirectoryPicker(onPick: (uri: String) -> Unit): DirectoryPicker {

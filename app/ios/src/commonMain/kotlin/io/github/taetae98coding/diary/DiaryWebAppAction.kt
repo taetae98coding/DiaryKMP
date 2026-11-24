@@ -53,7 +53,7 @@ public object DiaryWebAppAction {
     public suspend fun restore(webId: String): Int = webAppAction().restore(webId = webId).changedCount
 }
 
-private fun webAppAction(): WebAppAction = diaryAppAction()
+private fun webAppAction(): WebAppAction = diaryAppActionGraph().webAppAction
 
 private fun AppActionWebDetail.toDiary(): DiaryAppActionWebDetail =
     DiaryAppActionWebDetail(

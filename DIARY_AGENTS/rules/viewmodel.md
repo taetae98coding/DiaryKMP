@@ -20,10 +20,12 @@
 
 **홀더는 `CoroutineScope`를 받지 않는다.** Flow 변환과 `suspend` 함수만 내보내고, `launch`·`stateIn`·`cachedIn`은 ViewModel이 `viewModelScope`로 적용한다([main-safety.md](main-safety.md)의 `그 밖의 작업은 suspend로 내보내고 호출자가 scope를 정한다`). 홀더의 `suspend` 함수에 둔 `UseCase 호출 가드`는 함수 첫 줄에서 판단하고 `try`·`finally`로 해제한다.
 
-**구성 차이가 상수 하나면 하위 클래스를 만들지 않고 `@InjectedParam` 파라미터로 넘긴다**(`EntityDetailTagViewModel`은 `koinViewModel { parametersOf(EntityTagKind.CONTACT, key.id) }`로 종류를 받는다). 여러 화면이 같은 ViewModel 타입을 받아야 하면 공통 인터페이스를 두고 각 ViewModel이 구현한다.
+**구성 차이가 상수 하나면 하위 클래스를 만들지 않고 `@Assisted` 파라미터로 넘긴다**(`EntityDetailTagViewModel`은 `assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.CONTACT, entityId = key.id) }`로 종류를 받는다. 선언 방법은 [di.md](di.md)의 `ViewModel`). 여러 화면이 같은 ViewModel 타입을 받아야 하면 공통 인터페이스를 두고 각 ViewModel이 구현한다.
 
 ```kotlin
-@KoinViewModel
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
 internal class MemoFinishedListViewModel(pageFinishedMemoUseCase: PageFinishedMemoUseCase, ...) : ViewModel() {
     private val memoListState = MemoListState(pageMemo = { sort -> pageFinishedMemoUseCase(parameter = sort) })
     private val memoActions = ListItemActions(...)

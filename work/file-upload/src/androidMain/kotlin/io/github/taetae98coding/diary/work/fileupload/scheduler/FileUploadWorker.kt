@@ -5,6 +5,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.work.fileupload.report.AndroidFileUploadNotifier
@@ -13,7 +16,6 @@ import io.github.taetae98coding.diary.work.fileupload.text.FileUploadTextStore
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWork
 import kotlinx.coroutines.CancellationException
-import org.koin.android.annotation.KoinWorker
 import kotlin.uuid.Uuid
 
 internal const val FILE_UPLOAD_URI_KEY: String = "uri"
@@ -24,10 +26,10 @@ internal const val FILE_UPLOAD_PERCENT_KEY: String = "percent"
 // WorkManager의 Data는 null을 담을 수 없으므로 백분율이 없는 진행을 이 값으로 둔다.
 internal const val NO_PERCENT: Int = -1
 
-@KoinWorker
+@AssistedInject
 internal class FileUploadWorker(
-    context: Context,
-    parameters: WorkerParameters,
+    @Assisted context: Context,
+    @Assisted parameters: WorkerParameters,
     private val fileUploadWork: FileUploadWork,
     private val androidFileUploadNotifier: AndroidFileUploadNotifier,
     private val fileUploadTextStore: FileUploadTextStore,
@@ -82,6 +84,14 @@ internal class FileUploadWorker(
             setForeground(androidFileUploadNotifier.createForegroundInfo(name = name, percent = percent))
         } catch (_: IllegalStateException) {
         }
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+        fun create(
+            context: Context,
+            parameters: WorkerParameters,
+        ): FileUploadWorker
     }
 }
 

@@ -1,14 +1,14 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.file.MAX_FILE_SIZE_BYTES
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class ReadFileUploadSourceUseCase internal constructor(
     private val fileRepository: FileRepository,
 ) : UseCase<FileUri, FileUploadSource>() {

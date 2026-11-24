@@ -4,6 +4,13 @@ package io.github.taetae98coding.diary.feature.checklist.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistItemUseCase
@@ -25,13 +32,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class ChecklistDetailItemViewModel(
-    @InjectedParam private val checklistId: Uuid,
+    @Assisted private val checklistId: Uuid,
     private val addChecklistItemUseCase: AddChecklistItemUseCase,
     private val checkChecklistItemUseCase: CheckChecklistItemUseCase,
     private val uncheckChecklistItemUseCase: UncheckChecklistItemUseCase,
@@ -39,6 +44,13 @@ internal class ChecklistDetailItemViewModel(
     private val resetChecklistUseCase: ResetChecklistUseCase,
     getChecklistItemUseCase: GetChecklistItemUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(checklistId: Uuid): ChecklistDetailItemViewModel
+    }
+
     private val sort = MutableStateFlow(ChecklistItemSort.ADDED)
     private val isAddInProgress = MutableStateFlow(false)
     private val isResetInProgress = MutableStateFlow(false)

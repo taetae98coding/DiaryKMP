@@ -9,7 +9,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.library.room3)
-                implementation(libs.androidx.room3.runtime)
+                api(libs.androidx.room3.runtime)
             }
         }
 

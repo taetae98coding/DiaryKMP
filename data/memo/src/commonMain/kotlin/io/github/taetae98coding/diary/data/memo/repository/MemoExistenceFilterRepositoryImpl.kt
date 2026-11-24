@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.memofilter.datasource.MemoExistenceFilterLocalDataSource
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
@@ -8,9 +11,9 @@ import io.github.taetae98coding.diary.data.memo.mapper.toLocal
 import io.github.taetae98coding.diary.domain.memo.repository.MemoExistenceFilterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class MemoExistenceFilterRepositoryImpl(
     private val memoExistenceFilterLocalDataSource: MemoExistenceFilterLocalDataSource,
 ) : MemoExistenceFilterRepository {

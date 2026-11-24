@@ -2,16 +2,22 @@ package io.github.taetae98coding.diary.feature.account.ui.photo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Single
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.FilenameFilter
 import javax.imageio.ImageIO
 
-@Single(binds = [PhotoPickerFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<PhotoPickerFactory>())
 internal class JvmPhotoPickerFactory(
     @PhotoPickerDispatcher private val dispatcher: CoroutineDispatcher,
 ) : PhotoPickerFactory {

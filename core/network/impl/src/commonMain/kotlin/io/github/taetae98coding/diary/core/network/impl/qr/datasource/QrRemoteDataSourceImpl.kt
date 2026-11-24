@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.network.impl.qr.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.network.api.qr.datasource.QrRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrRemoteEntity
@@ -9,9 +12,9 @@ import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestR
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.invoke
 import io.ktor.client.call.body
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class QrRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : QrRemoteDataSource {

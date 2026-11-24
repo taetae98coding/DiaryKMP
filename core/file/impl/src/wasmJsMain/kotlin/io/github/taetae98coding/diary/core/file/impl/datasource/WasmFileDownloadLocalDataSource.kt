@@ -2,19 +2,22 @@
 
 package io.github.taetae98coding.diary.core.file.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
 import kotlinx.io.Buffer
 import kotlinx.io.RawSink
 import kotlinx.io.readByteArray
-import org.koin.core.annotation.Factory
 import kotlin.io.encoding.Base64
 
 private const val SAVE_MIME_TYPE = "application/octet-stream"
 
 // 브라우저는 앱이 저장 위치를 고르거나 이름이 겹치는지 볼 수 없게 하므로, 받은 내용을 브라우저의 다운로드에 그대로 넘긴다.
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WasmFileDownloadLocalDataSource : FileDownloadLocalDataSource {
     override val isDirectorySelectable: Boolean = false
 

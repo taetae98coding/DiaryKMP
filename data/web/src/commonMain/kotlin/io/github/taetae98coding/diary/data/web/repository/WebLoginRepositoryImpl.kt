@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.web.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.datastore.api.web.datasource.WebLoginLocalDataSource
 import io.github.taetae98coding.diary.core.model.web.WebLogin
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieDataSource
@@ -9,9 +12,9 @@ import io.github.taetae98coding.diary.data.web.mapper.toLocal
 import io.github.taetae98coding.diary.data.web.mapper.toWebView
 import io.github.taetae98coding.diary.domain.web.repository.WebLoginRepository
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WebLoginRepositoryImpl(
     private val webViewCookieDataSource: WebViewCookieDataSource,
     private val webLoginLocalDataSource: WebLoginLocalDataSource,

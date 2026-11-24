@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.data.web.repository
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.web.datasource.AccountWebLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountWebTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
@@ -14,11 +17,11 @@ import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountWebRepositoryImpl(
     private val accountWebLocalDataSource: AccountWebLocalDataSource,
     private val accountWebTransaction: AccountWebTransaction,

@@ -51,4 +51,4 @@ public object DiaryMemoLinkAppAction {
     ): Boolean = memoLinkAppAction().contactRemove(memoId = memoId, contactId = contactId).done
 }
 
-private fun memoLinkAppAction(): MemoLinkAppAction = diaryAppAction()
+private fun memoLinkAppAction(): MemoLinkAppAction = diaryAppActionGraph().memoLinkAppAction

@@ -2,6 +2,13 @@ package io.github.taetae98coding.diary.feature.file.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
@@ -22,17 +29,22 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class FileDetailViewModel(
-    @InjectedParam private val id: Uuid,
+    @Assisted private val id: Uuid,
     private val fetchFileUseCase: FetchFileUseCase,
     private val updateFileUseCase: UpdateFileUseCase,
     private val downloadFileUseCase: DownloadFileUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(id: Uuid): FileDetailViewModel
+    }
+
     private val fetchState = MutableStateFlow<FileDetailFetchState>(FileDetailFetchState.None)
     private val isUpdateInProgress = MutableStateFlow(false)
     private val isDownloadInProgress = MutableStateFlow(false)

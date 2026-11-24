@@ -2,9 +2,12 @@ package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.WebLocalStorage
-import org.koin.core.annotation.Factory
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class WebSettingStorageFactory : SettingStorageFactory {
     override fun <T> create(
         serializer: SettingSerializer<T>,

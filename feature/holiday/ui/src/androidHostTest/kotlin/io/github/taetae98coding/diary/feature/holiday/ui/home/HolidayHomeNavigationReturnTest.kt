@@ -20,6 +20,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
@@ -38,13 +39,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -58,11 +55,6 @@ class HolidayHomeNavigationReturnTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(HolidayHomeNavKey)
     private val targetYear = mutableStateOf<Int?>(null)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-148a5464-9c76-4536-b1c6-877f8740429e MemoAdd 화면에서 돌아오면 보던 상태를 유지한 채 선택된 날짜가 없다`() {
@@ -90,8 +82,8 @@ class HolidayHomeNavigationReturnTest {
     }
 
     private fun setHolidayHomeNavDisplay() {
-        val module =
-            holidayHomeYearViewModelModule(
+        val viewModelFactory =
+            holidayHomeYearViewModelFactory(
                 fetchHolidayUseCase = successfulFetchHolidayUseCase(),
                 getGoldenHolidayUseCase = nextYearTwoOptionGetGoldenHolidayUseCase(),
             )
@@ -104,38 +96,39 @@ class HolidayHomeNavigationReturnTest {
                     }
                 }
 
-            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                KoinApplication(configuration = koinConfiguration { modules(module) }) {
-                    DiaryTheme {
-                        NavDisplay(
-                            backStack = backStack,
-                            entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
-                            entryProvider =
-                                entryProvider {
-                                    entry<HolidayHomeNavKey> {
-                                        val state = rememberHolidayHomeScaffoldState(initialYear = YEAR)
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner provides viewModelStoreOwner,
+                LocalMetroViewModelFactory provides viewModelFactory,
+            ) {
+                DiaryTheme {
+                    NavDisplay(
+                        backStack = backStack,
+                        entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+                        entryProvider =
+                            entryProvider {
+                                entry<HolidayHomeNavKey> {
+                                    val state = rememberHolidayHomeScaffoldState(initialYear = YEAR)
 
-                                        ScrollToYearEffect(state = state, targetYear = targetYear)
-                                        HolidayHomeScreen(
-                                            navigateUp = { backStack.removeLastOrNull() },
-                                            navigateToMemoAdd = { dateRange ->
-                                                backStack.add(
-                                                    MemoAddNavKey(
-                                                        initialDateRange =
-                                                            MemoAddNavKey.InitialDateRange(
-                                                                start = dateRange.start,
-                                                                endInclusive = dateRange.endInclusive,
-                                                            ),
-                                                    ),
-                                                )
-                                            },
-                                            state = state,
-                                        )
-                                    }
-                                    entry<MemoAddNavKey> { Text(text = MEMO_ADD_CONTENT) }
-                                },
-                        )
-                    }
+                                    ScrollToYearEffect(state = state, targetYear = targetYear)
+                                    HolidayHomeScreen(
+                                        navigateUp = { backStack.removeLastOrNull() },
+                                        navigateToMemoAdd = { dateRange ->
+                                            backStack.add(
+                                                MemoAddNavKey(
+                                                    initialDateRange =
+                                                        MemoAddNavKey.InitialDateRange(
+                                                            start = dateRange.start,
+                                                            endInclusive = dateRange.endInclusive,
+                                                        ),
+                                                ),
+                                            )
+                                        },
+                                        state = state,
+                                    )
+                                }
+                                entry<MemoAddNavKey> { Text(text = MEMO_ADD_CONTENT) }
+                            },
+                    )
                 }
             }
         }

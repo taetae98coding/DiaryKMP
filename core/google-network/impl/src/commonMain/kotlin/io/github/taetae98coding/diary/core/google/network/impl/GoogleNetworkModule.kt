@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.core.google.network.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
 import io.github.taetae98coding.diary.library.ktor.createJsonHttpClient
 import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
@@ -9,16 +14,12 @@ import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@ComponentScan
-@Configuration
-public class GoogleNetworkModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object GoogleNetworkModule {
+    @Provides
+    @SingleIn(AppScope::class)
     @GoogleHttpClient
     internal fun providesGoogleHttpClient(config: GooglePlacesConfig): HttpClient = createGoogleHttpClient(config = config)
 }

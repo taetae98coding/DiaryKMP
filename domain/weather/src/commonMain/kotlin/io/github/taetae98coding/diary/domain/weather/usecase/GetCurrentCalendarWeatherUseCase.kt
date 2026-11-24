@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.weather.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
@@ -15,11 +16,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-@Factory
+@Inject
 public class GetCurrentCalendarWeatherUseCase internal constructor(
     private val weatherRepository: WeatherRepository,
     private val clock: Clock,

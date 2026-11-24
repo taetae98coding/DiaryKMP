@@ -22,6 +22,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -32,6 +33,8 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -42,6 +45,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
@@ -49,6 +53,7 @@ import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinis
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
@@ -66,10 +71,12 @@ import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestView
 import io.github.taetae98coding.diary.feature.web.ui.add.inputCount
 import io.github.taetae98coding.diary.feature.web.ui.add.titleInput
 import io.github.taetae98coding.diary.feature.web.ui.add.urlInput
+import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.AndroidWebViewContent
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentSharerFactory
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeViewModel
@@ -89,17 +96,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.reflect.KClass
 import kotlin.uuid.Uuid
 
 // 웹 목록과 상세 영역의 웹 추가를 함께 표시하는 너비에서, 제품 webEntry로 구성한 NavDisplay 위에서 배치의 전환을 검증한다.
@@ -115,13 +118,7 @@ class WebListDetailNavigationTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -280,29 +277,34 @@ class WebListDetailNavigationTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides viewModelFactory(),
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(viewModelModule()) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun viewModelModule() =
-        module {
-            factory {
+    private fun viewModelFactory() =
+        TestViewModelFactory(
+            viewModelProviders = webViewModelProviders(),
+            manualAssistedFactoryProviders = webManualAssistedFactoryProviders(),
+        )
+
+    private fun webViewModelProviders(): Map<KClass<out ViewModel>, () -> ViewModel> =
+        mapOf(
+            WebHomeViewModel::class to {
                 mockk<WebHomeViewModel>(relaxed = true).apply {
                     every { webPagingData } returns homePagingData
                     every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
                     every { effect } returns emptyFlow()
                 }
-            }
-            factory {
+            },
+            SyncRefreshViewModel::class to {
                 mockk<SyncRefreshViewModel>(relaxed = true).apply {
                     every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
-            }
-            factory {
+            },
+            WebAddViewModel::class to {
                 val effectChannel = Channel<WebAddEffect>(capacity = Channel.BUFFERED)
                 mockk<WebAddViewModel>(relaxed = true).apply {
                     every { uiState } returns MutableStateFlow(WebAddUiState())
@@ -316,30 +318,39 @@ class WebListDetailNavigationTest {
                         effectChannel.trySend(WebAddEffect.AddSucceeded(id = addedWeb.id)).getOrThrow()
                     }
                 }
-            }
-            factory { addTagViewModel() }
-            factory { parameters ->
-                val id = parameters.get<Uuid>()
-                memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = homeWebList.first { web -> web.id == id }.detail)))
-            }
-            factory { memoScreenPageViewModel() }
-            factory {
-                mockk<WebMemoFinishedListViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
-                    every { memoPagingData } returns flowOf(PagingData.empty())
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns emptyFlow()
+            },
+        )
+
+    private fun webManualAssistedFactoryProviders(): Map<KClass<out ManualViewModelAssistedFactory>, () -> ManualViewModelAssistedFactory> =
+        mapOf(
+            EntityAddTagViewModel.Factory::class to { EntityAddTagViewModel.Factory { addTagViewModel() } },
+            WebDetailViewModel.Factory::class to {
+                WebDetailViewModel.Factory { id ->
+                    memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = homeWebList.first { web -> web.id == id }.detail)))
                 }
-            }
-            factory { detailTagScreenTestViewModel() }
-            factory {
-                mockk<WebDetailMemoViewModel>(relaxed = true).apply {
-                    every { memoPagingData } returns flowOf(PagingData.empty())
-                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
-                    every { effect } returns emptyFlow()
+            },
+            WebDetailPageViewModel.Factory::class to { WebDetailPageViewModel.Factory { memoScreenPageViewModel() } },
+            WebMemoFinishedListViewModel.Factory::class to {
+                WebMemoFinishedListViewModel.Factory {
+                    mockk<WebMemoFinishedListViewModel>(relaxed = true).apply {
+                        every { uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
+                        every { memoPagingData } returns flowOf(PagingData.empty())
+                        every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                        every { effect } returns emptyFlow()
+                    }
                 }
-            }
-        }
+            },
+            EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+            WebDetailMemoViewModel.Factory::class to {
+                WebDetailMemoViewModel.Factory {
+                    mockk<WebDetailMemoViewModel>(relaxed = true).apply {
+                        every { memoPagingData } returns flowOf(PagingData.empty())
+                        every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                        every { effect } returns emptyFlow()
+                    }
+                }
+            },
+        )
 
     private fun addTagViewModel(): EntityAddTagViewModel {
         val pageTagUseCase = mockk<PageTagUseCase>()

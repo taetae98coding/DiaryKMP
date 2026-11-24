@@ -4,6 +4,13 @@ package io.github.taetae98coding.diary.feature.holiday.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
@@ -22,15 +29,20 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 
-@KoinViewModel
+@AssistedInject
 internal class HolidayHomeYearViewModel(
-    @InjectedParam private val year: Int,
+    @Assisted private val year: Int,
     private val fetchHolidayUseCase: FetchHolidayUseCase,
     private val getGoldenHolidayUseCase: GetGoldenHolidayUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(year: Int): HolidayHomeYearViewModel
+    }
+
     private val annualLeaveCount = MutableStateFlow(MIN_ANNUAL_LEAVE_COUNT)
     private val fetchState = MutableStateFlow(FetchState.NONE)
     private var isFetching = false

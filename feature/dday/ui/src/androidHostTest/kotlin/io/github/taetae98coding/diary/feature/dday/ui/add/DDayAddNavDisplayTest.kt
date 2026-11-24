@@ -26,7 +26,10 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.dday.api.DDayAddNavKey
@@ -52,15 +55,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -74,13 +72,7 @@ class DDayAddNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -156,41 +148,48 @@ class DDayAddNavDisplayTest {
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                DDayFormTestTheme(content = content)
-            }
+        CompositionLocalProvider(
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+            LocalMetroViewModelFactory provides remember { navDisplayViewModelFactory() },
+        ) {
+            DDayFormTestTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory { ddayFormAddTagViewModel() }
-            factory {
-                mockk<DDayHomeViewModel>(relaxed = true).apply {
-                    every { ddayPagingData } returns MutableStateFlow(PagingData.empty())
-                    every { effect } returns emptyFlow()
-                }
-            }
-            factory {
-                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
-                }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-            factory {
-                mockk<DDayAddViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(DDayAddUiState())
-                        every { effect } returns emptyFlow()
-                    }.also(addViewModelList::add)
-            }
-        }
+    private fun navDisplayViewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    DDayHomeViewModel::class to {
+                        mockk<DDayHomeViewModel>(relaxed = true).apply {
+                            every { ddayPagingData } returns MutableStateFlow(PagingData.empty())
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                    DDayHomeScaffoldFilterViewModel::class to {
+                        mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
+                        }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                        }
+                    },
+                    DDayAddViewModel::class to {
+                        mockk<DDayAddViewModel>(relaxed = true)
+                            .apply {
+                                every { uiState } returns MutableStateFlow(DDayAddUiState())
+                                every { effect } returns emptyFlow()
+                            }.also(addViewModelList::add)
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    DDayAddTagViewModel.Factory::class to { DDayAddTagViewModel.Factory { _ -> ddayFormAddTagViewModel() } },
+                ),
+        )
 
     private companion object {
         const val MORE_CONTENT = "MoreContent"

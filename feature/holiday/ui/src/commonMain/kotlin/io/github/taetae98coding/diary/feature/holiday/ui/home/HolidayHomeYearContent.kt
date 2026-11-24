@@ -9,11 +9,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import io.github.taetae98coding.diary.feature.holiday.ui.home.goldenholiday.GoldenHolidayYear
 import io.github.taetae98coding.diary.feature.holiday.ui.home.goldenholiday.key
 import kotlinx.datetime.LocalDateRange
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 internal fun HolidayHomeYearContent(
@@ -27,7 +26,7 @@ internal fun HolidayHomeYearContent(
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = year, provider = viewModelStoreProvider)
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-        val viewModel = koinViewModel<HolidayHomeYearViewModel> { parametersOf(year) }
+        val viewModel = assistedMetroViewModel<HolidayHomeYearViewModel, HolidayHomeYearViewModel.Factory> { create(year = year) }
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
         FetchHolidayEffect(viewModel = viewModel)

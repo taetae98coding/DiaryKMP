@@ -49,6 +49,8 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -60,9 +62,11 @@ import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -107,21 +111,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 // 제품 entry의 배치 정보와 entry별 화면 상태를 그대로 쓰도록, 두 영역을 함께 표시하는 너비에서 제품 qrEntry로 NavDisplay를 구성한다.
 @RunWith(RobolectricTestRunner::class)
@@ -141,13 +138,7 @@ class QrListDetailNavigationTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -772,9 +763,9 @@ class QrListDetailNavigationTest {
     ) {
         homeQrList = qrList
         homePagingData.value = qrPagingDataOf(qrList)
-        val module = viewModelModule(tag = tag)
+        val viewModelFactory = viewModelFactory(tag = tag)
         composeRule.setContent {
-            QrListDetailTestHost(module = module) {
+            QrListDetailTestHost(viewModelFactory = viewModelFactory) {
                 val holder = rememberListDetailPlaceholderStateHolder()
 
                 CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
@@ -819,9 +810,9 @@ class QrListDetailNavigationTest {
     ) {
         homeQrList = qrList
         homePagingData.value = qrPagingDataOf(qrList)
-        val module = viewModelModule()
+        val viewModelFactory = viewModelFactory()
         restorationTester.setContent {
-            QrListDetailTestHost(module = module) {
+            QrListDetailTestHost(viewModelFactory = viewModelFactory) {
                 val restorableBackStack =
                     rememberSerializable(
                         configuration = qrSavedStateConfiguration,
@@ -860,7 +851,7 @@ class QrListDetailNavigationTest {
 
     @Composable
     private fun QrListDetailTestHost(
-        module: Module,
+        viewModelFactory: MetroViewModelFactory,
         content: @Composable () -> Unit,
     ) {
         val viewModelStoreOwner =
@@ -873,61 +864,69 @@ class QrListDetailNavigationTest {
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
+            LocalMetroViewModelFactory provides viewModelFactory,
         ) {
-            KoinApplication(configuration = koinConfiguration { modules(module) }) {
-                DiaryTheme(content = content)
-            }
+            DiaryTheme(content = content)
         }
     }
 
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun viewModelModule(tag: Tag? = null): Module =
-        module {
-            // 태그 선택은 ViewModel이 들고 있으므로, 태그를 넘긴 테스트는 실제 ViewModel을 쓰고 만들어진 인스턴스를 모은다.
-            factory { parameters ->
-                if (tag == null) {
-                    addTagScreenTestViewModel()
-                } else {
-                    addTagViewModel(initialTagId = parameters.getOrNull(), allTagList = listOf(tag)).also { viewModel -> addTagViewModelList += viewModel }
-                }
-            }
-            factory { detailTagScreenTestViewModel() }
-            factory {
-                mockk<QrHomeViewModel>(relaxed = true)
-                    .apply {
-                        every { qrPagingData } returns homePagingData
-                        every { effect } returns emptyFlow()
-                    }.also(homeViewModelList::add)
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-            factory { parameters ->
-                val id = parameters.get<Uuid>()
-                val qr = homeQrList.first { qr -> qr.id == id }
-                val effectChannel = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
-                mockk<QrDetailViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(QrDetailUiState.Content(id = id, detail = qr.detail.copy(title = detailTitle(qr))))
-                    every { effect } returns effectChannel.receiveAsFlow()
-                    every { delete() } answers { effectChannel.trySend(QrDetailEffect.DeleteSucceeded).getOrThrow() }
-                }
-            }
-            factory {
-                val effectChannel = Channel<QrAddEffect>(capacity = Channel.BUFFERED)
-                mockk<QrAddViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(QrAddUiState())
-                    every { effect } returns effectChannel.receiveAsFlow()
-                    // 추가가 저장되면 목록이 다시 조회되는 것과 같게 추가한 QR을 목록 조회 결과에 더한다.
-                    every { add(detail = any(), tagIdSet = any()) } answers {
-                        homeQrList = homeQrList + testQr().copy(detail = firstArg<QrDetail>())
-                        homePagingData.value = qrPagingDataOf(homeQrList)
-                        effectChannel.trySend(QrAddEffect.AddSucceeded).getOrThrow()
-                    }
-                }
-            }
-        }
+    private fun viewModelFactory(tag: Tag? = null): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    QrHomeViewModel::class to {
+                        mockk<QrHomeViewModel>(relaxed = true)
+                            .apply {
+                                every { qrPagingData } returns homePagingData
+                                every { effect } returns emptyFlow()
+                            }.also(homeViewModelList::add)
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(SyncRefreshUiState())
+                        }
+                    },
+                    QrAddViewModel::class to {
+                        val effectChannel = Channel<QrAddEffect>(capacity = Channel.BUFFERED)
+                        mockk<QrAddViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(QrAddUiState())
+                            every { effect } returns effectChannel.receiveAsFlow()
+                            // 추가가 저장되면 목록이 다시 조회되는 것과 같게 추가한 QR을 목록 조회 결과에 더한다.
+                            every { add(detail = any(), tagIdSet = any()) } answers {
+                                homeQrList = homeQrList + testQr().copy(detail = firstArg<QrDetail>())
+                                homePagingData.value = qrPagingDataOf(homeQrList)
+                                effectChannel.trySend(QrAddEffect.AddSucceeded).getOrThrow()
+                            }
+                        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    // 태그 선택은 ViewModel이 들고 있으므로, 태그를 넘긴 테스트는 실제 ViewModel을 쓰고 만들어진 인스턴스를 모은다.
+                    EntityAddTagViewModel.Factory::class to {
+                        EntityAddTagViewModel.Factory { initialTagId ->
+                            if (tag == null) {
+                                addTagScreenTestViewModel()
+                            } else {
+                                addTagViewModel(initialTagId = initialTagId, allTagList = listOf(tag)).also { viewModel -> addTagViewModelList += viewModel }
+                            }
+                        }
+                    },
+                    EntityDetailTagViewModel.Factory::class to { EntityDetailTagViewModel.Factory { _, _ -> detailTagScreenTestViewModel() } },
+                    QrDetailViewModel.Factory::class to {
+                        QrDetailViewModel.Factory { id ->
+                            val qr = homeQrList.first { qr -> qr.id == id }
+                            val effectChannel = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
+                            mockk<QrDetailViewModel>(relaxed = true).apply {
+                                every { uiState } returns MutableStateFlow(QrDetailUiState.Content(id = id, detail = qr.detail.copy(title = detailTitle(qr))))
+                                every { effect } returns effectChannel.receiveAsFlow()
+                                every { delete() } answers { effectChannel.trySend(QrDetailEffect.DeleteSucceeded).getOrThrow() }
+                            }
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         const val MORE_CONTENT = "MoreContent"

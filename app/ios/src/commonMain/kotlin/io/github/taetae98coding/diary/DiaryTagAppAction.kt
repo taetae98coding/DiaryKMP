@@ -214,11 +214,11 @@ public object DiaryTagItemAppAction {
     }
 }
 
-private fun tagAppAction(): TagAppAction = diaryAppAction()
+private fun tagAppAction(): TagAppAction = diaryAppActionGraph().tagAppAction
 
-private fun tagLinkAppAction(): TagLinkAppAction = diaryAppAction()
+private fun tagLinkAppAction(): TagLinkAppAction = diaryAppActionGraph().tagLinkAppAction
 
-private fun tagItemAppAction(): TagItemAppAction = diaryAppAction()
+private fun tagItemAppAction(): TagItemAppAction = diaryAppActionGraph().tagItemAppAction
 
 private fun AppActionTagDetail.toDiary(): DiaryAppActionTagDetail = DiaryAppActionTagDetail(tag = tag.toDiary(), linkedTags = linkedTags.map { linkedTag -> linkedTag.toDiary() })
 

@@ -2,7 +2,16 @@ package io.github.taetae98coding.diary.feature.account.ui.profile
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import io.github.taetae98coding.diary.domain.account.usecase.CheckAppleReauthenticationRequiredUseCase
 import io.github.taetae98coding.diary.domain.core.invoke
@@ -16,14 +25,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.KoinViewModel
 
-@KoinViewModel
+@AssistedInject
 internal class ProfileDeleteViewModel(
-    private val savedStateHandle: SavedStateHandle,
+    @Assisted private val savedStateHandle: SavedStateHandle,
     private val checkAppleReauthenticationRequiredUseCase: CheckAppleReauthenticationRequiredUseCase,
     private val deleteAccountUseCase: DeleteAccountUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ViewModelAssistedFactoryKey(ProfileDeleteViewModel::class)
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ViewModelAssistedFactory {
+        override fun create(extras: CreationExtras): ProfileDeleteViewModel = create(savedStateHandle = extras.createSavedStateHandle())
+
+        fun create(savedStateHandle: SavedStateHandle): ProfileDeleteViewModel
+    }
+
     val uiState: StateFlow<ProfileDeleteUiState>
         field =
         MutableStateFlow(

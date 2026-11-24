@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.fileupload.scheduler
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
@@ -18,10 +22,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.Single
 import kotlin.uuid.Uuid
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
 internal class CoroutineFileUploadWorkScheduler(
     private val fileUploadWork: FileUploadWork,
     private val fileRepository: FileRepository,

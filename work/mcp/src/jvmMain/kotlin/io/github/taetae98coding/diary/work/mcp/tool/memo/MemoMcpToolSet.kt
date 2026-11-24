@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.memo
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -33,7 +37,6 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.sortText
 import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import kotlinx.serialization.json.JsonNull
-import org.koin.core.annotation.Factory
 
 private const val DESCRIPTION = "description"
 private const val MEMO_ID = "memoId"
@@ -44,7 +47,8 @@ internal val memoSortList: List<ListSort> = listOf(ListSort.DEFAULT, ListSort.TI
 internal val memoIdParameter: McpToolParameter =
     McpToolParameter(name = MEMO_ID, type = McpToolParameterType.STRING, description = "Id of the memo.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class MemoMcpToolSet(
     private val memoListAppAction: MemoListAppAction,
     private val memoAppAction: MemoAppAction,

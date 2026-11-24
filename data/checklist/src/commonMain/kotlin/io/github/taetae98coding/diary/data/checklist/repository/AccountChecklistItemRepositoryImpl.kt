@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.checklist.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.checklistitem.datasource.AccountChecklistItemLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.checklistitem.transaction.AccountChecklistItemTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
@@ -10,11 +13,11 @@ import io.github.taetae98coding.diary.data.checklist.mapper.toLocal
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistItemRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountChecklistItemRepositoryImpl(
     private val accountChecklistItemLocalDataSource: AccountChecklistItemLocalDataSource,
     private val accountChecklistItemTransaction: AccountChecklistItemTransaction,

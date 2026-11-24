@@ -90,6 +90,6 @@ public object DiaryPlaceAppAction {
     public suspend fun restore(placeId: String): Int = placeAppAction().restore(placeId = placeId).changedCount
 }
 
-private fun placeAppAction(): PlaceAppAction = diaryAppAction()
+private fun placeAppAction(): PlaceAppAction = diaryAppActionGraph().placeAppAction
 
 private fun AppActionPlaceDetail.toDiary(): DiaryAppActionPlaceDetail = DiaryAppActionPlaceDetail(place = place.toDiary(), tags = tags.map { tag -> tag.toDiary() })

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.music
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
@@ -27,13 +28,12 @@ import io.github.taetae98coding.diary.work.appaction.core.toSortArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
 import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
-import org.koin.core.annotation.Factory
 
 private const val MUSIC_ID = "musicId"
 
 internal val musicSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED)
 
-@Factory
+@Inject
 public class MusicAppAction internal constructor(
     private val pageMusicUseCase: PageMusicUseCase,
     private val findMusicUseCase: FindMusicUseCase,

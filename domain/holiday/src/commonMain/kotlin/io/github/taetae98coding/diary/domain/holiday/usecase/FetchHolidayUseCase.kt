@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class FetchHolidayUseCase internal constructor(
     private val getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase,
     private val holidayRepository: HolidayRepository,

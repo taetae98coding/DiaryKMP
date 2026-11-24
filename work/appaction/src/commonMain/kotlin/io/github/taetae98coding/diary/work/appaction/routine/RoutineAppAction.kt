@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.routine
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.routine.Routine
 import io.github.taetae98coding.diary.domain.routine.ROUTINE_AMOUNT_RANGE
 import io.github.taetae98coding.diary.domain.routine.ROUTINE_DEFAULT_AMOUNT_PER_RECORD
@@ -36,7 +37,6 @@ import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
 internal const val ROUTINE_ID: String = "routineId"
@@ -45,7 +45,7 @@ private const val GOAL_AMOUNT = "goalAmount"
 private const val START_DATE = "startDate"
 private const val UNIT = "unit"
 
-@Factory
+@Inject
 public class RoutineAppAction internal constructor(
     private val findRoutineUseCase: FindRoutineUseCase,
     private val findRoutineSummaryUseCase: FindRoutineSummaryUseCase,

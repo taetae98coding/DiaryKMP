@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.routine.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.routine.RoutineDetail
 import io.github.taetae98coding.diary.core.model.routine.RoutineRecord
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -16,11 +17,10 @@ import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class AddRoutineRecordUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,

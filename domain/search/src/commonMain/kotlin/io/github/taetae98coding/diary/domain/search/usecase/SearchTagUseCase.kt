@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.domain.search.usecase
 
 import androidx.paging.PagingData
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import io.github.taetae98coding.diary.domain.search.repository.AccountSearchTagRepository
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class SearchTagUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountSearchTagRepository: AccountSearchTagRepository,

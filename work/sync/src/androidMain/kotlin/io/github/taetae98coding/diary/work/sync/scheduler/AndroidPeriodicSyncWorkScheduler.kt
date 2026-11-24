@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import org.koin.core.annotation.Factory
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AndroidPeriodicSyncWorkScheduler(
     private val context: Context,
 ) : PeriodicSyncWorkScheduler {

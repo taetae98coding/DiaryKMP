@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.taglink.datasource.AccountTagLinkSyncLocalDataSource
@@ -7,10 +8,9 @@ import io.github.taetae98coding.diary.core.database.api.taglink.transaction.Acco
 import io.github.taetae98coding.diary.core.network.api.taglink.datasource.TagLinkRemoteDataSource
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 internal class TagLinkSyncWork(
     private val accountTagLinkSyncLocalDataSource: AccountTagLinkSyncLocalDataSource,
     private val syncCursorLocalDataSource: SyncCursorLocalDataSource,

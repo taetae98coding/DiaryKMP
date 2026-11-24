@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.core.gemini.network.impl.datasource
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiContentRemoteDataSource
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
@@ -36,10 +39,10 @@ import kotlinx.io.IOException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import org.koin.core.annotation.Factory
 import kotlin.time.Duration
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class GeminiContentRemoteDataSourceImpl(
     @GeminiHttpClient
     private val httpClient: HttpClient,

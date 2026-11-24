@@ -2,6 +2,10 @@ package io.github.taetae98coding.diary.feature.file.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.invoke
@@ -11,12 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
 // 이 화면은 로그인한 계정의 파일 목록에서만 열리므로, 처음 확인한 사용자를 파일의 주인으로 본다.
 // 계정을 확인하지 못한 결과는 계정이 바뀐 것이 아니므로 버린다.
-@KoinViewModel
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
 internal class FileDetailAccountViewModel(
     getAccountUseCase: GetAccountUseCase,
 ) : ViewModel() {

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.contact.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -11,9 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.datetime.LocalDateRange
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class GetCalendarContactBirthdayUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountCalendarContactBirthdayRepository: AccountCalendarContactBirthdayRepository,

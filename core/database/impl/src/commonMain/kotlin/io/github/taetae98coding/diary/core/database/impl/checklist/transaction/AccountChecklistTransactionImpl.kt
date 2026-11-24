@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.checklist.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.transaction.AccountChecklistTransaction
@@ -10,11 +13,11 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklisttag.checklistTagTable
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountChecklistTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountChecklistTransaction {

@@ -35,8 +35,8 @@ class JvmDatabaseStorageTest :
         }
 
         fun openDatabase(databaseDirectory: String): DiaryDatabase =
-            DatabaseModule().providesDiaryDatabase(
-                builder = JvmDatabaseModule().providesDiaryDatabaseBuilder(databaseDirectory = databaseDirectory),
+            DatabaseModule.providesDiaryDatabase(
+                builder = JvmDatabaseModule.providesDiaryDatabaseBuilder(databaseDirectory = databaseDirectory),
                 driver = BundledSQLiteDriver(),
             )
 

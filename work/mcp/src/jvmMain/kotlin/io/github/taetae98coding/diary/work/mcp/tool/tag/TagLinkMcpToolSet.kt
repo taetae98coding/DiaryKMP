@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.tag
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.work.appaction.tag.TagLinkAppAction
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
@@ -9,14 +13,14 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.appActionCall
 import io.github.taetae98coding.diary.work.mcp.tool.idText
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
-import org.koin.core.annotation.Factory
 
 private const val LINKED_TAG_ID = "linkedTagId"
 
 private val linkedTagIdParameter: McpToolParameter =
     McpToolParameter(name = LINKED_TAG_ID, type = McpToolParameterType.STRING, description = "Id of the tag that the tag links to (the child tag).", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class TagLinkMcpToolSet(
     private val tagLinkAppAction: TagLinkAppAction,
 ) : McpToolSet {

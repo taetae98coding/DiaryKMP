@@ -1,21 +1,22 @@
 package io.github.taetae98coding.diary.core.naver.network.impl
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
 import io.github.taetae98coding.diary.library.ktor.createJsonHttpClient
 import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.request.header
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Configuration
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
-@ComponentScan
-@Configuration
-public class NaverNetworkModule {
-    @Single
+@BindingContainer
+@ContributesTo(AppScope::class)
+public object NaverNetworkModule {
+    @Provides
+    @SingleIn(AppScope::class)
     @NaverHttpClient
     internal fun providesNaverHttpClient(config: NaverOpenApiConfig): HttpClient = createNaverHttpClient(config = config)
 }

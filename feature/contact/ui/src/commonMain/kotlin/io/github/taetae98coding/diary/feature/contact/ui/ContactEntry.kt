@@ -8,6 +8,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -29,19 +31,20 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.initialDetail
 import io.github.taetae98coding.diary.feature.contact.ui.contact_memo_finished_list_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScreen
+import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScreen
 import io.github.taetae98coding.diary.feature.contact.ui.memo.finished.ContactMemoFinishedListViewModel
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.contactEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -65,8 +68,8 @@ internal fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBac
             navigateToAdd = dropUnlessResumed(block = backStack::navigateToContactAddFromHome),
             navigateToDetail = { id -> backStack.navigateToContactDetail(id) },
             componentVisibleProvider = { ContactHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isContactAddOnDetailPane()) },
-            contactViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            contactViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -88,8 +91,8 @@ internal fun contactHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>):
                     addedResultRequestKey = null,
                     initialDetail = ContactDetail.EMPTY,
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    addViewModel = koinViewModel(),
-                    tagViewModel = koinViewModel { parametersOf(null) },
+                    addViewModel = metroViewModel(),
+                    tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = null) },
                 )
             }
         },
@@ -110,8 +113,8 @@ internal fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBack
             addedResultRequestKey = key.requestKey,
             initialDetail = key.initialDetail(),
             componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = key.initialTagId) },
         )
     }
 }
@@ -136,8 +139,8 @@ internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { ContactDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            contactViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.CONTACT, key.id) },
+            contactViewModel = assistedMetroViewModel<ContactDetailViewModel, ContactDetailViewModel.Factory> { create(id = key.id) },
+            tagViewModel = assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.CONTACT, entityId = key.id) },
             contentSharerFactory = contentSharerFactory,
         )
     }
@@ -158,8 +161,8 @@ private fun EntryProviderScope<ScreenNavKey>.contactMemoFinishedListEntry(backSt
             navigateUp = backStack::navigateUpFromContactMemoFinishedList,
             navigateToMemoDetail = backStack::navigateToMemoDetail,
             emptyTitle = stringResource(Res.string.contact_memo_finished_list_empty_title),
-            memoViewModel = koinViewModel<ContactMemoFinishedListViewModel> { parametersOf(key.contactId) },
-            syncViewModel = koinViewModel(),
+            memoViewModel = assistedMetroViewModel<ContactMemoFinishedListViewModel, ContactMemoFinishedListViewModel.Factory> { create(contactId = key.contactId) },
+            syncViewModel = metroViewModel(),
         )
     }
 }

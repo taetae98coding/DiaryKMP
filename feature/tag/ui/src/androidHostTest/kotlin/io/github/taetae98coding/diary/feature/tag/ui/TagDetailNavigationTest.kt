@@ -15,6 +15,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
@@ -40,7 +41,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.viewmodel.koinViewModel
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -202,7 +202,7 @@ class TagDetailNavigationTest {
                                         remember(navKey.id) {
                                             screenTestViewModel(uiStateFlowOf(navKey.id))
                                         },
-                                    placeMapViewModel = koinViewModel(),
+                                    placeMapViewModel = metroViewModel(),
                                     navigateToDDayAdd = {},
                                     navigateToDDayDetail = {},
                                     navigateToRoutineAdd = {},

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
@@ -10,7 +11,6 @@ import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 public data class UploadFileRequest(
@@ -18,7 +18,7 @@ public data class UploadFileRequest(
     val accountId: Uuid,
 )
 
-@Factory
+@Inject
 public class UploadFileUseCase internal constructor(
     private val awaitFileUploadAccountChangeUseCase: AwaitFileUploadAccountChangeUseCase,
     private val fileRepository: FileRepository,

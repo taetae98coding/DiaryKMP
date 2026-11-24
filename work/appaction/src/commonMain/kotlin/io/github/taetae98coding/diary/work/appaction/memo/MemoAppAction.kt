@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.memo
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
@@ -32,11 +33,10 @@ import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
 import io.github.taetae98coding.diary.work.appaction.place.toAppActionPlace
 import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
 import io.github.taetae98coding.diary.work.appaction.web.toAppActionWeb
-import org.koin.core.annotation.Factory
 
 private const val MEMO_ID = "memoId"
 
-@Factory
+@Inject
 public class MemoAppAction internal constructor(
     private val findMemoUseCase: FindMemoUseCase,
     private val getMemoTagUseCase: GetMemoTagUseCase,

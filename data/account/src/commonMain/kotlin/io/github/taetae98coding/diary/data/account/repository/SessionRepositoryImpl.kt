@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.data.account.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.core.model.authentication.Session
@@ -9,9 +12,9 @@ import io.github.taetae98coding.diary.core.supabase.api.SupabaseSessionStatus
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class SessionRepositoryImpl(
     private val sessionRemoteDataSource: SessionRemoteDataSource,
     private val supabaseAuth: SupabaseAuth,

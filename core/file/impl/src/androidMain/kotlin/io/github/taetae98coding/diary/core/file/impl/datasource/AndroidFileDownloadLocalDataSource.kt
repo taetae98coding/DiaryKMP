@@ -7,6 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
@@ -16,14 +19,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.io.RawSink
 import kotlinx.io.asSink
-import org.koin.core.annotation.Factory
 import java.io.FileNotFoundException
 
 // 시스템이 이름 뒤에 확장자를 덧붙이지 않도록 형식을 알 수 없는 일반 파일로 만든다. 이름은 받은 그대로다.
 private const val SAVE_MIME_TYPE = "application/octet-stream"
 private const val DIRECTORY_PERMISSION_FLAGS = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AndroidFileDownloadLocalDataSource(
     private val context: Context,
     @FileDispatcher

@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.work.appaction.lunar
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.lunar.usecase.GetLunarUseCase
 import io.github.taetae98coding.diary.work.appaction.core.dateRangeArgument
 import io.github.taetae98coding.diary.work.appaction.core.readFirst
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class LunarAppAction internal constructor(
     private val getLunarUseCase: GetLunarUseCase,
 ) {

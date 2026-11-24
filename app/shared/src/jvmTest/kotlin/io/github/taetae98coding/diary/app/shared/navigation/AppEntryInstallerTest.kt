@@ -6,9 +6,9 @@ import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import io.github.taetae98coding.diary.app.shared.AppDependencies
+import dev.zacsweers.metro.createGraph
 import io.github.taetae98coding.diary.app.shared.AppState
-import io.github.taetae98coding.diary.app.shared.di.DiaryKoinApplication
+import io.github.taetae98coding.diary.app.shared.di.JvmAppGraph
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
@@ -29,7 +29,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.modules.SerializersModuleCollector
-import org.koin.plugin.module.dsl.koinApplication
 import kotlin.reflect.KClass
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -37,7 +36,7 @@ import kotlin.uuid.Uuid
 class AppEntryInstallerTest :
     FunSpec({
         test("저장할 수 있는 모든 화면 키는 앱 의존 묶음이 모은 entry로 열 수 있다") {
-            val installerList = koinApplication<DiaryKoinApplication>().koin.get<AppDependencies>().entryInstallerList
+            val installerList = createGraph<JvmAppGraph>().appDependencies.entryInstallerList
             val navigator =
                 AppState(
                     backStack = NavBackStack(TopLevelNavigation.DEFAULT.key),

@@ -5,6 +5,9 @@ package io.github.taetae98coding.diary.core.file.impl.image
 import cnames.structs.__CFNumber
 import cnames.structs.__CFString
 import cnames.structs.__CFURL
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.impl.di.FileDispatcher
 import io.github.taetae98coding.diary.core.model.file.FileUri
@@ -21,7 +24,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import org.koin.core.annotation.Factory
 import platform.CoreFoundation.CFDictionaryCreateMutable
 import platform.CoreFoundation.CFDictionaryGetValue
 import platform.CoreFoundation.CFDictionaryRef
@@ -72,7 +74,8 @@ private const val DESTINATION_OPTION_COUNT = 1L
 
 // ImageIO의 썸네일 생성은 촬영 방향을 반영하고 긴 변을 한도까지 줄인 이미지를 한 번에 만들어 주므로,
 // 원본 크기와 방향만 먼저 읽어 한도를 정한 뒤 그 이미지에서 남길 영역을 잘라 목표 형식으로 쓴다.
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class IosImageConverter(
     @FileDispatcher private val dispatcher: CoroutineDispatcher,
 ) : ImageConverter {

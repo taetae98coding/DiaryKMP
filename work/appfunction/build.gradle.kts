@@ -27,7 +27,7 @@ kotlin {
             resources.srcDir(files(layout.buildDirectory.dir("generated/ksp/android/androidMain/resources")).builtBy("kspAndroidMain"))
 
             dependencies {
-                implementation(projects.work.appaction)
+                api(projects.work.appaction)
                 implementation(libs.androidx.appfunctions)
                 implementation(libs.kotlinx.coroutines.core)
             }

@@ -26,6 +26,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -36,6 +38,7 @@ import io.github.taetae98coding.diary.compose.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
@@ -89,16 +92,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.core.module.Module
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -116,13 +113,7 @@ class EntityMemoFinishedListDetailNavigationTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -290,7 +281,7 @@ class EntityMemoFinishedListDetailNavigationTest {
         val backStack = NavBackStack<ScreenNavKey>(EntityFinishedListTestTopLevelNavKey, *listBackStack.toTypedArray())
         finishedMemoList = memoList
         finishedPagingData.value = memoPagingDataOf(itemList = memoList.map { memo -> MemoListItem.Content(memo = memo) })
-        val viewModelModule = viewModelModule(copiedId = copiedId)
+        val viewModelFactory = viewModelFactory(copiedId = copiedId)
 
         composeRule.setContent {
             val viewModelStoreOwner =
@@ -304,36 +295,35 @@ class EntityMemoFinishedListDetailNavigationTest {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner provides viewModelStoreOwner,
                 LocalResultEventBus provides resultEventBus,
+                LocalMetroViewModelFactory provides viewModelFactory,
             ) {
-                KoinApplication(configuration = koinConfiguration { modules(viewModelModule) }) {
-                    DiaryTheme {
-                        val holder = rememberListDetailPlaceholderStateHolder()
+                DiaryTheme {
+                    val holder = rememberListDetailPlaceholderStateHolder()
 
-                        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                            NavDisplay(
-                                backStack = backStack,
-                                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                                entryDecorators =
-                                    listOf(
-                                        rememberSaveableStateHolderNavEntryDecorator(),
-                                        rememberViewModelStoreNavEntryDecorator(),
-                                        rememberListDetailPlaceholderNavEntryDecorator(holder),
-                                    ),
-                                entryProvider =
-                                    entryProvider {
-                                        entry<EntityFinishedListTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
-                                        entry<ContactDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
-                                        entry<PlaceDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
-                                        entry<WebDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
-                                        entry<TagDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
-                                        entityMemoFinishedListEntry<ContactMemoFinishedListNavKey>(backStack = backStack)
-                                        entityMemoFinishedListEntry<PlaceMemoFinishedListNavKey>(backStack = backStack)
-                                        entityMemoFinishedListEntry<WebMemoFinishedListNavKey>(backStack = backStack)
-                                        entityMemoFinishedListEntry<TagMemoFinishedListNavKey>(backStack = backStack)
-                                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
-                                    },
-                            )
-                        }
+                    CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                        NavDisplay(
+                            backStack = backStack,
+                            sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                            entryDecorators =
+                                listOf(
+                                    rememberSaveableStateHolderNavEntryDecorator(),
+                                    rememberViewModelStoreNavEntryDecorator(),
+                                    rememberListDetailPlaceholderNavEntryDecorator(holder),
+                                ),
+                            entryProvider =
+                                entryProvider {
+                                    entry<EntityFinishedListTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                    entry<ContactDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
+                                    entry<PlaceDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
+                                    entry<WebDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
+                                    entry<TagDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
+                                    entityMemoFinishedListEntry<ContactMemoFinishedListNavKey>(backStack = backStack)
+                                    entityMemoFinishedListEntry<PlaceMemoFinishedListNavKey>(backStack = backStack)
+                                    entityMemoFinishedListEntry<WebMemoFinishedListNavKey>(backStack = backStack)
+                                    entityMemoFinishedListEntry<TagMemoFinishedListNavKey>(backStack = backStack)
+                                    memoEntry(backStack = backStack, homeReselectEvent = emptyFlow(), contentSharerFactory = screenTestContentSharerFactory())
+                                },
+                        )
                     }
                 }
             }
@@ -372,28 +362,34 @@ class EntityMemoFinishedListDetailNavigationTest {
             every { effect } returns emptyFlow()
         }
 
-    private fun viewModelModule(copiedId: Uuid): Module =
-        module {
-            factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
-            factory<MemoDetailViewModel> { parameters -> detailViewModel(id = parameters.get<Uuid>(), copiedId = copiedId) }
-            factory<MemoTagViewModel> { screenTestTagViewModel() }
-            factory<MemoWebViewModel> { screenTestWebViewModel() }
-            factory<MemoContactViewModel> { screenTestContactViewModel() }
-            factory<MemoPlaceViewModel> { screenTestPlaceViewModel() }
-            // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
-            factory<MemoPlaceMapViewModel> {
-                mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
-            }
-            factory<MemoPlacePickerMapViewModel> {
-                mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
-            }
-            factory<MemoGeminiViewModel> {
-                mockk<MemoGeminiViewModel>(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(MemoGeminiUiState())
-                    every { effect } returns emptyFlow()
-                }
-            }
-        }
+    private fun viewModelFactory(copiedId: Uuid): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    SyncRefreshViewModel::class to { screenTestSyncViewModel() },
+                    // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
+                    MemoPlaceMapViewModel::class to {
+                        mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
+                    },
+                    MemoPlacePickerMapViewModel::class to {
+                        mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
+                    },
+                    MemoGeminiViewModel::class to {
+                        mockk<MemoGeminiViewModel>(relaxed = true) {
+                            every { uiState } returns MutableStateFlow(MemoGeminiUiState())
+                            every { effect } returns emptyFlow()
+                        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    MemoDetailViewModel.Factory::class to { MemoDetailViewModel.Factory { id -> detailViewModel(id = id, copiedId = copiedId) } },
+                    MemoTagViewModel.Factory::class to { MemoTagViewModel.Factory { screenTestTagViewModel() } },
+                    MemoWebViewModel.Factory::class to { MemoWebViewModel.Factory { screenTestWebViewModel() } },
+                    MemoContactViewModel.Factory::class to { MemoContactViewModel.Factory { screenTestContactViewModel() } },
+                    MemoPlaceViewModel.Factory::class to { MemoPlaceViewModel.Factory { screenTestPlaceViewModel() } },
+                ),
+        )
 
     private fun detailViewModel(
         id: Uuid,

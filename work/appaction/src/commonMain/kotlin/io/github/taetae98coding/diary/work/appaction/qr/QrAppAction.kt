@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.qr
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
@@ -25,11 +26,10 @@ import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
 import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
-import org.koin.core.annotation.Factory
 
 private const val QR_ID = "qrId"
 
-@Factory
+@Inject
 public class QrAppAction internal constructor(
     private val pageQrUseCase: PageQrUseCase,
     private val findQrUseCase: FindQrUseCase,

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.search
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
@@ -27,12 +28,11 @@ import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.github.taetae98coding.diary.work.appaction.web.toAppActionWeb
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 
 internal val searchSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED)
 
-@Factory
+@Inject
 public class SearchAppAction internal constructor(
     private val searchMemoUseCase: SearchMemoUseCase,
     private val searchTagUseCase: SearchTagUseCase,

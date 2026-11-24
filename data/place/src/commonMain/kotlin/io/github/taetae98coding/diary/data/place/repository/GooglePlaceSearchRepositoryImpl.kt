@@ -1,15 +1,18 @@
 package io.github.taetae98coding.diary.data.place.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.model.location.CoordinateCircle
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.data.place.mapper.toDomain
 import io.github.taetae98coding.diary.data.place.mapper.toRemote
 import io.github.taetae98coding.diary.domain.place.repository.GooglePlaceSearchRepository
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class GooglePlaceSearchRepositoryImpl(
     private val googlePlaceRemoteDataSource: GooglePlaceRemoteDataSource,
 ) : GooglePlaceSearchRepository {

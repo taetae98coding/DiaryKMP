@@ -37,13 +37,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.todayIn
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Clock
@@ -55,11 +51,6 @@ class HolidayHomeScreenTest {
     val composeRule = createComposeRule()
 
     private val targetYear = mutableStateOf<Int?>(null)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-6e779545-009e-453f-9790-a6ee1bb77d3f 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {

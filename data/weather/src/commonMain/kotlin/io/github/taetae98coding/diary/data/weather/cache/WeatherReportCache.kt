@@ -2,16 +2,19 @@
 
 package io.github.taetae98coding.diary.data.weather.cache
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.koin.core.annotation.Single
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Instant
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
 internal class WeatherReportCache {
     private val storedWeather = MutableStateFlow(StoredWeather())
     private val fetchedAt = AtomicReference<Instant?>(null)

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.checklist
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.checklist.Checklist
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistUseCase
@@ -27,11 +28,10 @@ import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
 import io.github.taetae98coding.diary.work.appaction.core.toUuidSetArgument
 import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
-import org.koin.core.annotation.Factory
 
 internal const val CHECKLIST_ID = "checklistId"
 
-@Factory
+@Inject
 public class ChecklistAppAction internal constructor(
     private val pageChecklistUseCase: PageChecklistUseCase,
     private val findChecklistUseCase: FindChecklistUseCase,

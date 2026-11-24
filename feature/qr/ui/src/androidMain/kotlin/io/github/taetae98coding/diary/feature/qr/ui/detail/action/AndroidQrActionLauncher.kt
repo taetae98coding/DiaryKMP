@@ -12,6 +12,11 @@ import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.domain.qr.content.QrEventSchedule
 import io.github.taetae98coding.diary.domain.qr.content.QrWifiSecurity
@@ -20,9 +25,10 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
-import org.koin.core.annotation.Single
 
-@Single(binds = [QrActionLauncherFactory::class])
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class, binding = binding<QrActionLauncherFactory>())
 internal class AndroidQrActionLauncherFactory : QrActionLauncherFactory {
     @Composable
     override fun rememberQrActionLauncher(): QrActionLauncher {

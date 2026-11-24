@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.sync.scheduler
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.taetae98coding.diary.work.sync.di.SyncScope
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
@@ -9,10 +13,11 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.Single
 import kotlin.time.Duration
 
-@Single
+@Inject
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
 internal class CoroutinePeriodicSyncWorkScheduler(
     private val syncWork: SyncWork,
     @param:SyncScope private val scope: CoroutineScope,

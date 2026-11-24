@@ -146,4 +146,4 @@ private suspend fun fetchCatching(block: suspend () -> List<Holiday>): Result<Li
 
 ## 현재 시각은 `Clock`을 주입받는다
 
-**`domain`·`data`·`work`는 `Clock.System`을 직접 참조하지 않고 `Clock`을 생성자로 주입받는다.** `Clock.System`은 `app:shared`의 `AppModule.providesClock` 한 곳에서만 제공한다. 직접 참조하면 오늘 날짜와 경과 시간에 따라 갈리는 정책을 테스트가 고정된 시각으로 확인할 수 없다. Koin이 만들지 않는 `feature`·`compose`의 state 홀더는 대상이 아니다.
+**`domain`·`data`·`work`는 `Clock.System`을 직접 참조하지 않고 `Clock`을 생성자로 주입받는다.** `Clock.System`은 `app:shared`의 `AppModule.providesClock` 한 곳에서만 제공한다. 직접 참조하면 오늘 날짜와 경과 시간에 따라 갈리는 정책을 테스트가 고정된 시각으로 확인할 수 없다. 그래프가 만들지 않는 `feature`·`compose`의 state 홀더는 대상이 아니다.

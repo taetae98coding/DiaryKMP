@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.core.datastore.impl.datasource
 
 import androidx.datastore.core.DataStore
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.datastore.api.account.datasource.LoginProviderLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.account.entity.LoginProviderLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.LoginProviderData
 import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderDataStore
 import kotlinx.coroutines.flow.first
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class LoginProviderLocalDataSourceImpl(
     @LoginProviderDataStore
     private val dataStore: DataStore<LoginProviderData>,

@@ -1,14 +1,13 @@
 package io.github.taetae98coding.diary.core.youtube.network.impl.datasource
 
+import dev.zacsweers.metro.createGraphFactory
 import io.github.taetae98coding.diary.core.youtube.network.api.datasource.YoutubeVideoRemoteDataSource
 import io.github.taetae98coding.diary.core.youtube.network.api.entity.YoutubeVideoRemoteEntity
-import io.github.taetae98coding.diary.core.youtube.network.impl.YoutubeNetworkTestKoinApplication
+import io.github.taetae98coding.diary.core.youtube.network.impl.YoutubeNetworkTestGraph
 import io.github.taetae98coding.diary.core.youtube.network.impl.createYoutubeHttpClient
-import io.github.taetae98coding.diary.core.youtube.network.impl.di.YoutubeHttpClient
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -17,9 +16,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.koinApplication
 
 private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
@@ -78,13 +74,9 @@ class YoutubeVideoRemoteDataSourceImplTest :
             }
 
         private fun createDataSource(engine: HttpClientEngine): YoutubeVideoRemoteDataSource =
-            koinApplication<YoutubeNetworkTestKoinApplication> {
-                modules(
-                    module {
-                        single<HttpClient>(qualifier = named<YoutubeHttpClient>()) { createYoutubeHttpClient(engine = engine) }
-                    },
-                )
-            }.koin.get()
+            createGraphFactory<YoutubeNetworkTestGraph.Factory>()
+                .create(httpClient = createYoutubeHttpClient(engine = engine))
+                .youtubeVideoRemoteDataSource
 
         private fun readResource(name: String): String = checkNotNull(YoutubeVideoRemoteDataSourceImplTest::class.java.classLoader.getResource(name)).readText()
     }

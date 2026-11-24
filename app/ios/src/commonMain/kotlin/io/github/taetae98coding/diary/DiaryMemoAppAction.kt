@@ -96,7 +96,7 @@ public object DiaryMemoAppAction {
     public suspend fun restore(memoId: String): Int = memoAppAction().restore(memoId = memoId).changedCount
 }
 
-private fun memoAppAction(): MemoAppAction = diaryAppAction()
+private fun memoAppAction(): MemoAppAction = diaryAppActionGraph().memoAppAction
 
 private fun AppActionMemoDetail.toDiary(): DiaryAppActionMemoDetail {
     val tagList = tags.map { tag -> tag.toDiary() }

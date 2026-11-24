@@ -2,6 +2,13 @@ package io.github.taetae98coding.diary.feature.contact.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
@@ -19,19 +26,24 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
-import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
-@KoinViewModel
+@AssistedInject
 internal class ContactDetailViewModel(
-    @InjectedParam private val id: Uuid,
+    @Assisted private val id: Uuid,
     private val updateContactUseCase: UpdateContactUseCase,
     private val favoriteContactUseCase: FavoriteContactUseCase,
     private val unfavoriteContactUseCase: UnfavoriteContactUseCase,
     private val deleteContactUseCase: DeleteContactUseCase,
     findContactUseCase: FindContactUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(id: Uuid): ContactDetailViewModel
+    }
+
     private val isUpdateInProgress = MutableStateFlow(false)
     private val isFavoriteInProgress = MutableStateFlow(false)
     private val isDeleteInProgress = MutableStateFlow(false)

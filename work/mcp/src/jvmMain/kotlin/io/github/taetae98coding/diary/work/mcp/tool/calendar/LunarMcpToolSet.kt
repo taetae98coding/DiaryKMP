@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.calendar
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.work.appaction.lunar.AppActionLunarDate
 import io.github.taetae98coding.diary.work.appaction.lunar.LunarAppAction
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -13,9 +17,9 @@ import io.github.taetae98coding.diary.work.mcp.tool.json.toJsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.koin.core.annotation.Factory
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class LunarMcpToolSet(
     private val lunarAppAction: LunarAppAction,
 ) : McpToolSet {

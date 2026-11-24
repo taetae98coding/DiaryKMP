@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.work.mcp.tool.place
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoSet
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -37,7 +41,6 @@ import io.github.taetae98coding.diary.work.mcp.tool.uuid
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.koin.core.annotation.Factory
 
 private const val ADDRESS = "address"
 private const val DESCRIPTION = "description"
@@ -51,7 +54,8 @@ internal val placeSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.REC
 internal val placeIdParameter: McpToolParameter =
     McpToolParameter(name = PLACE_ID, type = McpToolParameterType.STRING, description = "Id of the place.", isRequired = true)
 
-@Factory(binds = [McpToolSet::class])
+@Inject
+@ContributesIntoSet(AppScope::class, binding = binding<McpToolSet>())
 internal class PlaceMcpToolSet(
     private val placeAppAction: PlaceAppAction,
     private val memoListAppAction: MemoListAppAction,

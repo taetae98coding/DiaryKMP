@@ -25,6 +25,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.routine.RoutineListEffect
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.routine.Routine
@@ -33,6 +34,8 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.routine.routine
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineFinishedListNavKey
@@ -64,10 +67,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -91,7 +90,6 @@ class RoutineDetailFinishedNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
         routineRecordSetToday(TODAY)
     }
@@ -99,7 +97,6 @@ class RoutineDetailFinishedNavDisplayTest {
     @After
     fun tearDown() {
         routineRecordReleaseToday()
-        stopKoin()
     }
 
     @Test
@@ -244,47 +241,57 @@ class RoutineDetailFinishedNavDisplayTest {
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                RoutineTestTheme(content = content)
-            }
+        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner, LocalMetroViewModelFactory provides navDisplayViewModelFactory()) {
+            RoutineTestTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory { routineSyncRefreshViewModel() }
-            factory {
-                mockk<RoutineFinishedListViewModel>(relaxed = true).apply {
-                    every { routinePagingData } returns flowOf(loadedPagingDataOf(listOf(RoutineSummary(routine = storedRoutine, cycleAmount = 0))))
-                    every { effect } returns Channel<RoutineListEffect>().receiveAsFlow()
-                }
-            }
-            factory {
-                mockk<RoutineDetailViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns storedUiState
-                        every { effect } returns Channel<RoutineDetailEffect>().receiveAsFlow()
-                        every { finish() } answers { storedUiState.update { state -> (state as RoutineDetailUiState.Content).copy(isFinished = true) } }
-                        every { restart() } answers { storedUiState.update { state -> (state as RoutineDetailUiState.Content).copy(isFinished = false) } }
-                    }.also(detailViewModelList::add)
-            }
-            factory {
-                mockk<RoutineDetailRecordViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(RoutineDetailRecordUiState())
-                    every { recordPagingData } returns MutableStateFlow(routineRecordLoadedPagingDataOf(listOf(storedRecord)))
-                    every { effect } returns Channel<RoutineDetailRecordEffect>().receiveAsFlow()
-                }
-            }
-            factory {
-                mockk<EntityDetailTagViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = listOf(tagA)))
-                    every { tagPagingData } returns MutableStateFlow(PagingData.from(listOf(tagA)))
-                    every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(listOf(tagA)))
-                }
-            }
-        }
+    private fun navDisplayViewModelFactory() =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    SyncRefreshViewModel::class to { routineSyncRefreshViewModel() },
+                    RoutineFinishedListViewModel::class to {
+                        mockk<RoutineFinishedListViewModel>(relaxed = true).apply {
+                            every { routinePagingData } returns flowOf(loadedPagingDataOf(listOf(RoutineSummary(routine = storedRoutine, cycleAmount = 0))))
+                            every { effect } returns Channel<RoutineListEffect>().receiveAsFlow()
+                        }
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    RoutineDetailViewModel.Factory::class to {
+                        RoutineDetailViewModel.Factory {
+                            mockk<RoutineDetailViewModel>(relaxed = true)
+                                .apply {
+                                    every { uiState } returns storedUiState
+                                    every { effect } returns Channel<RoutineDetailEffect>().receiveAsFlow()
+                                    every { finish() } answers { storedUiState.update { state -> (state as RoutineDetailUiState.Content).copy(isFinished = true) } }
+                                    every { restart() } answers { storedUiState.update { state -> (state as RoutineDetailUiState.Content).copy(isFinished = false) } }
+                                }.also(detailViewModelList::add)
+                        }
+                    },
+                    RoutineDetailRecordViewModel.Factory::class to {
+                        RoutineDetailRecordViewModel.Factory {
+                            mockk<RoutineDetailRecordViewModel>(relaxed = true).apply {
+                                every { uiState } returns MutableStateFlow(RoutineDetailRecordUiState())
+                                every { recordPagingData } returns MutableStateFlow(routineRecordLoadedPagingDataOf(listOf(storedRecord)))
+                                every { effect } returns Channel<RoutineDetailRecordEffect>().receiveAsFlow()
+                            }
+                        }
+                    },
+                    EntityDetailTagViewModel.Factory::class to {
+                        EntityDetailTagViewModel.Factory { _, _ ->
+                            mockk<EntityDetailTagViewModel>(relaxed = true).apply {
+                                every { uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = listOf(tagA)))
+                                every { tagPagingData } returns MutableStateFlow(PagingData.from(listOf(tagA)))
+                                every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(listOf(tagA)))
+                            }
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         val TODAY: LocalDate = LocalDate(2026, 3, 20)

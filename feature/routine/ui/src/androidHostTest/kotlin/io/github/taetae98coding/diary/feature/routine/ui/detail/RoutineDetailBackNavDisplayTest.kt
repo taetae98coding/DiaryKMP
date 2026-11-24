@@ -32,12 +32,15 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.routine.RoutineDetail
 import io.github.taetae98coding.diary.core.model.routine.RoutineRecord
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineDetailNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
@@ -45,6 +48,9 @@ import io.github.taetae98coding.diary.feature.routine.ui.RoutineTestTheme
 import io.github.taetae98coding.diary.feature.routine.ui.detail.record.RoutineDetailRecordEffect
 import io.github.taetae98coding.diary.feature.routine.ui.detail.record.RoutineDetailRecordUiState
 import io.github.taetae98coding.diary.feature.routine.ui.detail.record.RoutineDetailRecordViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.RoutineHomeCalendarViewModel
+import io.github.taetae98coding.diary.feature.routine.ui.home.calendar.holiday.RoutineHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.routine.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.routine.ui.routineEntry
 import io.github.taetae98coding.diary.feature.routine.ui.routineHomeCalendarViewModel
@@ -70,10 +76,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -102,7 +104,6 @@ class RoutineDetailBackNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
         routineRecordSetToday(TODAY)
     }
@@ -110,7 +111,6 @@ class RoutineDetailBackNavDisplayTest {
     @After
     fun tearDown() {
         routineRecordReleaseToday()
-        stopKoin()
     }
 
     @Test
@@ -319,62 +319,72 @@ class RoutineDetailBackNavDisplayTest {
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                RoutineTestTheme(content = content)
-            }
+        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner, LocalMetroViewModelFactory provides navDisplayViewModelFactory()) {
+            RoutineTestTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory { routineHomeViewModel() }
-            factory { routineHomeCalendarViewModel() }
-            factory { routineHomeHolidayViewModel() }
-            factory { routineSyncRefreshViewModel() }
-            factory {
-                mockk<RoutineDetailViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(RoutineDetailUiState.Content(id = routineId, detail = storedDetail, isFinished = false))
-                        every { effect } returns Channel<RoutineDetailEffect>().receiveAsFlow()
-                    }.also(detailViewModelList::add)
-            }
-            factory {
-                val effectChannel = Channel<RoutineDetailRecordEffect>(capacity = Channel.BUFFERED)
-                mockk<RoutineDetailRecordViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(RoutineDetailRecordUiState())
-                        every { recordPagingData } returns storedRecordPagingData
-                        every { effect } returns effectChannel.receiveAsFlow()
-                        every { add(date = any(), amount = any()) } answers {
-                            storeRecordList(storedRecordList.value + routineRecordOf(date = firstArg(), amount = secondArg(), routineId = routineId))
-                            effectChannel.trySend(RoutineDetailRecordEffect.AddSucceeded)
+    private fun navDisplayViewModelFactory() =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    RoutineHomeViewModel::class to { routineHomeViewModel() },
+                    RoutineHomeCalendarViewModel::class to { routineHomeCalendarViewModel() },
+                    RoutineHomeHolidayViewModel::class to { routineHomeHolidayViewModel() },
+                    SyncRefreshViewModel::class to { routineSyncRefreshViewModel() },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    RoutineDetailViewModel.Factory::class to {
+                        RoutineDetailViewModel.Factory {
+                            mockk<RoutineDetailViewModel>(relaxed = true)
+                                .apply {
+                                    every { uiState } returns MutableStateFlow(RoutineDetailUiState.Content(id = routineId, detail = storedDetail, isFinished = false))
+                                    every { effect } returns Channel<RoutineDetailEffect>().receiveAsFlow()
+                                }.also(detailViewModelList::add)
                         }
-                        every { delete(recordId = any()) } answers {
-                            val recordId = firstArg<Uuid>()
+                    },
+                    RoutineDetailRecordViewModel.Factory::class to {
+                        RoutineDetailRecordViewModel.Factory {
+                            val effectChannel = Channel<RoutineDetailRecordEffect>(capacity = Channel.BUFFERED)
+                            mockk<RoutineDetailRecordViewModel>(relaxed = true)
+                                .apply {
+                                    every { uiState } returns MutableStateFlow(RoutineDetailRecordUiState())
+                                    every { recordPagingData } returns storedRecordPagingData
+                                    every { effect } returns effectChannel.receiveAsFlow()
+                                    every { add(date = any(), amount = any()) } answers {
+                                        storeRecordList(storedRecordList.value + routineRecordOf(date = firstArg(), amount = secondArg(), routineId = routineId))
+                                        effectChannel.trySend(RoutineDetailRecordEffect.AddSucceeded)
+                                    }
+                                    every { delete(recordId = any()) } answers {
+                                        val recordId = firstArg<Uuid>()
 
-                            storeRecordList(storedRecordList.value.filterNot { record -> record.id == recordId })
+                                        storeRecordList(storedRecordList.value.filterNot { record -> record.id == recordId })
+                                    }
+                                }.also(recordViewModelList::add)
                         }
-                    }.also(recordViewModelList::add)
-            }
-            factory {
-                mockk<EntityDetailTagViewModel>(relaxed = true).apply {
-                    val allTagList = listOf(tagA, tagB)
-                    every { uiState } returns storedTagUiState
-                    every { tagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
-                    every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
-                    every { add(tagId = any()) } answers {
-                        val tagId = firstArg<Uuid>()
-                        storedTagUiState.update { state -> state.copy(tagList = state.tagList + allTagList.filter { tag -> tag.id == tagId }) }
-                    }
-                    every { remove(tagId = any()) } answers {
-                        val tagId = firstArg<Uuid>()
-                        storedTagUiState.update { state -> state.copy(tagList = state.tagList.filterNot { tag -> tag.id == tagId }) }
-                    }
-                }
-            }
-        }
+                    },
+                    EntityDetailTagViewModel.Factory::class to {
+                        EntityDetailTagViewModel.Factory { _, _ ->
+                            mockk<EntityDetailTagViewModel>(relaxed = true).apply {
+                                val allTagList = listOf(tagA, tagB)
+                                every { uiState } returns storedTagUiState
+                                every { tagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
+                                every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
+                                every { add(tagId = any()) } answers {
+                                    val tagId = firstArg<Uuid>()
+                                    storedTagUiState.update { state -> state.copy(tagList = state.tagList + allTagList.filter { tag -> tag.id == tagId }) }
+                                }
+                                every { remove(tagId = any()) } answers {
+                                    val tagId = firstArg<Uuid>()
+                                    storedTagUiState.update { state -> state.copy(tagList = state.tagList.filterNot { tag -> tag.id == tagId }) }
+                                }
+                            }
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         val TODAY: LocalDate = LocalDate(2026, 3, 20)

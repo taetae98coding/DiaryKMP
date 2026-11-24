@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.mcp.tool
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.work.mcp.tool.calendar.CalendarMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.calendar.LunarMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.checklist.ChecklistMcpToolSet
@@ -16,7 +17,6 @@ import io.github.taetae98coding.diary.work.mcp.tool.tag.TagItemMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.TagLinkMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.tag.TagMcpToolSet
 import io.github.taetae98coding.diary.work.mcp.tool.web.WebMcpToolSet
-import org.koin.core.annotation.Factory
 import kotlin.reflect.KClass
 
 internal val mcpToolSetOrderList: List<KClass<out McpToolSet>> =
@@ -39,11 +39,11 @@ internal val mcpToolSetOrderList: List<KClass<out McpToolSet>> =
         LunarMcpToolSet::class,
     )
 
-@Factory
+@Inject
 internal class McpToolRegistry(
-    toolSetList: List<McpToolSet>,
+    toolSetSet: Set<McpToolSet>,
 ) {
-    val toolList: List<McpTool> = toolSetList.sortedBy { toolSet -> toolSet.order() }.flatMap { toolSet -> toolSet.toolList }
+    val toolList: List<McpTool> = toolSetSet.sortedBy { toolSet -> toolSet.order() }.flatMap { toolSet -> toolSet.toolList }
 }
 
 private fun McpToolSet.order(): Int {

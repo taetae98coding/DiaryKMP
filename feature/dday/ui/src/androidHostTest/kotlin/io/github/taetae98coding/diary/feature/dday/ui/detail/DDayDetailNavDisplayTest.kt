@@ -34,6 +34,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.dday.DDayListEffect
 import io.github.taetae98coding.diary.compose.tag.primary.PrimaryTagInputUiState
@@ -41,6 +43,7 @@ import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.viewmodel.TestViewModelFactory
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
@@ -77,15 +80,10 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.compose.KoinApplication
-import org.koin.core.context.stopKoin
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -114,13 +112,7 @@ class DDayDetailNavDisplayTest {
 
     @Before
     fun setUp() {
-        stopKoin()
         resetAndroidUiDispatcher()
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test
@@ -381,66 +373,76 @@ class DDayDetailNavDisplayTest {
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-            KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                DDayFormTestTheme(content = content)
-            }
+        CompositionLocalProvider(
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+            LocalMetroViewModelFactory provides remember { navDisplayViewModelFactory() },
+        ) {
+            DDayFormTestTheme(content = content)
         }
     }
 
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
-    private fun navDisplayViewModelModule() =
-        module {
-            factory {
-                mockk<DDayHomeViewModel>(relaxed = true)
-                    .apply {
-                        every { ddayPagingData } returns homePagingData
-                        every { effect } returns Channel<DDayListEffect>().receiveAsFlow()
-                    }.also(homeViewModelList::add)
-            }
-            factory {
-                mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
-                }
-            }
-            factory {
-                mockk<SyncRefreshViewModel>(relaxed = true)
-                    .apply { every { uiState } returns MutableStateFlow(SyncRefreshUiState()) }
-                    .also(syncViewModelList::add)
-            }
-            factory { parameters ->
-                val id = parameters.get<Uuid>()
-                val target = homeDDayList.value.first { value -> value.id == id }
-                val effectChannel = Channel<DDayDetailEffect>(capacity = Channel.BUFFERED)
-                mockk<DDayDetailViewModel>(relaxed = true)
-                    .apply {
-                        every { uiState } returns MutableStateFlow(DDayDetailUiState.Content(id = id, detail = target.detail))
-                        every { effect } returns effectChannel.receiveAsFlow()
-                        // 삭제에 성공하면 기기에서 삭제 상태가 되어 DDayHome 목록에서 빠진다.
-                        every { delete() } answers {
-                            homeDDayList.update { list -> list.filterNot { value -> value.id == id } }
-                            homePagingData.value = homeDDayPagingDataOf(homeDDayList.value)
-                            effectChannel.trySend(DDayDetailEffect.DeleteSucceeded)
+    private fun navDisplayViewModelFactory(): MetroViewModelFactory =
+        TestViewModelFactory(
+            viewModelProviders =
+                mapOf(
+                    DDayHomeViewModel::class to {
+                        mockk<DDayHomeViewModel>(relaxed = true)
+                            .apply {
+                                every { ddayPagingData } returns homePagingData
+                                every { effect } returns Channel<DDayListEffect>().receiveAsFlow()
+                            }.also(homeViewModelList::add)
+                    },
+                    DDayHomeScaffoldFilterViewModel::class to {
+                        mockk<DDayHomeScaffoldFilterViewModel>(relaxed = true).apply {
+                            every { uiState } returns MutableStateFlow(DDayHomeScaffoldFilterUiState())
                         }
-                    }.also(detailViewModelList::add)
-            }
-            factory {
-                mockk<DDayDetailTagViewModel>(relaxed = true).apply {
-                    val allTagList = listOf(tagA, tagB)
-                    every { uiState } returns storedTagUiState
-                    every { tagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
-                    every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
-                    every { selectTag(tagId = any()) } answers {
-                        val tagId = firstArg<Uuid>()
-                        storedTagUiState.update { state -> state.copy(selectedTagList = state.selectedTagList + allTagList.filter { tag -> tag.id == tagId }) }
-                    }
-                    every { unselectTag(tagId = any()) } answers {
-                        val tagId = firstArg<Uuid>()
-                        storedTagUiState.update { state -> state.copy(selectedTagList = state.selectedTagList.filterNot { tag -> tag.id == tagId }) }
-                    }
-                }
-            }
-        }
+                    },
+                    SyncRefreshViewModel::class to {
+                        mockk<SyncRefreshViewModel>(relaxed = true)
+                            .apply { every { uiState } returns MutableStateFlow(SyncRefreshUiState()) }
+                            .also(syncViewModelList::add)
+                    },
+                ),
+            manualAssistedFactoryProviders =
+                mapOf(
+                    DDayDetailViewModel.Factory::class to {
+                        DDayDetailViewModel.Factory { id ->
+                            val target = homeDDayList.value.first { value -> value.id == id }
+                            val effectChannel = Channel<DDayDetailEffect>(capacity = Channel.BUFFERED)
+                            mockk<DDayDetailViewModel>(relaxed = true)
+                                .apply {
+                                    every { uiState } returns MutableStateFlow(DDayDetailUiState.Content(id = id, detail = target.detail))
+                                    every { effect } returns effectChannel.receiveAsFlow()
+                                    // 삭제에 성공하면 기기에서 삭제 상태가 되어 DDayHome 목록에서 빠진다.
+                                    every { delete() } answers {
+                                        homeDDayList.update { list -> list.filterNot { value -> value.id == id } }
+                                        homePagingData.value = homeDDayPagingDataOf(homeDDayList.value)
+                                        effectChannel.trySend(DDayDetailEffect.DeleteSucceeded)
+                                    }
+                                }.also(detailViewModelList::add)
+                        }
+                    },
+                    DDayDetailTagViewModel.Factory::class to {
+                        DDayDetailTagViewModel.Factory { _ ->
+                            mockk<DDayDetailTagViewModel>(relaxed = true).apply {
+                                val allTagList = listOf(tagA, tagB)
+                                every { uiState } returns storedTagUiState
+                                every { tagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
+                                every { selectableTagPagingData } returns MutableStateFlow(PagingData.from(allTagList))
+                                every { selectTag(tagId = any()) } answers {
+                                    val tagId = firstArg<Uuid>()
+                                    storedTagUiState.update { state -> state.copy(selectedTagList = state.selectedTagList + allTagList.filter { tag -> tag.id == tagId }) }
+                                }
+                                every { unselectTag(tagId = any()) } answers {
+                                    val tagId = firstArg<Uuid>()
+                                    storedTagUiState.update { state -> state.copy(selectedTagList = state.selectedTagList.filterNot { tag -> tag.id == tagId }) }
+                                }
+                            }
+                        }
+                    },
+                ),
+        )
 
     private companion object {
         const val DEFAULT_DELETED_MESSAGE = "D-Day deleted."

@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 public class SelectAllHolidayUseCase internal constructor(
     private val holidaySettingRepository: HolidaySettingRepository,
 ) : UseCase<Unit, Unit>() {

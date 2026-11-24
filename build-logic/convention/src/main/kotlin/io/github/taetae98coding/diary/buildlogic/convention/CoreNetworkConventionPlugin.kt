@@ -25,7 +25,7 @@ internal class CoreNetworkConventionPlugin : Plugin<Project> {
             sourceSets {
                 commonMain {
                     dependencies {
-                        implementation(project(":library:ktor"))
+                        api(project(":library:ktor"))
                     }
                 }
 

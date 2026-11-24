@@ -11,6 +11,8 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.contact.ContactListUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
@@ -18,8 +20,6 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
 @Composable
@@ -34,8 +34,8 @@ internal fun TagDetailContactContent(
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = TagDetailTab.CONTACT, provider = viewModelStoreProvider)
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-        val contactViewModel = koinViewModel<TagDetailContactViewModel> { parametersOf(id) }
-        val syncViewModel = koinViewModel<SyncRefreshViewModel>()
+        val contactViewModel = assistedMetroViewModel<TagDetailContactViewModel, TagDetailContactViewModel.Factory> { create(tagId = id) }
+        val syncViewModel = metroViewModel<SyncRefreshViewModel>()
         val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
         val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
         val sortUiState by contactViewModel.sortUiState.collectAsStateWithLifecycle()

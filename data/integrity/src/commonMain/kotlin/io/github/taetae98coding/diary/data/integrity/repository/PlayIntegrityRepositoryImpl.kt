@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.data.integrity.repository
 
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityTokenProvider
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
 import io.github.taetae98coding.diary.core.network.api.integrity.datasource.PlayIntegrityRemoteDataSource
 import io.github.taetae98coding.diary.data.integrity.mapper.toDomain
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class PlayIntegrityRepositoryImpl(
     private val playIntegrityTokenProvider: PlayIntegrityTokenProvider,
     private val playIntegrityRemoteDataSource: PlayIntegrityRemoteDataSource,

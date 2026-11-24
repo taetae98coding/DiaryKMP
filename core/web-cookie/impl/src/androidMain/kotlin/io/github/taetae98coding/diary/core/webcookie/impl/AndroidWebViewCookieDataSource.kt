@@ -3,6 +3,9 @@ package io.github.taetae98coding.diary.core.webcookie.impl
 import android.webkit.CookieManager
 import androidx.webkit.CookieManagerCompat
 import androidx.webkit.WebViewFeature
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieDataSource
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieEntity
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewSessionCookieEntity
@@ -11,11 +14,11 @@ import io.github.taetae98coding.diary.core.webcookie.impl.di.WebCookieDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Factory
 import kotlin.coroutines.resume
 
 // CookieManager는 쿠키를 넣은 결과를 부른 스레드의 Looper로 돌려주므로, 앱 화면이 메인 스레드에서 부르는 것을 전제로 쿠키를 넣는 일은 스레드를 옮기지 않는다.
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AndroidWebViewCookieDataSource(
     private val cookieManager: CookieManager,
     @WebCookieDispatcher private val dispatcher: CoroutineDispatcher,

@@ -75,7 +75,7 @@ public object DiaryCalendarAppAction {
     public suspend fun holidayList(year: Int): List<DiaryAppActionHoliday> = calendarAppAction().holidayList(year = year).map { holiday -> holiday.toDiary() }
 }
 
-private fun calendarAppAction(): CalendarAppAction = diaryAppAction()
+private fun calendarAppAction(): CalendarAppAction = diaryAppActionGraph().calendarAppAction
 
 private fun AppActionCalendarMemo.toDiary(): DiaryAppActionCalendarMemo =
     DiaryAppActionCalendarMemo(

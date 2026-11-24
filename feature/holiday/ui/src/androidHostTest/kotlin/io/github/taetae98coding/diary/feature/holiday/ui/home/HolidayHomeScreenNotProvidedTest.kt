@@ -15,11 +15,9 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.mockk
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -30,11 +28,6 @@ class HolidayHomeScreenNotProvidedTest {
     val composeRule = createComposeRule()
 
     private val targetYear = mutableStateOf<Int?>(null)
-
-    @After
-    fun tearDown() {
-        stopKoin()
-    }
 
     @Test
     fun `TC-c81a945f-ccb9-4404-a497-9294e344a234 기본 환경에서 표시 년도의 공휴일이 제공되지 않으면 제공 없음 안내가 표시된다`() {

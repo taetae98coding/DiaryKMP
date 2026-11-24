@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
@@ -28,16 +30,25 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.findMemoDetailPaneListKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
+import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddContactViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScreen
+import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddTagViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.initialDateTime
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailScreen
+import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.finished.MemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScreen
 import io.github.taetae98coding.diary.feature.memo.ui.home.ScrollToFirstMemoOnReselectEffect
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterContent
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebViewModel
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
@@ -49,8 +60,6 @@ import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import kotlinx.coroutines.flow.Flow
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.memoEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -100,8 +109,8 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
                 MemoHomeScaffoldComponentVisible(isAddButtonVisible = !isAddPaneVisible)
             },
             listState = listState,
-            memoViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            memoViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -123,8 +132,8 @@ private fun EntryProviderScope<ScreenNavKey>.memoFinishedListEntry(backStack: Na
         MemoFinishedListScreen(
             navigateUp = backStack::navigateUpFromMemoFinishedList,
             navigateToDetail = backStack::navigateToMemoDetail,
-            memoViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            memoViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -162,14 +171,14 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             isStandalone = !isListPaneVisible,
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.primaryTagId) },
-            webViewModel = koinViewModel { parametersOf(key.initialWebId) },
-            contactViewModel = koinViewModel { parametersOf(key.initialContactId) },
-            placeViewModel = koinViewModel { parametersOf(key.initialPlaceId) },
-            placeMapViewModel = koinViewModel(),
-            placePickerMapViewModel = koinViewModel(),
-            geminiViewModel = koinViewModel(),
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<MemoAddTagViewModel, MemoAddTagViewModel.Factory> { create(initialPrimaryTagId = key.primaryTagId) },
+            webViewModel = assistedMetroViewModel<MemoAddWebViewModel, MemoAddWebViewModel.Factory> { create(initialWebId = key.initialWebId) },
+            contactViewModel = assistedMetroViewModel<MemoAddContactViewModel, MemoAddContactViewModel.Factory> { create(initialContactId = key.initialContactId) },
+            placeViewModel = assistedMetroViewModel<MemoAddPlaceViewModel, MemoAddPlaceViewModel.Factory> { create(initialPlaceId = key.initialPlaceId) },
+            placeMapViewModel = metroViewModel(),
+            placePickerMapViewModel = metroViewModel(),
+            geminiViewModel = metroViewModel(),
         )
     }
 }
@@ -208,14 +217,14 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(
             addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             isStandalone = !isListPaneVisible,
-            detailViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(key.id) },
-            webViewModel = koinViewModel { parametersOf(key.id) },
-            contactViewModel = koinViewModel { parametersOf(key.id) },
-            placeViewModel = koinViewModel { parametersOf(key.id) },
-            placeMapViewModel = koinViewModel(),
-            placePickerMapViewModel = koinViewModel(),
-            geminiViewModel = koinViewModel(),
+            detailViewModel = assistedMetroViewModel<MemoDetailViewModel, MemoDetailViewModel.Factory> { create(id = key.id) },
+            tagViewModel = assistedMetroViewModel<MemoTagViewModel, MemoTagViewModel.Factory> { create(id = key.id) },
+            webViewModel = assistedMetroViewModel<MemoWebViewModel, MemoWebViewModel.Factory> { create(id = key.id) },
+            contactViewModel = assistedMetroViewModel<MemoContactViewModel, MemoContactViewModel.Factory> { create(id = key.id) },
+            placeViewModel = assistedMetroViewModel<MemoPlaceViewModel, MemoPlaceViewModel.Factory> { create(id = key.id) },
+            placeMapViewModel = metroViewModel(),
+            placePickerMapViewModel = metroViewModel(),
+            geminiViewModel = metroViewModel(),
             contentSharerFactory = contentSharerFactory,
         )
     }
@@ -281,13 +290,13 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         addRequestKey = addRequestKey,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
         isStandalone = false,
-        addViewModel = koinViewModel(),
-        tagViewModel = koinViewModel { parametersOf(null) },
-        webViewModel = koinViewModel(),
-        contactViewModel = koinViewModel(),
-        placeViewModel = koinViewModel(),
-        placeMapViewModel = koinViewModel(),
-        placePickerMapViewModel = koinViewModel(),
-        geminiViewModel = koinViewModel(),
+        addViewModel = metroViewModel(),
+        tagViewModel = assistedMetroViewModel<MemoAddTagViewModel, MemoAddTagViewModel.Factory> { create(initialPrimaryTagId = null) },
+        webViewModel = assistedMetroViewModel<MemoAddWebViewModel, MemoAddWebViewModel.Factory> { create(initialWebId = null) },
+        contactViewModel = assistedMetroViewModel<MemoAddContactViewModel, MemoAddContactViewModel.Factory> { create(initialContactId = null) },
+        placeViewModel = assistedMetroViewModel<MemoAddPlaceViewModel, MemoAddPlaceViewModel.Factory> { create(initialPlaceId = null) },
+        placeMapViewModel = metroViewModel(),
+        placePickerMapViewModel = metroViewModel(),
+        geminiViewModel = metroViewModel(),
     )
 }

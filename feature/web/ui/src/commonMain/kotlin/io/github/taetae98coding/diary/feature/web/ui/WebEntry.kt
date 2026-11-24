@@ -8,6 +8,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.taetae98coding.diary.compose.core.lifecycle.dropUnlessResumedWithArg
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
@@ -19,6 +21,8 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
@@ -35,14 +39,14 @@ import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScaffoldComponent
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScreen
 import io.github.taetae98coding.diary.feature.web.ui.add.initialDetail
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
+import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebViewContent
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScreen
 import io.github.taetae98coding.diary.feature.web.ui.memo.finished.WebMemoFinishedListViewModel
 import io.github.taetae98coding.diary.feature.web.ui.web_memo_finished_list_empty_title
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal fun EntryProviderScope<ScreenNavKey>.webEntry(
     backStack: NavBackStack<ScreenNavKey>,
@@ -68,8 +72,8 @@ private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStac
             navigateToAdd = dropUnlessResumed(block = backStack::navigateToWebAddFromHome),
             navigateToDetail = dropUnlessResumedWithArg { id -> backStack.add(WebDetailNavKey(id = id)) },
             componentVisibleProvider = { WebHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible) },
-            webViewModel = koinViewModel(),
-            syncViewModel = koinViewModel(),
+            webViewModel = metroViewModel(),
+            syncViewModel = metroViewModel(),
         )
     }
 }
@@ -91,8 +95,8 @@ internal fun webHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map
                     addedResultRequestKey = null,
                     initialDetail = WebDetail.EMPTY,
                     componentVisibleProvider = { WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    addViewModel = koinViewModel(),
-                    tagViewModel = koinViewModel { parametersOf(null) },
+                    addViewModel = metroViewModel(),
+                    tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = null) },
                 )
             }
         },
@@ -113,8 +117,8 @@ private fun EntryProviderScope<ScreenNavKey>.webAddEntry(backStack: NavBackStack
             addedResultRequestKey = key.requestKey,
             initialDetail = key.initialDetail(),
             componentVisibleProvider = { WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            addViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
+            addViewModel = metroViewModel(),
+            tagViewModel = assistedMetroViewModel<EntityAddTagViewModel, EntityAddTagViewModel.Factory> { create(initialTagId = key.initialTagId) },
         )
     }
 }
@@ -136,9 +140,9 @@ private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(
             navigateToMemoFinishedList = dropUnlessResumed { backStack.add(WebMemoFinishedListNavKey(webId = key.id)) },
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
-            webViewModel = koinViewModel { parametersOf(key.id) },
-            pageViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(EntityTagKind.WEB, key.id) },
+            webViewModel = assistedMetroViewModel<WebDetailViewModel, WebDetailViewModel.Factory> { create(id = key.id) },
+            pageViewModel = assistedMetroViewModel<WebDetailPageViewModel, WebDetailPageViewModel.Factory> { create(id = key.id) },
+            tagViewModel = assistedMetroViewModel<EntityDetailTagViewModel, EntityDetailTagViewModel.Factory> { create(kind = EntityTagKind.WEB, entityId = key.id) },
             contentSharerFactory = contentSharerFactory,
             webViewContent = webViewContent,
         )
@@ -160,8 +164,8 @@ private fun EntryProviderScope<ScreenNavKey>.webMemoFinishedListEntry(backStack:
             navigateUp = backStack::navigateUpFromWebMemoFinishedList,
             navigateToMemoDetail = backStack::navigateToMemoDetail,
             emptyTitle = stringResource(Res.string.web_memo_finished_list_empty_title),
-            memoViewModel = koinViewModel<WebMemoFinishedListViewModel> { parametersOf(key.webId) },
-            syncViewModel = koinViewModel(),
+            memoViewModel = assistedMetroViewModel<WebMemoFinishedListViewModel, WebMemoFinishedListViewModel.Factory> { create(webId = key.webId) },
+            syncViewModel = metroViewModel(),
         )
     }
 }

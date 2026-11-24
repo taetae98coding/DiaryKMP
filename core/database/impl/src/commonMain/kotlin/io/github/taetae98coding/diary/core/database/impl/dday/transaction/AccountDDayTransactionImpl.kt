@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.core.database.impl.dday.transaction
 
 import androidx.room3.withWriteTransaction
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.dday.transaction.AccountDDayTransaction
@@ -9,11 +12,11 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.ddaytag.ddayTagTable
 import io.github.taetae98coding.diary.core.database.impl.entitytag.restoreLink
-import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
+@ContributesBinding(AppScope::class)
 internal class AccountDDayTransactionImpl(
     private val database: DiaryDatabase,
 ) : AccountDDayTransaction {

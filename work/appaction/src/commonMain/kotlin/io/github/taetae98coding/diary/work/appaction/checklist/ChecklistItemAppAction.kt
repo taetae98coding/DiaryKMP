@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.appaction.checklist
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.checklist.Checklist
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistItemUseCase
@@ -14,12 +15,11 @@ import io.github.taetae98coding.diary.work.appaction.core.readActive
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toAppActionChangedCount
 import io.github.taetae98coding.diary.work.appaction.core.toUuidArgument
-import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 private const val ITEM_ID = "itemId"
 
-@Factory
+@Inject
 public class ChecklistItemAppAction internal constructor(
     private val findChecklistUseCase: FindChecklistUseCase,
     private val findChecklistItemUseCase: FindChecklistItemUseCase,

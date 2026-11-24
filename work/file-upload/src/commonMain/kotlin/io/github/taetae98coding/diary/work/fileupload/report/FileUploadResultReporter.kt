@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.work.fileupload.report
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
-import org.koin.core.annotation.Factory
 
-@Factory
+@Inject
 internal class FileUploadResultReporter(
     private val fileUploadEventHolder: FileUploadEventHolder,
     private val fileUploadNotifier: FileUploadNotifier,

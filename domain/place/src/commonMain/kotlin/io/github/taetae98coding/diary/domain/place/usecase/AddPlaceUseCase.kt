@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.place.usecase
 
+import dev.zacsweers.metro.Inject
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
@@ -11,11 +12,10 @@ import io.github.taetae98coding.diary.domain.place.exception.PlaceTitleBlankExce
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
-@Factory
+@Inject
 public class AddPlaceUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,

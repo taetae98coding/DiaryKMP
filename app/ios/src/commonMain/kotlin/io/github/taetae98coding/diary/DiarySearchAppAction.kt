@@ -75,4 +75,4 @@ public object DiarySearchAppAction {
     }
 }
 
-private fun searchAppAction(): SearchAppAction = diaryAppAction()
+private fun searchAppAction(): SearchAppAction = diaryAppActionGraph().searchAppAction
